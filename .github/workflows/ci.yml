@@ -21,6 +21,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+
+
+      - name: Check package.json deps
+        run: node scripts/check-no-file-deps.mjs
       - name: Install dependencies
         run: bash scripts/ci-install.sh
 
@@ -45,6 +49,10 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+
+
+      - name: Check package.json deps
+        run: node scripts/check-no-file-deps.mjs
       - name: Install dependencies
         run: bash scripts/ci-install.sh
 

@@ -48,7 +48,8 @@
     "lint:check": "eslint .",
     "test": "kizu 'src/**/*.spec.ts'",
     "dev:docs": "node scripts/dev-docs.cjs",
-    "validate": "npm run build && npm run lint && npm test"
+    "validate": "npm run check:package-json && npm run build && npm run lint && npm test",
+    "check:package-json": "node scripts/check-no-file-deps.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
