@@ -8,7 +8,7 @@
   <p><strong>One registry. HTTP RPC, interactive docs, OpenAPI, MCP, and a typed client.</strong></p>
 </div>
 
-callspec replaces the old express-typed-rpc + Swagger + separate MCP tool list stack with a single `defineRegistry` object. Add a route once; it shows up everywhere.
+One `defineRegistry` powers HTTP RPC, OpenAPI, callsheet docs, MCP tools, and a typed client. Add a route once; it shows up everywhere.
 
 ```typescript
 import {defineRegistry, defineRoute, mountRegistry, mountMcp, client} from 'callspec';
@@ -43,7 +43,7 @@ mountMcp(app, api, {path: '/mcp', contextResolver: getUserContext});
 
 | Surface | How you get it |
 |---------|----------------|
-| **HTTP RPC** | `POST /v1/<methodName>` — same URLs as before |
+| **HTTP RPC** | `POST /v1/<methodName>` |
 | **Interactive docs** | Built-in **callsheet** UI at `/docs` |
 | **OpenAPI 3.1** | `GET /openapi.json` from the same registry |
 | **MCP tools** | `mcp: true` on a route → automatic `tools/list` |
