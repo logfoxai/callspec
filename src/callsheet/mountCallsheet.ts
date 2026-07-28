@@ -2,14 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import type {RequestHandler, Router} from 'express';
 import express from 'express';
+import type {CallsheetBranding, CallsheetConfig, CallsheetMcp} from './branding';
 
-export type CallsheetConfig = {
-    /** URL path the UI fetches for the OpenAPI document (relative or absolute). */
-    specUrl: string
-    /** Base path prefix for RPC POST calls (relative or absolute). */
-    rpcBase: string
-    title?: string
-};
+export type {CallsheetBranding, CallsheetConfig, CallsheetMcp} from './branding';
 
 export type MountCallsheetOptions = {
     /** Mount path for the UI. Default `/docs`. */
@@ -20,6 +15,13 @@ export type MountCallsheetOptions = {
     rpcBase?: string
     /** Page title override. */
     title?: string
+    /** Whitelabel home page content */
+    branding?: CallsheetBranding
+    /** Relative path from docs to MCP endpoint. Default `../mcp` */
+    mcpPath?: string
+    mcp?: CallsheetMcp
+    /** Directory of tenant logos/static files served at `{path}/brand/` */
+    brandAssetsDir?: string
 };
 
 const CONFIG_PLACEHOLDER = '<!--CALLSHEET_CONFIG-->';
@@ -90,11 +92,20 @@ export function mountCallsheet(router: Router, options: MountCallsheetOptions = 
             specUrl,
             rpcBase,
             title: options.title,
+            branding: options.branding,
+            mcpPath: options.mcpPath ?? '../mcp',
+            mcp: options.mcp,
         }));
 
     };
 
     router.get(mountPath, servePage);
     router.use(mountPathWithSlash, express.static(assetsDir, {index: false}));
+
+    if (options.brandAssetsDir && fs.existsSync(options.brandAssetsDir)) {
+
+        router.use(`${mountPathWithSlash}brand`, express.static(options.brandAssetsDir, {index: false}));
+
+    }
 
 }

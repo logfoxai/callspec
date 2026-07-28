@@ -1,13 +1,9 @@
 import './styles.css';
+import type {CallsheetBranding, CallsheetConfig} from '../branding';
 import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
+import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {initTheme, toggleTheme, type Theme} from './theme';
-
-type CallsheetConfig = {
-    specUrl: string
-    rpcBase: string
-    title?: string
-};
 
 type CallsheetRoute = {
     name: string
@@ -20,13 +16,22 @@ type CallsheetRoute = {
     outputSchema: unknown
 };
 
+type View =
+    | {kind: 'home'}
+    | {kind: 'routes'}
+    | {kind: 'route', name: string};
+
 declare global {
     interface Window {
         __CALLSHEET__?: CallsheetConfig
     }
 }
 
-const config = window.__CALLSHEET__ ?? {specUrl: '../openapi.json', rpcBase: '..'};
+const config: CallsheetConfig = window.__CALLSHEET__ ?? {
+    specUrl: '../openapi.json',
+    rpcBase: '..',
+    mcpPath: '../mcp',
+};
 
 let theme: Theme = initTheme();
 
@@ -37,6 +42,77 @@ function escapeHtml(text: string): string {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+
+}
+
+function hasHomePage(branding: CallsheetBranding | undefined): boolean {
+
+    return Boolean(branding?.intro);
+
+}
+
+function displayName(title: string, branding: CallsheetBranding | undefined): string {
+
+    return branding?.name ?? title;
+
+}
+
+function websiteLabel(branding: CallsheetBranding): string {
+
+    if (branding.websiteLabel) return branding.websiteLabel;
+
+    if (branding.websiteUrl) {
+
+        try {
+
+            return new URL(branding.websiteUrl).hostname.replace(/^www\./, '');
+
+        } catch {
+
+            return 'Learn more';
+
+        }
+
+    }
+
+    return 'Learn more';
+
+}
+
+function renderBrandMark(
+    branding: CallsheetBranding | undefined,
+    options: {size: number; wrapClass: string},
+): string {
+
+    if (!branding?.logoUrl) return '';
+
+    const dark = branding.logoUrlDark ?? branding.logoUrl;
+    const {size, wrapClass} = options;
+    const srcset = branding.logoSrcSet
+        ?? './brand/mark.png 256w, ./brand/mark@2x.png 512w';
+    const srcsetAttr = (branding.logoUrl.includes('mark.png') || branding.logoSrcSet)
+        ? ` srcset="${escapeHtml(srcset)}" sizes="${size}px"`
+        : '';
+
+    return `
+        <span class="brand-mark ${wrapClass}" style="--logo-size: ${size}px">
+            <img class="brand-mark-img brand-mark-light" src="${escapeHtml(branding.logoUrl)}"${srcsetAttr} width="${size}" height="${size}" alt="">
+            <img class="brand-mark-img brand-mark-dark" src="${escapeHtml(dark)}"${srcsetAttr} width="${size}" height="${size}" alt="">
+        </span>
+    `;
+
+}
+
+function renderLogo(branding: CallsheetBranding | undefined): string {
+
+    const mark = renderBrandMark(branding, {
+        size: branding?.logoSize ?? 80,
+        wrapClass: 'intro-logo',
+    });
+
+    if (!mark) return '';
+
+    return mark;
 
 }
 
@@ -205,17 +281,47 @@ function renderBadges(route: CallsheetRoute): string {
 
 }
 
-function routeFromHash(): string | null {
+function viewFromHash(routes: CallsheetRoute[], showHome: boolean): View {
 
-    const match = location.hash.match(/^#\/([^/?#]+)/);
+    const raw = location.hash.replace(/^#\/?/, '');
 
-    return match ? decodeURIComponent(match[1]) : null;
+    if (!raw || raw === '') {
+
+        return showHome ? {kind: 'home'} : {kind: 'routes'};
+
+    }
+
+    if (raw === 'routes') {
+
+        return {kind: 'routes'};
+
+    }
+
+    const name = decodeURIComponent(raw.split('/')[0] ?? '');
+
+    if (routes.some((route) => route.name === name)) {
+
+        return {kind: 'route', name};
+
+    }
+
+    return showHome ? {kind: 'home'} : {kind: 'routes'};
 
 }
 
-function setRouteHash(name: string | null): void {
+function setViewHash(view: View): void {
 
-    const next = name ? `#/${encodeURIComponent(name)}` : '#/';
+    let next = '#/';
+
+    if (view.kind === 'routes') {
+
+        next = '#/routes';
+
+    } else if (view.kind === 'route') {
+
+        next = `#/${encodeURIComponent(view.name)}`;
+
+    }
 
     if (location.hash !== next) {
 
@@ -227,12 +333,20 @@ function setRouteHash(name: string | null): void {
 
 function renderSidebar(
     routes: CallsheetRoute[],
-    selected: string | null,
-    overviewActive: boolean,
+    view: View,
+    showHome: boolean,
 ): string {
 
     const groups = groupByTag(routes);
-    let html = `<button type="button" class="route-btn overview-btn${overviewActive ? ' active' : ''}" data-overview="true">Overview</button>`;
+    let html = '';
+
+    if (showHome) {
+
+        html += `<button type="button" class="route-btn nav-btn${view.kind === 'home' ? ' active' : ''}" data-view="home">Home</button>`;
+
+    }
+
+    html += `<button type="button" class="route-btn nav-btn${view.kind === 'routes' ? ' active' : ''}" data-view="routes">Routes</button>`;
 
     for (const [tag, list] of groups) {
 
@@ -240,7 +354,7 @@ function renderSidebar(
 
         for (const route of list) {
 
-            const active = route.name === selected ? ' active' : '';
+            const active = view.kind === 'route' && route.name === view.name ? ' active' : '';
 
             html += `<button type="button" class="route-btn${active}" data-route="${escapeHtml(route.name)}">${escapeHtml(route.name)}</button>`;
 
@@ -250,7 +364,36 @@ function renderSidebar(
 
     }
 
-    return html || '<div class="empty-state"><p>No matches</p></div>';
+    return html || '<div class="empty-state"><p>No routes</p></div>';
+
+}
+
+function renderHome(
+    title: string,
+    version: string,
+    routes: CallsheetRoute[],
+    branding: CallsheetBranding,
+): string {
+
+    const name = displayName(title, branding);
+    const mcpCount = routes.filter((route) => route.mcp).length;
+    const website = branding.websiteUrl
+        ? `<a class="intro-link" href="${escapeHtml(branding.websiteUrl)}" target="_blank" rel="noopener">${escapeHtml(websiteLabel(branding))} ↗</a>`
+        : '';
+
+    return `
+        <div class="intro">
+            ${renderLogo(branding)}
+            <h1 class="intro-title">${escapeHtml(name)}</h1>
+            <p class="intro-version">v${escapeHtml(version)} · ${routes.length} routes${mcpCount ? ` · ${mcpCount} MCP tools` : ''}</p>
+            <p class="intro-text">${escapeHtml(branding.intro ?? '')}</p>
+            <div class="intro-actions">
+                <button type="button" class="btn btn-primary" data-view="routes">Browse API →</button>
+                ${website}
+            </div>
+            ${renderMcpConnect(config, routes, name)}
+        </div>
+    `;
 
 }
 
@@ -258,6 +401,7 @@ function renderOverview(
     filtered: CallsheetRoute[],
     allRoutes: CallsheetRoute[],
     filters: RouteFilters,
+    showHome: boolean,
 ): string {
 
     const tags = uniqueTags(allRoutes);
@@ -300,7 +444,12 @@ function renderOverview(
 
     }).join('');
 
+    const breadcrumb = showHome
+        ? `<nav class="breadcrumb"><button type="button" class="breadcrumb-link" data-view="home">← Home</button></nav>`
+        : '';
+
     return `
+        ${breadcrumb}
         <div class="overview">
             <div class="overview-head">
                 <h2 class="overview-title">Routes</h2>
@@ -334,12 +483,14 @@ function renderOverview(
 
 }
 
-function renderRoute(route: CallsheetRoute, bodyJson: string): string {
+function renderRoute(route: CallsheetRoute, bodyJson: string, showHome: boolean): string {
+
+    const back = showHome
+        ? `<button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>`
+        : `<button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>`;
 
     return `
-        <nav class="breadcrumb">
-            <button type="button" class="breadcrumb-link" data-overview="true">← All routes</button>
-        </nav>
+        <nav class="breadcrumb">${back}</nav>
         <div class="route-endpoint">
             <span class="method">POST</span>
             <h2 class="route-name">${escapeHtml(route.name)}</h2>
@@ -519,12 +670,11 @@ async function boot(): Promise<void> {
         const info = doc.info as Record<string, unknown> | undefined;
         const title = config.title ?? (info?.title as string | undefined) ?? 'API';
         const version = (info?.version as string | undefined) ?? '';
+        const branding = config.branding;
+        const showHome = hasHomePage(branding);
         const routes = parseRoutes(doc);
 
-        const hashRoute = routeFromHash();
-        let selected: string | null = hashRoute && routes.some((route) => route.name === hashRoute)
-            ? hashRoute
-            : null;
+        let view: View = viewFromHash(routes, showHome);
         let filters: RouteFilters = {
             text: '',
             access: 'all',
@@ -539,18 +689,18 @@ async function boot(): Promise<void> {
 
         }
 
-        const selectRoute = (name: string | null): void => {
+        const navigate = (next: View): void => {
 
             const bodyEl = document.getElementById('body') as HTMLTextAreaElement | null;
 
-            if (selected && bodyEl) {
+            if (view.kind === 'route' && bodyEl) {
 
-                bodies.set(selected, bodyEl.value);
+                bodies.set(view.name, bodyEl.value);
 
             }
 
-            selected = name;
-            setRouteHash(name);
+            view = next;
+            setViewHash(next);
             render();
 
         };
@@ -558,14 +708,17 @@ async function boot(): Promise<void> {
         const render = (): void => {
 
             const filtered = applyFilters(routes, filters);
-            const overviewActive = selected === null;
+            const sidebarName = displayName(title, branding);
 
             app.className = '';
             app.innerHTML = `
                 <aside class="sidebar">
                     <div class="sidebar-head">
                         <div class="sidebar-head-row">
-                            <button type="button" class="sidebar-title" data-overview="true">${escapeHtml(title)}</button>
+                            <button type="button" class="sidebar-title" data-view="${showHome ? 'home' : 'routes'}">
+                                ${renderBrandMark(branding, {size: 24, wrapClass: 'sidebar-mark'})}
+                                <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
+                            </button>
                             <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
                                 <span class="theme-icon theme-icon-light" aria-hidden="true">☀</span>
                                 <span class="theme-icon theme-icon-dark" aria-hidden="true">☾</span>
@@ -573,7 +726,7 @@ async function boot(): Promise<void> {
                         </div>
                         <p>v${escapeHtml(version)} · ${routes.length} routes</p>
                     </div>
-                    <div class="route-list">${renderSidebar(routes, selected, overviewActive)}</div>
+                    <div class="route-list">${renderSidebar(routes, view, showHome)}</div>
                 </aside>
                 <div class="content">
                     <main class="main" id="main"></main>
@@ -581,36 +734,50 @@ async function boot(): Promise<void> {
             `;
 
             const main = document.getElementById('main');
-            const route = selected ? routes.find((item) => item.name === selected) : undefined;
 
-            if (main && overviewActive) {
+            if (main && view.kind === 'home' && branding) {
 
-                main.innerHTML = renderOverview(filtered, routes, filters);
-                bindOverviewFilters(main);
+                main.innerHTML = renderHome(title, version, routes, branding);
+                bindMcpConnect(main);
+                main.querySelector('[data-mcp-routes]')?.addEventListener('click', () => {
 
-            } else if (main && route) {
-
-                main.innerHTML = renderRoute(route, bodies.get(route.name) ?? '{}');
-
-                document.getElementById('send')?.addEventListener('click', () => {
-
-                    void sendRequest(route);
+                    filters = {...filters, mcpOnly: true};
+                    navigate({kind: 'routes'});
 
                 });
 
-                document.getElementById('copy-curl')?.addEventListener('click', () => {
+            } else if (main && view.kind === 'routes') {
 
-                    copyCurl(route);
-
-                });
-
-                initJsonEditor('body');
-
-            } else if (main) {
-
-                main.innerHTML = renderOverview(filtered, routes, filters);
+                main.innerHTML = renderOverview(filtered, routes, filters, showHome);
                 bindOverviewFilters(main);
-                selected = null;
+
+            } else if (main && view.kind === 'route') {
+
+                const route = routes.find((item) => item.name === view.name);
+
+                if (route) {
+
+                    main.innerHTML = renderRoute(route, bodies.get(route.name) ?? '{}', showHome);
+
+                    document.getElementById('send')?.addEventListener('click', () => {
+
+                        void sendRequest(route);
+
+                    });
+
+                    document.getElementById('copy-curl')?.addEventListener('click', () => {
+
+                        copyCurl(route);
+
+                    });
+
+                    initJsonEditor('body');
+
+                } else {
+
+                    navigate(showHome ? {kind: 'home'} : {kind: 'routes'});
+
+                }
 
             }
 
@@ -620,11 +787,14 @@ async function boot(): Promise<void> {
 
             });
 
-            app.querySelectorAll('[data-overview]').forEach((btn) => {
+            app.querySelectorAll('[data-view]').forEach((btn) => {
 
                 btn.addEventListener('click', () => {
 
-                    selectRoute(null);
+                    const target = (btn as HTMLElement).dataset.view;
+
+                    if (target === 'home') navigate({kind: 'home'});
+                    else if (target === 'routes') navigate({kind: 'routes'});
 
                 });
 
@@ -634,7 +804,7 @@ async function boot(): Promise<void> {
 
                 btn.addEventListener('click', () => {
 
-                    selectRoute((btn as HTMLElement).dataset.route ?? null);
+                    navigate({kind: 'route', name: (btn as HTMLElement).dataset.route ?? ''});
 
                 });
 
@@ -689,10 +859,7 @@ async function boot(): Promise<void> {
 
         window.addEventListener('hashchange', () => {
 
-            const hashRoute = routeFromHash();
-            selected = hashRoute && routes.some((route) => route.name === hashRoute)
-                ? hashRoute
-                : null;
+            view = viewFromHash(routes, showHome);
             render();
 
         });

@@ -20,8 +20,10 @@ export function highlightJson(source: string): string {
 
 }
 
-export function codeBlock(source: string): string {
+export function codeBlock(source: string, id?: string): string {
 
-    return `<pre class="code-block"><code class="hljs language-json">${highlightJson(source)}</code></pre>`;
+    const idAttr = id ? ` id="${id}"` : '';
+
+    return `<pre class="code-block"${idAttr}><code class="hljs language-json">${highlightJson(source)}</code></pre>`;
 
 }

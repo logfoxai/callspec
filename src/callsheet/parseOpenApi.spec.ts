@@ -92,9 +92,18 @@ test('mountCallsheet: renderCallsheetPage injects config', (assert) => {
         specUrl: './openapi.json',
         rpcBase: '..',
         title: 'Test',
+        branding: {
+            name: 'Acme',
+            intro: 'Welcome to Acme API.',
+            websiteUrl: 'https://acme.example',
+        },
+        mcpPath: '../mcp',
+        mcp: {authHint: 'Bearer required'},
     });
 
     assert.equal(html.includes('window.__CALLSHEET__='), true);
     assert.equal(html.includes('./openapi.json'), true);
+    assert.equal(html.includes('Welcome to Acme API.'), true);
+    assert.equal(html.includes('../mcp'), true);
 
 });

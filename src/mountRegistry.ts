@@ -16,8 +16,8 @@ export type MountRegistryDocsOptions = {
     openApiPath?: string
     /** callsheet UI mount path. Default `/docs`. */
     uiPath?: string
-    /** Options passed to callsheet (rpcBase override, etc.). */
-    callsheet?: Pick<MountCallsheetOptions, 'rpcBase'>
+    /** Options passed to callsheet (rpcBase override, branding, MCP, etc.). */
+    callsheet?: Pick<MountCallsheetOptions, 'rpcBase' | 'branding' | 'mcpPath' | 'mcp' | 'brandAssetsDir'>
 };
 
 export type MountRegistryOptions<Ctx> = {
@@ -123,6 +123,10 @@ export function mountRegistry<Ctx>(
             specPath,
             rpcBase: docs.callsheet?.rpcBase ?? '..',
             title: docs.openApi?.title,
+            branding: docs.callsheet?.branding,
+            mcpPath: docs.callsheet?.mcpPath,
+            mcp: docs.callsheet?.mcp,
+            brandAssetsDir: docs.callsheet?.brandAssetsDir,
         });
 
     }
