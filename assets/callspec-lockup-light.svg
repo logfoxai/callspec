@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="248" height="66" viewBox="0 0 248 66" role="img" aria-label="callspec">
   <rect x="4" y="9" width="44" height="44" rx="9" fill="none" stroke="#171717" stroke-width="2"/>
-  <circle cx="26" cy="36" r="3" fill="#171717"/>
-  <path d="M26 33V24" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="26" cy="36" r="4" fill="#171717"/>
+  <path d="M26 32V24" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
   <circle cx="26" cy="22.5" r="2.25" fill="#171717"/>
-  <path d="M23.4 37.2L16.1 41.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  <path d="M22.5 38L16.1 41.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
   <circle cx="15.2" cy="41.8" r="2.25" fill="#171717"/>
-  <path d="M28.6 37.2L35.9 41.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  <path d="M29.5 38L35.9 41.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
   <circle cx="36.8" cy="41.8" r="2.25" fill="#171717"/>
   <text x="62" y="33" dominant-baseline="middle" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="32" font-weight="600" letter-spacing="-0.02em" fill="#171717">callspec</text>
 </svg>

@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="callspec">
   <rect x="2" y="2" width="44" height="44" rx="9" fill="none" stroke="#171717" stroke-width="2"/>
-  <circle cx="24" cy="27" r="3" fill="#171717"/>
-  <path d="M24 24V15" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="24" cy="27" r="4" fill="#171717"/>
+  <path d="M24 23V15" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
   <circle cx="24" cy="13.5" r="2.25" fill="#171717"/>
-  <path d="M21.4 28.2L14.1 32.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  <path d="M20.5 29L14.1 32.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
   <circle cx="13.2" cy="32.8" r="2.25" fill="#171717"/>
-  <path d="M26.6 28.2L33.9 32.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  <path d="M27.5 29L33.9 32.2" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
   <circle cx="34.8" cy="32.8" r="2.25" fill="#171717"/>
 </svg>
