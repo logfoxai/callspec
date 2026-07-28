@@ -24,7 +24,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-      - run: npm install
+      - run: bash scripts/ci-install.sh
       - run: npm run validate
       - run: npx autorel@^2 --publish
         env:
