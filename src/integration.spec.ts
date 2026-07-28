@@ -151,7 +151,7 @@ test('integration: callsheet UI at /docs', async (assert) => {
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
-        assert.equal(html.includes('callspec-mark-light.svg'), true);
+        assert.equal(html.includes('mark-light.svg'), true);
         assert.equal(html.includes('class="footer-link"'), true);
         assert.equal(html.includes('callspec'), true);
 

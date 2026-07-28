@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-light.svg" media="(prefers-color-scheme: light)" />
-    <source srcset="assets/callspec-lockup-dark.svg" media="(prefers-color-scheme: dark)" />
-    <img src="assets/callspec-lockup-dark.svg" alt="callspec" />
+    <source srcset="assets/lockup-light.svg" media="(prefers-color-scheme: light)" />
+    <source srcset="assets/lockup-dark.svg" media="(prefers-color-scheme: dark)" />
+    <img src="assets/lockup-dark.svg" alt="callspec" />
   </picture>
 
   <p><strong>One registry. HTTP RPC, interactive docs, OpenAPI, MCP, and a typed client.</strong></p>
