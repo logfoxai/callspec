@@ -8,7 +8,15 @@
   <p><strong>One registry. HTTP RPC, interactive docs, OpenAPI, MCP, and a typed client.</strong></p>
 </div>
 
-callspec replaces the old express-typed-rpc + Swagger + separate MCP tool list stack with a single `defineRegistry` object. Add a route once; it shows up everywhere.
+One `defineRegistry` powers HTTP RPC, OpenAPI, callsheet docs, MCP tools, and a typed client. Add a route once; it shows up everywhere.
+
+<p align="center">
+  <a href="assets/callsheet-chirp-demo.png">
+    <img src="assets/callsheet-chirp-demo.png" alt="callsheet home — Chirp demo API with Connect MCP panel showing Cursor config" width="920" />
+  </a>
+</p>
+
+<p align="center"><sub><strong>callsheet</strong> — built-in docs UI with a <strong>Connect MCP</strong> panel. Copy the endpoint and a ready-made config for Cursor, Claude, VS Code, Windsurf, or Pi.</sub></p>
 
 ```typescript
 import {defineRegistry, defineRoute, mountRegistry, mountMcp, client} from 'callspec';
@@ -22,7 +30,7 @@ export const api = defineRegistry({
             description: 'Returns pipelines for a team.',
             tags: ['pipelines'],
         },
-        mcp: true,           // → tools/list
+        mcp: true,           // → MCP tools/list
         handler: getPipelines,
     }),
 });
@@ -31,22 +39,44 @@ mountRegistry(app, api, {
     contextResolver: getUserContext,
     docs: {
         openApi: {title: 'My API', version: '1.0.0'},
-        // exposeOpenApi: true  → GET /openapi.json
-        // exposeUi: true       → GET /docs (callsheet UI)
+        exposeUi: true,      // → /docs (callsheet + Connect MCP)
+        exposeOpenApi: true, // → /openapi.json
     },
 });
 
 mountMcp(app, api, {path: '/mcp', contextResolver: getUserContext});
 ```
 
+Try the demo locally: `npm run build && npm run dev:docs` → [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) (Chirp API sample; use `Bearer demo` for private tools).
+
+## Built-in MCP server
+
+No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
+
+1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
+2. **Mount once** — `mountMcp(app, api, { path: '/mcp' })` on the same Express app. Streamable HTTP at `/mcp`.
+3. **Connect from callsheet** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
+
+```typescript
+searchRecent: defineRoute({
+    input: p.object({query: p.string()}),
+    meta: {summary: 'Search recent', description: '…', tags: ['tweets']},
+    access: 'private',
+    mcp: true,   // this route is now an MCP tool — same handler as POST /v1/searchRecent
+    handler: searchRecent,
+}),
+```
+
+Agents call the **same handlers** as your HTTP RPC. Auth uses the same `contextResolver` (e.g. `Authorization: Bearer …`). Public tools work without a token; private tools return 401 without one.
+
 ## Why callspec
 
 | Surface | How you get it |
 |---------|----------------|
-| **HTTP RPC** | `POST /v1/<methodName>` — same URLs as before |
+| **HTTP RPC** | `POST /v1/<methodName>` |
 | **Interactive docs** | Built-in **callsheet** UI at `/docs` |
 | **OpenAPI 3.1** | `GET /openapi.json` from the same registry |
-| **MCP tools** | `mcp: true` on a route → automatic `tools/list` |
+| **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
 | **Typed client** | `client<API['searchLogs']>('searchLogs', input)` |
 
 No second schema. No duplicate handler layer. No separate MCP subprocess.
@@ -55,15 +85,20 @@ No second schema. No duplicate handler layer. No separate MCP subprocess.
 
 ### callsheet — interactive docs
 
-Minimal, fast docs UI baked into callspec. Env-gated in production; flip on with `exposeDocs: true` or:
+Minimal, fast docs UI baked into callspec. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Env-gated in production; flip on with:
 
 ```typescript
 docs: {
     openApi: {title: 'Logfox API', version: '1.0.0'},
     exposeOpenApi: true,   // machine-readable spec
-    exposeUi: true,        // human-readable /docs
+    exposeUi: true,        // human-readable /docs + Connect MCP
     openApiPath: '/openapi.json',
     uiPath: '/docs',
+    callsheet: {
+        mcp: {
+            authHint: 'Use Authorization: Bearer <token> for private tools.',
+        },
+    },
 }
 ```
 
@@ -77,17 +112,13 @@ Toggle each surface independently — spec only, UI only, both, or neither (`doc
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
-### MCP on the same Express process
-
-`mountMcp` at `/mcp` on the same app — not a stdio subprocess. Routes opt in with `mcp: true`.
-
 ### runtyp + OpenAPI
 
-Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callsheet. Route-level `meta` (summary, tags) is callspec-only.
+Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callsheet → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
 
 ## Client
 
-Fetch-only — works in the browser and in Node 18+ (global `fetch`). No `http`/`https`/`express` in the client entry, same split as `express-typed-rpc/dist/client` vs `client-node`.
+Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `callspec/client` entry has no `http`, `https`, or Express imports, so it is safe in frontend bundles.
 
 **Browser or frontend bundler** — import the client subpath so you do not pull server code:
 
@@ -110,15 +141,16 @@ export const api = defineRegistry({ /* ... */ });
 export type API = InferRegistry<typeof api>;
 ```
 
-Drop-in replacement for `express-typed-rpc/dist/client`. Same Date wire format (`deserializeResponse` on read).
+Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
 ## Development
 
 ```bash
 npm run validate   # build server + callsheet UI, lint, test (incl. integration)
+npm run dev:docs   # Chirp demo API + callsheet at :3456/v1/docs
 ```
 
-Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, and RPC end-to-end.
+Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP schemas, and RPC end-to-end.
 
 ## Package layout
 
@@ -129,6 +161,7 @@ src/
   executeRoute.ts     # shared HTTP + MCP pipeline
   mountRegistry.ts    # POST routes + openapi + callsheet
   mountMcp.ts         # MCP on Express
+  mcpTools.ts         # tools/list schemas from runtyp
   openapi.ts          # OpenAPI 3.1 emitter
   client.ts           # typed fetch client
   callsheet/          # built-in docs UI (bundled to dist/callsheet/ui)

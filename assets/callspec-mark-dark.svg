@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="callspec">
-  <rect x="1.5" y="1.5" width="45" height="45" rx="10" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
-  <circle cx="24" cy="26" r="3.2" fill="#fafafa"/>
-  <path d="M24 22.8V11.5" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="24" cy="10.5" r="2.4" fill="#fafafa"/>
-  <path d="M21.2 27.6L12.8 32.4" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="11.8" cy="33" r="2.4" fill="#fafafa"/>
-  <path d="M26.8 27.6L35.2 32.4" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="36.2" cy="33" r="2.4" fill="#fafafa"/>
+  <rect x="2" y="2" width="44" height="44" rx="9" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <circle cx="24" cy="27" r="3" fill="#fafafa"/>
+  <path d="M24 24V15" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="24" cy="13.5" r="2.25" fill="#fafafa"/>
+  <path d="M21.4 28.2L14.1 32.2" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="13.2" cy="32.8" r="2.25" fill="#fafafa"/>
+  <path d="M26.6 28.2L33.9 32.2" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="34.8" cy="32.8" r="2.25" fill="#fafafa"/>
 </svg>
