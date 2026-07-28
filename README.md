@@ -87,7 +87,7 @@ Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → cal
 
 ## Client
 
-Fetch-only — works in the browser and in Node 18+ (global `fetch`). No `http`/`https`/`express` in the client entry, same split as `express-typed-rpc/dist/client` vs `client-node`.
+Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `callspec/client` entry has no `http`, `https`, or Express imports, so it is safe in frontend bundles.
 
 **Browser or frontend bundler** — import the client subpath so you do not pull server code:
 
@@ -110,7 +110,7 @@ export const api = defineRegistry({ /* ... */ });
 export type API = InferRegistry<typeof api>;
 ```
 
-Drop-in replacement for `express-typed-rpc/dist/client`. Same Date wire format (`deserializeResponse` on read).
+Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
 ## Development
 
