@@ -171,22 +171,34 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     padding: 0;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--bg);
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
 }
 
 .theme-toggle:hover {
     border-color: var(--border-strong);
     color: var(--text);
     background: var(--accent-soft);
+}
+
+.theme-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+}
+
+.theme-icon svg {
+    display: block;
+    width: 18px;
+    height: 18px;
 }
 
 .theme-icon-dark { display: none; }
@@ -935,13 +947,13 @@ html, body {
 
 .mcp-connect {
     margin-top: 36px;
-    padding: 22px 22px 20px;
+    padding: 22px 22px 0;
     border: 1px solid var(--border);
     border-radius: calc(var(--radius) + 4px);
     background:
         linear-gradient(180deg, color-mix(in srgb, var(--badge-mcp-bg) 42%, var(--surface)) 0%, var(--surface) 120px);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    max-width: 720px;
+    overflow: hidden;
 }
 
 [data-theme="dark"] .mcp-connect {
@@ -1038,7 +1050,8 @@ html, body {
 }
 
 .mcp-tools {
-    margin-bottom: 18px;
+    margin-bottom: 0;
+    padding-bottom: 18px;
 }
 
 .mcp-tools-link {
@@ -1059,24 +1072,17 @@ html, body {
 }
 
 .mcp-clients {
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: calc(var(--radius) + 2px);
-    background: var(--surface);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-[data-theme="dark"] .mcp-clients {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    margin: 0 -22px;
+    border-top: 1px solid var(--border);
 }
 
 .mcp-client-tabs {
     display: flex;
-    gap: 2px;
-    padding: 6px;
+    gap: 0;
+    padding: 0 22px;
     overflow-x: auto;
     border-bottom: 1px solid var(--border);
-    background: var(--accent-soft);
+    background: transparent;
     scrollbar-width: none;
 }
 
@@ -1086,9 +1092,11 @@ html, body {
 
 .mcp-client-tab {
     flex: 0 0 auto;
-    padding: 8px 14px;
+    padding: 12px 14px;
+    margin-bottom: -1px;
     border: 0;
-    border-radius: 6px;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
     background: transparent;
     color: var(--text-secondary);
     font: inherit;
@@ -1096,26 +1104,25 @@ html, body {
     font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .mcp-client-tab:hover {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.04);
 }
 
 .mcp-client-tab[aria-selected="true"] {
-    background: var(--surface);
     color: var(--text);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    border-bottom-color: var(--accent);
+    box-shadow: none;
 }
 
 [data-theme="dark"] .mcp-client-tab[aria-selected="true"] {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
 }
 
 .mcp-client-panels {
-    padding: 18px 18px 16px;
+    padding: 18px 22px 22px;
 }
 
 .mcp-client-panel[hidden] {
@@ -1152,8 +1159,13 @@ html, body {
 
 .mcp-code-panel {
     overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    margin-top: 12px;
+    margin-left: -22px;
+    margin-right: -22px;
+    margin-bottom: -22px;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
     background: var(--hljs-bg);
 }
 
@@ -1162,7 +1174,7 @@ html, body {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 12px;
+    padding: 8px 22px;
     border-bottom: 1px solid var(--border);
     background: color-mix(in srgb, var(--surface) 72%, var(--hljs-bg));
 }

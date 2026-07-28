@@ -4,6 +4,7 @@ import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {initTheme, toggleTheme, type Theme} from './theme';
+import {themeMoonIcon, themeSunIcon} from './icons';
 
 type CallsheetRoute = {
     name: string
@@ -720,8 +721,8 @@ async function boot(): Promise<void> {
                                 <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
                             </button>
                             <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
-                                <span class="theme-icon theme-icon-light" aria-hidden="true">☀</span>
-                                <span class="theme-icon theme-icon-dark" aria-hidden="true">☾</span>
+                                <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
+                                <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
                             </button>
                         </div>
                         <p>v${escapeHtml(version)} · ${routes.length} routes</p>
