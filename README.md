@@ -11,8 +11,8 @@
 One `defineRegistry` powers HTTP RPC, OpenAPI, callsheet docs, MCP tools, and a typed client. Add a route once; it shows up everywhere.
 
 <p align="center">
-  <a href="assets/callsheet-chirp-demo.png">
-    <img src="assets/callsheet-chirp-demo.png" alt="callsheet home — Chirp demo API with Connect MCP panel showing Cursor config" width="920" />
+  <a href="assets/callsheet-chirp-demo-home.png">
+    <img src="assets/callsheet-chirp-demo-home.png" alt="callsheet home — Chirp demo API with Connect MCP panel showing Cursor config" width="920" />
   </a>
 </p>
 
