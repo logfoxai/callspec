@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "declaration": true,
+    "lib": ["ES2020", "DOM"],
+    "outDir": "dist",
+    "baseUrl": "src",
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/callsheet/ui/**"]
+}
