@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-light.svg" media="(prefers-color-scheme: light)" />
-    <source srcset="assets/callspec-lockup-dark.svg" media="(prefers-color-scheme: dark)" />
-    <img src="assets/callspec-lockup-dark.svg" alt="callspec" />
+    <source srcset="assets/callspec-lockup-light.svg?cb=1" media="(prefers-color-scheme: light)" />
+    <source srcset="assets/callspec-lockup-dark.svg?cb=1" media="(prefers-color-scheme: dark)" />
+    <img src="assets/callspec-lockup-dark.svg?cb=1" alt="callspec" />
   </picture>
 
   <h3 align="center">One spec — ship RPC, docs UI, OpenAPI, MCP, and typed clients.</h3>
