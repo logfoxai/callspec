@@ -16,7 +16,7 @@
   </p>
 </div>
 
-Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, MCP server, and a typed client &mdash; no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
+Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server with **validated tool inputs**, and a typed client &mdash; no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests. The same runtyp preds power HTTP, OpenAPI, docs UI, and MCP: agents see JSON Schema with field descriptions, and bad tool calls get structured validation errors they can act on.
 
 ## ✨ What you get
 
@@ -25,7 +25,7 @@ Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, 
 | **HTTP RPC** | `POST /v1/<methodName>` |
 | **Interactive docs** | Built-in **callspec UI** at `/docs` |
 | **OpenAPI 3.1** | `GET /openapi.json` from the same spec |
-| **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
+| **MCP tools** | `mcp: true` → `tools/list` + `tools/call` at `/mcp` — JSON Schema inputs + runtyp validation on every call |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 
 One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
@@ -122,8 +122,9 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
-2. **Built into `mountSpec`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
-3. **Connect from callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
+2. **Validated tool calls** — every `tools/call` runs through the same runtyp pipeline as RPC. Field `{ description }`, ranges, and enums flow into MCP `inputSchema` so clients know what to send; invalid args return **structured validation errors** (not opaque 500s) that agents can read and retry.
+3. **Built into `mountSpec`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
+4. **Connect from callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
 
 ```typescript
 searchRecent: defineRoute({
@@ -145,7 +146,7 @@ searchRecent: defineRoute({
 }),
 ```
 
-Agents call the **same handlers** as HTTP RPC. Auth uses the same `contextResolver` (e.g. `Authorization: Bearer …`). Public tools work without a token; private tools return 401 without one.
+Agents call the **same handlers** as HTTP RPC — with the same auth gate and the same validation. Public tools work without a token; private tools return 401 without one.
 
 ## 📖 callspec UI
 
