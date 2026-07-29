@@ -28,8 +28,11 @@ Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, 
 | **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 
+One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
+
 ## Example
 
+Save as `server.ts` and run with `npx tsx server.ts`:
 
 ```typescript
 import express from 'express';
@@ -114,21 +117,41 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
-## MCP server
+## 🔌 Built-in MCP server
 
 No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
 2. **Built into `mountSpec`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
-3. **Connect from callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor, Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
+3. **Connect from callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
 
-Agents call the **same handlers** as HTTP RPC. Auth uses the same `contextResolver`. Public tools work without a token; private tools return 401 without one.
+```typescript
+searchRecent: defineRoute({
+    input: p.object({
+        query: p.string({description: 'Search query (supports operators like from:, #hashtag)'}),
+        max_results: p.optional(p.number({
+            description: 'Maximum number of results (1–100)',
+            range: {min: 1, max: 100},
+        })),
+    }),
+    meta: {
+        summary: 'Search recent posts',
+        description: 'Returns posts from the last seven days matching a search query.',
+        tags: ['posts'],
+    },
+    access: 'private',
+    mcp: true,
+    handler: searchRecent,
+}),
+```
 
-## callspec UI
+Agents call the **same handlers** as HTTP RPC. Auth uses the same `contextResolver` (e.g. `Authorization: Bearer …`). Public tools work without a token; private tools return 401 without one.
 
-Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and connect MCP clients from the home page.
+## 📖 callspec UI
 
-Point `docs.ui.branding` at your product — display name, welcome copy, website link, logo (light/dark), optional `brandAssetsDir` for static files at `/docs/brand/`.
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `docs.ui.branding` at your product — display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callspec UI white-labeled as a fictional API.
+
+Env-gated in production; flip on with:
 
 ```typescript
 docs: {
@@ -142,10 +165,13 @@ docs: {
             name: 'Chirp',
             intro: 'Read and write posts, timelines, lists, and direct messages.',
             websiteUrl: 'https://chirp.social',
+            websiteLabel: 'chirp.social',
             logoUrl: './brand/mark.png',
+            logoUrlDark: './brand/mark.png',
+            logoSize: 80,
         },
         brandAssetsDir: '/path/to/your/logos',
-        mcp: {authHint: 'Use Authorization: Bearer … for private tools.'},
+        mcp: {authHint: 'Use Authorization: Bearer demo for private tools in this demo.'},
     },
 }
 ```
@@ -154,23 +180,25 @@ Toggle each surface independently — OpenAPI only, UI only, MCP off (`mcp: fals
 
 Light and dark lockups follow `prefers-color-scheme` in docs; the UI footer switches marks on `data-theme` the same way as [Castellan](https://github.com/logfoxai/castellan).
 
-## Auth
+## 🔐 Auth
 
-- **`access: 'public'`** — no credentials required
+- **`access: 'public'`** — no credentials required (e.g. Chirp `healthcheck`, `getTweet`)
 - **`access: 'private'`** (default) — 401 without `contextResolver` result
 - App-specific auth stays in your `contextResolver` (e.g. map `Authorization: Bearer …` to `{userId, username}`)
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
-## OpenAPI & runtyp
+## 🧩 runtyp + OpenAPI
 
 Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callspec UI → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schema generation.
 
-## Client
+## 📦 Client
 
-Fetch-only — works in the browser and in Node 18+. Import `callspec/client` so you do not pull server code into frontend bundles.
+Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `callspec/client` entry has no `http`, `https`, or Express imports, so it is safe in frontend bundles.
+
+**Browser or frontend bundler** — import the client subpath so you do not pull server code:
 
 ```typescript
 import type {API} from './my-api';
@@ -185,18 +213,22 @@ const results = await client<API['searchRecent']>('searchRecent', {
 });
 ```
 
-Export types once from your spec:
+**Service package** — export the API type once from your spec:
 
 ```typescript
 import type {InferSpec} from 'callspec';
 
-export const api = defineSpec({ /* … */ });
+export const api = defineSpec({
+    getTweet: defineRoute({ /* … */ }),
+    searchRecent: defineRoute({ /* … */ }),
+    createTweet: defineRoute({ /* … */ }),
+});
 export type API = InferSpec<typeof api>;
 ```
 
 Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
-## Development
+## 🛠 Development
 
 ```bash
 npm run validate   # build server + callspec UI, lint, test (incl. integration)
@@ -205,7 +237,7 @@ npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 
 Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
 
-## Help build the standard
+## 🤝 Help build the standard
 
 callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
 
