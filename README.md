@@ -18,7 +18,7 @@
 
 Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
-Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec — human-readable types via [runtyp](https://github.com/logfoxai/runtyp).
+Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec &mdash; with simple, clean, human-readable types.
 
 ## ✨ What you get
 
@@ -30,8 +30,6 @@ Every RPC and MCP call gets **input validation** at the boundary with clear erro
 | **MCP tools** |`/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 | **Input validation** | Runtime & compile-time (TypeScript) |
-
-One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
 ## Complete Example
 
@@ -120,36 +118,13 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 ## 🔌 Built-in MCP server
 
-1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
-2. **Validated tool calls** — every `tools/call` runs through the same runtyp pipeline as RPC. Field `{ description }`, ranges, and enums flow into MCP `inputSchema` so clients know what to send; invalid args return **structured validation errors** (not opaque 500s) that agents can read and retry.
-3. **Built into `mountSpec`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
-4. **Connect from callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
+Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }`, or `mcp: false` to disable).
 
-```typescript
-searchRecent: defineRoute({
-    input: p.object({
-        query: p.string({description: 'Search query (supports operators like from:, #hashtag)'}),
-        max_results: p.optional(p.number({
-            description: 'Maximum number of results (1–100)',
-            range: {min: 1, max: 100},
-        })),
-    }),
-    meta: {
-        summary: 'Search recent posts',
-        description: 'Returns posts from the last seven days matching a search query.',
-        tags: ['posts'],
-    },
-    access: 'private',
-    mcp: true,
-    handler: searchRecent,
-}),
-```
-
-Agents call the **same handlers** as HTTP RPC — with the same auth gate and the same validation. Public tools work without a token; private tools return 401 without one.
+Agents call the **same handlers** as HTTP RPC — same auth gate, same **input validation**. Public tools work without a token; private tools return 401 without one. Every `tools/call` runs through the same runtyp pipeline: field `{ description }`, ranges, and enums flow into MCP `inputSchema`; invalid args return **structured validation errors** (not opaque 500s) that agents can read and retry.
 
 ## 📖 callspec UI
 
-Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `docs.ui.branding` at your product — display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callspec UI white-labeled as a fictional API.
+Minimal, fast docs UI baked right into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `docs.ui.branding` at your product — display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callspec UI white-labeled as a fictional API.
 
 Env-gated in production; flip on with:
 
