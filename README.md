@@ -16,8 +16,6 @@
 
 Define your API once with runtyp. callspec mounts HTTP RPC, white-label docs, OpenAPI 3.1, MCP tools, and a typed client from the same handlers — no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests. One route map powers your REST surface, agent tools, interactive docs, and frontend client types so HTTP and MCP never drift apart.
 
-> **Early.** APIs and defaults may change before v1.0. Feedback and contributors welcome.
-
 ## Features
 
 **📋 One spec, every surface**
