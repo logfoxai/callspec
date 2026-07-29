@@ -13,7 +13,7 @@ export type CallspecUiBranding = {
     logoUrlDark?: string
     /** Optional srcset, e.g. "./brand/mark.png 1x, ./brand/mark@2x.png 2x" */
     logoSrcSet?: string
-    /** Display size in px. Default 80 */
+    /** Logo edge length in CSS pixels (rendered as rem). Default 80 */
     logoSize?: number
 };
 

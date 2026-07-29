@@ -16,7 +16,9 @@
   </p>
 </div>
 
-Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server with **validated tool inputs**, and a typed client &mdash; no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests. The same runtyp preds power HTTP, OpenAPI, docs UI, and MCP: agents see JSON Schema with field descriptions, and bad tool calls get structured validation errors they can act on.
+Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
+
+Every call to your API and MCP have built-in input validation with user-friendly error messages. Clients have built-in compile-time type checking and enjoy LSP autocomplete same as any other types &mdash; with human readable types, thanks to [runtyp](https://github.com/logfoxai/runtyp).
 
 ## ✨ What you get
 
@@ -30,9 +32,7 @@ Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, 
 
 One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
-## Example
-
-Save as `server.ts` and run with `npx tsx server.ts`:
+## Complete Example
 
 ```typescript
 import express from 'express';

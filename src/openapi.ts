@@ -48,10 +48,12 @@ export function emitOpenApi(spec: Spec<any>, options: OpenApiOptions): Record<st
                             },
                         },
                     },
-                    401: {description: 'Unauthorized'},
+                    ...(route.access === 'private' ? {401: {description: 'Unauthorized'}} : {}),
                     400: {description: 'Validation error'},
                 },
-                ...(route.access === 'private' && options.security ? {security: options.security} : {}),
+                ...(options.security
+                    ? {security: route.access === 'private' ? options.security : []}
+                    : {}),
                 'x-callspec-access': route.access,
                 ...(route.mcp ? {'x-callspec-mcp': true} : {}),
             },
