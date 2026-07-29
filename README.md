@@ -16,10 +16,10 @@ One `defineRegistry` powers HTTP RPC, OpenAPI, callsheet docs, MCP tools, and a 
   </a>
 </p>
 
-<p align="center"><sub><strong>callsheet</strong> — built-in docs UI with a <strong>Connect MCP</strong> panel. Copy the endpoint and a ready-made config for Cursor, Claude, VS Code, Windsurf, or Pi.</sub></p>
+<p align="center"><sub><strong>callsheet</strong> — built-in, <strong>white-label</strong> docs UI with a <strong>Connect MCP</strong> panel. Copy the endpoint and a ready-made config for Cursor, Claude, VS Code, Windsurf, or Pi.</sub></p>
 
 ```typescript
-import {defineRegistry, defineRoute, mountRegistry, mountMcp} from 'callspec';
+import {defineRegistry, defineRoute, mountRegistry} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 export const api = defineRegistry({
@@ -33,7 +33,7 @@ export const api = defineRegistry({
             tags: ['users'],
         },
         access: 'private',
-        mcp: true,           // → MCP tools/list
+        mcp: true,
         handler: getUserById,
     }),
 });
@@ -42,12 +42,21 @@ mountRegistry(app, api, {
     contextResolver: getChirpContext,
     docs: {
         openApi: {title: 'Chirp API v2', version: '2.0.0'},
-        exposeUi: true,      // → /docs (callsheet + Connect MCP)
-        exposeOpenApi: true, // → /openapi.json
+        exposeUi: true,
+        exposeOpenApi: true,
+        callsheet: {
+            branding: {
+                name: 'Chirp',
+                intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages.',
+                websiteUrl: 'https://chirp.social',
+                logoUrl: './brand/mark.png',
+            },
+        },
+    },
+    mcp: {
+        instructions: 'Chirp API v2 — use Bearer auth for private tools.',
     },
 });
-
-mountMcp(app, api, {path: '/mcp', contextResolver: getChirpContext});
 ```
 
 Try the demo locally: `npm run build && npm run dev:docs` → [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) (Chirp API sample; use `Bearer demo` for private tools).
@@ -57,7 +66,7 @@ Try the demo locally: `npm run build && npm run dev:docs` → [http://127.0.0.1:
 No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
-2. **Mount once** — `mountMcp(app, api, { path: '/mcp' })` on the same Express app. Streamable HTTP at `/mcp`.
+2. **Built into `mountRegistry`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
 3. **Connect from callsheet** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
 
 ```typescript
@@ -75,7 +84,7 @@ searchRecent: defineRoute({
         tags: ['tweets'],
     },
     access: 'private',
-    mcp: true,   // this route is now an MCP tool — same handler as POST /v1/searchRecent
+    mcp: true,
     handler: searchRecent,
 }),
 ```
@@ -96,15 +105,28 @@ No second schema. No duplicate handler layer. No separate MCP subprocess.
 
 ## Batteries included
 
-### callsheet — interactive docs
+Swagger gave you a spec. You still had to wire up **swagger-ui**, host static assets, theme it, and glue on auth, try-it-out, and agent tooling yourself. callspec ships the whole surface from one registry — **no extra doc stack to install or configure**.
 
-Minimal, fast docs UI baked into callspec. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Env-gated in production; flip on with:
+| | Swagger / OpenAPI typical setup | callspec |
+|---|--------------------------------|----------|
+| **Interactive docs** | Add swagger-ui (or Redoc), static hosting, CORS, auth headers | `exposeUi: true` — **callsheet** bundled in the package |
+| **White-label UI** | Custom CSS hacks or fork swagger-ui | **`callsheet.branding`** — your name, logo, intro, website (see Chirp demo) |
+| **Machine-readable spec** | You maintain `openapi.json` separately | Same registry → `GET /openapi.json` |
+| **Agent tools (MCP)** | Not part of the Swagger story | `mcp: true` on routes; MCP mounts with `mountRegistry` |
+| **Try RPCs** | swagger-ui try-it-out (HTTP only) | Built into callsheet |
+| **Setup** | Multiple packages, mounts, and config files | **`mountRegistry` once** |
+
+### callsheet — interactive docs (white-label)
+
+Minimal, fast docs UI baked into callspec — not a generic “Powered by Swagger” shell. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `callsheet.branding` at your product: display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callsheet white-labeled as a fictional API.
+
+Env-gated in production; flip on with:
 
 ```typescript
 docs: {
     openApi: {title: 'Chirp API v2', version: '2.0.0'},
-    exposeOpenApi: true,   // machine-readable spec
-    exposeUi: true,        // human-readable /docs + Connect MCP
+    exposeOpenApi: true,
+    exposeUi: true,
     openApiPath: '/openapi.json',
     uiPath: '/docs',
     callsheet: {
@@ -113,7 +135,11 @@ docs: {
             intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages.',
             websiteUrl: 'https://chirp.social',
             websiteLabel: 'chirp.social',
+            logoUrl: './brand/mark.png',
+            logoUrlDark: './brand/mark.png',
+            logoSize: 80,
         },
+        brandAssetsDir: '/path/to/your/logos',  // served at /docs/brand/
         mcp: {
             authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
         },
@@ -121,7 +147,7 @@ docs: {
 }
 ```
 
-Toggle each surface independently — spec only, UI only, both, or neither (`docs: false`).
+Toggle each surface independently — spec only, UI only, MCP off (`mcp: false`), or neither (`docs: false`).
 
 ### Auth
 
@@ -142,7 +168,7 @@ Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `calls
 **Browser or frontend bundler** — import the client subpath so you do not pull server code:
 
 ```typescript
-import type {API} from './chirp-api';   // InferRegistry<typeof api> from your registry module
+import type {API} from './chirp-api';
 import {client} from 'callspec/client';
 
 const timeline = await client<API['searchRecent']>('searchRecent', {
@@ -176,7 +202,7 @@ npm run validate   # build server + callsheet UI, lint, test (incl. integration)
 npm run dev:docs   # Chirp demo API + callsheet at :3456/v1/docs
 ```
 
-Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP schemas, and RPC end-to-end.
+Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
 
 ## Help build the standard
 
@@ -200,8 +226,8 @@ src/
   defineRoute.ts      # route definition + arity guard
   defineRegistry.ts   # named route map
   executeRoute.ts     # shared HTTP + MCP pipeline
-  mountRegistry.ts    # POST routes + openapi + callsheet
-  mountMcp.ts         # MCP on Express
+  mountRegistry.ts    # POST routes + openapi + callsheet + MCP
+  mountMcp.ts         # low-level MCP mount (used by mountRegistry)
   mcpTools.ts         # tools/list schemas from runtyp
   openapi.ts          # OpenAPI 3.1 emitter
   client.ts           # typed fetch client
