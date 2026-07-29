@@ -56,11 +56,28 @@
 
 ## Example
 
+Self-contained server — save as `server.ts` and run with `npx tsx server.ts`:
+
 ```typescript
+import express from 'express';
 import {defineSpec, defineRoute, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-export const api = defineSpec({
+type AuthContext = {userId: string};
+
+async function searchRecent(
+    input: {query: string; max_results?: number},
+    ctx: AuthContext,
+) {
+
+    return {
+        results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
+        count: 1,
+    };
+
+}
+
+const api = defineSpec({
     searchRecent: defineRoute({
         input: p.object({
             query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
@@ -76,14 +93,43 @@ export const api = defineSpec({
     }),
 });
 
-mountSpec(app, api, {
-    contextResolver: getAuthContext,
+const app = express();
+const router = express.Router();
+
+router.use(express.json());
+
+mountSpec(router, api, {
+    contextResolver: (req) => {
+
+        if (req.headers.authorization?.startsWith('Bearer ')) {
+
+            return {userId: 'user_123'};
+
+        }
+
+        return undefined;
+
+    },
     docs: {
         openApi: {title: 'My API', version: '1.0.0'},
         ui: {
-            branding: {name: 'My API', logoUrl: './brand/mark.png'},
+            branding: {name: 'My API'},
         },
     },
+});
+
+app.use('/v1', router);
+
+const port = Number(process.env.PORT ?? 3000);
+
+app.listen(port, () => {
+
+    console.log(`RPC:      http://127.0.0.1:${port}/v1/searchRecent`);
+    console.log(`Docs:     http://127.0.0.1:${port}/v1/docs`);
+    console.log(`OpenAPI:  http://127.0.0.1:${port}/v1/openapi.json`);
+    console.log(`MCP:      http://127.0.0.1:${port}/v1/mcp`);
+    console.log('Auth:     Authorization: Bearer anything (demo token)');
+
 });
 ```
 
@@ -91,6 +137,7 @@ mountSpec(app, api, {
 
 ```bash
 npm i callspec runtyp express
+npm i -D tsx typescript @types/express
 ```
 
 **Requirements:** Node.js 18+, TypeScript 5+, Express 4.x (peer).
