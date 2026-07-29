@@ -91,12 +91,13 @@ function renderBrandMark(
     const {size, wrapClass} = options;
     const srcset = branding.logoSrcSet
         ?? './brand/mark.png 256w, ./brand/mark@2x.png 512w';
+    const logoSizeRem = `${size / 16}rem`;
     const srcsetAttr = (branding.logoUrl.includes('mark.png') || branding.logoSrcSet)
-        ? ` srcset="${escapeHtml(srcset)}" sizes="${size}px"`
+        ? ` srcset="${escapeHtml(srcset)}" sizes="${logoSizeRem}"`
         : '';
 
     return `
-        <span class="brand-mark ${wrapClass}" style="--logo-size: ${size}px">
+        <span class="brand-mark ${wrapClass}" style="--logo-size: ${logoSizeRem}">
             <img class="brand-mark-img brand-mark-light" src="${escapeHtml(branding.logoUrl)}"${srcsetAttr} width="${size}" height="${size}" alt="">
             <img class="brand-mark-img brand-mark-dark" src="${escapeHtml(dark)}"${srcsetAttr} width="${size}" height="${size}" alt="">
         </span>
@@ -495,8 +496,8 @@ function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean
         <div class="route-endpoint">
             <span class="method">POST</span>
             <h2 class="route-name">${escapeHtml(route.name)}</h2>
+            <div class="badges">${renderBadges(route)}</div>
         </div>
-        <div class="badges">${renderBadges(route)}</div>
         <p class="route-summary">${escapeHtml(route.summary)}</p>
         ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
         <div class="section">
