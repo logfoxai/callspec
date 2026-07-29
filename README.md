@@ -16,39 +16,17 @@
 
 Define your API once with runtyp. callspec mounts HTTP RPC, white-label docs, OpenAPI 3.1, MCP tools, and a typed client from the same handlers — no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests. One route map powers your REST surface, agent tools, interactive docs, and frontend client types so HTTP and MCP never drift apart.
 
-## Features
-
-**📋 One spec, every surface**
-
-- Add a route once — HTTP, docs, OpenAPI, MCP, and client stay in sync
-- `defineSpec` + `mountSpec` wire RPC, OpenAPI, callspec UI, and MCP from one route map
-- Toggle each surface independently — OpenAPI only, UI only, MCP off, or docs off entirely
-
-**🎨 Docs & OpenAPI**
-
-- Built-in **callspec UI** — white-label docs with try-it-out
-- **Connect MCP** panel on the home page — copy-paste configs for Cursor, Claude, VS Code, Windsurf, Pi, …
-- OpenAPI 3.1 at `GET /openapi.json` — JSON Schema generated from runtyp preds
-
-**🤖 MCP for agents**
-
-- `mcp: true` on any route — same handlers and schemas as HTTP, no separate process
-- `tools/list` + `tools/call` at `/mcp`; private tools use the same auth as RPC
-
-**⚡ Typed client**
-
-- Fetch-only `callspec/client` subpath — no server code in browser bundles
-- `InferSpec<typeof api>` — export route types once for frontend and backend
-
-**🔌 Surfaces at a glance**
+## ✨ What you get
 
 | Surface | How you get it |
 |---------|----------------|
 | **HTTP RPC** | `POST /v1/<methodName>` |
-| **Interactive docs** | **callspec UI** at `/docs` |
-| **OpenAPI 3.1** | `GET /openapi.json` |
-| **MCP tools** | `mcp: true` → `tools/list` + `tools/call` at `/mcp` |
+| **Interactive docs** | Built-in **callspec UI** at `/docs` |
+| **OpenAPI 3.1** | `GET /openapi.json` from the same spec |
+| **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
+
+One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
 ## Example
 
