@@ -152,6 +152,21 @@ npm run dev:docs   # Chirp demo API + callsheet at :3456/v1/docs
 
 Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP schemas, and RPC end-to-end.
 
+## Help build the standard
+
+callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
+
+Swagger gave the world a shared language for REST. OpenAPI made it machine-readable. We're trying to do that again for **one registry → HTTP RPC, docs, OpenAPI, and MCP** — without the duplicate schemas, bolt-on tool manifests, and duct-tape between surfaces.
+
+If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callsheet UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from. Early contributors tend to become the people others cite — show up in release notes, speak at the meetup, get asked "who built this?" when the pattern spreads.
+
+**Good first contributions:** callsheet polish, MCP client configs, docs and demos, runtyp/OpenAPI edge cases, Fastify/Hono mounts, issue triage, or a blog post about your integration.
+
+- **Issues & ideas:** [github.com/logfoxai/callspec/issues](https://github.com/logfoxai/callspec/issues)
+- **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, `style:`, etc.)
+
+If you want maintainer access or a dedicated area to own (callsheet, MCP, clients, docs), open an issue or PR and say hi. We'd rather have a small crew that cares than a huge drive-by.
+
 ## Package layout
 
 ```
