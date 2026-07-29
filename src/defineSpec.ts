@@ -1,8 +1,15 @@
-import type {Spec, RouteDef} from './types';
+import type {Callspec, CallspecMeta, RoutesMap} from './types';
 
-export function defineSpec<const T extends Record<string, RouteDef<any, any, any>>>(
-    routes: T,
-): T {
+export function defineSpec<
+    Ctx = unknown,
+    const T extends RoutesMap<Ctx> = RoutesMap<Ctx>,
+>(input: {
+    meta?: CallspecMeta<Ctx>
+    routes: T
+}): Callspec<Ctx> & {routes: T} {
+
+    const meta: CallspecMeta<Ctx> = input.meta ?? {};
+    const {routes} = input;
 
     for (const [name, route] of Object.entries(routes)) {
 
@@ -16,8 +23,16 @@ export function defineSpec<const T extends Record<string, RouteDef<any, any, any
 
     }
 
-    return routes;
+    const hasPrivate = Object.values(routes).some((route) => route.access === 'private');
+
+    if (hasPrivate && !meta.authenticate) {
+
+        throw new Error('defineSpec: private routes require meta.authenticate');
+
+    }
+
+    return {meta, routes};
 
 }
 
-export type {Spec};
+export type {Callspec};

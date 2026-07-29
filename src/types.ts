@@ -30,9 +30,41 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     handler: RouteHandler<TInput, TOutput, Ctx>
 };
 
-export type Spec<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
+export type RoutesMap<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
 
-export type ContextResolver<Ctx> = (req: Request) => Ctx | Promise<Ctx | undefined> | Ctx | undefined;
+/** @deprecated Use {@link RoutesMap} — route map only; prefer {@link Callspec}. */
+export type Spec<Ctx = unknown> = RoutesMap<Ctx>;
+
+export type CallspecLogo = {
+    light?: string
+    dark?: string
+};
+
+export type CallspecWebsite = {
+    url: string
+    label?: string
+};
+
+export type Authenticate<Ctx> = (
+    token: string,
+    req: Request,
+) => Ctx | undefined | Promise<Ctx | undefined>;
+
+export type CallspecMeta<Ctx = unknown> = {
+    title?: string
+    version?: string
+    intro?: string
+    website?: CallspecWebsite
+    logo?: CallspecLogo
+    authHint?: string
+    authenticate?: Authenticate<Ctx>
+    mcpInstructions?: string
+};
+
+export type Callspec<Ctx = unknown> = {
+    meta: CallspecMeta<Ctx>
+    routes: RoutesMap<Ctx>
+};
 
 export type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
@@ -44,7 +76,7 @@ export type InferRouteOutput<R extends RouteDef<any, any, any>> =
         ? O
         : UnwrapPromise<ReturnType<R['handler']>>;
 
-export type InferSpec<T extends Spec<any>> = {
+export type InferSpec<T extends RoutesMap<any>> = {
     [K in keyof T]: {
         name: K & string
         input: InferRouteInput<T[K]>

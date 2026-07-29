@@ -21,10 +21,10 @@ type OpenApiPath = Record<string, {
 test('chirp demo: emitOpenApi converts runtyp preds to JSON Schema', (assert) => {
 
     const {api} = requireCjs(path.join(process.cwd(), 'scripts/chirp-demo-api.cjs')) as {
-        api: Parameters<typeof emitOpenApi>[0]
+        api: {routes: Parameters<typeof emitOpenApi>[0]}
     };
 
-    const doc = emitOpenApi(api, {
+    const doc = emitOpenApi(api.routes, {
         title: 'Chirp API v2',
         version: '2.0.0',
         basePath: '/v1',

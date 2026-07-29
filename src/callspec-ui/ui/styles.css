@@ -887,6 +887,27 @@ html, body {
     flex-shrink: 0;
 }
 
+.brand-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--logo-size, 5rem);
+    height: var(--logo-size, 5rem);
+    border-radius: calc(var(--logo-size, 5rem) * 0.22);
+    flex-shrink: 0;
+    font-size: calc(var(--logo-size, 5rem) * 0.45);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-subtle);
+}
+
+.sidebar-mark.brand-letter {
+    --logo-size: 1.5rem;
+    font-size: 0.75rem;
+}
+
 .brand-mark-img {
     display: block;
     width: 100%;

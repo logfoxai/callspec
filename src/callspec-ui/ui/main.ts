@@ -82,39 +82,38 @@ function websiteLabel(branding: CallspecUiBranding): string {
 
 function renderBrandMark(
     branding: CallspecUiBranding | undefined,
-    options: {size: number; wrapClass: string},
+    options: {wrapClass: string},
 ): string {
 
     if (!branding?.logoUrl) return '';
 
     const dark = branding.logoUrlDark ?? branding.logoUrl;
-    const {size, wrapClass} = options;
-    const srcset = branding.logoSrcSet
-        ?? './brand/mark.png 256w, ./brand/mark@2x.png 512w';
-    const logoSizeRem = `${size / 16}rem`;
-    const srcsetAttr = (branding.logoUrl.includes('mark.png') || branding.logoSrcSet)
-        ? ` srcset="${escapeHtml(srcset)}" sizes="${logoSizeRem}"`
-        : '';
+    const {wrapClass} = options;
 
     return `
-        <span class="brand-mark ${wrapClass}" style="--logo-size: ${logoSizeRem}">
-            <img class="brand-mark-img brand-mark-light" src="${escapeHtml(branding.logoUrl)}"${srcsetAttr} width="${size}" height="${size}" alt="">
-            <img class="brand-mark-img brand-mark-dark" src="${escapeHtml(dark)}"${srcsetAttr} width="${size}" height="${size}" alt="">
+        <span class="brand-mark ${wrapClass}">
+            <img class="brand-mark-img brand-mark-light" src="${escapeHtml(branding.logoUrl)}" alt="">
+            <img class="brand-mark-img brand-mark-dark" src="${escapeHtml(dark)}" alt="">
         </span>
     `;
 
 }
 
-function renderLogo(branding: CallspecUiBranding | undefined): string {
+function renderLetterMark(title: string, wrapClass: string): string {
 
-    const mark = renderBrandMark(branding, {
-        size: branding?.logoSize ?? 80,
-        wrapClass: 'intro-logo',
-    });
+    const letter = (title.trim()[0] ?? 'A').toUpperCase();
 
-    if (!mark) return '';
+    return `<span class="brand-letter ${wrapClass}" aria-hidden="true">${escapeHtml(letter)}</span>`;
 
-    return mark;
+}
+
+function renderLogo(title: string, branding: CallspecUiBranding | undefined): string {
+
+    const mark = renderBrandMark(branding, {wrapClass: 'intro-logo'});
+
+    if (mark) return mark;
+
+    return renderLetterMark(displayName(title, branding), 'intro-logo');
 
 }
 
@@ -385,7 +384,7 @@ function renderHome(
 
     return `
         <div class="intro">
-            ${renderLogo(branding)}
+            ${renderLogo(title, branding)}
             <h1 class="intro-title">${escapeHtml(name)}</h1>
             <p class="intro-version">v${escapeHtml(version)} · ${routes.length} routes${mcpCount ? ` · ${mcpCount} MCP tools` : ''}</p>
             <p class="intro-text">${escapeHtml(branding.intro ?? '')}</p>
@@ -720,7 +719,7 @@ async function boot(): Promise<void> {
                     <div class="sidebar-head">
                         <div class="sidebar-head-row">
                             <button type="button" class="sidebar-title" data-view="${showHome ? 'home' : 'routes'}">
-                                ${renderBrandMark(branding, {size: 24, wrapClass: 'sidebar-mark'})}
+                                ${renderBrandMark(branding, {wrapClass: 'sidebar-mark'}) || renderLetterMark(sidebarName, 'sidebar-mark')}
                                 <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
                             </button>
                             <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
