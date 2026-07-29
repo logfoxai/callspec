@@ -2,7 +2,7 @@ import type {RequestHandler, Router} from 'express';
 import {CallspecUnauthorizedError, CallspecValidationError, CallspecNotFoundError} from './errors';
 import {executeRoute} from './executeRoute';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
-import type {ContextResolver, Registry} from './types';
+import type {ContextResolver, Spec} from './types';
 
 export type MountMcpOptions<Ctx> = {
     path?: string
@@ -23,7 +23,7 @@ function toolError(message: string): { content: Array<{ type: 'text', text: stri
 
 export function mountMcp<Ctx>(
     router: Router,
-    registry: Registry<Ctx>,
+    spec: Spec<Ctx>,
     options: MountMcpOptions<Ctx>,
 ): void {
 
@@ -75,7 +75,7 @@ export function mountMcp<Ctx>(
 
             if (body?.method === 'tools/list') {
 
-                respond({tools: listMcpTools(registry)});
+                respond({tools: listMcpTools(spec)});
                 return;
 
             }
@@ -91,7 +91,7 @@ export function mountMcp<Ctx>(
 
                 }
 
-                const routeEntry = Object.entries(registry).find(
+                const routeEntry = Object.entries(spec).find(
                     ([key, route]) => routeMcpName(key, route) === toolName,
                 );
 

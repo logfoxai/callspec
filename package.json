@@ -1,7 +1,7 @@
 {
   "name": "callspec",
   "version": "0.0.1",
-  "description": "Registry-first RPC: HTTP, OpenAPI docs, MCP, and typed client from one defineRoute registry",
+  "description": "Spec-first RPC: HTTP, OpenAPI docs, MCP, and typed client from one defineRoute spec",
   "keywords": [
     "rpc",
     "openapi",
@@ -9,7 +9,7 @@
     "express",
     "typescript",
     "api",
-    "registry"
+    "spec"
   ],
   "repository": {
     "type": "git",

@@ -1,5 +1,5 @@
 import {toJsonSchema} from 'runtyp';
-import type {Registry} from './types';
+import type {Spec} from './types';
 
 export type OpenApiOptions = {
     title: string
@@ -14,12 +14,12 @@ function routePath(basePath: string, name: string): string {
 
 }
 
-export function emitOpenApi(registry: Registry<any>, options: OpenApiOptions): Record<string, unknown> {
+export function emitOpenApi(spec: Spec<any>, options: OpenApiOptions): Record<string, unknown> {
 
     const paths: Record<string, unknown> = {};
     const basePath = options.basePath ?? '';
 
-    for (const [name, route] of Object.entries(registry)) {
+    for (const [name, route] of Object.entries(spec)) {
 
         paths[routePath(basePath, name)] = {
             post: {

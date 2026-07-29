@@ -4,10 +4,10 @@ import {executeRoute} from './executeRoute';
 import {listMcpTools} from './mcpTools';
 import {mountMcp, type MountMcpOptions} from './mountMcp';
 import {emitOpenApi, type OpenApiOptions} from './openapi';
-import type {ContextResolver, Registry} from './types';
+import type {ContextResolver, Spec} from './types';
 import {mountCallspecUi, type MountCallspecUiOptions} from './callspec-ui/mountCallspecUi';
 
-export type MountRegistryMcpOptions = {
+export type MountSpecMcpOptions = {
     /** MCP HTTP path on this router. Default `/mcp`. */
     path?: string
     /** When false, skip MCP even if routes opt in. Default true. */
@@ -17,7 +17,7 @@ export type MountRegistryMcpOptions = {
     instructions?: string
 };
 
-export type MountRegistryDocsOptions = {
+export type MountSpecDocsOptions = {
     /** OpenAPI document metadata. Required to expose docs. */
     openApi?: OpenApiOptions
     /** Serve GET …/openapi.json. Default: true when docs are enabled. */
@@ -32,7 +32,7 @@ export type MountRegistryDocsOptions = {
     ui?: Pick<MountCallspecUiOptions, 'rpcBase' | 'branding' | 'mcpPath' | 'mcp' | 'brandAssetsDir'>
 };
 
-export type MountRegistryOptions<Ctx> = {
+export type MountSpecOptions<Ctx> = {
     contextResolver?: ContextResolver<Ctx>
     /**
      * @deprecated Use `docs.openApi` with `docs.exposeOpenApi` / `docs.exposeUi`.
@@ -42,9 +42,9 @@ export type MountRegistryOptions<Ctx> = {
     /** @deprecated Use `docs.openApi`. */
     openApi?: OpenApiOptions
     /** Docs configuration — OpenAPI spec and/or callspec UI, each toggled independently. */
-    docs?: MountRegistryDocsOptions | false
+    docs?: MountSpecDocsOptions | false
     /** MCP server — auto-enabled when routes use `mcp: true`. Pass `false` to disable. */
-    mcp?: MountRegistryMcpOptions | false
+    mcp?: MountSpecMcpOptions | false
     basePath?: string
 };
 
@@ -69,8 +69,8 @@ function sendError(res: import('express').Response, err: unknown): void {
 }
 
 function resolveDocsOptions(
-    options: MountRegistryOptions<unknown>,
-): MountRegistryDocsOptions | false {
+    options: MountSpecOptions<unknown>,
+): MountSpecDocsOptions | false {
 
     if (options.docs === false) return false;
 
@@ -109,14 +109,14 @@ function slugServerName(title: string): string {
 }
 
 function resolveMcpOptions<Ctx>(
-    registry: Registry<Ctx>,
-    options: MountRegistryOptions<Ctx>,
-    docs: MountRegistryDocsOptions | false,
+    spec: Spec<Ctx>,
+    options: MountSpecOptions<Ctx>,
+    docs: MountSpecDocsOptions | false,
 ): MountMcpOptions<Ctx> | false {
 
     if (options.mcp === false) return false;
 
-    if (listMcpTools(registry).length === 0) return false;
+    if (listMcpTools(spec).length === 0) return false;
 
     const merged = options.mcp ?? {};
 
@@ -146,14 +146,14 @@ function resolveMcpOptions<Ctx>(
 
 }
 
-export function mountRegistry<Ctx>(
+export function mountSpec<Ctx>(
     router: Router,
-    registry: Registry<Ctx>,
-    options: MountRegistryOptions<Ctx> = {},
+    spec: Spec<Ctx>,
+    options: MountSpecOptions<Ctx> = {},
 ): void {
 
     const basePath = options.basePath ?? '';
-    const docs = resolveDocsOptions(options as MountRegistryOptions<unknown>);
+    const docs = resolveDocsOptions(options as MountSpecOptions<unknown>);
 
     if (docs && docs.openApi && docs.exposeOpenApi !== false) {
 
@@ -161,7 +161,7 @@ export function mountRegistry<Ctx>(
 
         router.get(`${basePath}${openApiPath}`, (_req, res) => {
 
-            res.json(emitOpenApi(registry, {
+            res.json(emitOpenApi(spec, {
                 ...docs.openApi as OpenApiOptions,
                 basePath,
             }));
@@ -191,7 +191,7 @@ export function mountRegistry<Ctx>(
 
     }
 
-    for (const [name, route] of Object.entries(registry)) {
+    for (const [name, route] of Object.entries(spec)) {
 
         router.post(`${basePath}/${name}`, (async (req, res, next) => {
 
@@ -222,11 +222,11 @@ export function mountRegistry<Ctx>(
 
     }
 
-    const mcp = resolveMcpOptions(registry, options, docs);
+    const mcp = resolveMcpOptions(spec, options, docs);
 
     if (mcp) {
 
-        mountMcp(router, registry, mcp);
+        mountMcp(router, spec, mcp);
 
     }
 

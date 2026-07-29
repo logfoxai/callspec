@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-dark.svg" alt="callspec" />
   </picture>
 
-  <p><strong>One registry — ship RPC, docs, OpenAPI, MCP, and a typed client.</strong></p>
+  <p><strong>One spec — ship RPC, docs, OpenAPI, MCP, and a typed client.</strong></p>
 
   <p>
     <img src="https://img.shields.io/badge/SemVer-2.0.0-blue" alt="SemVer" />
@@ -30,12 +30,12 @@
 
 ## Highlights
 
-- **One registry** — add a route once; HTTP, docs, OpenAPI, MCP, and client stay in sync
+- **One spec** — add a route once; HTTP, docs, OpenAPI, MCP, and client stay in sync
 - **callspec UI** — built-in, white-label docs with try-it-out and a **Connect MCP** panel (Cursor, Claude, VS Code, Windsurf, Pi, …)
 - **Built-in MCP** — `mcp: true` on a route; same handlers and schemas as HTTP, no separate process
 - **OpenAPI 3.1** — JSON Schema from runtyp preds at `GET /openapi.json`
 - **Typed client** — fetch-only `callspec/client` subpath, safe in browser bundles
-- **One mount** — `mountRegistry` wires RPC, docs, spec, and MCP; toggle each surface independently
+- **One mount** — `mountSpec` wires RPC, docs, OpenAPI, and MCP; toggle each surface independently
 
 | Surface | How you get it |
 |---------|----------------|
@@ -48,10 +48,10 @@
 ## Example
 
 ```typescript
-import {defineRegistry, defineRoute, mountRegistry} from 'callspec';
+import {defineSpec, defineRoute, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-export const api = defineRegistry({
+export const api = defineSpec({
     searchRecent: defineRoute({
         input: p.object({
             query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
@@ -67,7 +67,7 @@ export const api = defineRegistry({
     }),
 });
 
-mountRegistry(app, api, {
+mountSpec(app, api, {
     contextResolver: getAuthContext,
     docs: {
         openApi: {title: 'My API', version: '1.0.0'},
@@ -111,7 +111,7 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
-2. **Built into `mountRegistry`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
+2. **Built into `mountSpec`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
 3. **Connect from callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor, Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
 
 Agents call the **same handlers** as HTTP RPC. Auth uses the same `contextResolver`. Public tools work without a token; private tools return 401 without one.
@@ -142,7 +142,7 @@ docs: {
 }
 ```
 
-Toggle each surface independently — spec only, UI only, MCP off (`mcp: false`), or neither (`docs: false`).
+Toggle each surface independently — OpenAPI only, UI only, MCP off (`mcp: false`), or neither (`docs: false`).
 
 Light and dark lockups follow `prefers-color-scheme` in docs; the UI footer switches marks on `data-theme` the same way as [Castellan](https://github.com/logfoxai/castellan).
 
@@ -177,13 +177,13 @@ const results = await client<API['searchRecent']>('searchRecent', {
 });
 ```
 
-Export types once from your registry:
+Export types once from your spec:
 
 ```typescript
-import type {InferRegistry} from 'callspec';
+import type {InferSpec} from 'callspec';
 
-export const api = defineRegistry({ /* … */ });
-export type API = InferRegistry<typeof api>;
+export const api = defineSpec({ /* … */ });
+export type API = InferSpec<typeof api>;
 ```
 
 Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
@@ -202,10 +202,10 @@ Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, 
 ```
 src/
   defineRoute.ts      # route definition + arity guard
-  defineRegistry.ts   # named route map
+  defineSpec.ts   # named route map
   executeRoute.ts     # shared HTTP + MCP pipeline
-  mountRegistry.ts    # POST routes + openapi + callspec UI + MCP
-  mountMcp.ts         # low-level MCP mount (used by mountRegistry)
+  mountSpec.ts    # POST routes + openapi + callspec UI + MCP
+  mountMcp.ts         # low-level MCP mount (used by mountSpec)
   mcpTools.ts         # tools/list schemas from runtyp
   openapi.ts          # OpenAPI 3.1 emitter
   client.ts           # typed fetch client
@@ -216,7 +216,7 @@ src/
 
 callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
 
-The goal is simple: **one registry → HTTP RPC, docs, OpenAPI, and MCP** — no duplicate schemas, no bolt-on tool manifests, no duct-tape between surfaces.
+The goal is simple: **one spec → HTTP RPC, docs, OpenAPI, and MCP** — no duplicate schemas, no bolt-on tool manifests, no duct-tape between surfaces.
 
 If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callspec UI UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from. Early contributors tend to become the people others cite — show up in release notes, speak at the meetup, get asked "who built this?" when the pattern spreads.
 
