@@ -18,7 +18,7 @@
 
 Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
-Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec — human-readable types via [runtyp](https://github.com/logfoxai/runtyp).
+Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec &mdash; with simple, clean, human-readable types.
 
 ## ✨ What you get
 
@@ -30,8 +30,6 @@ Every RPC and MCP call gets **input validation** at the boundary with clear erro
 | **MCP tools** |`/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 | **Input validation** | Runtime & compile-time (TypeScript) |
-
-One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
 ## Complete Example
 
