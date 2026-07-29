@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-dark.svg" alt="callspec" />
   </picture>
 
-  <p style="font-size: 1.45em; margin: 1.25em 0 1.5em;"><strong>One spec — ship RPC, docs UI, OpenAPI, MCP, and typed clients.</strong></p>
+  <p align="center" style="font-size: 1.75em; line-height: 1.45; margin: 2em 0 2em;"><strong>One spec — ship RPC, docs UI, OpenAPI, MCP, and typed clients.</strong></p>
 
   <p>
     <a href="assets/callspec-ui-chirp-demo-home.png">
