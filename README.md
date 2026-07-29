@@ -32,9 +32,7 @@ Every call to your API and MCP have built-in input validation with user-friendly
 
 One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
-## Example
-
-Save as `server.ts` and run with `npx tsx server.ts`:
+## Complete Example
 
 ```typescript
 import express from 'express';
