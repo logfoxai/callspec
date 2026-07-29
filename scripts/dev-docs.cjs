@@ -6,7 +6,7 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-const {mountRegistry, mountMcp} = require('../dist');
+const {mountRegistry} = require('../dist');
 const {api} = require('./chirp-demo-api.cjs');
 
 const app = express();
@@ -39,23 +39,10 @@ mountRegistry(router, api, {
             brandAssetsDir,
         },
     },
-    contextResolver: (req) => {
-
-        if (req.headers.authorization === 'Bearer demo') {
-
-            return {userId: '2244994945', username: 'api_demo'};
-
-        }
-
-        return undefined;
-
+    mcp: {
+        serverInfo: {name: 'chirp-api', version: '2.0.0'},
+        instructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
     },
-});
-
-mountMcp(router, api, {
-    path: '/mcp',
-    serverInfo: {name: 'chirp-api', version: '2.0.0'},
-    instructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
     contextResolver: (req) => {
 
         if (req.headers.authorization === 'Bearer demo') {
