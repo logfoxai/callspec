@@ -151,7 +151,7 @@ test('integration: callsheet UI at /docs', async (assert) => {
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
-        assert.equal(html.includes('callspec-mark-light.svg'), true);
+        assert.equal(html.includes('mark-light.svg'), true);
         assert.equal(html.includes('class="footer-link"'), true);
         assert.equal(html.includes('callspec'), true);
 
@@ -243,6 +243,90 @@ test('integration: validation error on bad input', async (assert) => {
         assert.equal(res.status, 400);
 
     });
+
+});
+
+test('integration: MCP auto-mounts from mountRegistry when routes opt in', async (assert) => {
+
+    await withServer(async (base) => {
+
+        const list = await fetch(`${base}/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/list'}),
+        });
+
+        assert.equal(list.status, 200);
+
+        const body = await list.json() as {result: {tools: Array<{name: string}>}};
+
+        assert.equal(body.result.tools.some((tool) => tool.name === 'greet'), true);
+        assert.equal(body.result.tools.some((tool) => tool.name === 'echo'), false);
+
+    });
+
+});
+
+test('integration: MCP tools/call uses mountRegistry contextResolver', async (assert) => {
+
+    await withServer(async (base) => {
+
+        const res = await fetch(`${base}/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 2,
+                method: 'tools/call',
+                params: {name: 'greet', arguments: {name: 'callspec'}},
+            }),
+        });
+
+        assert.equal(res.status, 200);
+
+        const body = await res.json() as {result: {structuredContent: {hello: string}}};
+
+        assert.equal(body.result.structuredContent.hello, 'callspec');
+
+    });
+
+});
+
+test('integration: mcp false skips MCP endpoint', async (assert) => {
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(bodyParser.json());
+
+    mountRegistry(router, fixtureRegistry, {
+        mcp: false,
+        docs: {
+            openApi: {title: 'Fixture API', version: '1.0.0'},
+            exposeOpenApi: true,
+            exposeUi: false,
+        },
+    });
+
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    const res = await fetch(`http://127.0.0.1:${addr.port}/v1/mcp`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/list'}),
+    });
+
+    assert.equal(res.status, 404);
+
+    server.close();
 
 });
 

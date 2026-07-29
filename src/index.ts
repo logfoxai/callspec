@@ -3,7 +3,7 @@ export {defineRegistry} from './defineRegistry';
 export type {Registry} from './defineRegistry';
 export {executeRoute} from './executeRoute';
 export {mountRegistry} from './mountRegistry';
-export type {MountRegistryOptions, MountRegistryDocsOptions} from './mountRegistry';
+export type {MountRegistryOptions, MountRegistryDocsOptions, MountRegistryMcpOptions} from './mountRegistry';
 export {mountCallsheet, renderCallsheetPage, parseCallspecOpenApi} from './callsheet';
 export type {MountCallsheetOptions, CallsheetConfig, CallsheetRoute, CallsheetSpec} from './callsheet';
 export {mountMcp} from './mountMcp';

@@ -23,8 +23,8 @@ const indexTemplate = `<!DOCTYPE html>
     <footer class="footer">
         <a class="footer-link" href="https://github.com/logfoxai/callspec" target="_blank" rel="noopener">
             <span class="footer-label">Powered by</span>
-            <img class="footer-logo footer-logo-light" src="./assets/callspec-mark-light.svg" width="18" height="18" alt="">
-            <img class="footer-logo footer-logo-dark" src="./assets/callspec-mark-dark.svg" width="18" height="18" alt="">
+            <img class="footer-logo footer-logo-light" src="./assets/mark-light.svg" width="18" height="18" alt="">
+            <img class="footer-logo footer-logo-dark" src="./assets/mark-dark.svg" width="18" height="18" alt="">
             <span class="footer-name">callspec</span>
         </a>
     </footer>
@@ -53,8 +53,8 @@ if (cssFile !== 'style.css') {
 }
 
 const brandAssets = [
-    'callspec-mark-light.svg',
-    'callspec-mark-dark.svg',
+    'mark-light.svg',
+    'mark-dark.svg',
 ];
 
 for (const name of brandAssets) {
