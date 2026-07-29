@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec ships RPC, docs UI, OpenAPI, MCP, and typed clients.</h3>
+  <h3 align="center">One spec ships API, docs UI, OpenAPI, MCP, and typed clients.</h3>
 
   <br>
 
@@ -18,13 +18,11 @@
 
 Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
-Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec &mdash; with simple, clean, human-readable types.
+Every API and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec &mdash; with simple, clean, human-readable types.
 
-## ✨ What you get
-
-| Surface | Where |
+| Feature | Location |
 |---------|----------------|
-| **HTTP RPC** | `POST /v1/<methodName>` |
+| **HTTP RPC API** | `POST /v1/<methodName>` |
 | **Interactive UI docs** | `/docs` |
 | **OpenAPI 3.1** | `/openapi.json` |
 | **MCP tools** |`/mcp` |
