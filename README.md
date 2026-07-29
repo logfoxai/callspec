@@ -19,32 +19,35 @@ One `defineRegistry` powers HTTP RPC, OpenAPI, callsheet docs, MCP tools, and a 
 <p align="center"><sub><strong>callsheet</strong> — built-in docs UI with a <strong>Connect MCP</strong> panel. Copy the endpoint and a ready-made config for Cursor, Claude, VS Code, Windsurf, or Pi.</sub></p>
 
 ```typescript
-import {defineRegistry, defineRoute, mountRegistry, mountMcp, client} from 'callspec';
+import {defineRegistry, defineRoute, mountRegistry, mountMcp} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 export const api = defineRegistry({
-    getPipelines: defineRoute({
-        input: getPipelinesInput,
+    getUserById: defineRoute({
+        input: p.object({
+            id: p.string({description: 'Unique identifier of the User (numeric string)'}),
+        }),
         meta: {
-            summary: 'List pipelines',
-            description: 'Returns pipelines for a team.',
-            tags: ['pipelines'],
+            summary: 'Get User by ID',
+            description: 'Returns information about a User specified by ID.',
+            tags: ['users'],
         },
+        access: 'private',
         mcp: true,           // → MCP tools/list
-        handler: getPipelines,
+        handler: getUserById,
     }),
 });
 
 mountRegistry(app, api, {
-    contextResolver: getUserContext,
+    contextResolver: getChirpContext,
     docs: {
-        openApi: {title: 'My API', version: '1.0.0'},
+        openApi: {title: 'Chirp API v2', version: '2.0.0'},
         exposeUi: true,      // → /docs (callsheet + Connect MCP)
         exposeOpenApi: true, // → /openapi.json
     },
 });
 
-mountMcp(app, api, {path: '/mcp', contextResolver: getUserContext});
+mountMcp(app, api, {path: '/mcp', contextResolver: getChirpContext});
 ```
 
 Try the demo locally: `npm run build && npm run dev:docs` → [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) (Chirp API sample; use `Bearer demo` for private tools).
@@ -59,8 +62,18 @@ No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 ```typescript
 searchRecent: defineRoute({
-    input: p.object({query: p.string()}),
-    meta: {summary: 'Search recent', description: '…', tags: ['tweets']},
+    input: p.object({
+        query: p.string({description: 'Search query (supports operators like from:, #hashtag)'}),
+        max_results: p.optional(p.number({
+            description: 'Maximum number of results (1–100)',
+            range: {min: 1, max: 100},
+        })),
+    }),
+    meta: {
+        summary: 'Search recent Tweets',
+        description: 'Returns Tweets from the last seven days matching a search query.',
+        tags: ['tweets'],
+    },
     access: 'private',
     mcp: true,   // this route is now an MCP tool — same handler as POST /v1/searchRecent
     handler: searchRecent,
@@ -77,7 +90,7 @@ Agents call the **same handlers** as your HTTP RPC. Auth uses the same `contextR
 | **Interactive docs** | Built-in **callsheet** UI at `/docs` |
 | **OpenAPI 3.1** | `GET /openapi.json` from the same registry |
 | **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
-| **Typed client** | `client<API['searchLogs']>('searchLogs', input)` |
+| **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 
 No second schema. No duplicate handler layer. No separate MCP subprocess.
 
@@ -89,14 +102,20 @@ Minimal, fast docs UI baked into callspec. Browse routes, try RPCs, read OpenAPI
 
 ```typescript
 docs: {
-    openApi: {title: 'Logfox API', version: '1.0.0'},
+    openApi: {title: 'Chirp API v2', version: '2.0.0'},
     exposeOpenApi: true,   // machine-readable spec
     exposeUi: true,        // human-readable /docs + Connect MCP
     openApiPath: '/openapi.json',
     uiPath: '/docs',
     callsheet: {
+        branding: {
+            name: 'Chirp',
+            intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages.',
+            websiteUrl: 'https://chirp.social',
+            websiteLabel: 'chirp.social',
+        },
         mcp: {
-            authHint: 'Use Authorization: Bearer <token> for private tools.',
+            authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
         },
     },
 }
@@ -106,9 +125,9 @@ Toggle each surface independently — spec only, UI only, both, or neither (`doc
 
 ### Auth
 
-- **`access: 'public'`** — no credentials required
+- **`access: 'public'`** — no credentials required (e.g. Chirp `healthcheck`, `getTweet`)
 - **`access: 'private'`** (default) — 401 without `contextResolver` result
-- Team/role rules stay in your resolver `assert*` helpers
+- App-specific auth stays in your `contextResolver` (e.g. map `Authorization: Bearer …` to `{userId, username}`)
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
@@ -123,21 +142,28 @@ Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `calls
 **Browser or frontend bundler** — import the client subpath so you do not pull server code:
 
 ```typescript
-import type {API} from '@logfoxai/my-service';   // InferRegistry<typeof api> from the service package
+import type {API} from './chirp-api';   // InferRegistry<typeof api> from your registry module
 import {client} from 'callspec/client';
 
-const logs = await client<API['searchLogs']>('searchLogs', {teamId}, {
-    endpoint: 'https://api.example.com/v1',
+const timeline = await client<API['searchRecent']>('searchRecent', {
+    query: 'callspec',
+    max_results: 10,
+}, {
+    endpoint: 'https://api.chirp.social/v2',
     fetchOptions: {headers: {Authorization: `Bearer ${token}`}},
 });
 ```
 
-**Service package** — export the API type once from your registry:
+**Service package** — export the API type once from your Chirp registry:
 
 ```typescript
 import type {InferRegistry} from 'callspec';
 
-export const api = defineRegistry({ /* ... */ });
+export const api = defineRegistry({
+    getTweet: defineRoute({ /* … */ }),
+    searchRecent: defineRoute({ /* … */ }),
+    createTweet: defineRoute({ /* … */ }),
+});
 export type API = InferRegistry<typeof api>;
 ```
 
