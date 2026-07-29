@@ -1,4 +1,4 @@
-export type CallsheetBranding = {
+export type CallspecUiBranding = {
     /** Display name; defaults to OpenAPI info.title */
     name?: string
     /** Short welcome paragraph on the home page */
@@ -17,19 +17,19 @@ export type CallsheetBranding = {
     logoSize?: number
 };
 
-export type CallsheetMcp = {
+export type CallspecUiMcp = {
     /** MCP endpoint (absolute or relative). Default: sibling of docs at mcpPath */
     url?: string
     /** Auth note shown when private MCP tools exist */
     authHint?: string
 };
 
-export type CallsheetConfig = {
+export type CallspecUiConfig = {
     specUrl: string
     rpcBase: string
     title?: string
-    branding?: CallsheetBranding
+    branding?: CallspecUiBranding
     /** Relative path from docs to MCP endpoint. Default `../mcp` */
     mcpPath?: string
-    mcp?: CallsheetMcp
+    mcp?: CallspecUiMcp
 };

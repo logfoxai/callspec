@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Local dev server for callsheet UI — run after `npm run build`.
+ * Local dev server for callspec UI — run after `npm run build`.
  * Usage: node scripts/dev-docs.cjs
  */
 const path = require('path');
@@ -21,7 +21,7 @@ mountRegistry(router, api, {
             title: 'Chirp API v2',
             version: '2.0.0',
         },
-        callsheet: {
+        ui: {
             branding: {
                 name: 'Chirp',
                 intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one registry powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
@@ -62,7 +62,7 @@ const port = Number(process.env.PORT ?? 3456);
 
 app.listen(port, '127.0.0.1', () => {
 
-    console.log(`callsheet demo: http://127.0.0.1:${port}/v1/docs`);
+    console.log(`callspec UI demo: http://127.0.0.1:${port}/v1/docs`);
     console.log(`openapi:        http://127.0.0.1:${port}/v1/openapi.json`);
     console.log(`mcp:            http://127.0.0.1:${port}/v1/mcp`);
     console.log('auth:           Bearer demo (for private routes + MCP)');

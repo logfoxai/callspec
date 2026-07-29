@@ -2,7 +2,7 @@ import {createRequire} from 'node:module';
 import path from 'node:path';
 import {test} from 'kizu';
 import {emitOpenApi} from './openapi';
-import {parseCallspecOpenApi} from './callsheet/parseOpenApi';
+import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
 
 const requireCjs = createRequire(path.join(process.cwd(), 'package.json'));
 

@@ -5,7 +5,7 @@ import {listMcpTools} from './mcpTools';
 import {mountMcp, type MountMcpOptions} from './mountMcp';
 import {emitOpenApi, type OpenApiOptions} from './openapi';
 import type {ContextResolver, Registry} from './types';
-import {mountCallsheet, type MountCallsheetOptions} from './callsheet/mountCallsheet';
+import {mountCallspecUi, type MountCallspecUiOptions} from './callspec-ui/mountCallspecUi';
 
 export type MountRegistryMcpOptions = {
     /** MCP HTTP path on this router. Default `/mcp`. */
@@ -22,14 +22,14 @@ export type MountRegistryDocsOptions = {
     openApi?: OpenApiOptions
     /** Serve GET …/openapi.json. Default: true when docs are enabled. */
     exposeOpenApi?: boolean
-    /** Serve the callsheet UI at `/docs`. Default: true when docs are enabled. */
+    /** Serve the callspec UI at `/docs`. Default: true when docs are enabled. */
     exposeUi?: boolean
     /** OpenAPI JSON path on this router. Default `/openapi.json`. */
     openApiPath?: string
-    /** callsheet UI mount path. Default `/docs`. */
+    /** callspec UI mount path. Default `/docs`. */
     uiPath?: string
-    /** Options passed to callsheet (rpcBase override, branding, MCP, etc.). */
-    callsheet?: Pick<MountCallsheetOptions, 'rpcBase' | 'branding' | 'mcpPath' | 'mcp' | 'brandAssetsDir'>
+    /** Options passed to the callspec UI (rpcBase override, branding, MCP, etc.). */
+    ui?: Pick<MountCallspecUiOptions, 'rpcBase' | 'branding' | 'mcpPath' | 'mcp' | 'brandAssetsDir'>
 };
 
 export type MountRegistryOptions<Ctx> = {
@@ -41,7 +41,7 @@ export type MountRegistryOptions<Ctx> = {
     exposeDocs?: boolean
     /** @deprecated Use `docs.openApi`. */
     openApi?: OpenApiOptions
-    /** Docs configuration — OpenAPI spec and/or callsheet UI, each toggled independently. */
+    /** Docs configuration — OpenAPI spec and/or callspec UI, each toggled independently. */
     docs?: MountRegistryDocsOptions | false
     /** MCP server — auto-enabled when routes use `mcp: true`. Pass `false` to disable. */
     mcp?: MountRegistryMcpOptions | false
@@ -95,7 +95,7 @@ function resolveDocsOptions(
         exposeUi: merged.exposeUi ?? (docsEnabled ? true : false),
         openApiPath: merged.openApiPath ?? '/openapi.json',
         uiPath: merged.uiPath ?? '/docs',
-        callsheet: merged.callsheet,
+        ui: merged.ui,
     };
 
 }
@@ -178,15 +178,15 @@ export function mountRegistry<Ctx>(
             ? `..${openApiPath}`
             : openApiPath;
 
-        mountCallsheet(router, {
+        mountCallspecUi(router, {
             path: `${basePath}${uiPath}`.replace(/\/{2,}/g, '/') || '/docs',
             specPath,
-            rpcBase: docs.callsheet?.rpcBase ?? '..',
+            rpcBase: docs.ui?.rpcBase ?? '..',
             title: docs.openApi?.title,
-            branding: docs.callsheet?.branding,
-            mcpPath: docs.callsheet?.mcpPath,
-            mcp: docs.callsheet?.mcp,
-            brandAssetsDir: docs.callsheet?.brandAssetsDir,
+            branding: docs.ui?.branding,
+            mcpPath: docs.ui?.mcpPath,
+            mcp: docs.ui?.mcp,
+            brandAssetsDir: docs.ui?.brandAssetsDir,
         });
 
     }

@@ -1,5 +1,5 @@
 /**
- * Fictional "Chirp API v2" — Twitter/X-shaped demo registry for callsheet dev server.
+ * Fictional "Chirp API v2" — Twitter/X-shaped demo registry for callspec UI dev server.
  */
 const {predicates: p} = require('runtyp');
 const {defineRegistry, defineRoute} = require('../dist');
@@ -279,7 +279,7 @@ const api = defineRegistry({
         access: 'private',
         handler: (input, _ctx) => paginated('data', [
             mockTweet('5001', 'Working on RPC + OpenAPI from one registry', input.id),
-            mockTweet('5002', 'callsheet UI looking clean', input.id),
+            mockTweet('5002', 'callspec UI looking clean', input.id),
         ]),
     }),
 

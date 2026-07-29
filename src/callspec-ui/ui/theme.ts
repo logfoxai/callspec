@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark';
 
-const STORAGE_KEY = 'callsheet-theme';
+const STORAGE_KEY = 'callspec-ui-theme';
 
 export function getPreferredTheme(): Theme {
 

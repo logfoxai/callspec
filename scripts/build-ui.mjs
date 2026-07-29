@@ -4,7 +4,7 @@ import {fileURLToPath} from 'url';
 import {build} from 'vite';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-const uiOut = path.join(root, '..', 'dist', 'callsheet', 'ui');
+const uiOut = path.join(root, '..', 'dist', 'callspec-ui', 'ui');
 
 const indexTemplate = `<!DOCTYPE html>
 <html lang="en">
@@ -12,9 +12,9 @@ const indexTemplate = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Docs</title>
-    <script>(function(){var t=localStorage.getItem('callsheet-theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;})();</script>
+    <script>(function(){var t=localStorage.getItem('callspec-ui-theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;})();</script>
     <link rel="stylesheet" href="./assets/style.css">
-    <!--CALLSHEET_CONFIG-->
+    <!--CALLSPEC_UI_CONFIG-->
 </head>
 <body>
     <div id="app" class="loading">
@@ -42,7 +42,7 @@ const cssFile = fs.readdirSync(assetDir).find((name) => name.endsWith('.css'));
 
 if (!cssFile) {
 
-    throw new Error('callsheet UI build did not emit CSS');
+    throw new Error('callspec UI build did not emit CSS');
 
 }
 
@@ -70,7 +70,7 @@ const appJs = path.join(assetDir, 'app.js');
 
 if (!fs.existsSync(appJs) || fs.statSync(appJs).size < 100) {
 
-    throw new Error('callsheet UI build did not emit app.js');
+    throw new Error('callspec UI build did not emit app.js');
 
 }
 

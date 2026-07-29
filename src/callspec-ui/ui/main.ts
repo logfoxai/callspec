@@ -1,12 +1,12 @@
 import './styles.css';
-import type {CallsheetBranding, CallsheetConfig} from '../branding';
+import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
 import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {initTheme, toggleTheme, type Theme} from './theme';
 import {themeMoonIcon, themeSunIcon} from './icons';
 
-type CallsheetRoute = {
+type CallspecUiRoute = {
     name: string
     summary: string
     description: string
@@ -24,11 +24,11 @@ type View =
 
 declare global {
     interface Window {
-        __CALLSHEET__?: CallsheetConfig
+        __CALLSPEC_UI__?: CallspecUiConfig
     }
 }
 
-const config: CallsheetConfig = window.__CALLSHEET__ ?? {
+const config: CallspecUiConfig = window.__CALLSPEC_UI__ ?? {
     specUrl: '../openapi.json',
     rpcBase: '..',
     mcpPath: '../mcp',
@@ -46,19 +46,19 @@ function escapeHtml(text: string): string {
 
 }
 
-function hasHomePage(branding: CallsheetBranding | undefined): boolean {
+function hasHomePage(branding: CallspecUiBranding | undefined): boolean {
 
     return Boolean(branding?.intro);
 
 }
 
-function displayName(title: string, branding: CallsheetBranding | undefined): string {
+function displayName(title: string, branding: CallspecUiBranding | undefined): string {
 
     return branding?.name ?? title;
 
 }
 
-function websiteLabel(branding: CallsheetBranding): string {
+function websiteLabel(branding: CallspecUiBranding): string {
 
     if (branding.websiteLabel) return branding.websiteLabel;
 
@@ -81,7 +81,7 @@ function websiteLabel(branding: CallsheetBranding): string {
 }
 
 function renderBrandMark(
-    branding: CallsheetBranding | undefined,
+    branding: CallspecUiBranding | undefined,
     options: {size: number; wrapClass: string},
 ): string {
 
@@ -104,7 +104,7 @@ function renderBrandMark(
 
 }
 
-function renderLogo(branding: CallsheetBranding | undefined): string {
+function renderLogo(branding: CallspecUiBranding | undefined): string {
 
     const mark = renderBrandMark(branding, {
         size: branding?.logoSize ?? 80,
@@ -177,9 +177,9 @@ function exampleFromSchema(schema: unknown, key?: string): unknown {
 
 }
 
-function groupByTag(routes: CallsheetRoute[]): Map<string, CallsheetRoute[]> {
+function groupByTag(routes: CallspecUiRoute[]): Map<string, CallspecUiRoute[]> {
 
-    const groups = new Map<string, CallsheetRoute[]>();
+    const groups = new Map<string, CallspecUiRoute[]>();
 
     for (const route of routes) {
 
@@ -214,7 +214,7 @@ type RouteFilters = {
     mcpOnly: boolean
 };
 
-function uniqueTags(routes: CallsheetRoute[]): string[] {
+function uniqueTags(routes: CallspecUiRoute[]): string[] {
 
     const tags = new Set<string>();
 
@@ -232,7 +232,7 @@ function uniqueTags(routes: CallsheetRoute[]): string[] {
 
 }
 
-function applyFilters(routes: CallsheetRoute[], filters: RouteFilters): CallsheetRoute[] {
+function applyFilters(routes: CallspecUiRoute[], filters: RouteFilters): CallspecUiRoute[] {
 
     const needle = filters.text.trim().toLowerCase();
 
@@ -273,7 +273,7 @@ function applyFilters(routes: CallsheetRoute[], filters: RouteFilters): Callshee
 
 }
 
-function renderBadges(route: CallsheetRoute): string {
+function renderBadges(route: CallspecUiRoute): string {
 
     return [
         `<span class="badge ${route.access}">${route.access}</span>`,
@@ -282,7 +282,7 @@ function renderBadges(route: CallsheetRoute): string {
 
 }
 
-function viewFromHash(routes: CallsheetRoute[], showHome: boolean): View {
+function viewFromHash(routes: CallspecUiRoute[], showHome: boolean): View {
 
     const raw = location.hash.replace(/^#\/?/, '');
 
@@ -333,7 +333,7 @@ function setViewHash(view: View): void {
 }
 
 function renderSidebar(
-    routes: CallsheetRoute[],
+    routes: CallspecUiRoute[],
     view: View,
     showHome: boolean,
 ): string {
@@ -372,8 +372,8 @@ function renderSidebar(
 function renderHome(
     title: string,
     version: string,
-    routes: CallsheetRoute[],
-    branding: CallsheetBranding,
+    routes: CallspecUiRoute[],
+    branding: CallspecUiBranding,
 ): string {
 
     const name = displayName(title, branding);
@@ -399,8 +399,8 @@ function renderHome(
 }
 
 function renderOverview(
-    filtered: CallsheetRoute[],
-    allRoutes: CallsheetRoute[],
+    filtered: CallspecUiRoute[],
+    allRoutes: CallspecUiRoute[],
     filters: RouteFilters,
     showHome: boolean,
 ): string {
@@ -484,7 +484,7 @@ function renderOverview(
 
 }
 
-function renderRoute(route: CallsheetRoute, bodyJson: string, showHome: boolean): string {
+function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean): string {
 
     const back = showHome
         ? `<button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>`
@@ -529,7 +529,7 @@ function renderRoute(route: CallsheetRoute, bodyJson: string, showHome: boolean)
 
 }
 
-async function sendRequest(route: CallsheetRoute): Promise<void> {
+async function sendRequest(route: CallspecUiRoute): Promise<void> {
 
     const bodyEl = document.getElementById('body') as HTMLTextAreaElement | null;
     const authEl = document.getElementById('auth') as HTMLInputElement | null;
@@ -595,7 +595,7 @@ async function sendRequest(route: CallsheetRoute): Promise<void> {
 
 }
 
-function copyCurl(route: CallsheetRoute): void {
+function copyCurl(route: CallspecUiRoute): void {
 
     const bodyEl = document.getElementById('body') as HTMLTextAreaElement | null;
     const authEl = document.getElementById('auth') as HTMLInputElement | null;
@@ -616,10 +616,10 @@ function copyCurl(route: CallsheetRoute): void {
 
 }
 
-function parseRoutes(doc: Record<string, unknown>): CallsheetRoute[] {
+function parseRoutes(doc: Record<string, unknown>): CallspecUiRoute[] {
 
     const paths = doc.paths as Record<string, Record<string, unknown>> | undefined;
-    const routes: CallsheetRoute[] = [];
+    const routes: CallspecUiRoute[] = [];
 
     if (!paths) return routes;
 
