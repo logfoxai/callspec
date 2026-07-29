@@ -16,7 +16,7 @@
   </p>
 </div>
 
-Define your API once with runtyp. callspec mounts HTTP RPC, white-label docs, OpenAPI 3.1, MCP tools, and a typed client from the same handlers — no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests. One route map powers your REST surface, agent tools, interactive docs, and frontend client types so HTTP and MCP never drift apart.
+Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, MCP server, and a typed client &mdash; no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
 ## ✨ What you get
 
@@ -28,11 +28,8 @@ Define your API once with runtyp. callspec mounts HTTP RPC, white-label docs, Op
 | **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 
-One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
-
 ## Example
 
-Self-contained server — save as `server.ts` and run with `npx tsx server.ts`:
 
 ```typescript
 import express from 'express';
@@ -45,12 +42,10 @@ async function searchRecent(
     input: {query: string; max_results?: number},
     ctx: AuthContext,
 ) {
-
     return {
         results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
         count: 1,
     };
-
 }
 
 const api = defineSpec({
@@ -76,15 +71,10 @@ router.use(express.json());
 
 mountSpec(router, api, {
     contextResolver: (req) => {
-
         if (req.headers.authorization?.startsWith('Bearer ')) {
-
             return {userId: 'user_123'};
-
         }
-
         return undefined;
-
     },
     docs: {
         openApi: {title: 'My API', version: '1.0.0'},
@@ -99,13 +89,11 @@ app.use('/v1', router);
 const port = Number(process.env.PORT ?? 3000);
 
 app.listen(port, () => {
-
     console.log(`RPC:      http://127.0.0.1:${port}/v1/searchRecent`);
     console.log(`Docs:     http://127.0.0.1:${port}/v1/docs`);
     console.log(`OpenAPI:  http://127.0.0.1:${port}/v1/openapi.json`);
     console.log(`MCP:      http://127.0.0.1:${port}/v1/mcp`);
     console.log('Auth:     Authorization: Bearer anything (demo token)');
-
 });
 ```
 
