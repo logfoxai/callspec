@@ -18,7 +18,7 @@
 
 Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
-Every call to your API and MCP have built-in input validation with user-friendly error messages. Clients have built-in compile-time type checking and enjoy LSP autocomplete same as any other types &mdash; with human readable types, thanks to [runtyp](https://github.com/logfoxai/runtyp).
+RPC and MCP calls are validated at the boundary with clear error messages. The typed client gets compile-time checking and LSP autocomplete from the same definitions — human-readable types via [runtyp](https://github.com/logfoxai/runtyp).
 
 ## ✨ What you get
 
@@ -118,8 +118,6 @@ npm run build && npm run dev:docs
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
 ## 🔌 Built-in MCP server
-
-No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
 2. **Validated tool calls** — every `tools/call` runs through the same runtyp pipeline as RPC. Field `{ description }`, ranges, and enums flow into MCP `inputSchema` so clients know what to send; invalid args return **structured validation errors** (not opaque 500s) that agents can read and retry.
