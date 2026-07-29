@@ -5,37 +5,46 @@
     <img src="assets/callspec-lockup-dark.svg" alt="callspec" />
   </picture>
 
-  <p><strong>One spec — ship RPC, docs, OpenAPI, MCP, and a typed client.</strong></p>
-
-  <p>
-    <img src="https://img.shields.io/badge/SemVer-2.0.0-blue" alt="SemVer" />
-    <img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg" alt="Conventional Commits" />
-    <a href="https://github.com/mhweiner/autorel"><img src="https://img.shields.io/badge/%F0%9F%9A%80%20AutoRel-2D4DDE" alt="AutoRel" /></a>
-    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
-    <img src="https://img.shields.io/badge/status-early-orange.svg" alt="Early" />
-  </p>
-
-  <p>
-    Define your API once with runtyp. callspec mounts HTTP RPC, white-label docs, OpenAPI&nbsp;3.1, MCP tools, and a typed client from the same handlers — no duplicate schemas, no bolt-on doc stack.
-  </p>
+  <p style="font-size: 1.45em; margin: 1.25em 0 1.5em;"><strong>One spec — ship RPC, docs, OpenAPI, MCP, and a typed client.</strong></p>
 
   <p>
     <a href="assets/callspec-ui-chirp-demo-home.png">
-      <img src="assets/callspec-ui-chirp-demo-home.png" alt="callspec UI — Chirp demo with Connect MCP panel" width="920" />
+      <img src="assets/callspec-ui-chirp-demo-home.png" alt="callspec UI" width="920" />
     </a>
+  </p>
+
+  <p style="max-width: 760px; margin: 1.5em auto 0; line-height: 1.6;">
+    Define your API once with runtyp. callspec mounts HTTP RPC, white-label docs, OpenAPI&nbsp;3.1, MCP tools, and a typed client from the same handlers — no duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests. One route map powers your REST surface, agent tools, interactive docs, and frontend client types so HTTP and MCP never drift apart.
   </p>
 </div>
 
 > **Early.** APIs and defaults may change before v1.0. Feedback and contributors welcome.
 
-## Highlights
+## Features
 
-- **One spec** — add a route once; HTTP, docs, OpenAPI, MCP, and client stay in sync
-- **callspec UI** — built-in, white-label docs with try-it-out and a **Connect MCP** panel (Cursor, Claude, VS Code, Windsurf, Pi, …)
-- **Built-in MCP** — `mcp: true` on a route; same handlers and schemas as HTTP, no separate process
-- **OpenAPI 3.1** — JSON Schema from runtyp preds at `GET /openapi.json`
-- **Typed client** — fetch-only `callspec/client` subpath, safe in browser bundles
-- **One mount** — `mountSpec` wires RPC, docs, OpenAPI, and MCP; toggle each surface independently
+**📋 One spec, every surface**
+
+- Add a route once — HTTP, docs, OpenAPI, MCP, and client stay in sync
+- `defineSpec` + `mountSpec` wire RPC, OpenAPI, callspec UI, and MCP from one route map
+- Toggle each surface independently — OpenAPI only, UI only, MCP off, or docs off entirely
+
+**🎨 Docs & OpenAPI**
+
+- Built-in **callspec UI** — white-label docs with try-it-out
+- **Connect MCP** panel on the home page — copy-paste configs for Cursor, Claude, VS Code, Windsurf, Pi, …
+- OpenAPI 3.1 at `GET /openapi.json` — JSON Schema generated from runtyp preds
+
+**🤖 MCP for agents**
+
+- `mcp: true` on any route — same handlers and schemas as HTTP, no separate process
+- `tools/list` + `tools/call` at `/mcp`; private tools use the same auth as RPC
+
+**⚡ Typed client**
+
+- Fetch-only `callspec/client` subpath — no server code in browser bundles
+- `InferSpec<typeof api>` — export route types once for frontend and backend
+
+**🔌 Surfaces at a glance**
 
 | Surface | How you get it |
 |---------|----------------|
@@ -94,19 +103,7 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
-## Go deeper
-
-| Topic | Section |
-|-------|---------|
-| MCP server & Connect panel | [MCP server](#mcp-server) |
-| White-label docs UI | [callspec UI](#callspec-ui) |
-| Public vs private routes | [Auth](#auth) |
-| runtyp → JSON Schema → OpenAPI | [OpenAPI & runtyp](#openapi--runtyp) |
-| Browser-safe fetch client | [Client](#client) |
-| Local dev & CI | [Development](#development) |
-| Source layout | [Package layout](#package-layout) |
-
-# MCP server
+## MCP server
 
 No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
@@ -116,7 +113,7 @@ No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 Agents call the **same handlers** as HTTP RPC. Auth uses the same `contextResolver`. Public tools work without a token; private tools return 401 without one.
 
-# callspec UI
+## callspec UI
 
 Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and connect MCP clients from the home page.
 
@@ -146,7 +143,7 @@ Toggle each surface independently — OpenAPI only, UI only, MCP off (`mcp: fals
 
 Light and dark lockups follow `prefers-color-scheme` in docs; the UI footer switches marks on `data-theme` the same way as [Castellan](https://github.com/logfoxai/castellan).
 
-# Auth
+## Auth
 
 - **`access: 'public'`** — no credentials required
 - **`access: 'private'`** (default) — 401 without `contextResolver` result
@@ -154,13 +151,13 @@ Light and dark lockups follow `prefers-color-scheme` in docs; the UI footer swit
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
-# OpenAPI & runtyp
+## OpenAPI & runtyp
 
 Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callspec UI → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schema generation.
 
-# Client
+## Client
 
 Fetch-only — works in the browser and in Node 18+. Import `callspec/client` so you do not pull server code into frontend bundles.
 
@@ -188,7 +185,7 @@ export type API = InferSpec<typeof api>;
 
 Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
-# Development
+## Development
 
 ```bash
 npm run validate   # build server + callspec UI, lint, test (incl. integration)
@@ -196,21 +193,6 @@ npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 
 Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
-
-# Package layout
-
-```
-src/
-  defineRoute.ts      # route definition + arity guard
-  defineSpec.ts   # named route map
-  executeRoute.ts     # shared HTTP + MCP pipeline
-  mountSpec.ts    # POST routes + openapi + callspec UI + MCP
-  mountMcp.ts         # low-level MCP mount (used by mountSpec)
-  mcpTools.ts         # tools/list schemas from runtyp
-  openapi.ts          # OpenAPI 3.1 emitter
-  client.ts           # typed fetch client
-  callspec-ui/        # built-in docs UI (bundled to dist/callspec-ui/ui)
-```
 
 ## Help build the standard
 
