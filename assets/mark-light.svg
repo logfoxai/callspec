@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="56" height="58" viewBox="0 0 56 58" role="img" aria-label="callspec">
-  <circle cx="30" cy="29" r="5" fill="#171717"/>
-  <path d="M30 29L10 29" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="6" cy="29" r="4.5" fill="#84cc16"/>
-  <path d="M30 29L44 13" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="47" cy="10" r="4.5" fill="#ef4444"/>
-  <path d="M30 29L32 48" stroke="#171717" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="32" cy="52" r="4.5" fill="#06b6d4"/>
-</svg>
