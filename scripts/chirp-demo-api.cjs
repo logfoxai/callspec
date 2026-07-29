@@ -1,8 +1,8 @@
 /**
- * Fictional "Chirp API v2" — Twitter/X-shaped demo registry for callspec UI dev server.
+ * Fictional "Chirp API v2" — Twitter/X-shaped demo spec for callspec UI dev server.
  */
 const {predicates: p} = require('runtyp');
-const {defineRegistry, defineRoute} = require('../dist');
+const {defineSpec, defineRoute} = require('../dist');
 
 const tweetFields = p.optional(p.array(p.string(), {
     description: 'Tweet fields to expand (e.g. author_id, created_at, public_metrics)',
@@ -75,7 +75,7 @@ function paginated(dataKey, items, meta = {}) {
 
 }
 
-const api = defineRegistry({
+const api = defineSpec({
 
     healthcheck: defineRoute({
         input: p.object({}),
@@ -278,7 +278,7 @@ const api = defineRegistry({
         },
         access: 'private',
         handler: (input, _ctx) => paginated('data', [
-            mockTweet('5001', 'Working on RPC + OpenAPI from one registry', input.id),
+            mockTweet('5001', 'Working on RPC + OpenAPI from one spec', input.id),
             mockTweet('5002', 'callspec UI looking clean', input.id),
         ]),
     }),

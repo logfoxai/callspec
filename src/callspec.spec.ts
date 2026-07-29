@@ -1,6 +1,6 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRegistry, defineRoute, executeRoute} from '.';
+import {defineSpec, defineRoute, executeRoute} from '.';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 
 test('defineRoute rejects non-2-arg handlers', (assert) => {
@@ -76,9 +76,9 @@ test('executeRoute validation error', async (assert) => {
 
 });
 
-test('defineRegistry wires routes', (assert) => {
+test('defineSpec wires routes', (assert) => {
 
-    const api = defineRegistry({
+    const api = defineSpec({
         ping: defineRoute({
             input: p.object({}),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
@@ -87,6 +87,6 @@ test('defineRegistry wires routes', (assert) => {
         }),
     });
 
-    assert.equal(typeof api.ping.handler, 'function', 'registry has route');
+    assert.equal(typeof api.ping.handler, 'function', 'spec has route');
 
 });

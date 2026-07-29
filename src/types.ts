@@ -30,7 +30,7 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     handler: RouteHandler<TInput, TOutput, Ctx>
 };
 
-export type Registry<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
+export type Spec<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
 
 export type ContextResolver<Ctx> = (req: Request) => Ctx | Promise<Ctx | undefined> | Ctx | undefined;
 
@@ -44,7 +44,7 @@ export type InferRouteOutput<R extends RouteDef<any, any, any>> =
         ? O
         : UnwrapPromise<ReturnType<R['handler']>>;
 
-export type InferRegistry<T extends Registry<any>> = {
+export type InferSpec<T extends Spec<any>> = {
     [K in keyof T]: {
         name: K & string
         input: InferRouteInput<T[K]>

@@ -1,9 +1,9 @@
 export {defineRoute} from './defineRoute';
-export {defineRegistry} from './defineRegistry';
-export type {Registry} from './defineRegistry';
+export {defineSpec} from './defineSpec';
+export type {Spec} from './defineSpec';
 export {executeRoute} from './executeRoute';
-export {mountRegistry} from './mountRegistry';
-export type {MountRegistryOptions, MountRegistryDocsOptions, MountRegistryMcpOptions} from './mountRegistry';
+export {mountSpec} from './mountSpec';
+export type {MountSpecOptions, MountSpecDocsOptions, MountSpecMcpOptions} from './mountSpec';
 export {mountCallspecUi, renderCallspecUiPage, parseCallspecOpenApi} from './callspec-ui';
 export type {MountCallspecUiOptions, CallspecUiConfig, CallspecUiRoute, CallspecUiSpec} from './callspec-ui';
 export {mountMcp} from './mountMcp';
@@ -25,7 +25,7 @@ export type {
     RouteDef,
     RouteHandler,
     ContextResolver,
-    InferRegistry,
+    InferSpec,
     InferRouteInput,
     InferRouteOutput,
 } from './types';

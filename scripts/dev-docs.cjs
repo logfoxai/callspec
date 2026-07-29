@@ -6,7 +6,7 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-const {mountRegistry} = require('../dist');
+const {mountSpec} = require('../dist');
 const {api} = require('./chirp-demo-api.cjs');
 
 const app = express();
@@ -15,7 +15,7 @@ const brandAssetsDir = path.join(__dirname, '../assets/chirp');
 
 router.use(bodyParser.json());
 
-mountRegistry(router, api, {
+mountSpec(router, api, {
     docs: {
         openApi: {
             title: 'Chirp API v2',
@@ -24,7 +24,7 @@ mountRegistry(router, api, {
         ui: {
             branding: {
                 name: 'Chirp',
-                intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one registry powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
+                intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
                 websiteUrl: 'https://chirp.social',
                 websiteLabel: 'chirp.social',
                 logoUrl: './brand/mark.png',

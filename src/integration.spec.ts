@@ -3,12 +3,12 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import http from 'http';
 import {predicates as p} from 'runtyp';
-import {defineRegistry} from './defineRegistry';
+import {defineSpec} from './defineSpec';
 import {defineRoute} from './defineRoute';
-import {mountRegistry} from './mountRegistry';
+import {mountSpec} from './mountSpec';
 import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
 
-const fixtureRegistry = defineRegistry({
+const fixtureSpec = defineSpec({
 
     healthcheck: defineRoute({
         input: p.object({}),
@@ -53,7 +53,7 @@ function createTestApp(): http.Server {
 
     router.use(bodyParser.json());
 
-    mountRegistry(router, fixtureRegistry, {
+    mountSpec(router, fixtureSpec, {
         docs: {
             openApi: {title: 'Fixture API', version: '1.0.0'},
             exposeOpenApi: true,
@@ -246,7 +246,7 @@ test('integration: validation error on bad input', async (assert) => {
 
 });
 
-test('integration: MCP auto-mounts from mountRegistry when routes opt in', async (assert) => {
+test('integration: MCP auto-mounts from mountSpec when routes opt in', async (assert) => {
 
     await withServer(async (base) => {
 
@@ -267,7 +267,7 @@ test('integration: MCP auto-mounts from mountRegistry when routes opt in', async
 
 });
 
-test('integration: MCP tools/call uses mountRegistry contextResolver', async (assert) => {
+test('integration: MCP tools/call uses mountSpec contextResolver', async (assert) => {
 
     await withServer(async (base) => {
 
@@ -299,7 +299,7 @@ test('integration: mcp false skips MCP endpoint', async (assert) => {
 
     router.use(bodyParser.json());
 
-    mountRegistry(router, fixtureRegistry, {
+    mountSpec(router, fixtureSpec, {
         mcp: false,
         docs: {
             openApi: {title: 'Fixture API', version: '1.0.0'},
@@ -337,7 +337,7 @@ test('integration: docs can expose openapi only', async (assert) => {
 
     router.use(bodyParser.json());
 
-    mountRegistry(router, fixtureRegistry, {
+    mountSpec(router, fixtureSpec, {
         docs: {
             openApi: {title: 'Spec only', version: '0.0.1'},
             exposeOpenApi: true,
