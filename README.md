@@ -18,17 +18,18 @@
 
 Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
-RPC and MCP calls are validated at the boundary with clear error messages. The typed client gets compile-time checking and LSP autocomplete from the same definitions — human-readable types via [runtyp](https://github.com/logfoxai/runtyp).
+Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec — human-readable types via [runtyp](https://github.com/logfoxai/runtyp).
 
 ## ✨ What you get
 
-| Surface | How you get it |
+| Surface | Where |
 |---------|----------------|
 | **HTTP RPC** | `POST /v1/<methodName>` |
-| **Interactive docs** | Built-in **callspec UI** at `/docs` |
-| **OpenAPI 3.1** | `GET /openapi.json` from the same spec |
-| **MCP tools** | `mcp: true` → `tools/list` + `tools/call` at `/mcp` — JSON Schema inputs + runtyp validation on every call |
+| **Interactive UI docs** | `/docs` |
+| **OpenAPI 3.1** | `/openapi.json` |
+| **MCP tools** |`/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
+| **Input validation** | Runtime & compile-time (TypeScript) |
 
 One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
