@@ -18,17 +18,18 @@
 
 Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
 
-Every call to your API and MCP have built-in input validation with user-friendly error messages. Clients have built-in compile-time type checking and enjoy LSP autocomplete same as any other types &mdash; with human readable types, thanks to [runtyp](https://github.com/logfoxai/runtyp).
+Every RPC and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec — human-readable types via [runtyp](https://github.com/logfoxai/runtyp).
 
 ## ✨ What you get
 
-| Surface | How you get it |
+| Surface | Where |
 |---------|----------------|
 | **HTTP RPC** | `POST /v1/<methodName>` |
-| **Interactive docs** | Built-in **callspec UI** at `/docs` |
-| **OpenAPI 3.1** | `GET /openapi.json` from the same spec |
-| **MCP tools** | `mcp: true` → `tools/list` + `tools/call` at `/mcp` — JSON Schema inputs + runtyp validation on every call |
+| **Interactive UI docs** | `/docs` |
+| **OpenAPI 3.1** | `/openapi.json` |
+| **MCP tools** |`/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
+| **Input validation** | Runtime & compile-time (TypeScript) |
 
 One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountSpec` once** and you're live.
 
@@ -118,8 +119,6 @@ npm run build && npm run dev:docs
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
 ## 🔌 Built-in MCP server
-
-No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
 2. **Validated tool calls** — every `tools/call` runs through the same runtyp pipeline as RPC. Field `{ description }`, ranges, and enums flow into MCP `inputSchema` so clients know what to send; invalid args return **structured validation errors** (not opaque 500s) that agents can read and retry.
