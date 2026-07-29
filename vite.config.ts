@@ -3,12 +3,12 @@ import {defineConfig} from 'vite';
 
 export default defineConfig({
     build: {
-        outDir: 'dist/callsheet/ui',
+        outDir: 'dist/callspec-ui/ui',
         emptyOutDir: true,
         lib: {
-            entry: path.resolve(__dirname, 'src/callsheet/ui/main.ts'),
+            entry: path.resolve(__dirname, 'src/callspec-ui/ui/main.ts'),
             formats: ['iife'],
-            name: 'Callsheet',
+            name: 'CallspecUi',
             fileName: () => 'assets/app.js',
         },
         cssCodeSplit: false,

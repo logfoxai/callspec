@@ -6,7 +6,7 @@ import {predicates as p} from 'runtyp';
 import {defineRegistry} from './defineRegistry';
 import {defineRoute} from './defineRoute';
 import {mountRegistry} from './mountRegistry';
-import {parseCallspecOpenApi} from './callsheet/parseOpenApi';
+import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
 
 const fixtureRegistry = defineRegistry({
 
@@ -137,7 +137,7 @@ test('integration: openapi.json lists all fixture routes', async (assert) => {
 
 });
 
-test('integration: callsheet UI at /docs', async (assert) => {
+test('integration: callspec UI at /docs', async (assert) => {
 
     await withServer(async (base) => {
 
@@ -146,7 +146,7 @@ test('integration: callsheet UI at /docs', async (assert) => {
 
         assert.equal(res.status, 200);
         assert.equal(res.headers.get('content-type')?.includes('text/html'), true);
-        assert.equal(html.includes('window.__CALLSHEET__='), true);
+        assert.equal(html.includes('window.__CALLSPEC_UI__='), true);
         assert.equal(html.includes('"specUrl":"../openapi.json"'), true);
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);

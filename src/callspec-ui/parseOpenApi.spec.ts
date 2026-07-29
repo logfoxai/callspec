@@ -1,6 +1,6 @@
 import {test} from 'kizu';
 import {parseCallspecOpenApi} from './parseOpenApi';
-import {renderCallsheetPage} from './mountCallsheet';
+import {renderCallspecUiPage} from './mountCallspecUi';
 
 const sampleDoc = {
     openapi: '3.1.0',
@@ -86,9 +86,9 @@ test('parseCallspecOpenApi: extracts routes and callspec extensions', (assert) =
 
 });
 
-test('mountCallsheet: renderCallsheetPage injects config', (assert) => {
+test('mountCallspecUi: renderCallspecUiPage injects config', (assert) => {
 
-    const html = renderCallsheetPage({
+    const html = renderCallspecUiPage({
         specUrl: './openapi.json',
         rpcBase: '..',
         title: 'Test',
@@ -101,7 +101,7 @@ test('mountCallsheet: renderCallsheetPage injects config', (assert) => {
         mcp: {authHint: 'Bearer required'},
     });
 
-    assert.equal(html.includes('window.__CALLSHEET__='), true);
+    assert.equal(html.includes('window.__CALLSPEC_UI__='), true);
     assert.equal(html.includes('./openapi.json'), true);
     assert.equal(html.includes('Welcome to Acme API.'), true);
     assert.equal(html.includes('../mcp'), true);

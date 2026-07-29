@@ -43,7 +43,7 @@
     "prepare": "npm run build",
     "build": "npm run build:server && npm run build:ui",
     "build:server": "tsc",
-    "build:ui": "node scripts/build-callsheet-ui.mjs",
+    "build:ui": "node scripts/build-ui.mjs",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "test": "kizu 'src/**/*.spec.ts'",

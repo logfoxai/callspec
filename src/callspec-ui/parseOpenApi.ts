@@ -1,23 +1,23 @@
-export type CallsheetAccess = 'public' | 'private';
+export type CallspecUiAccess = 'public' | 'private';
 
-export type CallsheetRoute = {
+export type CallspecUiRoute = {
     name: string
     summary: string
     description: string
     tags: string[]
-    access: CallsheetAccess
+    access: CallspecUiAccess
     mcp: boolean
     inputSchema: unknown
     outputSchema: unknown
 };
 
-export type CallsheetSpec = {
+export type CallspecUiSpec = {
     title: string
     version: string
-    routes: CallsheetRoute[]
+    routes: CallspecUiRoute[]
 };
 
-function readAccess(operation: Record<string, unknown>): CallsheetAccess {
+function readAccess(operation: Record<string, unknown>): CallspecUiAccess {
 
     const ext = operation['x-callspec-access'];
 
@@ -49,13 +49,13 @@ function readJsonSchema(content: Record<string, unknown> | undefined): unknown {
 
 }
 
-export function parseCallspecOpenApi(doc: Record<string, unknown>): CallsheetSpec {
+export function parseCallspecOpenApi(doc: Record<string, unknown>): CallspecUiSpec {
 
     const info = doc.info as Record<string, unknown> | undefined;
 
     const paths = doc.paths as Record<string, Record<string, unknown>> | undefined;
 
-    const routes: CallsheetRoute[] = [];
+    const routes: CallspecUiRoute[] = [];
 
     if (paths) {
 

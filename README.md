@@ -8,15 +8,15 @@
   <p><strong>One registry. HTTP RPC, interactive docs, OpenAPI, MCP, and a typed client.</strong></p>
 </div>
 
-One `defineRegistry` powers HTTP RPC, OpenAPI, callsheet docs, MCP tools, and a typed client. Add a route once; it shows up everywhere.
+One `defineRegistry` powers HTTP RPC, OpenAPI, callspec UI docs, MCP tools, and a typed client. Add a route once; it shows up everywhere.
 
 <p align="center">
-  <a href="assets/callsheet-chirp-demo-home.png">
-    <img src="assets/callsheet-chirp-demo-home.png" alt="callsheet home — Chirp demo API with Connect MCP panel showing Cursor config" width="920" />
+  <a href="assets/callspec-ui-chirp-demo-home.png">
+    <img src="assets/callspec-ui-chirp-demo-home.png" alt="callspec UI home — Chirp demo API with Connect MCP panel showing Cursor config" width="920" />
   </a>
 </p>
 
-<p align="center"><sub><strong>callsheet</strong> — built-in, <strong>white-label</strong> docs UI with a <strong>Connect MCP</strong> panel. Copy the endpoint and a ready-made config for Cursor, Claude, VS Code, Windsurf, or Pi.</sub></p>
+<p align="center"><sub><strong>callspec UI</strong> — built-in, <strong>white-label</strong> docs UI with a <strong>Connect MCP</strong> panel. Copy the endpoint and a ready-made config for Cursor, Claude, VS Code, Windsurf, or Pi.</sub></p>
 
 ```typescript
 import {defineRegistry, defineRoute, mountRegistry} from 'callspec';
@@ -44,7 +44,7 @@ mountRegistry(app, api, {
         openApi: {title: 'Chirp API v2', version: '2.0.0'},
         exposeUi: true,
         exposeOpenApi: true,
-        callsheet: {
+        ui: {
             branding: {
                 name: 'Chirp',
                 intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages.',
@@ -61,13 +61,13 @@ mountRegistry(app, api, {
 
 Try the demo locally: `npm run build && npm run dev:docs` → [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) (Chirp API sample; use `Bearer demo` for private tools).
 
-## Built-in MCP server
+## 🔌 Built-in MCP server
 
 No separate MCP process. No hand-maintained tool manifest. No stdio bridge.
 
 1. **Opt in per route** — `mcp: true` on any `defineRoute`. Input/output schemas come from the same runtyp preds as HTTP.
 2. **Built into `mountRegistry`** — when any route opts in, MCP mounts at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }` or disable with `mcp: false`).
-3. **Connect from callsheet** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
+3. **Connect from the callspec UI** — at `/docs`, the **Connect MCP** panel shows your endpoint and copy-paste configs for Cursor (`.cursor/mcp.json`), Claude Desktop, Claude Code CLI, VS Code, Windsurf, and Pi — including `Authorization` headers when you have private tools.
 
 ```typescript
 searchRecent: defineRoute({
@@ -91,34 +91,21 @@ searchRecent: defineRoute({
 
 Agents call the **same handlers** as your HTTP RPC. Auth uses the same `contextResolver` (e.g. `Authorization: Bearer …`). Public tools work without a token; private tools return 401 without one.
 
-## Why callspec
+## ✨ What you get
 
 | Surface | How you get it |
 |---------|----------------|
 | **HTTP RPC** | `POST /v1/<methodName>` |
-| **Interactive docs** | Built-in **callsheet** UI at `/docs` |
+| **Interactive docs** | Built-in **callspec UI** at `/docs` |
 | **OpenAPI 3.1** | `GET /openapi.json` from the same registry |
 | **MCP tools** | `mcp: true` on a route → `tools/list` + `tools/call` at `/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 
-No second schema. No duplicate handler layer. No separate MCP subprocess.
+One schema, one handler layer, one mount. Past RPC and OpenAPI stacks often stopped at the wire format — docs were a separate install, agent tooling was DIY, and white-labeling meant forking someone else's UI. callspec bundles the full surface: **`mountRegistry` once** and you're live.
 
-## Batteries included
+### 📖 callspec UI — interactive docs (white-label)
 
-Swagger gave you a spec. You still had to wire up **swagger-ui**, host static assets, theme it, and glue on auth, try-it-out, and agent tooling yourself. callspec ships the whole surface from one registry — **no extra doc stack to install or configure**.
-
-| | Swagger / OpenAPI typical setup | callspec |
-|---|--------------------------------|----------|
-| **Interactive docs** | Add swagger-ui (or Redoc), static hosting, CORS, auth headers | `exposeUi: true` — **callsheet** bundled in the package |
-| **White-label UI** | Custom CSS hacks or fork swagger-ui | **`callsheet.branding`** — your name, logo, intro, website (see Chirp demo) |
-| **Machine-readable spec** | You maintain `openapi.json` separately | Same registry → `GET /openapi.json` |
-| **Agent tools (MCP)** | Not part of the Swagger story | `mcp: true` on routes; MCP mounts with `mountRegistry` |
-| **Try RPCs** | swagger-ui try-it-out (HTTP only) | Built into callsheet |
-| **Setup** | Multiple packages, mounts, and config files | **`mountRegistry` once** |
-
-### callsheet — interactive docs (white-label)
-
-Minimal, fast docs UI baked into callspec — not a generic “Powered by Swagger” shell. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `callsheet.branding` at your product: display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callsheet white-labeled as a fictional API.
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `docs.ui.branding` at your product: display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callspec UI white-labeled as a fictional API.
 
 Env-gated in production; flip on with:
 
@@ -129,7 +116,7 @@ docs: {
     exposeUi: true,
     openApiPath: '/openapi.json',
     uiPath: '/docs',
-    callsheet: {
+    ui: {
         branding: {
             name: 'Chirp',
             intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages.',
@@ -149,7 +136,7 @@ docs: {
 
 Toggle each surface independently — spec only, UI only, MCP off (`mcp: false`), or neither (`docs: false`).
 
-### Auth
+### 🔐 Auth
 
 - **`access: 'public'`** — no credentials required (e.g. Chirp `healthcheck`, `getTweet`)
 - **`access: 'private'`** (default) — 401 without `contextResolver` result
@@ -157,11 +144,11 @@ Toggle each surface independently — spec only, UI only, MCP off (`mcp: false`)
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
-### runtyp + OpenAPI
+### 🧩 runtyp + OpenAPI
 
-Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callsheet → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
+Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callspec UI → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
 
-## Client
+## 📦 Client
 
 Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `callspec/client` entry has no `http`, `https`, or Express imports, so it is safe in frontend bundles.
 
@@ -195,43 +182,43 @@ export type API = InferRegistry<typeof api>;
 
 Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
-## Development
+## 🛠 Development
 
 ```bash
-npm run validate   # build server + callsheet UI, lint, test (incl. integration)
-npm run dev:docs   # Chirp demo API + callsheet at :3456/v1/docs
+npm run validate   # build server + callspec UI, lint, test (incl. integration)
+npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 
 Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
 
-## Help build the standard
+## 🤝 Help build the standard
 
 callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
 
-Swagger gave the world a shared language for REST. OpenAPI made it machine-readable. We're trying to do that again for **one registry → HTTP RPC, docs, OpenAPI, and MCP** — without the duplicate schemas, bolt-on tool manifests, and duct-tape between surfaces.
+The goal is simple: **one registry → HTTP RPC, docs, OpenAPI, and MCP** — no duplicate schemas, no bolt-on tool manifests, no duct-tape between surfaces.
 
-If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callsheet UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from. Early contributors tend to become the people others cite — show up in release notes, speak at the meetup, get asked "who built this?" when the pattern spreads.
+If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callspec UI UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from. Early contributors tend to become the people others cite — show up in release notes, speak at the meetup, get asked "who built this?" when the pattern spreads.
 
-**Good first contributions:** callsheet polish, MCP client configs, docs and demos, runtyp/OpenAPI edge cases, Fastify/Hono mounts, issue triage, or a blog post about your integration.
+**Good first contributions:** callspec UI polish, MCP client configs, docs and demos, runtyp/OpenAPI edge cases, Fastify/Hono mounts, issue triage, or a blog post about your integration.
 
 - **Issues & ideas:** [github.com/logfoxai/callspec/issues](https://github.com/logfoxai/callspec/issues)
 - **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, `style:`, etc.)
 
-If you want maintainer access or a dedicated area to own (callsheet, MCP, clients, docs), open an issue or PR and say hi. We'd rather have a small crew that cares than a huge drive-by.
+If you want maintainer access or a dedicated area to own (callspec UI, MCP, clients, docs), open an issue or PR and say hi. We'd rather have a small crew that cares than a huge drive-by.
 
-## Package layout
+## 📁 Package layout
 
 ```
 src/
   defineRoute.ts      # route definition + arity guard
   defineRegistry.ts   # named route map
   executeRoute.ts     # shared HTTP + MCP pipeline
-  mountRegistry.ts    # POST routes + openapi + callsheet + MCP
+  mountRegistry.ts    # POST routes + openapi + callspec UI + MCP
   mountMcp.ts         # low-level MCP mount (used by mountRegistry)
   mcpTools.ts         # tools/list schemas from runtyp
   openapi.ts          # OpenAPI 3.1 emitter
   client.ts           # typed fetch client
-  callsheet/          # built-in docs UI (bundled to dist/callsheet/ui)
+  callspec-ui/          # built-in docs UI (bundled to dist/callspec-ui/ui)
 ```
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation.

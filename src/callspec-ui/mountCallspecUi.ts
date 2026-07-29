@@ -2,11 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import type {RequestHandler, Router} from 'express';
 import express from 'express';
-import type {CallsheetBranding, CallsheetConfig, CallsheetMcp} from './branding';
+import type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
 
-export type {CallsheetBranding, CallsheetConfig, CallsheetMcp} from './branding';
+export type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
 
-export type MountCallsheetOptions = {
+export type MountCallspecUiOptions = {
     /** Mount path for the UI. Default `/docs`. */
     path?: string
     /** OpenAPI JSON URL for the UI to fetch. Default `../openapi.json`. */
@@ -16,22 +16,22 @@ export type MountCallsheetOptions = {
     /** Page title override. */
     title?: string
     /** Whitelabel home page content */
-    branding?: CallsheetBranding
+    branding?: CallspecUiBranding
     /** Relative path from docs to MCP endpoint. Default `../mcp` */
     mcpPath?: string
-    mcp?: CallsheetMcp
+    mcp?: CallspecUiMcp
     /** Directory of tenant logos/static files served at `{path}/brand/` */
     brandAssetsDir?: string
 };
 
-const CONFIG_PLACEHOLDER = '<!--CALLSHEET_CONFIG-->';
+const CONFIG_PLACEHOLDER = '<!--CALLSPEC_UI_CONFIG-->';
 
 function uiDir(): string {
 
     const candidates = [
         path.join(__dirname, 'ui'),
-        path.resolve(__dirname, '../../dist/callsheet/ui'),
-        path.resolve(process.cwd(), 'dist/callsheet/ui'),
+        path.resolve(__dirname, '../../dist/callspec-ui/ui'),
+        path.resolve(process.cwd(), 'dist/callspec-ui/ui'),
     ];
 
     for (const candidate of candidates) {
@@ -44,7 +44,7 @@ function uiDir(): string {
 
     }
 
-    throw new Error('callsheet UI assets missing — run `npm run build` in callspec');
+    throw new Error('callspec UI assets missing — run `npm run build` in callspec');
 
 }
 
@@ -56,10 +56,10 @@ function readIndexHtml(): string {
 
 }
 
-export function renderCallsheetPage(config: CallsheetConfig): string {
+export function renderCallspecUiPage(config: CallspecUiConfig): string {
 
     const html = readIndexHtml();
-    const script = `<script>window.__CALLSHEET__=${JSON.stringify(config)};</script>`;
+    const script = `<script>window.__CALLSPEC_UI__=${JSON.stringify(config)};</script>`;
 
     if (html.includes(CONFIG_PLACEHOLDER)) {
 
@@ -71,7 +71,7 @@ export function renderCallsheetPage(config: CallsheetConfig): string {
 
 }
 
-export function mountCallsheet(router: Router, options: MountCallsheetOptions = {}): void {
+export function mountCallspecUi(router: Router, options: MountCallspecUiOptions = {}): void {
 
     const mountPath = options.path ?? '/docs';
     const mountPathWithSlash = mountPath.endsWith('/') ? mountPath : `${mountPath}/`;
@@ -88,7 +88,7 @@ export function mountCallsheet(router: Router, options: MountCallsheetOptions = 
 
         }
 
-        res.type('html').send(renderCallsheetPage({
+        res.type('html').send(renderCallspecUiPage({
             specUrl,
             rpcBase,
             title: options.title,

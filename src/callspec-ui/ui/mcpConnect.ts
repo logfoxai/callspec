@@ -1,4 +1,4 @@
-import type {CallsheetConfig} from '../branding';
+import type {CallspecUiConfig} from '../branding';
 import {codeBlock} from './highlight';
 
 type McpRoute = {
@@ -25,7 +25,7 @@ function escapeHtml(text: string): string {
 
 }
 
-export function resolveMcpUrl(config: CallsheetConfig): string {
+export function resolveMcpUrl(config: CallspecUiConfig): string {
 
     if (config.mcp?.url) {
 
@@ -279,7 +279,7 @@ function renderClientPanels(clients: ConnectClient[]): string {
 }
 
 export function renderMcpConnect(
-    config: CallsheetConfig,
+    config: CallspecUiConfig,
     routes: McpRoute[],
     displayName: string,
 ): string {

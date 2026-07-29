@@ -1,4 +1,4 @@
-/** Inline SVG icons — 1.5px stroke to match → / ↗ text arrows elsewhere in callsheet. */
+/** Inline SVG icons — 1.5px stroke to match → / ↗ text arrows elsewhere in the callspec UI. */
 
 const SVG_ATTRS = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
 
