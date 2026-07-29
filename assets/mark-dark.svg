@@ -1,10 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="callspec">
-  <rect x="2" y="2" width="44" height="44" rx="9" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
-  <circle cx="24" cy="27" r="4" fill="#fafafa"/>
-  <path d="M24 23V15" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="24" cy="13.5" r="2.25" fill="#fafafa"/>
-  <path d="M20.5 29L14.1 32.2" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="13.2" cy="32.8" r="2.25" fill="#fafafa"/>
-  <path d="M27.5 29L33.9 32.2" stroke="#fafafa" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="34.8" cy="32.8" r="2.25" fill="#fafafa"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="58" viewBox="0 0 56 58" role="img" aria-label="callspec">
+  <circle cx="30" cy="29" r="5" fill="#fafafa"/>
+  <path d="M30 29L10 29" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="6" cy="29" r="4.5" fill="#cbff44"/>
+  <path d="M30 29L44 13" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="47" cy="10" r="4.5" fill="#f97066"/>
+  <path d="M30 29L32 48" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="32" cy="52" r="4.5" fill="#5ce1e6"/>
 </svg>
