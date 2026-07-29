@@ -510,10 +510,12 @@ function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean
         <div class="section">
             <h3 class="section-title">Try it</h3>
             <div class="try-block">
+                ${route.access === 'private' ? `
                 <div class="field">
                     <label for="auth">Authorization</label>
                     <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false">
                 </div>
+                ` : ''}
                 <div class="field">
                     <label for="body">Body</label>
                     ${jsonEditorHtml('body', bodyJson)}

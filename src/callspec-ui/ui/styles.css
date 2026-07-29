@@ -233,6 +233,10 @@ html, body {
 
 .tag-group { margin-bottom: 16px; }
 
+.tag-group:first-of-type {
+    margin-top: 12px;
+}
+
 .tag-label {
     font-size: 11px;
     font-weight: 600;
@@ -283,7 +287,8 @@ html, body {
     border: none;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
 }
 
@@ -534,10 +539,12 @@ html, body {
 }
 
 .method {
+    display: inline-block;
     font-family: var(--mono);
     font-size: 11px;
     font-weight: 600;
-    padding: 3px 7px;
+    line-height: 18px;
+    padding: 0 7px;
     border-radius: 4px;
     background: var(--accent);
     color: var(--surface);
@@ -862,8 +869,14 @@ html, body {
 }
 
 .route-btn.nav-btn {
+    font-family: var(--sans);
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 2px;
+}
+
+.route-btn.nav-btn:last-of-type {
+    margin-bottom: 12px;
 }
 
 .intro {
