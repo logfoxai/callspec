@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec — ship RPC, docs UI, OpenAPI, MCP, and typed clients.</h3>
+  <h3 align="center">One spec ships RPC, docs UI, OpenAPI, MCP, and typed clients.</h3>
 
   <br>
 
