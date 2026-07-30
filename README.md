@@ -205,8 +205,6 @@ npm run validate   # build server + callspec UI, lint, test (incl. integration)
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 
-Design notes: [docs/mount-spec-api.md](docs/mount-spec-api.md).
-
 Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
 
 ## Help build the standard
