@@ -1,11 +1,11 @@
 import type {Request} from 'express';
 import {CallspecUnauthorizedError} from './errors';
 import {extractBearerToken} from './extractBearerToken';
-import type {CallspecMeta, RouteDef} from './types';
+import type {Authenticate, RouteDef} from './types';
 
 export async function resolveRouteContext<Ctx>(
     route: RouteDef<any, any, Ctx>,
-    meta: CallspecMeta<Ctx>,
+    authenticate: Authenticate<Ctx> | undefined,
     req: Request,
 ): Promise<Ctx | undefined> {
 
@@ -19,13 +19,13 @@ export async function resolveRouteContext<Ctx>(
 
         }
 
-        if (!meta.authenticate) {
+        if (!authenticate) {
 
             throw new CallspecUnauthorizedError();
 
         }
 
-        const ctx = await meta.authenticate(token, req);
+        const ctx = await authenticate(token, req);
 
         if (ctx === undefined || ctx === null) {
 
@@ -37,9 +37,9 @@ export async function resolveRouteContext<Ctx>(
 
     }
 
-    if (token && meta.authenticate) {
+    if (token && authenticate) {
 
-        return await meta.authenticate(token, req);
+        return await authenticate(token, req);
 
     }
 

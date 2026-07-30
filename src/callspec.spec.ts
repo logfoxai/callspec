@@ -107,7 +107,7 @@ test('defineSpec requires authenticate for private routes', (assert) => {
                 }),
             },
         }),
-        /meta\.authenticate/,
+        /authenticate/,
     );
 
 });

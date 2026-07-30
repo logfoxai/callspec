@@ -49,20 +49,21 @@ const routes = {
 const meta = {
     title: 'Fixture API',
     version: '1.0.0',
-    authenticate: (token: string): {userId: string} | undefined => {
-
-        if (token === 'test-token') {
-
-            return {userId: 'test-user'};
-
-        }
-
-        return undefined;
-
-    },
 };
 
-const fixtureSpec = defineSpec({meta, routes});
+const authenticate = (token: string): {userId: string} | undefined => {
+
+    if (token === 'test-token') {
+
+        return {userId: 'test-user'};
+
+    }
+
+    return undefined;
+
+};
+
+const fixtureSpec = defineSpec({meta, routes, authenticate});
 
 function createTestApp(): http.Server {
 
@@ -284,7 +285,7 @@ test('integration: MCP auto-mounts from mountSpec when routes opt in', async (as
 
 });
 
-test('integration: MCP tools/call uses meta.authenticate', async (assert) => {
+test('integration: MCP tools/call uses spec.authenticate', async (assert) => {
 
     await withServer(async (base) => {
 

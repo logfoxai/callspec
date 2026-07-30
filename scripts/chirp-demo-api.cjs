@@ -90,7 +90,6 @@ function authenticate(token, _req) {
 const meta = {
     title: 'Chirp API v2',
     version: '2.0.0',
-    authenticate,
     intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
     website: {url: 'https://chirp.social', label: 'chirp.social'},
     logo: {light: './brand/mark.png', dark: './brand/mark.png'},
@@ -376,6 +375,6 @@ const routes = {
 
 };
 
-const api = defineSpec({meta, routes});
+const api = defineSpec({meta, routes, authenticate});
 
 module.exports = {api, meta, routes};

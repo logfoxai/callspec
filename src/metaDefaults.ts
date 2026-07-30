@@ -6,7 +6,7 @@ export const DEFAULT_CALLSPEC_VERSION = '0.0.0';
 export const DEFAULT_AUTH_HINT =
     'Private routes require Authorization: Bearer <token>.';
 
-export function resolveCallspecMeta<Ctx>(meta: CallspecMeta<Ctx>): CallspecMeta<Ctx> & {
+export function resolveCallspecMeta(meta: CallspecMeta): CallspecMeta & {
     title: string
     version: string
 } {
@@ -19,8 +19,8 @@ export function resolveCallspecMeta<Ctx>(meta: CallspecMeta<Ctx>): CallspecMeta<
 
 }
 
-export function metaBrandingFromCallspecMeta<Ctx>(
-    meta: CallspecMeta<Ctx> & {title: string},
+export function metaBrandingFromCallspecMeta(
+    meta: CallspecMeta & {title: string},
     options?: {authHint?: string},
 ): {
     name?: string
@@ -74,8 +74,8 @@ export function hasPrivateRoutes(routes: Record<string, {access: string}>): bool
 
 }
 
-export function defaultAuthHint<Ctx>(
-    meta: CallspecMeta<Ctx>,
+export function defaultAuthHint(
+    meta: CallspecMeta,
     routes: Record<string, {access: string}>,
 ): string | undefined {
 

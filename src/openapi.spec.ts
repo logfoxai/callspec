@@ -18,9 +18,7 @@ const api = defineSpec({
             handler: (_input, _ctx) => ({secret: true}),
         }),
     },
-    meta: {
-        authenticate: () => ({userId: 'test'}),
-    },
+    authenticate: () => ({userId: 'test'}),
 });
 
 type OpenApiOperation = {

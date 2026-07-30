@@ -50,20 +50,20 @@ export type Authenticate<Ctx> = (
     req: Request,
 ) => Ctx | undefined | Promise<Ctx | undefined>;
 
-export type CallspecMeta<Ctx = unknown> = {
+export type CallspecMeta = {
     title?: string
     version?: string
     intro?: string
     website?: CallspecWebsite
     logo?: CallspecLogo
     authHint?: string
-    authenticate?: Authenticate<Ctx>
     mcpInstructions?: string
 };
 
 export type Callspec<Ctx = unknown> = {
-    meta: CallspecMeta<Ctx>
+    meta: CallspecMeta
     routes: RoutesMap<Ctx>
+    authenticate?: Authenticate<Ctx>
 };
 
 export type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;

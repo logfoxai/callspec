@@ -56,10 +56,11 @@ async function getUserContext(token: string, _req: express.Request): Promise<Aut
 export const meta = {
     title: 'My API',
     version: process.env.VERSION ?? '1.0.0',
-    authenticate: getUserContext,
     intro: 'Search and manage posts from one typed RPC surface.',
     mcpInstructions: 'Read-only search tools require Bearer demo-* tokens in this example.',
 };
+
+export const authenticate = getUserContext;
 
 export const routes = {
     searchRecent: defineRoute({
@@ -78,7 +79,7 @@ export const routes = {
     }),
 };
 
-export const api = defineSpec({meta, routes});
+export const api = defineSpec({meta, routes, authenticate});
 export type API = InferSpec<typeof api.routes>;
 
 const app = express();
@@ -140,9 +141,10 @@ export const meta = {
     website: {url: 'https://chirp.social', label: 'chirp.social'},
     logo: {light: './brand/mark.png', dark: './brand/mark-dark.png'},
     authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
-    authenticate: getUserContext,
     mcpInstructions: 'Chirp-shaped demo API powered by callspec.',
 };
+
+export const authenticate = getUserContext;
 ```
 
 When `logo` is omitted, the UI shows a letter placeholder from `title`. Run `npm run dev:docs` for the **Chirp** sample.
@@ -151,7 +153,7 @@ When `logo` is omitted, the UI shows a letter placeholder from `title`. Run `npm
 
 - **`access: 'public'`** — no credentials required
 - **`access: 'private'`** (default) — 401 without valid Bearer token
-- **`meta.authenticate(token, req)`** — your hook; callspec extracts Bearer and calls it
+- **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
@@ -188,8 +190,9 @@ const results = await client<API['searchRecent']>('searchRecent', {
 import {defineSpec, type InferSpec} from 'callspec';
 import {meta} from './meta';
 import {routes} from './routes';
+import {authenticate} from './authenticate';
 
-export const api = defineSpec({meta, routes});
+export const api = defineSpec({meta, routes, authenticate});
 export type API = InferSpec<typeof api.routes>;
 ```
 

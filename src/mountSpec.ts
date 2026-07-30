@@ -121,7 +121,7 @@ export function mountSpec<Ctx>(
 
             try {
 
-                const ctx = await resolveRouteContext(route, spec.meta, req as Request);
+                const ctx = await resolveRouteContext(route, spec.authenticate, req as Request);
                 const response = await executeRoute(route, req.body, ctx);
                 res.json(response);
 
@@ -145,7 +145,7 @@ export function mountSpec<Ctx>(
 
     if (listMcpTools(routes).length > 0) {
 
-        mountMcp(router, routes, spec.meta, {
+        mountMcp(router, routes, spec.authenticate, {
             path: joinMountPath(basePath, mcpSubPath),
             serverInfo: {
                 name: slugServerName(resolvedMeta.title),

@@ -3,7 +3,7 @@ import {CallspecUnauthorizedError, CallspecValidationError, CallspecNotFoundErro
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
-import type {CallspecMeta, RoutesMap} from './types';
+import type {Authenticate, RoutesMap} from './types';
 
 export type InternalMountMcpOptions = {
     path?: string
@@ -23,7 +23,7 @@ function toolError(message: string): { content: Array<{ type: 'text', text: stri
 export function mountMcp<Ctx>(
     router: Router,
     routes: RoutesMap<Ctx>,
-    meta: CallspecMeta<Ctx>,
+    authenticate: Authenticate<Ctx> | undefined,
     options: InternalMountMcpOptions,
 ): void {
 
@@ -111,7 +111,7 @@ export function mountMcp<Ctx>(
 
                 try {
 
-                    const ctx = await resolveRouteContext(route, meta, req);
+                    const ctx = await resolveRouteContext(route, authenticate, req);
                     const result = await executeRoute(route, body.params?.arguments ?? {}, ctx);
 
                     respond({
