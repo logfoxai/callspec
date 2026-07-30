@@ -48,8 +48,7 @@
     "lint:check": "eslint .",
     "test": "kizu 'src/**/*.spec.ts'",
     "dev:docs": "node scripts/dev-docs.cjs",
-    "validate": "npm run check:package-json && npm run build && npm run lint && npm test",
-    "check:package-json": "node scripts/check-no-file-deps.mjs"
+    "validate": "npm run build && npm run lint && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
@@ -68,6 +67,7 @@
     "@types/express": "^4.17.17",
     "@types/node": "^25.5.0",
     "eslint": "^10.0.0",
+    "eslint-plugin-package-json": "^1.6.1",
     "express": "^4.18.2",
     "kizu": "^4.0.0",
     "typescript": "^5.6.0",

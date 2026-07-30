@@ -5,8 +5,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Test
+  ci:
+    name: CI (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -22,10 +22,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-
-
-      - name: Check package.json deps
-        run: node scripts/check-no-file-deps.mjs
       - name: Install dependencies
         run: npm ci
 
@@ -37,26 +33,3 @@ jobs:
 
       - name: Test
         run: npm test
-
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-
-
-      - name: Check package.json deps
-        run: node scripts/check-no-file-deps.mjs
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
