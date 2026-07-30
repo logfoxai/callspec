@@ -20,14 +20,14 @@ Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, 
 
 Every API and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec &mdash; with simple, clean, human-readable types.
 
-| Feature | Location |
-|---------|----------------|
-| **HTTP RPC API** | `POST /v1/<methodName>` |
-| **Interactive UI docs** | `/docs` |
-| **OpenAPI 3.1** | `/openapi.json` |
-| **MCP tools** | `/mcp` |
-| **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
-| **Input validation** | Runtime & compile-time (TypeScript) |
+- **One spec** — `defineSpec({ meta, routes, authenticate })` is the single source of truth
+- **HTTP RPC** — `POST` per route name, JSON request/response
+- **Input validation** — runtyp predicates at the boundary; 400 with field errors
+- **Auth** — Bearer extraction; public vs private routes; your `authenticate` hook
+- **Docs UI** — interactive, white-label `/docs` (on by default)
+- **OpenAPI 3.1** — `/openapi.json` generated from routes (on by default)
+- **MCP** — opt-in per route (`mcp: true`); same handlers as HTTP
+- **Typed client** — `InferSpec` + `client()` from `callspec/client`
 
 ## Complete example
 
@@ -102,6 +102,71 @@ app.listen(port, () => {
 });
 ```
 
+## API reference
+
+There is no separate markdown API doc. **The exports are the reference** — after `npm i callspec`, use your editor on `callspec` and `callspec/client` (published `dist/*.d.ts`), or browse the types in this repo under `src/`.
+
+### `defineRoute`
+
+```typescript
+defineRoute({
+    input: p.object({…}),           // required — runtyp predicate
+    output?: p.object({…}),         // optional output validation
+    meta: {summary, description, tags},
+    access?: 'public' | 'private',  // default 'private'
+    mcp?: true | {name?, annotations?},
+    handler: (input, ctx) => …,     // arity 2
+})
+```
+
+### `defineSpec`
+
+```typescript
+defineSpec({
+    meta?: CallspecMeta,
+    routes: Record<string, RouteDef>,  // required
+    authenticate?: (token, req) => Ctx | undefined,
+})
+```
+
+Throws at build time if any route is `private` and `authenticate` is missing.
+
+**`CallspecMeta`:** `title?`, `version?`, `intro?`, `website?`, `logo?`, `authHint?`, `mcpInstructions?`. Omitted `title` / `version` default to `Callspec API` / `0.0.0` at emit time.
+
+### `mountSpec`
+
+```typescript
+mountSpec(router, spec, {
+    basePath?: string,              // prefix for all surfaces below
+    ui?: boolean | string,          // default true → '/docs'
+    openApi?: boolean | string,     // default true → '/openapi.json'
+    mcpPath?: string,               // default '/mcp'
+})
+```
+
+**Default paths** (on the router you pass in; add your app prefix such as `/v1` via `basePath` or `app.use`):
+
+| Surface | Method | Default path |
+|---------|--------|----------------|
+| RPC | `POST` | `{basePath}/{routeName}` |
+| Docs UI | `GET` | `{basePath}/docs` |
+| OpenAPI | `GET` | `{basePath}/openapi.json` |
+| MCP | `POST` | `{basePath}/mcp` (only if any route has `mcp: true`) |
+
+Surfaces are **on by default**. Disable docs/OpenAPI with `{ui: false, openApi: false}`.
+
+### Client
+
+```typescript
+import {client} from 'callspec/client';
+import type {InferSpec} from 'callspec';
+
+type API = InferSpec<typeof api.routes>;
+await client<API['searchRecent']>('searchRecent', input, {endpoint: '…/v1'});
+```
+
+Also exported: `executeRoute`, `emitOpenApi`, `mountCallspecUi`, `serializeResponse` / `deserializeResponse`, and errors (`CallspecValidationError`, `CallspecUnauthorizedError`, `CallspecNotFoundError`).
+
 ## Getting started
 
 ```bash
@@ -127,11 +192,7 @@ Agents call the **same handlers** as HTTP RPC — same auth gate, same **input v
 
 ## callspec UI
 
-Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page.
-
-Surfaces are **on by default** — `mountSpec(router, api)` serves `/docs` and `/openapi.json`. Opt out with `{ui: false, openApi: false}`.
-
-Whitelabel via flat **`meta`** fields:
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Whitelabel via **`meta`** (see **`defineSpec`** above).
 
 ```typescript
 export const meta = {
