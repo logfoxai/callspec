@@ -15,46 +15,9 @@ const brandAssetsDir = path.join(__dirname, '../assets/chirp');
 
 router.use(bodyParser.json());
 
-mountSpec(router, api, {
-    docs: {
-        openApi: {
-            title: 'Chirp API v2',
-            version: '2.0.0',
-        },
-        ui: {
-            branding: {
-                name: 'Chirp',
-                intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
-                websiteUrl: 'https://chirp.social',
-                websiteLabel: 'chirp.social',
-                logoUrl: './brand/mark.png',
-                logoUrlDark: './brand/mark.png',
-                logoSrcSet: './brand/mark.png 256w, ./brand/mark@2x.png 512w',
-                logoSize: 80,
-            },
-            mcpPath: '../mcp',
-            mcp: {
-                authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
-            },
-            brandAssetsDir,
-        },
-    },
-    mcp: {
-        serverInfo: {name: 'chirp-api', version: '2.0.0'},
-        instructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
-    },
-    contextResolver: (req) => {
+mountSpec(router, api);
 
-        if (req.headers.authorization === 'Bearer demo') {
-
-            return {userId: '2244994945', username: 'api_demo'};
-
-        }
-
-        return undefined;
-
-    },
-});
+router.use('/docs/brand', express.static(brandAssetsDir, {index: false}));
 
 app.use('/v1', router);
 

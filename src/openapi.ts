@@ -1,11 +1,10 @@
 import {toJsonSchema} from 'runtyp';
-import type {Spec} from './types';
+import type {RoutesMap} from './types';
 
 export type OpenApiOptions = {
     title: string
     version: string
     basePath?: string
-    security?: Array<Record<string, string[]>>
 };
 
 function routePath(basePath: string, name: string): string {
@@ -14,12 +13,16 @@ function routePath(basePath: string, name: string): string {
 
 }
 
-export function emitOpenApi(spec: Spec<any>, options: OpenApiOptions): Record<string, unknown> {
+export function emitOpenApi(
+    routes: RoutesMap<any>,
+    options: OpenApiOptions,
+): Record<string, unknown> {
 
     const paths: Record<string, unknown> = {};
     const basePath = options.basePath ?? '';
+    const hasPrivate = Object.values(routes).some((route) => route.access === 'private');
 
-    for (const [name, route] of Object.entries(spec)) {
+    for (const [name, route] of Object.entries(routes)) {
 
         paths[routePath(basePath, name)] = {
             post: {
@@ -51,9 +54,7 @@ export function emitOpenApi(spec: Spec<any>, options: OpenApiOptions): Record<st
                     ...(route.access === 'private' ? {401: {description: 'Unauthorized'}} : {}),
                     400: {description: 'Validation error'},
                 },
-                ...(options.security
-                    ? {security: route.access === 'private' ? options.security : []}
-                    : {}),
+                security: route.access === 'private' ? [{bearer: []}] : [],
                 'x-callspec-access': route.access,
                 ...(route.mcp ? {'x-callspec-mcp': true} : {}),
             },
@@ -67,6 +68,16 @@ export function emitOpenApi(spec: Spec<any>, options: OpenApiOptions): Record<st
             title: options.title,
             version: options.version,
         },
+        ...(hasPrivate ? {
+            components: {
+                securitySchemes: {
+                    bearer: {
+                        type: 'http',
+                        scheme: 'bearer',
+                    },
+                },
+            },
+        } : {}),
         paths,
     };
 

@@ -76,17 +76,38 @@ test('executeRoute validation error', async (assert) => {
 
 });
 
-test('defineSpec wires routes', (assert) => {
+test('defineSpec wires meta and routes', (assert) => {
 
     const api = defineSpec({
-        ping: defineRoute({
-            input: p.object({}),
-            meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-            access: 'public',
-            handler: async (_input: unknown, _ctx: unknown) => 'pong',
-        }),
+        routes: {
+            ping: defineRoute({
+                input: p.object({}),
+                meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
+                access: 'public',
+                handler: async (_input: unknown, _ctx: unknown) => 'pong',
+            }),
+        },
     });
 
-    assert.equal(typeof api.ping.handler, 'function', 'spec has route');
+    assert.equal(typeof api.routes.ping.handler, 'function', 'spec has route');
+    assert.equal(api.meta.title, undefined, 'meta starts sparse');
+
+});
+
+test('defineSpec requires authenticate for private routes', (assert) => {
+
+    assert.throws(
+        () => defineSpec({
+            routes: {
+                secret: defineRoute({
+                    input: p.object({}),
+                    meta: {summary: 'x', description: 'x', tags: ['t']},
+                    access: 'private',
+                    handler: async (_input: unknown, _ctx: unknown) => 'secret',
+                }),
+            },
+        }),
+        /authenticate/,
+    );
 
 });

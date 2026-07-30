@@ -1,5 +1,5 @@
 import {toJsonSchema} from 'runtyp';
-import type {McpRouteConfig, Spec, RouteDef} from './types';
+import type {McpRouteConfig, RouteDef, RoutesMap} from './types';
 
 export function isMcpEnabled(route: RouteDef<any, any, any>): boolean {
 
@@ -40,9 +40,9 @@ export type McpToolListEntry = {
     annotations?: Record<string, unknown>
 };
 
-export function listMcpTools(spec: Spec<any>): McpToolListEntry[] {
+export function listMcpTools(routes: RoutesMap<any>): McpToolListEntry[] {
 
-    return Object.entries(spec)
+    return Object.entries(routes)
         .filter(([, route]) => isMcpEnabled(route))
         .map(([key, route]) => {
 

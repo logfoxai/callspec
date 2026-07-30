@@ -1,6 +1,6 @@
 {
   "name": "callspec",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Spec-first RPC: HTTP, OpenAPI docs, MCP, and typed client from one defineRoute spec",
   "keywords": [
     "rpc",

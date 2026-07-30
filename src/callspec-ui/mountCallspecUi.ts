@@ -20,8 +20,6 @@ export type MountCallspecUiOptions = {
     /** Relative path from docs to MCP endpoint. Default `../mcp` */
     mcpPath?: string
     mcp?: CallspecUiMcp
-    /** Directory of tenant logos/static files served at `{path}/brand/` */
-    brandAssetsDir?: string
 };
 
 const CONFIG_PLACEHOLDER = '<!--CALLSPEC_UI_CONFIG-->';
@@ -101,11 +99,5 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
 
     router.get(mountPath, servePage);
     router.use(mountPathWithSlash, express.static(assetsDir, {index: false}));
-
-    if (options.brandAssetsDir && fs.existsSync(options.brandAssetsDir)) {
-
-        router.use(`${mountPathWithSlash}brand`, express.static(options.brandAssetsDir, {index: false}));
-
-    }
 
 }

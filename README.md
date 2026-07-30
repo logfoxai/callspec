@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec ships API, docs UI, OpenAPI, MCP, and typed clients.</h3>
+  <h3 align="center">One spec powers API, docs UI, OpenAPI, MCP, and typed clients.</h3>
 
   <br>
 
@@ -25,15 +25,15 @@ Every API and MCP call gets **input validation** at the boundary with clear erro
 | **HTTP RPC API** | `POST /v1/<methodName>` |
 | **Interactive UI docs** | `/docs` |
 | **OpenAPI 3.1** | `/openapi.json` |
-| **MCP tools** |`/mcp` |
+| **MCP tools** | `/mcp` |
 | **Typed client** | `client<API['searchRecent']>('searchRecent', input)` |
 | **Input validation** | Runtime & compile-time (TypeScript) |
 
-## Complete Example
+## Complete example
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRoute, mountSpec} from 'callspec';
+import {defineSpec, defineRoute, mountSpec, type InferSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 type AuthContext = {userId: string};
@@ -48,7 +48,21 @@ async function searchRecent(
     };
 }
 
-const api = defineSpec({
+async function getUserContext(token: string, _req: express.Request): Promise<AuthContext | undefined> {
+    if (token.startsWith('demo-')) return {userId: 'user_123'};
+    return undefined;
+}
+
+export const meta = {
+    title: 'My API',
+    version: process.env.VERSION ?? '1.0.0',
+    intro: 'Search and manage posts from one typed RPC surface.',
+    mcpInstructions: 'Read-only search tools require Bearer demo-* tokens in this example.',
+};
+
+export const authenticate = getUserContext;
+
+export const routes = {
     searchRecent: defineRoute({
         input: p.object({
             query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
@@ -56,33 +70,24 @@ const api = defineSpec({
         }),
         meta: {
             summary: 'Search recent posts',
+            description: 'Returns posts matching a query.',
             tags: ['posts'],
         },
         access: 'private',
         mcp: true,
         handler: searchRecent,
     }),
-});
+};
+
+export const api = defineSpec({meta, routes, authenticate});
+export type API = InferSpec<typeof api.routes>;
 
 const app = express();
 const router = express.Router();
 
 router.use(express.json());
 
-mountSpec(router, api, {
-    contextResolver: (req) => {
-        if (req.headers.authorization?.startsWith('Bearer ')) {
-            return {userId: 'user_123'};
-        }
-        return undefined;
-    },
-    docs: {
-        openApi: {title: 'My API', version: '1.0.0'},
-        ui: {
-            branding: {name: 'My API'},
-        },
-    },
-});
+mountSpec(router, api);
 
 app.use('/v1', router);
 
@@ -93,7 +98,7 @@ app.listen(port, () => {
     console.log(`Docs:     http://127.0.0.1:${port}/v1/docs`);
     console.log(`OpenAPI:  http://127.0.0.1:${port}/v1/openapi.json`);
     console.log(`MCP:      http://127.0.0.1:${port}/v1/mcp`);
-    console.log('Auth:     Authorization: Bearer anything (demo token)');
+    console.log('Auth:     Authorization: Bearer demo-anything');
 });
 ```
 
@@ -114,60 +119,53 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
-## 🔌 Built-in MCP server
+## Built-in MCP server
 
-Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically (override with `mcp: { path, serverInfo, instructions }`, or `mcp: false` to disable).
+Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
 
-Agents call the **same handlers** as HTTP RPC — same auth gate, same **input validation**. Public tools work without a token; private tools return 401 without one. Every `tools/call` runs through the same runtyp pipeline: field `{ description }`, ranges, and enums flow into MCP `inputSchema`; invalid args return **structured validation errors** (not opaque 500s) that agents can read and retry.
+Agents call the **same handlers** as HTTP RPC — same auth gate, same **input validation**. Public tools work without a token; private tools return 401 without one. Configure MCP copy on `meta.mcpInstructions`.
 
-## 📖 callspec UI
+## callspec UI
 
-Minimal, fast docs UI baked right into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Point `docs.ui.branding` at your product — display name, welcome copy, website link, and logo (light/dark, optional `brandAssetsDir` for static files at `/docs/brand/`). Run `npm run dev:docs` to see the **Chirp** sample — callspec UI white-labeled as a fictional API.
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page.
 
-Env-gated in production; flip on with:
+Surfaces are **on by default** — `mountSpec(router, api)` serves `/docs` and `/openapi.json`. Opt out with `{ui: false, openApi: false}`.
+
+Whitelabel via flat **`meta`** fields:
 
 ```typescript
-docs: {
-    openApi: {title: 'Chirp API v2', version: '2.0.0'},
-    exposeOpenApi: true,
-    exposeUi: true,
-    openApiPath: '/openapi.json',
-    uiPath: '/docs',
-    ui: {
-        branding: {
-            name: 'Chirp',
-            intro: 'Read and write posts, timelines, lists, and direct messages.',
-            websiteUrl: 'https://chirp.social',
-            websiteLabel: 'chirp.social',
-            logoUrl: './brand/mark.png',
-            logoUrlDark: './brand/mark.png',
-            logoSize: 80,
-        },
-        brandAssetsDir: '/path/to/your/logos',
-        mcp: {authHint: 'Use Authorization: Bearer demo for private tools in this demo.'},
-    },
-}
+export const meta = {
+    title: 'Chirp API v2',
+    version: process.env.VERSION,
+    intro: 'Read and write posts, timelines, lists, and direct messages.',
+    website: {url: 'https://chirp.social', label: 'chirp.social'},
+    logo: {light: './brand/mark.png', dark: './brand/mark-dark.png'},
+    authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
+    mcpInstructions: 'Chirp-shaped demo API powered by callspec.',
+};
+
+export const authenticate = getUserContext;
 ```
 
-Toggle each surface independently — OpenAPI only, UI only, MCP off (`mcp: false`), or neither (`docs: false`).
+When `logo` is omitted, the UI shows a letter placeholder from `title`. Run `npm run dev:docs` for the **Chirp** sample.
 
-Light and dark lockups follow `prefers-color-scheme` in docs; the UI footer switches marks on `data-theme` the same way as [Castellan](https://github.com/logfoxai/castellan).
+## Auth
 
-## 🔐 Auth
-
-- **`access: 'public'`** — no credentials required (e.g. Chirp `healthcheck`, `getTweet`)
-- **`access: 'private'`** (default) — 401 without `contextResolver` result
-- App-specific auth stays in your `contextResolver` (e.g. map `Authorization: Bearer …` to `{userId, username}`)
+- **`access: 'public'`** — no credentials required
+- **`access: 'private'`** (default) — 401 without valid Bearer token
+- **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it
 
 Private gate runs **before** validation so unauthenticated callers never see field-level errors.
 
-## 🧩 runtyp + OpenAPI
+OpenAPI Bearer security is **auto-derived** from route `access` — do not pass `security` manually.
+
+## runtyp + OpenAPI
 
 Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callspec UI → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schema generation.
 
-## 📦 Client
+## Client
 
 Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `callspec/client` entry has no `http`, `https`, or Express imports, so it is safe in frontend bundles.
 
@@ -186,41 +184,42 @@ const results = await client<API['searchRecent']>('searchRecent', {
 });
 ```
 
-**Service package** — export the API type once from your spec:
+**Service package** — export the API type from your spec entry:
 
 ```typescript
-import type {InferSpec} from 'callspec';
+import {defineSpec, type InferSpec} from 'callspec';
+import {meta} from './meta';
+import {routes} from './routes';
+import {authenticate} from './authenticate';
 
-export const api = defineSpec({
-    getTweet: defineRoute({ /* … */ }),
-    searchRecent: defineRoute({ /* … */ }),
-    createTweet: defineRoute({ /* … */ }),
-});
-export type API = InferSpec<typeof api>;
+export const api = defineSpec({meta, routes, authenticate});
+export type API = InferSpec<typeof api.routes>;
 ```
 
 Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
-## 🛠 Development
+## Development
 
 ```bash
 npm run validate   # build server + callspec UI, lint, test (incl. integration)
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 
+Design notes: [docs/mount-spec-api.md](docs/mount-spec-api.md).
+
 Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
 
-## 🤝 Help build the standard
+## Help build the standard
 
 callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
 
 The goal is simple: **one spec → HTTP RPC, docs, OpenAPI, and MCP** — no duplicate schemas, no bolt-on tool manifests, no duct-tape between surfaces.
 
-If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callspec UI UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from. Early contributors tend to become the people others cite — show up in release notes, speak at the meetup, get asked "who built this?" when the pattern spreads.
+If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callspec UI UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from.
 
 **Good first contributions:** callspec UI polish, MCP client configs, docs and demos, runtyp/OpenAPI edge cases, Fastify/Hono mounts, issue triage, or a blog post about your integration.
 
 - **Issues & ideas:** [github.com/logfoxai/callspec/issues](https://github.com/logfoxai/callspec/issues)
 - **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, `style:`, etc.)
 
-If you want maintainer access or a dedicated area to own (callspec UI, MCP, clients, docs), open an issue or PR and say hi. We'd rather have a small crew that cares than a huge drive-by.
+If you want maintainer access or a dedicated area to own (callspec UI, MCP, clients, docs), open an issue or PR and say hi.

@@ -1,13 +1,12 @@
 import type {RequestHandler, Router} from 'express';
 import {CallspecUnauthorizedError, CallspecValidationError, CallspecNotFoundError} from './errors';
 import {executeRoute} from './executeRoute';
+import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
-import type {ContextResolver, Spec} from './types';
+import type {Authenticate, RoutesMap} from './types';
 
-export type MountMcpOptions<Ctx> = {
+export type InternalMountMcpOptions = {
     path?: string
-    contextResolver?: ContextResolver<Ctx>
-    expose?: boolean
     serverInfo: { name: string, version: string }
     instructions?: string
 };
@@ -23,11 +22,10 @@ function toolError(message: string): { content: Array<{ type: 'text', text: stri
 
 export function mountMcp<Ctx>(
     router: Router,
-    spec: Spec<Ctx>,
-    options: MountMcpOptions<Ctx>,
+    routes: RoutesMap<Ctx>,
+    authenticate: Authenticate<Ctx> | undefined,
+    options: InternalMountMcpOptions,
 ): void {
-
-    if (options.expose === false) return;
 
     const mcpPath = options.path ?? '/mcp';
 
@@ -75,7 +73,7 @@ export function mountMcp<Ctx>(
 
             if (body?.method === 'tools/list') {
 
-                respond({tools: listMcpTools(spec)});
+                respond({tools: listMcpTools(routes)});
                 return;
 
             }
@@ -91,7 +89,7 @@ export function mountMcp<Ctx>(
 
                 }
 
-                const routeEntry = Object.entries(spec).find(
+                const routeEntry = Object.entries(routes).find(
                     ([key, route]) => routeMcpName(key, route) === toolName,
                 );
 
@@ -111,12 +109,9 @@ export function mountMcp<Ctx>(
 
                 }
 
-                const ctx = options.contextResolver
-                    ? await options.contextResolver(req)
-                    : undefined;
-
                 try {
 
+                    const ctx = await resolveRouteContext(route, authenticate, req);
                     const result = await executeRoute(route, body.params?.arguments ?? {}, ctx);
 
                     respond({

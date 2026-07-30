@@ -2,50 +2,28 @@ import type {Request, RequestHandler, Router} from 'express';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 import {executeRoute} from './executeRoute';
 import {listMcpTools} from './mcpTools';
-import {mountMcp, type MountMcpOptions} from './mountMcp';
-import {emitOpenApi, type OpenApiOptions} from './openapi';
-import type {ContextResolver, Spec} from './types';
-import {mountCallspecUi, type MountCallspecUiOptions} from './callspec-ui/mountCallspecUi';
+import {mountMcp} from './mountMcp';
+import {emitOpenApi} from './openapi';
+import {resolveRouteContext} from './resolveRouteContext';
+import {
+    defaultAuthHint,
+    joinMountPath,
+    metaBrandingFromCallspecMeta,
+    resolveCallspecMeta,
+    siblingSpecPath,
+    slugServerName,
+} from './metaDefaults';
+import type {Callspec} from './types';
+import {mountCallspecUi} from './callspec-ui/mountCallspecUi';
 
-export type MountSpecMcpOptions = {
-    /** MCP HTTP path on this router. Default `/mcp`. */
-    path?: string
-    /** When false, skip MCP even if routes opt in. Default true. */
-    expose?: boolean
-    /** MCP server identity. Defaults from `docs.openApi` title/version when omitted. */
-    serverInfo?: { name: string, version: string }
-    instructions?: string
-};
-
-export type MountSpecDocsOptions = {
-    /** OpenAPI document metadata. Required to expose docs. */
-    openApi?: OpenApiOptions
-    /** Serve GET …/openapi.json. Default: true when docs are enabled. */
-    exposeOpenApi?: boolean
-    /** Serve the callspec UI at `/docs`. Default: true when docs are enabled. */
-    exposeUi?: boolean
-    /** OpenAPI JSON path on this router. Default `/openapi.json`. */
-    openApiPath?: string
-    /** callspec UI mount path. Default `/docs`. */
-    uiPath?: string
-    /** Options passed to the callspec UI (rpcBase override, branding, MCP, etc.). */
-    ui?: Pick<MountCallspecUiOptions, 'rpcBase' | 'branding' | 'mcpPath' | 'mcp' | 'brandAssetsDir'>
-};
-
-export type MountSpecOptions<Ctx> = {
-    contextResolver?: ContextResolver<Ctx>
-    /**
-     * @deprecated Use `docs.openApi` with `docs.exposeOpenApi` / `docs.exposeUi`.
-     * When true and `openApi` or `docs.openApi` is set, enables docs surfaces.
-     */
-    exposeDocs?: boolean
-    /** @deprecated Use `docs.openApi`. */
-    openApi?: OpenApiOptions
-    /** Docs configuration — OpenAPI spec and/or callspec UI, each toggled independently. */
-    docs?: MountSpecDocsOptions | false
-    /** MCP server — auto-enabled when routes use `mcp: true`. Pass `false` to disable. */
-    mcp?: MountSpecMcpOptions | false
+export type MountSpecOptions = {
     basePath?: string
+    /** Default true — serves `/docs`. Pass `false` to disable, or a custom path string. */
+    ui?: boolean | string
+    /** Default true — serves `/openapi.json`. Pass `false` to disable, or a custom path string. */
+    openApi?: boolean | string
+    /** MCP HTTP path on this router. Default `/mcp`. */
+    mcpPath?: string
 };
 
 function sendError(res: import('express').Response, err: unknown): void {
@@ -68,101 +46,50 @@ function sendError(res: import('express').Response, err: unknown): void {
 
 }
 
-function resolveDocsOptions(
-    options: MountSpecOptions<unknown>,
-): MountSpecDocsOptions | false {
+function resolveSurfacePath(
+    value: boolean | string | undefined,
+    defaultPath: string,
+): {enabled: boolean, path: string} {
 
-    if (options.docs === false) return false;
+    if (value === false) {
 
-    const legacyEnabled = options.exposeDocs === true;
-    const merged = options.docs ?? {};
-
-    const openApi = merged.openApi ?? options.openApi;
-
-    if (!openApi) return false;
-
-    if (!legacyEnabled && options.docs === undefined && options.exposeDocs === undefined) {
-
-        return false;
+        return {enabled: false, path: defaultPath};
 
     }
 
-    const docsEnabled = legacyEnabled || options.docs !== undefined;
+    if (typeof value === 'string') {
 
-    return {
-        openApi,
-        exposeOpenApi: merged.exposeOpenApi ?? (docsEnabled ? true : false),
-        exposeUi: merged.exposeUi ?? (docsEnabled ? true : false),
-        openApiPath: merged.openApiPath ?? '/openapi.json',
-        uiPath: merged.uiPath ?? '/docs',
-        ui: merged.ui,
-    };
+        return {enabled: true, path: value};
 
-}
+    }
 
-function slugServerName(title: string): string {
-
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-    return slug || 'callspec';
-
-}
-
-function resolveMcpOptions<Ctx>(
-    spec: Spec<Ctx>,
-    options: MountSpecOptions<Ctx>,
-    docs: MountSpecDocsOptions | false,
-): MountMcpOptions<Ctx> | false {
-
-    if (options.mcp === false) return false;
-
-    if (listMcpTools(spec).length === 0) return false;
-
-    const merged = options.mcp ?? {};
-
-    if (merged.expose === false) return false;
-
-    const openApi = docs !== false
-        ? docs.openApi
-        : options.openApi;
-
-    const serverInfo = merged.serverInfo ?? (openApi ? {
-        name: slugServerName(openApi.title ?? 'callspec'),
-        version: openApi.version ?? '0.0.0',
-    } : {
-        name: 'callspec',
-        version: '0.0.0',
-    });
-
-    const mcpPath = merged.path ?? '/mcp';
-    const basePath = options.basePath ?? '';
-
-    return {
-        path: `${basePath}${mcpPath}`.replace(/\/{2,}/g, '/') || '/mcp',
-        contextResolver: options.contextResolver,
-        serverInfo,
-        instructions: merged.instructions,
-    };
+    return {enabled: true, path: defaultPath};
 
 }
 
 export function mountSpec<Ctx>(
     router: Router,
-    spec: Spec<Ctx>,
-    options: MountSpecOptions<Ctx> = {},
+    spec: Callspec<Ctx>,
+    options: MountSpecOptions = {},
 ): void {
 
     const basePath = options.basePath ?? '';
-    const docs = resolveDocsOptions(options as MountSpecOptions<unknown>);
+    const resolvedMeta = resolveCallspecMeta(spec.meta);
+    const {routes} = spec;
 
-    if (docs && docs.openApi && docs.exposeOpenApi !== false) {
+    const ui = resolveSurfacePath(options.ui, '/docs');
+    const openApi = resolveSurfacePath(options.openApi, '/openapi.json');
+    const mcpSubPath = options.mcpPath ?? '/mcp';
 
-        const openApiPath = docs.openApiPath ?? '/openapi.json';
+    if (openApi.enabled) {
 
-        router.get(`${basePath}${openApiPath}`, (_req, res) => {
+        const openApiPath = joinMountPath(basePath, openApi.path);
 
-            res.json(emitOpenApi(spec, {
-                ...docs.openApi as OpenApiOptions,
+        router.get(openApiPath, (_req, res) => {
+
+            res.json(emitOpenApi(routes, {
+                title: resolvedMeta.title,
+                version: resolvedMeta.version,
                 basePath,
             }));
 
@@ -170,37 +97,31 @@ export function mountSpec<Ctx>(
 
     }
 
-    if (docs && docs.exposeUi !== false) {
+    if (ui.enabled && openApi.enabled) {
 
-        const uiPath = docs.uiPath ?? '/docs';
-        const openApiPath = docs.openApiPath ?? '/openapi.json';
-        const specPath = openApiPath.startsWith('/')
-            ? `..${openApiPath}`
-            : openApiPath;
+        const uiPath = joinMountPath(basePath, ui.path);
+        const openApiMountPath = joinMountPath(basePath, openApi.path);
+        const mcpMountPath = joinMountPath(basePath, mcpSubPath);
+        const authHint = defaultAuthHint(resolvedMeta, routes);
 
         mountCallspecUi(router, {
-            path: `${basePath}${uiPath}`.replace(/\/{2,}/g, '/') || '/docs',
-            specPath,
-            rpcBase: docs.ui?.rpcBase ?? '..',
-            title: docs.openApi?.title,
-            branding: docs.ui?.branding,
-            mcpPath: docs.ui?.mcpPath,
-            mcp: docs.ui?.mcp,
-            brandAssetsDir: docs.ui?.brandAssetsDir,
+            path: uiPath,
+            specPath: siblingSpecPath(openApiMountPath),
+            rpcBase: '..',
+            title: resolvedMeta.title,
+            branding: metaBrandingFromCallspecMeta(resolvedMeta, {authHint}),
+            mcpPath: siblingSpecPath(mcpMountPath),
         });
 
     }
 
-    for (const [name, route] of Object.entries(spec)) {
+    for (const [name, route] of Object.entries(routes)) {
 
-        router.post(`${basePath}/${name}`, (async (req, res, next) => {
+        router.post(`${basePath}/${name}`.replace(/\/{2,}/g, '/'), (async (req, res, next) => {
 
             try {
 
-                const ctx = options.contextResolver
-                    ? await options.contextResolver(req as Request)
-                    : undefined;
-
+                const ctx = await resolveRouteContext(route, spec.authenticate, req as Request);
                 const response = await executeRoute(route, req.body, ctx);
                 res.json(response);
 
@@ -222,11 +143,16 @@ export function mountSpec<Ctx>(
 
     }
 
-    const mcp = resolveMcpOptions(spec, options, docs);
+    if (listMcpTools(routes).length > 0) {
 
-    if (mcp) {
-
-        mountMcp(router, spec, mcp);
+        mountMcp(router, routes, spec.authenticate, {
+            path: joinMountPath(basePath, mcpSubPath),
+            serverInfo: {
+                name: slugServerName(resolvedMeta.title),
+                version: resolvedMeta.version,
+            },
+            instructions: resolvedMeta.mcpInstructions,
+        });
 
     }
 

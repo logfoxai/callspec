@@ -75,7 +75,29 @@ function paginated(dataKey, items, meta = {}) {
 
 }
 
-const api = defineSpec({
+function authenticate(token, _req) {
+
+    if (token === 'demo') {
+
+        return {userId: '2244994945', username: 'api_demo'};
+
+    }
+
+    return undefined;
+
+}
+
+const meta = {
+    title: 'Chirp API v2',
+    version: '2.0.0',
+    intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
+    website: {url: 'https://chirp.social', label: 'chirp.social'},
+    logo: {light: './brand/mark.png', dark: './brand/mark.png'},
+    authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
+    mcpInstructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
+};
+
+const routes = {
 
     healthcheck: defineRoute({
         input: p.object({}),
@@ -351,6 +373,8 @@ const api = defineSpec({
         }),
     }),
 
-});
+};
 
-module.exports = {api};
+const api = defineSpec({meta, routes, authenticate});
+
+module.exports = {api, meta, routes};
