@@ -11,6 +11,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     concurrency:
       group: deploy-${{github.ref}}
       cancel-in-progress: true
@@ -24,7 +25,7 @@ jobs:
           node-version: '24'   # npm 11+ required for trusted publishing (OIDC)
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-      - run: bash scripts/ci-install.sh
+      - run: npm ci
       - run: npm run validate
       - run: npx autorel@^2 --publish
         env:

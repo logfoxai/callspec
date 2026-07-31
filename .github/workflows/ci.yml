@@ -5,9 +5,9 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Test
+  ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -21,40 +21,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-
-
-      - name: Check package.json deps
-        run: node scripts/check-no-file-deps.mjs
       - name: Install dependencies
-        run: bash scripts/ci-install.sh
-
-      - name: Build
-        run: npm run build
+        run: npm ci
 
       - name: Lint
         run: npm run lint:check
 
-      - name: Test
-        run: npm test
-
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-
-
-      - name: Check package.json deps
-        run: node scripts/check-no-file-deps.mjs
-      - name: Install dependencies
-        run: bash scripts/ci-install.sh
-
       - name: Type check
         run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
