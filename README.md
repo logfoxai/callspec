@@ -7,7 +7,7 @@
     <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec powers API, docs UI, MCP, typed clients, and OpenAPI.</h3>
+  <h3 align="center">One spec powers API, docs UI, MCP, generated clients, and OpenAPI.</h3>
 
   <br>
 
