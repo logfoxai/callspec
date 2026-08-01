@@ -9,7 +9,7 @@ export type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './brandi
 export type MountCallspecUiOptions = {
     /** Mount path for the UI. Default `/docs`. */
     path?: string
-    /** OpenAPI JSON URL for the UI to fetch. Default `../openapi.json`. */
+    /** Native Callspec document URL for the UI to fetch. Default `../callspec.json`. */
     specPath?: string
     /** RPC base for try-it requests. Default `..` (sibling of the docs path). */
     rpcBase?: string
@@ -73,7 +73,7 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
 
     const mountPath = options.path ?? '/docs';
     const mountPathWithSlash = mountPath.endsWith('/') ? mountPath : `${mountPath}/`;
-    const specUrl = options.specPath ?? '../openapi.json';
+    const specUrl = options.specPath ?? '../callspec.json';
     const rpcBase = options.rpcBase ?? '..';
     const assetsDir = uiDir();
 

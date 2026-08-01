@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {test} from 'kizu';
-import {client, Non200Response} from './client';
+import {client, joinCallspecUrl, Non200Response} from './client';
 
 test('client bundle is fetch-only (no node server imports)', (assert) => {
 
@@ -69,7 +69,13 @@ test('client deserializes Date wire format', async (assert) => {
 
 });
 
-test('client throws Non200Response on plain-text error body', async (assert) => {
+test('joinCallspecUrl avoids double slashes', (assert) => {
+
+    assert.equal(joinCallspecUrl('https://api.test/v1/', 'healthcheck'), 'https://api.test/v1/healthcheck');
+
+});
+
+test('client throws Non200Response on HTTP errors for backward compatibility', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 

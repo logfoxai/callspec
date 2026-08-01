@@ -1,3 +1,5 @@
+# Callspec
+
 <div align="center">
   <picture>
     <source srcset="assets/callspec-lockup-light.svg?cb=2" media="(prefers-color-scheme: light)" />
@@ -5,7 +7,7 @@
     <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec powers API, docs UI, OpenAPI, MCP, and typed clients.</h3>
+  <h3 align="center">One spec powers API, docs UI, native Callspec contract, OpenAPI, MCP, and generated clients.</h3>
 
   <br>
 
@@ -16,24 +18,26 @@
   </p>
 </div>
 
-Define your API once and get an HTTP RPC server, white-label docs, OpenAPI 3.1, an MCP server, and a typed client. No duplicate schemas, no bolt-on doc stack, no hand-maintained tool manifests.
+Define your API once and get an HTTP RPC server, white-label docs, the native **`callspec.json`** contract, OpenAPI 3.1, an MCP server, and a generated TypeScript client. No duplicate schemas, no backend package imports in the frontend, no bolt-on doc stack.
 
-Every API and MCP call gets **input validation** at the boundary with clear error messages. TypeScript clients get compile-time type checking and LSP autocomplete from the same spec &mdash; with simple, clean, human-readable types.
+Every API and MCP call gets **input validation** at the boundary with clear error messages.
 
-- **One spec** — `defineSpec({ meta, routes, authenticate })` is the single source of truth
-- **HTTP RPC** — `POST` per route name, JSON request/response
-- **Input validation** — runtyp predicates at the boundary; 400 with field errors
-- **Auth** — Bearer extraction; public vs private routes; your `authenticate` hook
-- **Docs UI** — interactive, white-label `/docs` (on by default)
-- **OpenAPI 3.1** — `/openapi.json` generated from routes (on by default)
-- **MCP** — opt-in per route (`mcp: true`); same handlers as HTTP
-- **Typed client** — `InferSpec` + `client()` from `callspec/client`
+| Feature | Location |
+|---------|----------|
+| **HTTP RPC API** | `POST /v1/<methodName>` |
+| **Interactive UI docs** | `/docs` |
+| **Native Callspec document** | `/callspec.json` |
+| **OpenAPI 3.1** | `/openapi.json` |
+| **MCP tools** | `/mcp` |
+| **Generated client** | `npx callspec generate-client …` |
+| **Low-level fetch client** | `client()` from `callspec/client` |
+| **Input validation** | Runtime (runtyp) + compile-time (generated types) |
 
 ## Complete example
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRoute, mountSpec, type InferSpec} from 'callspec';
+import {defineSpec, defineRoute, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 type AuthContext = {userId: string};
@@ -68,6 +72,10 @@ export const routes = {
             query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
             max_results: p.optional(p.number({range: {min: 1, max: 100}})),
         }),
+        output: p.object({
+            results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
+            count: p.number(),
+        }),
         meta: {
             summary: 'Search recent posts',
             description: 'Returns posts matching a query.',
@@ -79,8 +87,11 @@ export const routes = {
     }),
 };
 
-export const api = defineSpec({meta, routes, authenticate});
-export type API = InferSpec<typeof api.routes>;
+export const api = defineSpec({
+    meta,
+    routes,
+    authenticate,
+});
 
 const app = express();
 const router = express.Router();
@@ -94,78 +105,167 @@ app.use('/v1', router);
 const port = Number(process.env.PORT ?? 3000);
 
 app.listen(port, () => {
-    console.log(`RPC:      http://127.0.0.1:${port}/v1/searchRecent`);
-    console.log(`Docs:     http://127.0.0.1:${port}/v1/docs`);
-    console.log(`OpenAPI:  http://127.0.0.1:${port}/v1/openapi.json`);
-    console.log(`MCP:      http://127.0.0.1:${port}/v1/mcp`);
-    console.log('Auth:     Authorization: Bearer demo-anything');
+    console.log(`RPC:         http://127.0.0.1:${port}/v1/searchRecent`);
+    console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
+    console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
+    console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);
+    console.log(`MCP:         http://127.0.0.1:${port}/v1/mcp`);
+    console.log('Auth:        Authorization: Bearer demo-anything');
 });
 ```
 
-## API reference
+When docs are enabled (the default), `mountSpec` serves **`/docs`**, **`/callspec.json`**, and **`/openapi.json`** together. Pass `{docs: false}` to disable all three.
 
-There is no separate markdown API doc. **The exports are the reference** — after `npm i callspec`, use your editor on `callspec` and `callspec/client` (published `dist/*.d.ts`), or browse the types in this repo under `src/`.
+### Input and output
 
-### `defineRoute`
+Every route requires **`input`** and **`output`** preds — same runtyp style throughout. Use `p.any()` when you do not need a precise schema. Only **`errors`** is optional.
 
 ```typescript
 defineRoute({
-    input: p.object({…}),           // required — runtyp predicate
-    output?: p.object({…}),         // optional output validation
-    meta: {summary, description, tags},
-    access?: 'public' | 'private',  // default 'private'
-    mcp?: true | {name?, annotations?},
-    handler: (input, ctx) => …,     // arity 2
-})
+    input: p.object({query: p.string()}),
+    output: p.object({
+        results: p.array(p.object({id: p.string(), text: p.string()})),
+        count: p.number(),
+    }),
+    handler: searchRecent,
+});
 ```
 
-### `defineSpec`
+`defineRoute` type-checks handlers against the spec: the `input` pred fixes `I`, the `output` pred fixes `O`, and the handler must implement `(input: I, ctx: Ctx) => O`. A mismatched resolver is a compile error on the `handler` property.
+
+### Route errors
+
+Declare domain errors on a route and throw them from the handler. Callspec maps them to HTTP status codes and a simple JSON body:
+
+```json
+{ "error": "NOT_FOUND" }
+{ "error": "USER_EXISTS", "data": { "email": "taken@example.com" } }
+```
+
+Validation failures stay separate: `{ "error": "VALIDATION_ERROR", "errors": { ... } }`.
 
 ```typescript
-defineSpec({
-    meta?: CallspecMeta,
-    routes: Record<string, RouteDef>,  // required
-    authenticate?: (token, req) => Ctx | undefined,
-})
+import {defineRoute, routeErrors} from 'callspec';
+
+const err = routeErrors({
+    NOT_FOUND: {status: 404},
+    USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
+});
+
+export const routes = {
+    getUser: defineRoute({
+        input: p.object({email: p.string()}),
+        output: p.any(),
+        errors: err,
+        meta: {summary: 'Get user', description: 'Lookup by email', tags: ['users']},
+        access: 'public',
+        handler: async (input, _ctx) => {
+            if (!user) throw err.NOT_FOUND();
+            if (taken) throw err.USER_EXISTS({email: input.email});
+            return user;
+        },
+    }),
+};
 ```
 
-Throws at build time if any route is `private` and `authenticate` is missing.
+Generated clients export a per-route `ErrorResponse` union when errors are declared.
 
-**`CallspecMeta`:** `title?`, `version?`, `intro?`, `website?`, `logo?`, `authHint?`, `mcpInstructions?`. Omitted `title` / `version` default to `Callspec API` / `0.0.0` at emit time.
+## Frontend client generation
 
-### `mountSpec`
+You do **not** need to publish or import your backend package in the frontend.
+
+Generate a typed client from the native document:
+
+```bash
+npx callspec generate-client \
+  https://api.example.com/v1/callspec.json \
+  --output src/generated/api.ts
+```
+
+Local file (monorepos, offline CI):
+
+```bash
+npx callspec generate-client ./callspec.json --output src/generated/api.ts
+```
+
+Use the generated client:
 
 ```typescript
-mountSpec(router, spec, {
-    basePath?: string,              // prefix for all surfaces below
-    ui?: boolean | string,          // default true → '/docs'
-    openApi?: boolean | string,     // default true → '/openapi.json'
-    mcpPath?: string,               // default '/mcp'
-})
+import {ApiClient} from './generated/api';
+
+const api = new ApiClient({
+    baseUrl: 'https://api.example.com/v1',
+    headers: () => ({
+        Authorization: `Bearer ${getToken()}`,
+    }),
+});
+
+const result = await api.searchRecent({
+    query: 'timeout',
+    max_results: 10,
+});
 ```
 
-**Default paths** (on the router you pass in; add your app prefix such as `/v1` via `basePath` or `app.use`):
+The generated file:
 
-| Surface | Method | Default path |
-|---------|--------|----------------|
-| RPC | `POST` | `{basePath}/{routeName}` |
-| Docs UI | `GET` | `{basePath}/docs` |
-| OpenAPI | `GET` | `{basePath}/openapi.json` |
-| MCP | `POST` | `{basePath}/mcp` (only if any route has `mcp: true`) |
+- Imports only `callspec/client` (browser-safe — no Express, runtyp, or server code)
+- Exposes one typed method per route
+- Preserves Callspec wire behavior (including Date deserialization)
+- Can be committed; CI can regenerate with `git diff --exit-code`
 
-Surfaces are **on by default**. Disable docs/OpenAPI with `{ui: false, openApi: false}`.
+### CLI
 
-### Client
+```bash
+callspec generate-client <source> --output <file> [--class-name ApiClient]
+```
+
+`<source>` is a path to `callspec.json` or an HTTP(S) URL. Run `callspec generate-client --help` for details.
+
+## Native Callspec document
+
+`callspec.json` is Callspec's native, versioned contract. The docs UI and client generator consume it directly.
+
+Programmatic emission from your route registry:
 
 ```typescript
-import {client} from 'callspec/client';
-import type {InferSpec} from 'callspec';
+import {emitCallspec, parseCallspecDocument} from 'callspec';
 
-type API = InferSpec<typeof api.routes>;
-await client<API['searchRecent']>('searchRecent', input, {endpoint: '…/v1'});
+const document = emitCallspec(api.routes, {
+    title: 'My API',
+    version: '1.0.0',
+    basePath: '/v1',
+    description: api.meta.intro,
+});
+
+const validated = parseCallspecDocument(document);
 ```
 
-Also exported: `executeRoute`, `emitOpenApi`, `mountCallspecUi`, `serializeResponse` / `deserializeResponse`, and errors (`CallspecValidationError`, `CallspecUnauthorizedError`, `CallspecNotFoundError`).
+OpenAPI remains available for Swagger, Postman, and other OpenAPI tooling — both formats are projections of the same registry, not conversions of each other.
+
+## Low-level client (legacy / advanced)
+
+The fetch-only `client()` helper remains for backward compatibility and simple scripts:
+
+```typescript
+import {client, CallspecHttpError} from 'callspec/client';
+
+try {
+    const results = await client('searchRecent', {query: 'callspec'}, {
+        endpoint: 'https://api.example.com/v1',
+        fetchOptions: {headers: {Authorization: `Bearer ${token}`}},
+    });
+} catch (err) {
+    if (err instanceof CallspecHttpError) {
+        console.error(err.status, err.body);
+    }
+}
+```
+
+For new frontend work, prefer the **generated client**.
+
+### Monorepo type sharing (legacy)
+
+You may still export `InferSpec<typeof api.routes>` from a shared backend entry for in-repo convenience, but it is no longer the primary documented workflow and requires importing the backend spec module.
 
 ## Getting started
 
@@ -188,27 +288,13 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
 
-Agents call the **same handlers** as HTTP RPC — same auth gate, same **input validation**. Public tools work without a token; private tools return 401 without one. Configure MCP copy on `meta.mcpInstructions`.
+Agents call the **same handlers** as HTTP RPC — same auth gate, same **input validation**.
 
 ## callspec UI
 
-Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read OpenAPI, and **connect MCP clients** from the home page. Whitelabel via **`meta`** (see **`defineSpec`** above).
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read schemas, and **connect MCP clients** from the home page.
 
-```typescript
-export const meta = {
-    title: 'Chirp API v2',
-    version: process.env.VERSION,
-    intro: 'Read and write posts, timelines, lists, and direct messages.',
-    website: {url: 'https://chirp.social', label: 'chirp.social'},
-    logo: {light: './brand/mark.png', dark: './brand/mark-dark.png'},
-    authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
-    mcpInstructions: 'Chirp-shaped demo API powered by callspec.',
-};
-
-export const authenticate = getUserContext;
-```
-
-When `logo` is omitted, the UI shows a letter placeholder from `title`. Run `npm run dev:docs` for the **Chirp** sample.
+Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `authHint`, `mcpInstructions`).
 
 ## Auth
 
@@ -216,48 +302,13 @@ When `logo` is omitted, the UI shows a letter placeholder from `title`. Run `npm
 - **`access: 'private'`** (default) — 401 without valid Bearer token
 - **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it
 
-Private gate runs **before** validation so unauthenticated callers never see field-level errors.
+OpenAPI Bearer security is **auto-derived** from route `access`.
 
-OpenAPI Bearer security is **auto-derived** from route `access` — do not pass `security` manually.
+## runtyp + schemas
 
-## runtyp + OpenAPI
-
-Field `{ description }` on runtyp preds flows to JSON Schema → OpenAPI → callspec UI → MCP `inputSchema`. Route-level `meta` (summary, tags) is callspec-only.
+Field `{ description }` on runtyp preds flows to JSON Schema in both `callspec.json` and OpenAPI. Route-level `meta` (summary, tags) is callspec-only.
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schema generation.
-
-## Client
-
-Fetch-only — works in the browser and in Node 18+ (global `fetch`). The `callspec/client` entry has no `http`, `https`, or Express imports, so it is safe in frontend bundles.
-
-**Browser or frontend bundler** — import the client subpath so you do not pull server code:
-
-```typescript
-import type {API} from './my-api';
-import {client} from 'callspec/client';
-
-const results = await client<API['searchRecent']>('searchRecent', {
-    query: 'callspec',
-    max_results: 10,
-}, {
-    endpoint: 'https://api.example.com/v1',
-    fetchOptions: {headers: {Authorization: `Bearer ${token}`}},
-});
-```
-
-**Service package** — export the API type from your spec entry:
-
-```typescript
-import {defineSpec, type InferSpec} from 'callspec';
-import {meta} from './meta';
-import {routes} from './routes';
-import {authenticate} from './authenticate';
-
-export const api = defineSpec({meta, routes, authenticate});
-export type API = InferSpec<typeof api.routes>;
-```
-
-Responses deserialize ISO date strings back to `Date` on read (`deserializeResponse`).
 
 ## Development
 
@@ -266,19 +317,13 @@ npm run validate   # build server + callspec UI, lint, test (incl. integration)
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 
-Integration tests spin up Express in-process and verify OpenAPI, `/docs`, auth, MCP, and RPC end-to-end.
+Design notes: [docs/mount-spec-api.md](docs/mount-spec-api.md).
+
+Integration tests spin up Express in-process and verify `callspec.json`, OpenAPI, `/docs`, auth, MCP, RPC, and client generation end-to-end.
 
 ## Help build the standard
 
 callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
 
-The goal is simple: **one spec → HTTP RPC, docs, OpenAPI, and MCP** — no duplicate schemas, no bolt-on tool manifests, no duct-tape between surfaces.
-
-If you join now, you're not polishing someone else's finished spec. You're shaping the defaults: callspec UI UX, MCP ergonomics, client DX, framework adapters, examples, and the docs people copy from.
-
-**Good first contributions:** callspec UI polish, MCP client configs, docs and demos, runtyp/OpenAPI edge cases, Fastify/Hono mounts, issue triage, or a blog post about your integration.
-
 - **Issues & ideas:** [github.com/logfoxai/callspec/issues](https://github.com/logfoxai/callspec/issues)
-- **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, `style:`, etc.)
-
-If you want maintainer access or a dedicated area to own (callspec UI, MCP, clients, docs), open an issue or PR and say hi.
+- **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, etc.)

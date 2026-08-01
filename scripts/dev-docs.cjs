@@ -7,7 +7,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {mountSpec} = require('../dist');
-const {api} = require('./chirp-demo-api.cjs');
+const {api} = require('../dist/demo/chirpDemoApi');
 
 const app = express();
 const router = express.Router();

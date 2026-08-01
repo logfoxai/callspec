@@ -1,15 +1,22 @@
-import type {RouteDef, RouteHandler} from './types';
+import type {Infer, Pred} from 'runtyp';
+import {resolveRouteErrorDefs, type RouteErrorsInput} from './routeErrors';
+import type {RouteDef, RouteHandler, RouteMeta, RouteAccess, McpRouteConfig} from './types';
 
-export function defineRoute<TInput, TOutput, Ctx>(
+export function defineRoute<
+    I extends Pred<any>,
+    O extends Pred<any>,
+    Ctx,
+>(
     def: {
-        input: RouteDef<TInput, TOutput, Ctx>['input']
-        output?: RouteDef<TInput, TOutput, Ctx>['output']
-        meta: RouteDef<TInput, TOutput, Ctx>['meta']
-        access?: RouteDef<TInput, TOutput, Ctx>['access']
-        mcp?: RouteDef<TInput, TOutput, Ctx>['mcp']
-        handler: RouteHandler<TInput, TOutput, Ctx>
+        input: I
+        output: O
+        meta: RouteMeta
+        access?: RouteAccess
+        mcp?: McpRouteConfig
+        errors?: RouteErrorsInput
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx>
     },
-): RouteDef<TInput, TOutput, Ctx> {
+): RouteDef<Infer<I>, Infer<O>, Ctx> {
 
     if (def.handler.length !== 2) {
 
@@ -22,6 +29,7 @@ export function defineRoute<TInput, TOutput, Ctx>(
     return {
         input: def.input,
         output: def.output,
+        errors: resolveRouteErrorDefs(def.errors),
         meta: def.meta,
         access: def.access ?? 'private',
         mcp: def.mcp,

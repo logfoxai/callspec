@@ -1,10 +1,7 @@
-import {createRequire} from 'node:module';
-import path from 'node:path';
 import {test} from 'kizu';
 import {emitOpenApi} from './openapi';
 import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
-
-const requireCjs = createRequire(path.join(process.cwd(), 'package.json'));
+import {api} from './demo/chirpDemoApi';
 
 type OpenApiPath = Record<string, {
     post?: {
@@ -19,10 +16,6 @@ type OpenApiPath = Record<string, {
 }>;
 
 test('chirp demo: emitOpenApi converts runtyp preds to JSON Schema', (assert) => {
-
-    const {api} = requireCjs(path.join(process.cwd(), 'scripts/chirp-demo-api.cjs')) as {
-        api: {routes: Parameters<typeof emitOpenApi>[0]}
-    };
 
     const doc = emitOpenApi(api.routes, {
         title: 'Chirp API v2',

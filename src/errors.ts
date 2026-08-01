@@ -33,3 +33,45 @@ export class CallspecNotFoundError extends Error {
     }
 
 }
+
+/** Declared route error — thrown via {@link routeErrors} and mapped to HTTP by mountSpec. */
+export class CallspecRouteError<
+    Code extends string = string,
+    Data = unknown,
+> extends Error {
+
+    readonly code: Code;
+
+    readonly status: number;
+
+    readonly data: Data | undefined;
+
+    constructor(code: Code, status: number, data?: Data) {
+
+        super(code);
+        this.name = 'CallspecRouteError';
+        this.code = code;
+        this.status = status;
+        this.data = data;
+
+    }
+
+}
+
+export function isCallspecRouteError(value: unknown): value is CallspecRouteError {
+
+    return value instanceof CallspecRouteError;
+
+}
+
+export function formatRouteErrorBody(error: CallspecRouteError): Record<string, unknown> {
+
+    if (error.data !== undefined) {
+
+        return {error: error.code, data: error.data};
+
+    }
+
+    return {error: error.code};
+
+}

@@ -1,5 +1,5 @@
 import type {RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError, CallspecNotFoundError} from './errors';
+import {CallspecUnauthorizedError, CallspecValidationError, CallspecNotFoundError, formatRouteErrorBody, isCallspecRouteError} from './errors';
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
@@ -132,6 +132,13 @@ export function mountMcp<Ctx>(
                     if (err instanceof CallspecValidationError) {
 
                         respond(toolError(JSON.stringify(err.errors)));
+                        return;
+
+                    }
+
+                    if (isCallspecRouteError(err)) {
+
+                        respond(toolError(JSON.stringify(formatRouteErrorBody(err))));
                         return;
 
                     }

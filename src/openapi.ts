@@ -1,17 +1,13 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
+import {routePath} from './routePath';
+import {openApiErrorResponses} from './routeErrorDocument';
 
 export type OpenApiOptions = {
     title: string
     version: string
     basePath?: string
 };
-
-function routePath(basePath: string, name: string): string {
-
-    return `${basePath}/${name}`.replace(/\/{2,}/g, '/');
-
-}
 
 export function emitOpenApi(
     routes: RoutesMap<any>,
@@ -23,6 +19,12 @@ export function emitOpenApi(
     const hasPrivate = Object.values(routes).some((route) => route.access === 'private');
 
     for (const [name, route] of Object.entries(routes)) {
+
+        const outputSchema = toJsonSchema(route.output);
+
+        const errorResponses = openApiErrorResponses(route.errors, {
+            includeUnauthorized: route.access === 'private',
+        });
 
         paths[routePath(basePath, name)] = {
             post: {
@@ -39,20 +41,15 @@ export function emitOpenApi(
                     },
                 },
                 responses: {
+                    ...errorResponses,
                     200: {
                         description: 'Success',
-                        content: route.output ? {
+                        content: {
                             'application/json': {
-                                schema: toJsonSchema(route.output),
-                            },
-                        } : {
-                            'application/json': {
-                                schema: {type: 'object'},
+                                schema: outputSchema,
                             },
                         },
                     },
-                    ...(route.access === 'private' ? {401: {description: 'Unauthorized'}} : {}),
-                    400: {description: 'Validation error'},
                 },
                 security: route.access === 'private' ? [{bearer: []}] : [],
                 'x-callspec-access': route.access,

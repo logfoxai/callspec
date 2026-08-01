@@ -1,8 +1,11 @@
 /**
  * Fictional "Chirp API v2" — Twitter/X-shaped demo spec for callspec UI dev server.
  */
-const {predicates: p} = require('runtyp');
-const {defineSpec, defineRoute} = require('../dist');
+import {predicates as p} from 'runtyp';
+import {defineSpec} from '../defineSpec';
+import {defineRoute} from '../defineRoute';
+
+const out = p.any();
 
 const tweetFields = p.optional(p.array(p.string(), {
     description: 'Tweet fields to expand (e.g. author_id, created_at, public_metrics)',
@@ -22,7 +25,22 @@ const pagination = {
     })),
 };
 
-function mockUser(id, username, name = 'Jane Doe') {
+type ChirpCtx = {userId: string; username: string};
+
+function mockUser(id: string, username: string, name = 'Jane Doe'): {
+    id: string
+    username: string
+    name: string
+    created_at: string
+    description: string
+    verified: boolean
+    public_metrics: {
+        followers_count: number
+        following_count: number
+        tweet_count: number
+        listed_count: number
+    }
+} {
 
     return {
         id,
@@ -41,7 +59,21 @@ function mockUser(id, username, name = 'Jane Doe') {
 
 }
 
-function mockTweet(id, text, authorId) {
+function mockTweet(id: string, text: string, authorId: string): {
+    id: string
+    text: string
+    author_id: string
+    created_at: string
+    lang: string
+    public_metrics: {
+        retweet_count: number
+        reply_count: number
+        like_count: number
+        quote_count: number
+        bookmark_count: number
+        impression_count: number
+    }
+} {
 
     return {
         id,
@@ -61,7 +93,15 @@ function mockTweet(id, text, authorId) {
 
 }
 
-function paginated(dataKey, items, meta = {}) {
+function paginated<T>(
+    dataKey: string,
+    items: T[],
+    meta: Record<string, unknown> = {},
+): {
+    data: T[]
+    meta: Record<string, unknown> & {result_count: number; next_token: null}
+    [key: string]: unknown
+} {
 
     return {
         data: items,
@@ -75,7 +115,7 @@ function paginated(dataKey, items, meta = {}) {
 
 }
 
-function authenticate(token, _req) {
+function authenticate(token: string, _req: unknown): ChirpCtx | undefined {
 
     if (token === 'demo') {
 
@@ -87,7 +127,7 @@ function authenticate(token, _req) {
 
 }
 
-const meta = {
+export const meta = {
     title: 'Chirp API v2',
     version: '2.0.0',
     intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
@@ -97,10 +137,11 @@ const meta = {
     mcpInstructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
 };
 
-const routes = {
+export const routes = {
 
     healthcheck: defineRoute({
         input: p.object({}),
+        output: out,
         meta: {
             summary: 'Health check',
             description: 'Returns OK when the API is up. Does not require authentication.',
@@ -116,6 +157,7 @@ const routes = {
             'user.fields': userFields,
             expansions: p.optional(p.array(p.string())),
         }),
+        output: out,
         meta: {
             summary: 'Get User by ID',
             description: 'Returns information about a User specified by ID.',
@@ -123,7 +165,7 @@ const routes = {
         },
         access: 'private',
         mcp: true,
-        handler: (input, _ctx) => ({
+        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockUser(input.id, 'janedoe'),
         }),
     }),
@@ -133,6 +175,7 @@ const routes = {
             username: p.string({description: 'Twitter handle without the @ prefix'}),
             'user.fields': userFields,
         }),
+        output: out,
         meta: {
             summary: 'Get User by username',
             description: 'Returns information about a User specified by username.',
@@ -140,7 +183,7 @@ const routes = {
         },
         access: 'private',
         mcp: true,
-        handler: (input, _ctx) => ({
+        handler: (input: {username: string}, _ctx: ChirpCtx) => ({
             data: mockUser('2244994945', input.username),
         }),
     }),
@@ -152,13 +195,14 @@ const routes = {
             pagination_token: pagination.paginationToken,
             'user.fields': userFields,
         }),
+        output: out,
         meta: {
             summary: 'Get followers',
             description: 'Returns a list of Users who follow the specified User ID.',
             tags: ['users'],
         },
         access: 'private',
-        handler: (input, _ctx) => paginated('data', [
+        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated('data', [
             mockUser('1001', 'alex_codes'),
             mockUser('1002', 'sam_reads'),
             mockUser('1003', 'taylor_ops'),
@@ -172,13 +216,14 @@ const routes = {
             pagination_token: pagination.paginationToken,
             'user.fields': userFields,
         }),
+        output: out,
         meta: {
             summary: 'Get following',
             description: 'Returns a list of Users the specified User ID is following.',
             tags: ['users'],
         },
         access: 'private',
-        handler: (input, _ctx) => paginated('data', [
+        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated('data', [
             mockUser('2001', 'vercel'),
             mockUser('2002', 'github'),
         ], {previous_token: input.pagination_token ?? null}),
@@ -198,6 +243,7 @@ const routes = {
                 duration_minutes: p.number({range: {min: 5, max: 10080}}),
             })),
         }),
+        output: out,
         meta: {
             summary: 'Create Tweet',
             description: 'Creates a Tweet on behalf of an authenticated user.',
@@ -205,8 +251,8 @@ const routes = {
         },
         access: 'private',
         mcp: true,
-        handler: (input, ctx) => ({
-            data: mockTweet('1992312312312312321', input.text, ctx?.userId ?? '2244994945'),
+        handler: (input: {text: string}, ctx: ChirpCtx) => ({
+            data: mockTweet('1992312312312312321', input.text, ctx.userId),
         }),
     }),
 
@@ -214,13 +260,14 @@ const routes = {
         input: p.object({
             id: p.string({description: 'Tweet ID to delete'}),
         }),
+        output: out,
         meta: {
             summary: 'Delete Tweet',
             description: 'Allows an authenticated user ID to delete a Tweet.',
             tags: ['tweets'],
         },
         access: 'private',
-        handler: (input, _ctx) => ({
+        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: {deleted: true, id: input.id},
         }),
     }),
@@ -231,13 +278,14 @@ const routes = {
             'tweet.fields': tweetFields,
             expansions: p.optional(p.array(p.string())),
         }),
+        output: out,
         meta: {
             summary: 'Get Tweet by ID',
             description: 'Returns a Tweet specified by the requested ID.',
             tags: ['tweets'],
         },
         access: 'public',
-        handler: (input, _ctx) => ({
+        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockTweet(input.id, 'Just shipped a new API docs UI with callspec 🎉', '2244994945'),
         }),
     }),
@@ -250,6 +298,7 @@ const routes = {
             end_time: p.optional(p.string({description: 'ISO 8601 end time (exclusive)'})),
             'tweet.fields': tweetFields,
         }),
+        output: out,
         meta: {
             summary: 'Search recent Tweets',
             description: 'Returns Tweets from the last seven days matching a search query.',
@@ -257,7 +306,7 @@ const routes = {
         },
         access: 'private',
         mcp: true,
-        handler: (input, _ctx) => paginated('data', [
+        handler: (input: {query: string}, _ctx: ChirpCtx) => paginated('data', [
             mockTweet('3001', `Results for: ${input.query}`, '2244994945'),
             mockTweet('3002', 'Another match from the last 7 days', '1001'),
         ]),
@@ -272,14 +321,15 @@ const routes = {
             })),
             'tweet.fields': tweetFields,
         }),
+        output: out,
         meta: {
             summary: 'Home timeline',
             description: 'Returns the most recent Tweets from accounts the authenticated user follows.',
             tags: ['timelines'],
         },
         access: 'private',
-        handler: (_input, ctx) => paginated('data', [
-            mockTweet('4001', 'Morning standup notes thread 🧵', ctx?.userId ?? '2244994945'),
+        handler: (_input, ctx: ChirpCtx) => paginated('data', [
+            mockTweet('4001', 'Morning standup notes thread 🧵', ctx.userId),
             mockTweet('4002', 'TIL: JSON Schema from runtyp predicates', '2001'),
             mockTweet('4003', 'Shipping docs today', '2002'),
         ]),
@@ -293,13 +343,14 @@ const routes = {
             exclude: p.optional(p.array(p.string())),
             'tweet.fields': tweetFields,
         }),
+        output: out,
         meta: {
             summary: 'User Tweet timeline',
             description: 'Returns the most recent Tweets authored by the specified User.',
             tags: ['timelines'],
         },
         access: 'private',
-        handler: (input, _ctx) => paginated('data', [
+        handler: (input: {id: string}, _ctx: ChirpCtx) => paginated('data', [
             mockTweet('5001', 'Working on RPC + OpenAPI from one spec', input.id),
             mockTweet('5002', 'callspec UI looking clean', input.id),
         ]),
@@ -311,13 +362,14 @@ const routes = {
             description: p.optional(p.string({description: 'Description of the List'})),
             private: p.optional(p.boolean({description: 'If true, only the creator can see the List'})),
         }),
+        output: out,
         meta: {
             summary: 'Create List',
             description: 'Creates a new List for the authenticated user.',
             tags: ['lists'],
         },
         access: 'private',
-        handler: (input, ctx) => ({
+        handler: (input: {name: string; description?: string; private?: boolean}, ctx: ChirpCtx) => ({
             data: {
                 id: '1313131313131311313',
                 name: input.name,
@@ -325,7 +377,7 @@ const routes = {
                 follower_count: 0,
                 member_count: 0,
                 private: input.private ?? false,
-                owner_id: ctx?.userId ?? '2244994945',
+                owner_id: ctx.userId,
                 created_at: '2026-07-28T15:00:00.000Z',
             },
         }),
@@ -338,6 +390,7 @@ const routes = {
             pagination_token: pagination.paginationToken,
             'user.fields': userFields,
         }),
+        output: out,
         meta: {
             summary: 'Get List members',
             description: 'Returns a list of Users who are members of the specified List.',
@@ -355,18 +408,19 @@ const routes = {
             participant_id: p.string({description: 'User ID of the conversation participant'}),
             text: p.string({description: 'Message body (max 10,000 characters)'}),
         }),
+        output: out,
         meta: {
             summary: 'Send a DM',
             description: 'Sends a Direct Message to a participant on behalf of the authenticated user.',
             tags: ['direct messages'],
         },
         access: 'private',
-        handler: (input, ctx) => ({
+        handler: (input: {text: string; participant_id: string}, ctx: ChirpCtx) => ({
             data: {
                 dm_conversation_id: '12345-67890',
                 dm_event_id: '9876543210',
                 text: input.text,
-                sender_id: ctx?.userId ?? '2244994945',
+                sender_id: ctx.userId,
                 participant_id: input.participant_id,
                 created_at: '2026-07-28T15:00:00.000Z',
             },
@@ -375,6 +429,8 @@ const routes = {
 
 };
 
-const api = defineSpec({meta, routes, authenticate});
-
-module.exports = {api, meta, routes};
+export const api = defineSpec({
+    meta,
+    routes,
+    authenticate,
+});

@@ -23,6 +23,9 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "callspec": "dist/cli/generate-client.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -47,8 +50,9 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "test": "kizu 'src/**/*.spec.ts'",
+    "typecheck:routes": "tsc --noEmit -p tsconfig.typecheck.json",
     "dev:docs": "node scripts/dev-docs.cjs",
-    "validate": "npm run build && npm run lint && npm test"
+    "validate": "npm run build && npm run lint && npm run typecheck:routes && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",

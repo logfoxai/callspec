@@ -3,21 +3,25 @@ import {predicates as p} from 'runtyp';
 import {defineRoute, defineSpec} from '.';
 import {emitOpenApi} from './openapi';
 
+const routes = {
+    healthcheck: defineRoute({
+        input: p.object({}),
+        output: p.object({status: p.string()}),
+        meta: {summary: 'Health check', description: 'Public health check', tags: ['system']},
+        access: 'public',
+        handler: (_input, _ctx) => ({status: 'ok'}),
+    }),
+    getSecret: defineRoute({
+        input: p.object({}),
+        output: p.object({secret: p.boolean()}),
+        meta: {summary: 'Private route', description: 'Requires auth', tags: ['system']},
+        access: 'private',
+        handler: (_input, _ctx) => ({secret: true}),
+    }),
+};
+
 const api = defineSpec({
-    routes: {
-        healthcheck: defineRoute({
-            input: p.object({}),
-            meta: {summary: 'Health check', description: 'Public health check', tags: ['system']},
-            access: 'public',
-            handler: (_input, _ctx) => ({status: 'ok'}),
-        }),
-        getSecret: defineRoute({
-            input: p.object({}),
-            meta: {summary: 'Private route', description: 'Requires auth', tags: ['system']},
-            access: 'private',
-            handler: (_input, _ctx) => ({secret: true}),
-        }),
-    },
+    routes,
     authenticate: () => ({userId: 'test'}),
 });
 
