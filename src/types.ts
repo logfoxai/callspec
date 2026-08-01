@@ -68,21 +68,3 @@ export type Callspec<Ctx = unknown> = {
     routes: RoutesMap<Ctx>
     authenticate?: Authenticate<Ctx>
 };
-
-type InferRouteInput<R extends RouteDef<any, any, any>> =
-    R extends RouteDef<infer I, any, any> ? I : never;
-
-type InferRouteOutput<R extends RouteDef<any, any, any>> =
-    R extends RouteDef<any, infer O, any> ? O : never;
-
-type InferRouteErrors<R extends RouteDef<any, any, any>> =
-    R['errors'] extends Record<string, RouteErrorDef> ? R['errors'] : Record<string, never>;
-
-export type InferSpec<T extends RoutesMap<any>> = {
-    [K in keyof T]: {
-        name: K & string
-        input: InferRouteInput<T[K]>
-        output: InferRouteOutput<T[K]>
-        errors: InferRouteErrors<T[K]>
-    }
-};
