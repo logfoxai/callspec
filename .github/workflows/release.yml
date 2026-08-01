@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24'   # npm 11+ required for trusted publishing (OIDC)
           registry-url: 'https://registry.npmjs.org'
