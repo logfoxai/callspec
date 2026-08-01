@@ -1,5 +1,11 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": [
+    "report"
+  ],
+  "ignoreIssues": {
+    "src/routeErrors.ts": ["types"]
+  },
   "entry": [
     "src/callspec-ui/ui/main.ts",
     "src/demo/chirpDemoApi.ts",

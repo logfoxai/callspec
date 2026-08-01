@@ -16,7 +16,7 @@ type ThrowFn<Spec extends RouteErrorSpec> =
 const ERROR_DEFS = Symbol.for('callspec.errors.defs');
 
 /** Pass the whole handle to `defineRoute({ errors: e })`. */
-export type ErrorsHandle = {
+type ErrorsHandle = {
     [ERROR_DEFS]: Readonly<Record<string, RouteErrorDef>>
 };
 

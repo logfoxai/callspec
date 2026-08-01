@@ -1,50 +1,26 @@
 import {omitUndefined} from './objectUtils';
+import {
+    CALLSPEC_DOCUMENT_VERSION,
+    CallspecDocumentError,
+    type CallspecDocument,
+    type CallspecDocumentRoute,
+    type JsonSchema,
+} from './callspecDocumentTypes';
 
-export const CALLSPEC_DOCUMENT_VERSION = '1.0' as const;
-
-export type JsonSchema = Record<string, unknown>;
+export {
+    CALLSPEC_DOCUMENT_VERSION,
+    CallspecDocumentError,
+} from './callspecDocumentTypes';
+export type {
+    CallspecDocument,
+    CallspecDocumentRoute,
+    JsonSchema,
+} from './callspecDocumentTypes';
 
 type CallspecDocumentRouteError = {
     status: number
     data?: JsonSchema
 };
-
-export type CallspecDocumentRoute = {
-    name: string
-    path: string
-    method: 'POST'
-    summary: string
-    description: string
-    tags: string[]
-    access: 'public' | 'private'
-    input: JsonSchema
-    output: JsonSchema
-    errors?: Record<string, CallspecDocumentRouteError>
-    mcp: {
-        enabled: boolean
-    }
-};
-
-export type CallspecDocument = {
-    callspec: typeof CALLSPEC_DOCUMENT_VERSION
-    info: {
-        title: string
-        version: string
-        description?: string
-    }
-    routes: Record<string, CallspecDocumentRoute>
-};
-
-export class CallspecDocumentError extends Error {
-
-    constructor(message: string) {
-
-        super(message);
-        this.name = 'CallspecDocumentError';
-
-    }
-
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 

@@ -38,12 +38,12 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
 
 export type RoutesMap<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
 
-export type CallspecLogo = {
+type CallspecLogo = {
     light?: string
     dark?: string
 };
 
-export type CallspecWebsite = {
+type CallspecWebsite = {
     url: string
     label?: string
 };
@@ -69,13 +69,13 @@ export type Callspec<Ctx = unknown> = {
     authenticate?: Authenticate<Ctx>
 };
 
-export type InferRouteInput<R extends RouteDef<any, any, any>> =
+type InferRouteInput<R extends RouteDef<any, any, any>> =
     R extends RouteDef<infer I, any, any> ? I : never;
 
-export type InferRouteOutput<R extends RouteDef<any, any, any>> =
+type InferRouteOutput<R extends RouteDef<any, any, any>> =
     R extends RouteDef<any, infer O, any> ? O : never;
 
-export type InferRouteErrors<R extends RouteDef<any, any, any>> =
+type InferRouteErrors<R extends RouteDef<any, any, any>> =
     R['errors'] extends Record<string, RouteErrorDef> ? R['errors'] : Record<string, never>;
 
 export type InferSpec<T extends RoutesMap<any>> = {

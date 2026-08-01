@@ -24,7 +24,7 @@ import {
 import type {Callspec} from './types';
 import {mountCallspecUi} from './callspec-ui/mountCallspecUi';
 
-export type MountDocsOptions = {
+type MountDocsOptions = {
     /** Docs UI mount path. Default `/docs`. */
     uiPath?: string
     /** Native Callspec document path. Default `/callspec.json`. */

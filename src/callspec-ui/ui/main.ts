@@ -2,7 +2,8 @@ import './styles.css';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
 import {callspecDocumentToUiSpec} from '../toUiSpec';
 import type {CallspecUiRoute} from '../types';
-import {parseCallspecDocument, CallspecDocumentError} from '../../callspecDocument';
+import {CallspecDocumentError} from '../../callspecDocumentTypes';
+import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
@@ -623,7 +624,7 @@ async function boot(): Promise<void> {
         if (!resp.ok) throw new Error(`Could not load spec (${resp.status})`);
 
         const doc = await resp.json() as unknown;
-        const parsed = parseCallspecDocument(doc);
+        const parsed = parseUiCallspecDocument(doc);
         const title = config.title ?? parsed.info.title;
         const version = parsed.info.version;
         const branding = config.branding;

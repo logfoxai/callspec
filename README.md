@@ -264,7 +264,7 @@ callspec <source> --output <file> [--class-name ApiClient]
 Programmatic emission from your route registry:
 
 ```typescript
-import {emitCallspec, parseCallspecDocument} from 'callspec';
+import {emitCallspec, parseCallspecDocument} from 'callspec/document';
 
 const document = emitCallspec(api.routes, {
     title: 'My API',
@@ -340,10 +340,18 @@ Field `{ description }` on runtyp preds flows to JSON Schema in both `callspec.j
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schema generation.
 
+## Package exports
+
+| Import | Use |
+|--------|-----|
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `commonErrors` |
+| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`) and generated client types |
+| `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile` |
+
 ## Development
 
 ```bash
-npm run validate   # build, lint, knip, route typecheck, test (incl. integration)
+npm run validate   # build, lint, knip, route typecheck, test + coverage
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 

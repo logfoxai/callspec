@@ -1,6 +1,7 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRoute, emitOpenApi} from '.';
+import {defineRoute} from './defineRoute';
+import {emitOpenApi} from './openapi';
 import {FRAMEWORK_ERROR, mergeOpenApiErrorResponses, openApiFrameworkErrorResponses} from './frameworkErrors';
 import {commonErrors, errors} from './routeErrors';
 import {openApiErrorResponses} from './routeErrorDocument';

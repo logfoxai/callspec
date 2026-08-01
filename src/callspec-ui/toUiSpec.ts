@@ -1,4 +1,4 @@
-import type {CallspecDocument} from '../callspecDocument';
+import type {CallspecDocument} from '../callspecDocumentTypes';
 import type {CallspecUiRoute, CallspecUiSpec} from './types';
 
 export function callspecDocumentToUiSpec(doc: CallspecDocument): CallspecUiSpec {
