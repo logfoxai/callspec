@@ -1,4 +1,4 @@
-import {toJsonSchema} from 'runtyp';
+import {toJsonSchema, type Pred} from 'runtyp';
 import type {RoutesMap} from './types';
 import {joinRoutePath} from './metaDefaults';
 import {
@@ -15,6 +15,8 @@ export type EmitCallspecOptions = {
     version: string
     basePath?: string
     description?: string
+    /** Named runtyp preds for consumer codegen (filters, domain objects, shared slices). */
+    exports?: Record<string, Pred<any>>
 };
 
 export function emitCallspec(
@@ -48,6 +50,20 @@ export function emitCallspec(
 
     }
 
+    let documentExports: Record<string, JsonSchema> | undefined;
+
+    if (options.exports && Object.keys(options.exports).length > 0) {
+
+        documentExports = {};
+
+        for (const name of Object.keys(options.exports).sort((a, b) => a.localeCompare(b))) {
+
+            documentExports[name] = toJsonSchema(options.exports[name]) as JsonSchema;
+
+        }
+
+    }
+
     return {
         callspec: CALLSPEC_DOCUMENT_VERSION,
         info: omitUndefined({
@@ -55,6 +71,7 @@ export function emitCallspec(
             version: options.version,
             description: options.description,
         }),
+        exports: documentExports,
         routes: documentRoutes,
     };
 

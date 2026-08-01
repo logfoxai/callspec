@@ -30,6 +30,7 @@ export type CallspecDocument = {
         version: string
         description?: string
     }
+    exports?: Record<string, JsonSchema>
     routes: Record<string, CallspecDocumentRoute>
 };
 

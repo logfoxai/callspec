@@ -1,3 +1,4 @@
+import type {Pred} from 'runtyp';
 import {hasPrivateRoutes} from './metaDefaults';
 import type {Authenticate, Callspec, CallspecMeta, RoutesMap} from './types';
 
@@ -7,11 +8,12 @@ export function defineSpec<
 >(input: {
     meta?: CallspecMeta
     routes: T
+    exports?: Record<string, Pred<any>>
     authenticate?: Authenticate<Ctx>
 }): Callspec<Ctx> & {routes: T} {
 
     const meta: CallspecMeta = input.meta ?? {};
-    const {routes, authenticate} = input;
+    const {routes, exports, authenticate} = input;
 
     if (hasPrivateRoutes(routes) && !authenticate) {
 
@@ -19,7 +21,7 @@ export function defineSpec<
 
     }
 
-    return {meta, routes, authenticate};
+    return {meta, routes, exports, authenticate};
 
 }
 

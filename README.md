@@ -7,7 +7,7 @@
     <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec powers API, docs UI, MCP, generated clients, and OpenAPI.</h3>
+  <h3 align="center">One spec powers your API, docs, MCP, OpenAPI — and shared validation &amp; types for every consumer.</h3>
 
   <br>
 
@@ -18,9 +18,11 @@
   </p>
 </div>
 
-Define your API once and get an HTTP RPC server, white-label docs, the native **`callspec.json`** contract, OpenAPI 3.1, an MCP server, and a generated TypeScript client. No duplicate schemas, no backend package imports in the frontend, no bolt-on doc stack.
+Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicates and get an HTTP RPC server, white-label docs, the native **`callspec.json`** contract, OpenAPI 3.1, an MCP server, and **generated consumer artifacts** for TypeScript clients and forms.
 
-Every API and MCP call gets **input validation** at the boundary with clear error messages.
+**The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, and shared runtyp preds — so the browser never imports your Express server just to validate a filter or a registration form.
+
+Every API and MCP call gets **input validation** at the boundary with clear error messages. The same schemas codegen into the frontend (types today; runtyp validators via `spec.exports` — see [exports plan](docs/exports-and-codegen.plan.md)).
 
 | Feature | Location |
 |---------|----------|
@@ -29,9 +31,12 @@ Every API and MCP call gets **input validation** at the boundary with clear erro
 | **Native Callspec document** | `/callspec.json` |
 | **OpenAPI 3.1** | `/openapi.json` |
 | **MCP tools** | `/mcp` |
-| **Generated client** | `npx callspec … --output …` |
+| **Generated HTTP client** | `npx callspec … --output …` |
+| **Exported schemas** | `defineSpec({ exports: { … } })` → shared preds in `callspec.json` |
+| **Generated validators** | `npx callspec … --output … --validators` → runtyp preds for routes + exports |
 | **Runtime client** | `CallspecClient` from `callspec/client` |
-| **Input validation** | Runtime (runtyp) + compile-time (generated types) |
+| **Server validation** | runtyp at route boundary |
+| **Consumer types** | Generated from `callspec.json` — no backend package import |
 
 ## Complete example
 
@@ -138,6 +143,7 @@ defineRoute({
 defineSpec({
     meta?: CallspecMeta,
     routes: RoutesMap<Ctx>,          // required — your map of defineRoute entries
+    exports?: Record<string, Pred>,  // named schemas for consumer codegen (filters, domain preds)
     authenticate?: (token, req) => Ctx | undefined,
 })
 ```
@@ -225,6 +231,47 @@ export const routes = {
 ```
 
 Generated clients export per-route `GetUserError` unions and `GetUserResult`. Framework errors (`UNAUTHORIZED`, `VALIDATION_ERROR`, etc.) are included in every `*Result` type automatically — **no try/catch for HTTP errors**.
+
+## Shared validation and types (backend + frontend)
+
+**Problem:** Teams define runtyp preds on the server, then copy-paste (or drift) the same rules in React forms, or worse — add `@your-org/api-service` as a devDependency and pull Express, pg, and AWS SDK into `node_modules` just for `API['searchLogs']['input']`.
+
+**Callspec fix:** Routes declare wire validation once. `callspec.json` is the portable contract. Codegen copies **types** (and, with `exports`, **named runtyp preds**) into the consumer app.
+
+| What | Where it lives | Who uses it |
+|------|----------------|-------------|
+| RPC methods | `defineSpec({ routes })` | Server handlers + generated `ApiClient` |
+| Full request/response shapes | Route `input` / `output` | Server boundary + generated `{Route}Input` types |
+| Shared UI slices (filters, domain objects) | `defineSpec({ exports })` | Filter bars, modals, wizards — same pred as server ([plan](docs/exports-and-codegen.plan.md)) |
+| UI-only fields (`confirmPassword`, URL quirks) | Consumer app local | Never in the spec |
+
+**Example — search logs filter:**
+
+```typescript
+// api — spec/preds/logs.ts
+export const logQueryFilter = p.object({ env: p.string(), appIds: p.optional(p.array(p.string())), … });
+export const searchLogsInput = p.object({ teamId: p.string(), page: p.optional(p.number()), … });
+
+// api — defineSpec({ exports: { logQueryFilter }, routes: { searchLogs: … } })
+
+// frontend — generated/validators.ts (do not edit)
+import { logQueryFilter, searchLogsInput } from './generated/validators';
+
+useUriFilter({ validator: logQueryFilter, … });
+await api.searchLogs({ ...filter, teamId, page });
+```
+
+Generate validators:
+
+```bash
+npx callspec ./callspec.json --output ./src/generated/validators.ts --validators
+```
+
+Composition inside a route input **does not** auto-export the slice — register preds you want consumers to import under **`exports`**.
+
+Powered by [runtyp](https://github.com/logfoxai/runtyp): preds validate at runtime on the server and serialize to JSON Schema for docs, OpenAPI, MCP, and codegen.
+
+---
 
 ## Frontend client generation
 
@@ -454,7 +501,7 @@ OpenAPI Bearer security is **auto-derived** from route `access`.
 
 Field `{ description }` on runtyp preds flows to JSON Schema in both `callspec.json` and OpenAPI. Route-level `meta` (summary, tags) is callspec-only.
 
-Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schema generation.
+See [Shared validation and types](#shared-validation-and-types-backend--frontend) and [exports plan](docs/exports-and-codegen.plan.md) for the consumer-codegen story.
 
 ## Package exports
 
@@ -462,7 +509,7 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schem
 |--------|-----|
 | `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `commonErrors`; types `Callspec`, `RoutesMap`, `MountSpecOptions` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CallspecRouteResult`, …) and generated client types |
-| `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile` |
+| `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
 
 ## Development
 

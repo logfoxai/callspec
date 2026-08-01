@@ -192,6 +192,29 @@ export function parseCallspecDocument(raw: unknown): CallspecDocument {
 
     }
 
+    let exports: Record<string, JsonSchema> | undefined;
+
+    if (raw.exports !== undefined) {
+
+        if (!isRecord(raw.exports)) {
+
+            throw new CallspecDocumentError('Callspec exports must be an object when present');
+
+        }
+
+        exports = {};
+
+        for (const name of Object.keys(raw.exports).sort((a, b) => a.localeCompare(b))) {
+
+            exports[name] = parseJsonSchema(
+                raw.exports[name],
+                `Export "${name}"`,
+            );
+
+        }
+
+    }
+
     return {
         callspec: CALLSPEC_DOCUMENT_VERSION,
         info: omitUndefined({
@@ -201,6 +224,7 @@ export function parseCallspecDocument(raw: unknown): CallspecDocument {
                 ? raw.info.description
                 : undefined,
         }),
+        exports,
         routes,
     };
 
