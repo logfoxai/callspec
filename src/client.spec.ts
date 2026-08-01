@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {test} from 'kizu';
-import {client, joinCallspecUrl, Non200Response} from './client';
+import {CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
 
 test('client bundle is fetch-only (no node server imports)', (assert) => {
 
@@ -12,7 +12,7 @@ test('client bundle is fetch-only (no node server imports)', (assert) => {
 
 });
 
-test('client POSTs JSON to endpoint/method', async (assert) => {
+test('CallspecClient POSTs JSON to endpoint/method', async (assert) => {
 
     const calls: {url: string; init?: RequestInit}[] = [];
     const originalFetch = globalThis.fetch;
@@ -30,11 +30,18 @@ test('client POSTs JSON to endpoint/method', async (assert) => {
 
     try {
 
-        const result = await client('healthcheck', {}, {endpoint: 'https://api.test/v1'});
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult<{ok: boolean}>('healthcheck', {});
 
         assert.equal(calls[0]?.url, 'https://api.test/v1/healthcheck');
         assert.equal(calls[0]?.init?.method, 'POST');
-        assert.equal(result, {ok: true});
+        assert.equal(isCallspecOk(result), true);
+
+        if (result.ok) {
+
+            assert.equal(result.value, {ok: true});
+
+        }
 
     } finally {
 
@@ -44,7 +51,7 @@ test('client POSTs JSON to endpoint/method', async (assert) => {
 
 });
 
-test('client deserializes Date wire format', async (assert) => {
+test('CallspecClient deserializes Date wire format', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
@@ -54,12 +61,17 @@ test('client deserializes Date wire format', async (assert) => {
 
     try {
 
-        const result = await client('getTime', {}, {endpoint: 'https://api.test/v1'}) as {
-            at: Date
-        };
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult<{at: Date}>('getTime', {});
 
-        assert.equal(result.at instanceof Date, true);
-        assert.equal(result.at.toISOString(), '2026-07-28T12:00:00.000Z');
+        assert.equal(isCallspecOk(result), true);
+
+        if (result.ok) {
+
+            assert.equal(result.value.at instanceof Date, true);
+            assert.equal(result.value.at.toISOString(), '2026-07-28T12:00:00.000Z');
+
+        }
 
     } finally {
 
@@ -75,7 +87,7 @@ test('joinCallspecUrl avoids double slashes', (assert) => {
 
 });
 
-test('client throws Non200Response on HTTP errors for backward compatibility', async (assert) => {
+test('CallspecClient.callResult returns typed error bodies', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
@@ -85,24 +97,15 @@ test('client throws Non200Response on HTTP errors for backward compatibility', a
 
     try {
 
-        let thrown: unknown;
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('secret', {});
 
-        try {
+        assert.equal(result.ok, false);
 
-            await client('secret', {}, {endpoint: 'https://api.test/v1'});
+        if (!result.ok) {
 
-        } catch (err) {
-
-            thrown = err;
-
-        }
-
-        assert.equal(thrown instanceof Non200Response, true);
-
-        if (thrown instanceof Non200Response) {
-
-            assert.equal(thrown.status, 401);
-            assert.equal(thrown.response, 'Unauthorized');
+            assert.equal(result.status, 401);
+            assert.equal(result.error.error, 'UNAUTHORIZED');
 
         }
 
@@ -114,7 +117,7 @@ test('client throws Non200Response on HTTP errors for backward compatibility', a
 
 });
 
-test('client merges fetchOptions headers without dropping Content-Type', async (assert) => {
+test('CallspecClient merges fetchOptions headers without dropping Content-Type', async (assert) => {
 
     const calls: {init?: RequestInit}[] = [];
     const originalFetch = globalThis.fetch;
@@ -129,12 +132,12 @@ test('client merges fetchOptions headers without dropping Content-Type', async (
 
     try {
 
-        await client('healthcheck', {}, {
-            endpoint: 'https://api.test/v1',
-            fetchOptions: {
-                headers: {Authorization: 'Bearer token'},
-            },
+        const runtime = new CallspecClient({
+            baseUrl: 'https://api.test/v1',
+            headers: {Authorization: 'Bearer token'},
         });
+
+        await runtime.callResult('healthcheck', {});
 
         const headers = calls[0]?.init?.headers;
 
@@ -155,7 +158,7 @@ test('client merges fetchOptions headers without dropping Content-Type', async (
 
 });
 
-test('client throws Non200Response on error status', async (assert) => {
+test('CallspecClient.callResult preserves JSON error bodies', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
@@ -165,24 +168,15 @@ test('client throws Non200Response on error status', async (assert) => {
 
     try {
 
-        let thrown: unknown;
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('secret', {});
 
-        try {
+        assert.equal(result.ok, false);
 
-            await client('secret', {}, {endpoint: 'https://api.test/v1'});
+        if (!result.ok) {
 
-        } catch (err) {
-
-            thrown = err;
-
-        }
-
-        assert.equal(thrown instanceof Non200Response, true);
-
-        if (thrown instanceof Non200Response) {
-
-            assert.equal(thrown.status, 401);
-            assert.equal(thrown.response, {error: 'nope'});
+            assert.equal(result.status, 401);
+            assert.equal(result.error.error, 'nope');
 
         }
 

@@ -191,7 +191,7 @@ function authenticate(token: string, _req: unknown): ChirpCtx | undefined {
 
 }
 
-export const meta = {
+const meta = {
     title: 'Chirp API v2',
     version: '2.0.0',
     intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
@@ -201,7 +201,7 @@ export const meta = {
     mcpInstructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
 };
 
-export const routes = {
+const routes = {
 
     healthcheck: defineRoute({
         input: p.object({}),

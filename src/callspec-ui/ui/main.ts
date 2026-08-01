@@ -1,22 +1,13 @@
 import './styles.css';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
+import {callspecDocumentToUiSpec} from '../toUiSpec';
+import type {CallspecUiRoute} from '../types';
 import {parseCallspecDocument, CallspecDocumentError} from '../../callspecDocument';
 import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {initTheme, toggleTheme, type Theme} from './theme';
 import {themeMoonIcon, themeSunIcon} from './icons';
-
-type CallspecUiRoute = {
-    name: string
-    summary: string
-    description: string
-    tags: string[]
-    access: 'public' | 'private'
-    mcp: boolean
-    inputSchema: unknown
-    outputSchema: unknown
-};
 
 type View =
     | {kind: 'home'}
@@ -619,23 +610,6 @@ function copyCurl(route: CallspecUiRoute): void {
 
 }
 
-function parseRoutesFromDocument(doc: ReturnType<typeof parseCallspecDocument>): CallspecUiRoute[] {
-
-    return Object.values(doc.routes)
-        .map((route) => ({
-            name: route.name,
-            summary: route.summary,
-            description: route.description,
-            tags: [...route.tags],
-            access: route.access,
-            mcp: route.mcp.enabled,
-            inputSchema: route.input,
-            outputSchema: route.output,
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-}
-
 async function boot(): Promise<void> {
 
     const app = document.getElementById('app');
@@ -654,7 +628,7 @@ async function boot(): Promise<void> {
         const version = parsed.info.version;
         const branding = config.branding;
         const showHome = hasHomePage(branding);
-        const routes = parseRoutesFromDocument(parsed);
+        const routes = callspecDocumentToUiSpec(parsed).routes;
 
         let view: View = viewFromHash(routes, showHome);
         let filters: RouteFilters = {

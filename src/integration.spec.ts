@@ -7,7 +7,6 @@ import {defineSpec} from './defineSpec';
 import {defineRoute} from './defineRoute';
 import {mountSpec} from './mountSpec';
 import {errors} from './routeErrors';
-import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
 import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
 import {parseCallspecDocument} from './callspecDocument';
 
@@ -171,12 +170,11 @@ test('integration: openapi.json lists all fixture routes', async (assert) => {
         const res = await fetch(`${base}/openapi.json`);
         const doc = await res.json() as Record<string, unknown>;
 
+        const paths = doc.paths as Record<string, unknown>;
+
         assert.equal(res.status, 200);
         assert.equal((doc.info as {title: string}).title, 'Fixture API');
-
-        const spec = parseCallspecOpenApi(doc);
-
-        assert.equal(spec.routes.length, 3);
+        assert.equal(Object.keys(paths).length, 3);
 
     });
 
@@ -589,45 +587,6 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
     router.use(bodyParser.json());
 
     mountSpec(router, fixtureSpec, {docs: false});
-
-    app.use(router);
-
-    const server = http.createServer(app);
-
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
-
-    const addr = server.address();
-
-    if (!addr || typeof addr === 'string') throw new Error('bad address');
-
-    const origin = `http://127.0.0.1:${addr.port}`;
-
-    try {
-
-        const callspec = await fetch(`${origin}/callspec.json`);
-        const openApi = await fetch(`${origin}/openapi.json`);
-        const docs = await fetch(`${origin}/docs`);
-
-        assert.equal(callspec.status, 404);
-        assert.equal(openApi.status, 404);
-        assert.equal(docs.status, 404);
-
-    } finally {
-
-        await closeServer(server);
-
-    }
-
-});
-
-test('integration: deprecated ui:false disables all docs/spec surfaces', async (assert) => {
-
-    const app = express();
-    const router = express.Router();
-
-    router.use(bodyParser.json());
-
-    mountSpec(router, fixtureSpec, {ui: false});
 
     app.use(router);
 

@@ -1,6 +1,6 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
-import {routePath} from './routePath';
+import {joinRoutePath} from './metaDefaults';
 import {
     CALLSPEC_DOCUMENT_VERSION,
     type CallspecDocument,
@@ -49,7 +49,7 @@ export function emitCallspec(
 
         documentRoutes[name] = omitUndefined({
             name,
-            path: routePath(basePath, name),
+            path: joinRoutePath(basePath, name),
             method: 'POST',
             summary: route.meta.summary,
             description: route.meta.description,

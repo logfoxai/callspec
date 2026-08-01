@@ -38,9 +38,6 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
 
 export type RoutesMap<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
 
-/** @deprecated Use {@link RoutesMap} — route map only; prefer {@link Callspec}. */
-export type Spec<Ctx = unknown> = RoutesMap<Ctx>;
-
 export type CallspecLogo = {
     light?: string
     dark?: string

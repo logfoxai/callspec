@@ -6,7 +6,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import http from 'http';
 import {predicates as p} from 'runtyp';
-import {CallspecClient, CallspecHttpError, isCallspecOk, joinCallspecUrl} from './client';
+import {CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
 import {defineRoute, defineSpec, emitCallspec, mountSpec} from '.';
 import {generateClientFile} from './generateClient/generateClient';
 import {generateClientSource} from './generateClient/generateClientSource';
@@ -21,40 +21,6 @@ test('joinCallspecUrl: normalizes slashes', (assert) => {
 
     assert.equal(joinCallspecUrl('https://api.test/v1/', '/searchLogs'), 'https://api.test/v1/searchLogs');
     assert.equal(joinCallspecUrl('https://api.test/v1', 'searchLogs'), 'https://api.test/v1/searchLogs');
-
-});
-
-test('CallspecHttpError preserves status, body, and response', async (assert) => {
-
-    const runtime = new CallspecClient({
-        baseUrl: 'https://api.test/v1',
-        fetch: (async () => new Response(JSON.stringify({error: 'nope'}), {
-            status: 403,
-        })) as typeof fetch,
-    });
-
-    let thrown: unknown;
-
-    try {
-
-        await runtime.call('secret', {});
-
-    } catch (err) {
-
-        thrown = err;
-
-    }
-
-    assert.equal(thrown instanceof CallspecHttpError, true);
-
-    if (thrown instanceof CallspecHttpError) {
-
-        assert.equal(thrown.status, 403);
-        assert.equal(thrown.body, {error: 'nope'});
-        assert.equal(thrown.response.status, 403);
-        assert.equal(thrown.message.includes('403'), true);
-
-    }
 
 });
 
@@ -79,9 +45,10 @@ test('CallspecClient: dynamic headers and custom fetch', async (assert) => {
         fetch: customFetch,
     });
 
-    await runtime.call('healthcheck', {});
+    const result = await runtime.callResult<{ok: boolean}>('healthcheck', {});
 
     assert.equal(customFetchUsed, true);
+    assert.equal(isCallspecOk(result), true);
 
 });
 

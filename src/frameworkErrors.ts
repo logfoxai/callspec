@@ -8,8 +8,6 @@ export const FRAMEWORK_ERROR = {
     ROUTE_NOT_FOUND: 'ROUTE_NOT_FOUND',
 } as const;
 
-export type FrameworkErrorCode = typeof FRAMEWORK_ERROR[keyof typeof FRAMEWORK_ERROR];
-
 export type CallspecUnauthorizedErrorBody = {
     error: typeof FRAMEWORK_ERROR.UNAUTHORIZED
 };

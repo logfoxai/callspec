@@ -1,13 +1,8 @@
 export {defineRoute} from './defineRoute';
 export {defineSpec} from './defineSpec';
 export type {Callspec} from './defineSpec';
-export {executeRoute} from './executeRoute';
 export {mountSpec} from './mountSpec';
 export type {MountSpecOptions, MountDocsOptions} from './mountSpec';
-export {mountCallspecUi, renderCallspecUiPage} from './callspec-ui';
-export type {MountCallspecUiOptions, CallspecUiConfig, CallspecUiRoute, CallspecUiSpec} from './callspec-ui';
-export {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
-export {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
 export {emitOpenApi} from './openapi';
 export type {OpenApiOptions} from './openapi';
 export {emitCallspec} from './emitCallspec';
@@ -22,46 +17,9 @@ export type {
     CallspecDocumentRoute,
     JsonSchema,
 } from './callspecDocument';
-export {generateClientFile, loadCallspecDocument} from './generateClient/generateClient';
-export {errors, routeErrors, commonErrors} from './routeErrors';
+export {generateClientFile} from './generateClient/generateClient';
+export {errors, commonErrors} from './routeErrors';
 export type {RouteErrorSpec, ErrorsHandle, RouteErrorsInput} from './routeErrors';
-export {
-    client,
-    CallspecClient,
-    CallspecHttpError,
-    Non200Response,
-    joinCallspecUrl,
-    isCallspecOk,
-} from './client';
-export type {
-    ClientOptions,
-    CallspecClientConfig,
-    CallspecOk,
-    CallspecErr,
-    CallspecResult,
-    CallspecRouteResult,
-    CallspecClientErrors,
-    CallspecUnexpectedErrorBody,
-} from './client';
-export {serializeResponse, deserializeResponse} from './serializer';
-export {
-    CallspecValidationError,
-    CallspecUnauthorizedError,
-    CallspecInternalError,
-    CallspecNotFoundError,
-    CallspecRouteError,
-    isCallspecRouteError,
-    formatRouteErrorBody,
-} from './errors';
-export {FRAMEWORK_ERROR} from './frameworkErrors';
-export type {
-    CallspecFrameworkErrorBody,
-    CallspecInternalErrorBody,
-    CallspecRouteNotFoundErrorBody,
-    CallspecUnauthorizedErrorBody,
-    CallspecValidationErrorBody,
-    FrameworkErrorCode,
-} from './frameworkErrors';
 export type {
     RouteMeta,
     McpRouteConfig,
@@ -70,7 +28,6 @@ export type {
     RouteHandler,
     RouteErrorDef,
     RoutesMap,
-    Spec,
     CallspecMeta,
     CallspecLogo,
     CallspecWebsite,

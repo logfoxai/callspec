@@ -27,8 +27,14 @@ jobs:
       - name: Lint
         run: npm run lint:check
 
+      - name: Dead code
+        run: npm run deadcode:check
+
       - name: Type check
         run: npx tsc --noEmit
+
+      - name: Route typecheck
+        run: npm run typecheck:routes
 
       - name: Build
         run: npm run build

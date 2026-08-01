@@ -20,7 +20,7 @@ export type ErrorsHandle = {
     [ERROR_DEFS]: Readonly<Record<string, RouteErrorDef>>
 };
 
-export type ErrorsHandleWithThrowers<T extends Record<string, RouteErrorSpec>> =
+type ErrorsHandleWithThrowers<T extends Record<string, RouteErrorSpec>> =
     ErrorsHandle & {[K in keyof T & string]: ThrowFn<T[K]>};
 
 export type RouteErrorsInput = Record<string, RouteErrorDef> | ErrorsHandle;
@@ -128,11 +128,3 @@ export const commonErrors = {
     CONFLICT: {status: 409},
 } as const satisfies Record<string, RouteErrorSpec>;
 
-/** @deprecated Use {@link errors}. */
-export const routeErrors = errors;
-
-export type RouteErrorsFactory<T extends Record<string, RouteErrorSpec>> =
-    ErrorsHandleWithThrowers<T>;
-
-export type InferRouteErrorData<E extends RouteErrorDef> =
-    E['data'] extends Pred<infer D> ? D : undefined;

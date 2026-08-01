@@ -1,5 +1,5 @@
 import type {CallspecDocument} from '../callspecDocument';
-import type {CallspecUiRoute, CallspecUiSpec} from './parseOpenApi';
+import type {CallspecUiRoute, CallspecUiSpec} from './types';
 
 export function callspecDocumentToUiSpec(doc: CallspecDocument): CallspecUiSpec {
 

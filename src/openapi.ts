@@ -1,6 +1,6 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
-import {routePath} from './routePath';
+import {joinRoutePath} from './metaDefaults';
 import {openApiErrorResponses} from './routeErrorDocument';
 
 export type OpenApiOptions = {
@@ -26,7 +26,7 @@ export function emitOpenApi(
             includeUnauthorized: route.access === 'private',
         });
 
-        paths[routePath(basePath, name)] = {
+        paths[joinRoutePath(basePath, name)] = {
             post: {
                 operationId: name,
                 summary: route.meta.summary,

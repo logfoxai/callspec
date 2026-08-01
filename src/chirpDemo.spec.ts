@@ -1,6 +1,8 @@
 import {test} from 'kizu';
 import {emitOpenApi} from './openapi';
-import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
+import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
+import {emitCallspec} from './emitCallspec';
+import {parseCallspecDocument} from './callspecDocument';
 import {api} from './demo/chirpDemoApi';
 
 type OpenApiPath = Record<string, {
@@ -17,13 +19,13 @@ type OpenApiPath = Record<string, {
 
 test('chirp demo: emitOpenApi converts runtyp preds to JSON Schema', (assert) => {
 
-    const doc = emitOpenApi(api.routes, {
+    const doc = emitCallspec(api.routes, {
         title: 'Chirp API v2',
         version: '2.0.0',
         basePath: '/v1',
     });
 
-    const spec = parseCallspecOpenApi(doc);
+    const spec = callspecDocumentToUiSpec(parseCallspecDocument(doc));
 
     assert.equal(spec.routes.length, 14, 'route count');
 
@@ -32,7 +34,11 @@ test('chirp demo: emitOpenApi converts runtyp preds to JSON Schema', (assert) =>
     assert.equal(searchRecent?.access, 'private', 'searchRecent access');
     assert.equal(searchRecent?.mcp, true, 'searchRecent mcp');
 
-    const paths = doc.paths as OpenApiPath;
+    const paths = emitOpenApi(api.routes, {
+        title: 'Chirp API v2',
+        version: '2.0.0',
+        basePath: '/v1',
+    }).paths as OpenApiPath;
     const searchSchema = paths['/v1/searchRecent']?.post?.requestBody?.content?.['application/json']?.schema as {
         properties?: Record<string, {description?: string; minimum?: number; maximum?: number}>
     } | undefined;

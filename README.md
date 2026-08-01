@@ -30,7 +30,7 @@ Every API and MCP call gets **input validation** at the boundary with clear erro
 | **OpenAPI 3.1** | `/openapi.json` |
 | **MCP tools** | `/mcp` |
 | **Generated client** | `npx callspec … --output …` |
-| **Low-level fetch client** | `client()` from `callspec/client` |
+| **Runtime client** | `CallspecClient` from `callspec/client` |
 | **Input validation** | Runtime (runtyp) + compile-time (generated types) |
 
 ## Complete example
@@ -273,35 +273,24 @@ const validated = parseCallspecDocument(document);
 
 OpenAPI remains available for Swagger, Postman, and other OpenAPI tooling — both formats are projections of the same registry, not conversions of each other.
 
-## Low-level client (legacy / advanced)
+## Runtime client
 
-The fetch-only `client()` helper and `CallspecClient.call()` still throw on HTTP errors for scripts and backward compatibility. Prefer the **generated client** (Result-based) for application code.
+Every generated method returns `CallspecRouteResult<T, E>` — a discriminated union so HTTP errors are typed data, not exceptions.
 
 ```typescript
-import {client, CallspecClient, CallspecHttpError, isCallspecOk} from 'callspec/client';
+import {CallspecClient, isCallspecOk} from 'callspec/client';
 
-// Result API (no catch for HTTP error responses):
 const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
 const result = await runtime.callResult<{results: unknown[]}>('searchRecent', {query: 'x'});
+
 if (isCallspecOk(result)) {
     console.log(result.value);
-}
-
-// Throwing API (legacy):
-try {
-    await client('searchRecent', {query: 'callspec'}, {endpoint: 'https://api.example.com/v1'});
-} catch (err) {
-    if (err instanceof CallspecHttpError) {
-        console.error(err.status, err.body);
-    }
+} else {
+    console.error(result.status, result.error);
 }
 ```
 
-For new frontend work, prefer the **generated client**.
-
-### Monorepo type sharing (legacy)
-
-You may still export `InferSpec<typeof api.routes>` from a shared backend entry for in-repo convenience, but it is no longer the primary documented workflow and requires importing the backend spec module.
+For application code, prefer the **generated client** — it wraps `CallspecClient.callResult` with per-route input/output/error types.
 
 ## Getting started
 
@@ -352,8 +341,6 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schem
 npm run validate   # build server + callspec UI, lint, test (incl. integration)
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
-
-Design notes: [docs/mount-spec-api.md](docs/mount-spec-api.md).
 
 Integration tests spin up Express in-process and verify `callspec.json`, OpenAPI, `/docs`, auth, MCP, RPC, and client generation end-to-end.
 

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/callspec-ui/ui/main.ts",
+    "src/demo/chirpDemoApi.ts",
+    "src/**/*.spec.ts",
+    "src/typecheck/**/*.ts",
+    "scripts/*.{mjs,cjs,js}"
+  ],
+  "project": [
+    "src/**/*.ts",
+    "scripts/**/*.{mjs,cjs,js}"
+  ]
+}

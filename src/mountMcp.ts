@@ -1,5 +1,5 @@
 import type {RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError, CallspecNotFoundError, formatRouteErrorBody, isCallspecRouteError} from './errors';
+import {CallspecUnauthorizedError, CallspecValidationError, formatRouteErrorBody, isCallspecRouteError} from './errors';
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
@@ -159,13 +159,6 @@ export function mountMcp<Ctx>(
             respondError(400, `Unsupported method: ${body?.method ?? 'unknown'}`);
 
         } catch (err) {
-
-            if (err instanceof CallspecNotFoundError) {
-
-                respondError(404, err.message);
-                return;
-
-            }
 
             respondError(500, err instanceof Error ? err.message : 'Internal error');
 

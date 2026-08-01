@@ -1,6 +1,5 @@
 import type {Request, RequestHandler, Router} from 'express';
 import {
-    CallspecInternalError,
     CallspecUnauthorizedError,
     CallspecValidationError,
     formatRouteErrorBody,
@@ -16,6 +15,7 @@ import {resolveRouteContext} from './resolveRouteContext';
 import {
     defaultAuthHint,
     joinMountPath,
+    joinRoutePath,
     metaBrandingFromCallspecMeta,
     resolveCallspecMeta,
     siblingSpecPath,
@@ -40,10 +40,6 @@ export type MountSpecOptions = {
      * Pass `false` to disable all docs/spec surfaces.
      */
     docs?: boolean | MountDocsOptions
-    /** @deprecated Use `docs: false` to disable all docs/spec surfaces. */
-    ui?: boolean | string
-    /** @deprecated Use `docs: false` to disable all docs/spec surfaces. */
-    openApi?: boolean | string
     /** MCP HTTP path on this router. Default `/mcp`. */
     mcpPath?: string
 };
@@ -78,20 +74,7 @@ function sendError(res: import('express').Response, err: unknown): void {
 
     }
 
-    if (err instanceof CallspecInternalError) {
-
-        res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
-        return;
-
-    }
-
     res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
-
-}
-
-function joinRoutePath(basePath: string, segment: string): string {
-
-    return `${basePath}/${segment}`.replace(/\/{2,}/g, '/');
 
 }
 
@@ -103,7 +86,7 @@ function resolveDocsSurfaces(options: MountSpecOptions): ResolvedDocsSurfaces {
         openApiPath: '/openapi.json',
     };
 
-    if (options.docs === false || options.ui === false || options.openApi === false) {
+    if (options.docs === false) {
 
         return {...defaults, enabled: false};
 
@@ -113,11 +96,9 @@ function resolveDocsSurfaces(options: MountSpecOptions): ResolvedDocsSurfaces {
 
     return {
         enabled: true,
-        uiPath: docsOptions.uiPath
-            ?? (typeof options.ui === 'string' ? options.ui : defaults.uiPath),
+        uiPath: docsOptions.uiPath ?? defaults.uiPath,
         callspecPath: docsOptions.callspecPath ?? defaults.callspecPath,
-        openApiPath: docsOptions.openApiPath
-            ?? (typeof options.openApi === 'string' ? options.openApi : defaults.openApiPath),
+        openApiPath: docsOptions.openApiPath ?? defaults.openApiPath,
     };
 
 }

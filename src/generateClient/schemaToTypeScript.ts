@@ -1,9 +1,9 @@
-export type GeneratedType = {
+type GeneratedType = {
     name: string
     definition: string
 };
 
-export type SchemaToTypesResult = {
+type SchemaToTypesResult = {
     typeName: string
     types: GeneratedType[]
 };
@@ -47,7 +47,7 @@ function splitIdentifier(part: string): string[] {
 
 }
 
-export function typeNamePart(part: string): string {
+function typeNamePart(part: string): string {
 
     return splitIdentifier(part)
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())

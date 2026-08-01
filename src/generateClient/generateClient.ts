@@ -3,7 +3,7 @@ import path from 'path';
 import {CallspecDocumentError, parseCallspecDocument} from '../callspecDocument';
 import {generateClientSource} from './generateClientSource';
 
-export async function loadCallspecDocument(source: string): Promise<unknown> {
+async function loadCallspecDocument(source: string): Promise<unknown> {
 
     if (/^https?:\/\//i.test(source)) {
 

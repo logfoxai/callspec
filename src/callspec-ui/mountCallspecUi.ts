@@ -4,8 +4,6 @@ import type {RequestHandler, Router} from 'express';
 import express from 'express';
 import type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
 
-export type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
-
 export type MountCallspecUiOptions = {
     /** Mount path for the UI. Default `/docs`. */
     path?: string
@@ -54,7 +52,7 @@ function readIndexHtml(): string {
 
 }
 
-export function renderCallspecUiPage(config: CallspecUiConfig): string {
+function renderCallspecUiPage(config: CallspecUiConfig): string {
 
     const html = readIndexHtml();
     const script = `<script>window.__CALLSPEC_UI__=${JSON.stringify(config)};</script>`;

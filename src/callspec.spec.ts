@@ -1,6 +1,7 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineSpec, defineRoute, executeRoute} from '.';
+import {defineSpec, defineRoute} from '.';
+import {executeRoute} from './executeRoute';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 
 test('defineRoute rejects non-2-arg handlers', (assert) => {

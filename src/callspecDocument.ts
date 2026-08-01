@@ -2,7 +2,7 @@ export const CALLSPEC_DOCUMENT_VERSION = '1.0' as const;
 
 export type JsonSchema = Record<string, unknown>;
 
-export type CallspecDocumentRouteError = {
+type CallspecDocumentRouteError = {
     status: number
     data?: JsonSchema
 };

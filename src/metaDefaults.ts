@@ -1,9 +1,9 @@
 import type {CallspecMeta} from './types';
 
-export const DEFAULT_CALLSPEC_TITLE = 'Callspec API';
-export const DEFAULT_CALLSPEC_VERSION = '0.0.0';
+const DEFAULT_CALLSPEC_TITLE = 'Callspec API';
+const DEFAULT_CALLSPEC_VERSION = '0.0.0';
 
-export const DEFAULT_AUTH_HINT =
+const DEFAULT_AUTH_HINT =
     'Private routes require Authorization: Bearer <token>.';
 
 export function resolveCallspecMeta(meta: CallspecMeta): CallspecMeta & {
@@ -46,11 +46,23 @@ export function metaBrandingFromCallspecMeta(
 
 }
 
+export function slugifyName(name: string, fallback: string): string {
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    return slug || fallback;
+
+}
+
 export function slugServerName(title: string): string {
 
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return slugifyName(title, 'callspec');
 
-    return slug || 'callspec';
+}
+
+export function joinRoutePath(basePath: string, segment: string): string {
+
+    return `${basePath}/${segment}`.replace(/\/{2,}/g, '/');
 
 }
 

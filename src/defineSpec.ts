@@ -1,3 +1,4 @@
+import {hasPrivateRoutes} from './metaDefaults';
 import type {Authenticate, Callspec, CallspecMeta, RoutesMap} from './types';
 
 export function defineSpec<
@@ -24,9 +25,7 @@ export function defineSpec<
 
     }
 
-    const hasPrivate = Object.values(routes).some((route) => route.access === 'private');
-
-    if (hasPrivate && !authenticate) {
+    if (hasPrivateRoutes(routes) && !authenticate) {
 
         throw new Error('defineSpec: private routes require authenticate');
 
