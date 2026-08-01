@@ -1,10 +1,8 @@
-# Callspec
-
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-light.svg?cb=2" media="(prefers-color-scheme: light)" />
-    <source srcset="assets/callspec-lockup-dark.svg?cb=2" media="(prefers-color-scheme: dark)" />
-    <img src="assets/callspec-lockup-dark.svg?cb=2" alt="callspec" />
+    <source srcset="assets/callspec-lockup-dark.svg?cb=3" media="(prefers-color-scheme: dark)" />
+    <source srcset="assets/callspec-lockup-light.svg?cb=3" media="(prefers-color-scheme: light)" />
+    <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
   <h3 align="center">One spec powers your API, docs, MCP, OpenAPI — and shared validation &amp; types for every consumer.</h3>
