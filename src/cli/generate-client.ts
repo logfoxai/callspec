@@ -6,19 +6,19 @@ import {generateClientFile} from '../generateClient/generateClient';
 function printHelp(): void {
 
     process.stdout.write(`Usage:
-  callspec generate-client <source> --output <file>
+  callspec <source> --output <file>
 
 Arguments:
-  <source>    Path to callspec.json or HTTP(S) URL returning callspec.json
+  <source>    Path to callspec.json or HTTP(S) URL
 
 Options:
-  --output    Output TypeScript file path (required)
+  --output      Output TypeScript file (required)
   --class-name  Generated client class name (default: ApiClient)
-  --help      Show this help message
+  --help        Show this help
 
 Examples:
-  callspec generate-client ./callspec.json --output ./src/generated/api.ts
-  callspec generate-client https://api.example.com/callspec.json --output ./src/generated/api.ts
+  callspec ./callspec.json --output ./src/generated/api.ts
+  callspec https://api.example.com/v1/callspec.json --output ./src/generated/api.ts
 `);
 
 }
@@ -30,14 +30,7 @@ function parseArgs(argv: string[]): {
     help?: boolean
 } {
 
-    let args = argv.slice(2);
-
-    if (args[0] === 'generate-client') {
-
-        args = args.slice(1);
-
-    }
-
+    const args = argv.slice(2);
     const result: ReturnType<typeof parseArgs> = {};
 
     if (args.includes('--help') || args.includes('-h') || args.length === 0) {
@@ -78,14 +71,14 @@ async function main(): Promise<void> {
     if (parsed.help) {
 
         printHelp();
-        process.exit(parsed.help && !parsed.source ? 0 : 1);
+        process.exit(parsed.source ? 1 : 0);
         return;
 
     }
 
     if (!parsed.source) {
 
-        process.stderr.write('Error: missing <source> path or URL\n');
+        process.stderr.write('Error: missing <source>\n');
         printHelp();
         process.exit(1);
         return;

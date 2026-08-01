@@ -5,16 +5,6 @@ import {predicates as p} from 'runtyp';
 import {defineSpec} from '../defineSpec';
 import {defineRoute} from '../defineRoute';
 
-const out = p.any();
-
-const tweetFields = p.optional(p.array(p.string(), {
-    description: 'Tweet fields to expand (e.g. author_id, created_at, public_metrics)',
-}));
-
-const userFields = p.optional(p.array(p.string(), {
-    description: 'User fields to expand (e.g. created_at, public_metrics, verified)',
-}));
-
 const pagination = {
     maxResults: p.optional(p.number({
         description: 'Maximum number of results (1–100)',
@@ -24,6 +14,84 @@ const pagination = {
         description: 'Opaque cursor from a previous response',
     })),
 };
+
+const userMetrics = p.object({
+    followers_count: p.number(),
+    following_count: p.number(),
+    tweet_count: p.number(),
+    listed_count: p.number(),
+});
+
+const chirpUser = p.object({
+    id: p.string(),
+    username: p.string(),
+    name: p.string(),
+    created_at: p.string(),
+    description: p.string(),
+    verified: p.boolean(),
+    public_metrics: userMetrics,
+});
+
+const tweetMetrics = p.object({
+    retweet_count: p.number(),
+    reply_count: p.number(),
+    like_count: p.number(),
+    quote_count: p.number(),
+    bookmark_count: p.number(),
+    impression_count: p.number(),
+});
+
+const chirpTweet = p.object({
+    id: p.string(),
+    text: p.string(),
+    author_id: p.string(),
+    created_at: p.string(),
+    lang: p.string(),
+    public_metrics: tweetMetrics,
+});
+
+const pageMeta = p.object({
+    result_count: p.number(),
+    next_token: p.optional(p.string()),
+    previous_token: p.optional(p.string()),
+});
+
+const healthOut = p.object({status: p.string()});
+const userOut = p.object({data: chirpUser});
+const tweetOut = p.object({data: chirpTweet});
+const userPageOut = p.object({data: p.array(chirpUser), meta: pageMeta});
+const tweetPageOut = p.object({data: p.array(chirpTweet), meta: pageMeta});
+const deleteTweetOut = p.object({data: p.object({deleted: p.boolean(), id: p.string()})});
+const listOut = p.object({
+    data: p.object({
+        id: p.string(),
+        name: p.string(),
+        description: p.string(),
+        follower_count: p.number(),
+        member_count: p.number(),
+        private: p.boolean(),
+        owner_id: p.string(),
+        created_at: p.string(),
+    }),
+});
+const dmOut = p.object({
+    data: p.object({
+        dm_conversation_id: p.string(),
+        dm_event_id: p.string(),
+        text: p.string(),
+        sender_id: p.string(),
+        participant_id: p.string(),
+        created_at: p.string(),
+    }),
+});
+
+const tweetFields = p.optional(p.array(p.string(), {
+    description: 'Tweet fields to expand (e.g. author_id, created_at, public_metrics)',
+}));
+
+const userFields = p.optional(p.array(p.string(), {
+    description: 'User fields to expand (e.g. created_at, public_metrics, verified)',
+}));
 
 type ChirpCtx = {userId: string; username: string};
 
@@ -94,23 +162,19 @@ function mockTweet(id: string, text: string, authorId: string): {
 }
 
 function paginated<T>(
-    dataKey: string,
     items: T[],
     meta: Record<string, unknown> = {},
 ): {
     data: T[]
-    meta: Record<string, unknown> & {result_count: number; next_token: null}
-    [key: string]: unknown
+    meta: Record<string, unknown> & {result_count: number}
 } {
 
     return {
         data: items,
         meta: {
             result_count: items.length,
-            next_token: null,
             ...meta,
         },
-        [dataKey]: items,
     };
 
 }
@@ -141,7 +205,7 @@ export const routes = {
 
     healthcheck: defineRoute({
         input: p.object({}),
-        output: out,
+        output: healthOut,
         meta: {
             summary: 'Health check',
             description: 'Returns OK when the API is up. Does not require authentication.',
@@ -157,7 +221,7 @@ export const routes = {
             'user.fields': userFields,
             expansions: p.optional(p.array(p.string())),
         }),
-        output: out,
+        output: userOut,
         meta: {
             summary: 'Get User by ID',
             description: 'Returns information about a User specified by ID.',
@@ -175,7 +239,7 @@ export const routes = {
             username: p.string({description: 'Twitter handle without the @ prefix'}),
             'user.fields': userFields,
         }),
-        output: out,
+        output: userOut,
         meta: {
             summary: 'Get User by username',
             description: 'Returns information about a User specified by username.',
@@ -195,14 +259,14 @@ export const routes = {
             pagination_token: pagination.paginationToken,
             'user.fields': userFields,
         }),
-        output: out,
+        output: userPageOut,
         meta: {
             summary: 'Get followers',
             description: 'Returns a list of Users who follow the specified User ID.',
             tags: ['users'],
         },
         access: 'private',
-        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated('data', [
+        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('1001', 'alex_codes'),
             mockUser('1002', 'sam_reads'),
             mockUser('1003', 'taylor_ops'),
@@ -216,14 +280,14 @@ export const routes = {
             pagination_token: pagination.paginationToken,
             'user.fields': userFields,
         }),
-        output: out,
+        output: userPageOut,
         meta: {
             summary: 'Get following',
             description: 'Returns a list of Users the specified User ID is following.',
             tags: ['users'],
         },
         access: 'private',
-        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated('data', [
+        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('2001', 'vercel'),
             mockUser('2002', 'github'),
         ], {previous_token: input.pagination_token ?? null}),
@@ -243,7 +307,7 @@ export const routes = {
                 duration_minutes: p.number({range: {min: 5, max: 10080}}),
             })),
         }),
-        output: out,
+        output: tweetOut,
         meta: {
             summary: 'Create Tweet',
             description: 'Creates a Tweet on behalf of an authenticated user.',
@@ -260,7 +324,7 @@ export const routes = {
         input: p.object({
             id: p.string({description: 'Tweet ID to delete'}),
         }),
-        output: out,
+        output: deleteTweetOut,
         meta: {
             summary: 'Delete Tweet',
             description: 'Allows an authenticated user ID to delete a Tweet.',
@@ -278,7 +342,7 @@ export const routes = {
             'tweet.fields': tweetFields,
             expansions: p.optional(p.array(p.string())),
         }),
-        output: out,
+        output: tweetOut,
         meta: {
             summary: 'Get Tweet by ID',
             description: 'Returns a Tweet specified by the requested ID.',
@@ -298,7 +362,7 @@ export const routes = {
             end_time: p.optional(p.string({description: 'ISO 8601 end time (exclusive)'})),
             'tweet.fields': tweetFields,
         }),
-        output: out,
+        output: tweetPageOut,
         meta: {
             summary: 'Search recent Tweets',
             description: 'Returns Tweets from the last seven days matching a search query.',
@@ -306,7 +370,7 @@ export const routes = {
         },
         access: 'private',
         mcp: true,
-        handler: (input: {query: string}, _ctx: ChirpCtx) => paginated('data', [
+        handler: (input: {query: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('3001', `Results for: ${input.query}`, '2244994945'),
             mockTweet('3002', 'Another match from the last 7 days', '1001'),
         ]),
@@ -321,14 +385,14 @@ export const routes = {
             })),
             'tweet.fields': tweetFields,
         }),
-        output: out,
+        output: tweetPageOut,
         meta: {
             summary: 'Home timeline',
             description: 'Returns the most recent Tweets from accounts the authenticated user follows.',
             tags: ['timelines'],
         },
         access: 'private',
-        handler: (_input, ctx: ChirpCtx) => paginated('data', [
+        handler: (_input, ctx: ChirpCtx) => paginated([
             mockTweet('4001', 'Morning standup notes thread 🧵', ctx.userId),
             mockTweet('4002', 'TIL: JSON Schema from runtyp predicates', '2001'),
             mockTweet('4003', 'Shipping docs today', '2002'),
@@ -343,14 +407,14 @@ export const routes = {
             exclude: p.optional(p.array(p.string())),
             'tweet.fields': tweetFields,
         }),
-        output: out,
+        output: tweetPageOut,
         meta: {
             summary: 'User Tweet timeline',
             description: 'Returns the most recent Tweets authored by the specified User.',
             tags: ['timelines'],
         },
         access: 'private',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => paginated('data', [
+        handler: (input: {id: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('5001', 'Working on RPC + OpenAPI from one spec', input.id),
             mockTweet('5002', 'callspec UI looking clean', input.id),
         ]),
@@ -362,7 +426,7 @@ export const routes = {
             description: p.optional(p.string({description: 'Description of the List'})),
             private: p.optional(p.boolean({description: 'If true, only the creator can see the List'})),
         }),
-        output: out,
+        output: listOut,
         meta: {
             summary: 'Create List',
             description: 'Creates a new List for the authenticated user.',
@@ -390,14 +454,14 @@ export const routes = {
             pagination_token: pagination.paginationToken,
             'user.fields': userFields,
         }),
-        output: out,
+        output: userPageOut,
         meta: {
             summary: 'Get List members',
             description: 'Returns a list of Users who are members of the specified List.',
             tags: ['lists'],
         },
         access: 'private',
-        handler: (_input, _ctx) => paginated('data', [
+        handler: (_input, _ctx) => paginated([
             mockUser('6001', 'designbot'),
             mockUser('6002', 'infra_daily'),
         ]),
@@ -408,7 +472,7 @@ export const routes = {
             participant_id: p.string({description: 'User ID of the conversation participant'}),
             text: p.string({description: 'Message body (max 10,000 characters)'}),
         }),
-        output: out,
+        output: dmOut,
         meta: {
             summary: 'Send a DM',
             description: 'Sends a Direct Message to a participant on behalf of the authenticated user.',

@@ -23,14 +23,8 @@ export type {
     JsonSchema,
 } from './callspecDocument';
 export {generateClientFile, loadCallspecDocument} from './generateClient/generateClient';
-export {routeErrors, resolveRouteErrorDefs} from './routeErrors';
-export type {
-    RouteErrorSpec,
-    RouteErrorsFactory,
-    RouteErrorsInput,
-    InferRouteErrorData,
-    InferRouteErrorsMap,
-} from './routeErrors';
+export {errors, routeErrors} from './routeErrors';
+export type {RouteErrorSpec, ErrorsHandle, RouteErrorsInput} from './routeErrors';
 export {
     client,
     CallspecClient,

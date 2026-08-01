@@ -29,7 +29,7 @@ Every API and MCP call gets **input validation** at the boundary with clear erro
 | **Native Callspec document** | `/callspec.json` |
 | **OpenAPI 3.1** | `/openapi.json` |
 | **MCP tools** | `/mcp` |
-| **Generated client** | `npx callspec generate-client …` |
+| **Generated client** | `npx callspec … --output …` |
 | **Low-level fetch client** | `client()` from `callspec/client` |
 | **Input validation** | Runtime (runtyp) + compile-time (generated types) |
 
@@ -145,9 +145,9 @@ Declare domain errors on a route and throw them from the handler. Callspec maps 
 Validation failures stay separate: `{ "error": "VALIDATION_ERROR", "errors": { ... } }`.
 
 ```typescript
-import {defineRoute, routeErrors} from 'callspec';
+import {defineRoute, errors} from 'callspec';
 
-const err = routeErrors({
+const err = errors({
     NOT_FOUND: {status: 404},
     USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
 });
@@ -155,7 +155,7 @@ const err = routeErrors({
 export const routes = {
     getUser: defineRoute({
         input: p.object({email: p.string()}),
-        output: p.any(),
+        output: p.object({email: p.string(), name: p.string()}),
         errors: err,
         meta: {summary: 'Get user', description: 'Lookup by email', tags: ['users']},
         access: 'public',
@@ -168,7 +168,7 @@ export const routes = {
 };
 ```
 
-Generated clients export a per-route `ErrorResponse` union when errors are declared.
+Generated clients export a per-route `GetUserError` union when errors are declared.
 
 ## Frontend client generation
 
@@ -177,15 +177,13 @@ You do **not** need to publish or import your backend package in the frontend.
 Generate a typed client from the native document:
 
 ```bash
-npx callspec generate-client \
-  https://api.example.com/v1/callspec.json \
-  --output src/generated/api.ts
+npx callspec https://api.example.com/v1/callspec.json --output src/generated/api.ts
 ```
 
 Local file (monorepos, offline CI):
 
 ```bash
-npx callspec generate-client ./callspec.json --output src/generated/api.ts
+npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
 Use the generated client:
@@ -216,10 +214,10 @@ The generated file:
 ### CLI
 
 ```bash
-callspec generate-client <source> --output <file> [--class-name ApiClient]
+callspec <source> --output <file> [--class-name ApiClient]
 ```
 
-`<source>` is a path to `callspec.json` or an HTTP(S) URL. Run `callspec generate-client --help` for details.
+`<source>` is a path to `callspec.json` or an HTTP(S) URL. Run `callspec --help` for details.
 
 ## Native Callspec document
 

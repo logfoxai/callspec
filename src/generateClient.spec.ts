@@ -10,7 +10,7 @@ import {CallspecClient, CallspecHttpError, joinCallspecUrl} from './client';
 import {defineRoute, defineSpec, emitCallspec, mountSpec} from '.';
 import {generateClientFile} from './generateClient/generateClient';
 import {generateClientSource} from './generateClient/generateClientSource';
-import {routeErrors} from './routeErrors';
+import {errors} from './routeErrors';
 import {
     sanitizeMethodName,
     schemaToTypes,
@@ -351,7 +351,7 @@ test('generated client makes a real request to an in-process server', async (ass
 
 test('generateClientSource: error response types omit data when wire schema has no data field', (assert) => {
 
-    const err = routeErrors({
+    const err = errors({
         NOT_FOUND: {status: 404},
         USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
     });
@@ -370,8 +370,8 @@ test('generateClientSource: error response types omit data when wire schema has 
     const generated = generateClientSource(doc);
 
     assert.equal(generated.includes("{ error: \"NOT_FOUND\" }"), true);
-    assert.equal(generated.includes('data: GetUserUSER_EXISTSErrorData'), true);
-    assert.equal(generated.includes('GetUserErrorResponse'), true);
+    assert.equal(generated.includes('data: GetUserUserExistsData'), true);
+    assert.equal(generated.includes('GetUserError'), true);
 
 });
 

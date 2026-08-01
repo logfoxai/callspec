@@ -7,7 +7,7 @@ import {
     type CallspecDocumentRoute,
     type JsonSchema,
 } from './callspecDocument';
-import {routeErrorSchemas} from './routeErrorDocument';
+import {documentRouteErrors} from './routeErrorDocument';
 
 export type EmitCallspecOptions = {
     title: string
@@ -57,7 +57,7 @@ export function emitCallspec(
             access: route.access,
             input: toJsonSchema(route.input) as JsonSchema,
             output: toJsonSchema(route.output) as JsonSchema,
-            errors: routeErrorSchemas(route.errors),
+            errors: documentRouteErrors(route.errors),
             mcp: {
                 enabled: Boolean(route.mcp),
             },

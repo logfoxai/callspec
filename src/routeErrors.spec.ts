@@ -1,12 +1,12 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
 import {CallspecRouteError, formatRouteErrorBody, isCallspecRouteError} from './errors';
-import {routeErrors} from './routeErrors';
-import {routeErrorSchemas} from './routeErrorDocument';
+import {documentRouteErrors} from './routeErrorDocument';
+import {errors, resolveRouteErrorDefs} from './routeErrors';
 
-test('routeErrors: throws typed route errors', (assert) => {
+test('errors: throws typed route errors', (assert) => {
 
-    const err = routeErrors({
+    const err = errors({
         NOT_FOUND: {status: 404},
         USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
     });
@@ -29,9 +29,9 @@ test('routeErrors: throws typed route errors', (assert) => {
 
 });
 
-test('routeErrors: validates error data preds', (assert) => {
+test('errors: validates error data preds', (assert) => {
 
-    const err = routeErrors({
+    const err = errors({
         INVALID: {status: 400, data: p.object({field: p.string()})},
     });
 
@@ -44,27 +44,42 @@ test('routeErrors: validates error data preds', (assert) => {
 
 });
 
-test('routeErrors: exposes defs for defineRoute', (assert) => {
+test('errors: resolveRouteErrorDefs reads handle defs', (assert) => {
 
-    const err = routeErrors({
+    const err = errors({
         NOT_FOUND: {status: 404},
     });
 
-    assert.equal(err.$defs.NOT_FOUND?.status, 404);
+    assert.equal(resolveRouteErrorDefs(err)?.NOT_FOUND?.status, 404);
 
 });
 
-test('routeErrorSchemas: documents wire format', (assert) => {
+test('errors: any error code name works, including spec', (assert) => {
 
-    const schemas = routeErrorSchemas({
+    const err = errors({
+        spec: {status: 418},
+        NOT_FOUND: {status: 404},
+    });
+
+    const thrown = err.spec();
+
+    assert.equal(thrown.code, 'spec');
+    assert.equal(thrown.status, 418);
+    assert.equal(resolveRouteErrorDefs(err)?.NOT_FOUND?.status, 404);
+
+});
+
+test('documentRouteErrors: documents payload schemas', (assert) => {
+
+    const documented = documentRouteErrors({
         NOT_FOUND: {status: 404},
         USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
     });
 
-    assert.equal(schemas?.NOT_FOUND?.status, 404);
-    assert.equal((schemas?.NOT_FOUND?.schema as {properties?: {error?: {const?: string}}}).properties?.error?.const, 'NOT_FOUND');
+    assert.equal(documented?.NOT_FOUND?.status, 404);
+    assert.equal(documented?.NOT_FOUND?.data, undefined);
     assert.equal(
-        (schemas?.USER_EXISTS?.schema as {required?: string[]}).required?.includes('data'),
+        (documented?.USER_EXISTS?.data as {properties?: {email?: unknown}})?.properties?.email !== undefined,
         true,
     );
 

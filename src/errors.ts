@@ -34,7 +34,7 @@ export class CallspecNotFoundError extends Error {
 
 }
 
-/** Declared route error — thrown via {@link routeErrors} and mapped to HTTP by mountSpec. */
+/** Declared route error — thrown via {@link errors} and mapped to HTTP by mountSpec. */
 export class CallspecRouteError<
     Code extends string = string,
     Data = unknown,

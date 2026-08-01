@@ -37,15 +37,30 @@ export function sanitizeMethodName(routeName: string): string {
 
 }
 
-export function typeNameForRoute(routeName: string, suffix: string): string {
+function splitIdentifier(part: string): string[] {
 
-    const base = routeName
+    return part
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
         .split(/[^a-zA-Z0-9]+/)
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .filter(Boolean);
+
+}
+
+export function typeNamePart(part: string): string {
+
+    return splitIdentifier(part)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join('');
 
-    return `${base || 'Route'}${suffix}`;
+}
+
+export function typeNameForRoute(routeName: string, suffix: string): string {
+
+    const routePart = splitIdentifier(routeName).map(typeNamePart).join('');
+    const suffixPart = splitIdentifier(suffix).map(typeNamePart).join('');
+
+    return `${routePart || 'Route'}${suffixPart}`;
 
 }
 

@@ -2,49 +2,6 @@ import {toJsonSchema} from 'runtyp';
 import type {JsonSchema} from './callspecDocument';
 import type {RouteErrorDef} from './types';
 
-export function routeErrorSchemas(
-    errors: Record<string, RouteErrorDef> | undefined,
-): Record<string, {status: number, schema: JsonSchema}> | undefined {
-
-    if (!errors || !Object.keys(errors).length) {
-
-        return undefined;
-
-    }
-
-    const documented: Record<string, {status: number, schema: JsonSchema}> = {};
-
-    for (const [code, def] of Object.entries(errors)) {
-
-        const properties: Record<string, JsonSchema> = {
-            error: {const: code},
-        };
-
-        const required = ['error'];
-
-        if (def.data) {
-
-            properties.data = toJsonSchema(def.data) as JsonSchema;
-            required.push('data');
-
-        }
-
-        documented[code] = {
-            status: def.status,
-            schema: {
-                type: 'object',
-                properties,
-                required,
-                additionalProperties: false,
-            },
-        };
-
-    }
-
-    return documented;
-
-}
-
 const VALIDATION_ERROR_SCHEMA: JsonSchema = {
     type: 'object',
     properties: {
@@ -54,15 +11,61 @@ const VALIDATION_ERROR_SCHEMA: JsonSchema = {
     required: ['error', 'errors'],
 };
 
+function errorWireSchema(code: string, def: RouteErrorDef): JsonSchema {
+
+    const properties: Record<string, JsonSchema> = {
+        error: {const: code},
+    };
+    const required = ['error'];
+
+    if (def.data) {
+
+        properties.data = toJsonSchema(def.data) as JsonSchema;
+        required.push('data');
+
+    }
+
+    return {
+        type: 'object',
+        properties,
+        required,
+        additionalProperties: false,
+    };
+
+}
+
+/** Payload schemas for callspec.json — wire shape is always `{ error, data? }`. */
+export function documentRouteErrors(
+    errors: Record<string, RouteErrorDef> | undefined,
+): Record<string, {status: number, data?: JsonSchema}> | undefined {
+
+    if (!errors || !Object.keys(errors).length) {
+
+        return undefined;
+
+    }
+
+    const documented: Record<string, {status: number, data?: JsonSchema}> = {};
+
+    for (const [code, def] of Object.entries(errors)) {
+
+        documented[code] = {
+            status: def.status,
+            ...(def.data ? {data: toJsonSchema(def.data) as JsonSchema} : {}),
+        };
+
+    }
+
+    return documented;
+
+}
+
 export function openApiErrorResponses(
     errors: Record<string, RouteErrorDef> | undefined,
     options: {includeUnauthorized?: boolean} = {},
 ): Record<string, unknown> {
 
     const responses: Record<string, unknown> = {
-        200: {
-            description: 'Success',
-        },
         400: {
             description: 'Validation error',
             content: {
@@ -89,14 +92,10 @@ export function openApiErrorResponses(
 
     for (const [code, def] of Object.entries(errors)) {
 
-        const documented = routeErrorSchemas({[code]: def})?.[code];
+        const group = byStatus.get(def.status) ?? [];
 
-        if (!documented) continue;
-
-        const group = byStatus.get(documented.status) ?? [];
-
-        group.push({code, schema: documented.schema});
-        byStatus.set(documented.status, group);
+        group.push({code, schema: errorWireSchema(code, def)});
+        byStatus.set(def.status, group);
 
     }
 
@@ -112,9 +111,7 @@ export function openApiErrorResponses(
                 description: `Validation error | ${domainDescription}`,
                 content: {
                     'application/json': {
-                        schema: domainSchemas.length === 1
-                            ? {oneOf: [VALIDATION_ERROR_SCHEMA, domainSchemas[0]]}
-                            : {oneOf: [VALIDATION_ERROR_SCHEMA, ...domainSchemas]},
+                        schema: {oneOf: [VALIDATION_ERROR_SCHEMA, ...domainSchemas]},
                     },
                 },
             };

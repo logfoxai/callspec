@@ -4,7 +4,7 @@ export type JsonSchema = Record<string, unknown>;
 
 export type CallspecDocumentRouteError = {
     status: number
-    schema?: JsonSchema
+    data?: JsonSchema
 };
 
 export type CallspecDocumentRoute = {
@@ -96,8 +96,8 @@ function parseRouteErrors(value: unknown, routeName: string): Record<string, Cal
 
         errors[code] = {
             status: entry.status,
-            ...(entry.schema !== undefined
-                ? {schema: parseJsonSchema(entry.schema, `Route "${routeName}" error "${code}" schema`)}
+            ...(entry.data !== undefined
+                ? {data: parseJsonSchema(entry.data, `Route "${routeName}" error "${code}" data`)}
                 : {}),
         };
 

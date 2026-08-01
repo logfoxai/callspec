@@ -6,7 +6,7 @@ import {predicates as p} from 'runtyp';
 import {defineSpec} from './defineSpec';
 import {defineRoute} from './defineRoute';
 import {mountSpec} from './mountSpec';
-import {routeErrors} from './routeErrors';
+import {errors} from './routeErrors';
 import {parseCallspecOpenApi} from './callspec-ui/parseOpenApi';
 import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
 import {parseCallspecDocument} from './callspecDocument';
@@ -311,7 +311,7 @@ test('integration: validation error on bad input', async (assert) => {
 
 test('integration: declared route errors map to HTTP status and body', async (assert) => {
 
-    const err = routeErrors({
+    const err = errors({
         NOT_FOUND: {status: 404},
         USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
     });

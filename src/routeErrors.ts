@@ -7,18 +7,23 @@ export type RouteErrorSpec = {
     data?: Pred<unknown>
 };
 
-type RouteErrorFactory<Spec extends RouteErrorSpec> =
+type ThrowFn<Spec extends RouteErrorSpec> =
     Spec['data'] extends Pred<infer D>
         ? (data: D) => CallspecRouteError<string, D>
         : () => CallspecRouteError<string, undefined>;
 
-export interface RouteErrorsHandle {
-    readonly $defs: Readonly<Record<string, RouteErrorDef>>
-}
+/** Internal marker — keeps defs off the public object so any error code name works. */
+const ERROR_DEFS = Symbol.for('callspec.errors.defs');
 
-export type RouteErrorsFactory<T extends Record<string, RouteErrorSpec>> = RouteErrorsHandle & {
-    readonly [K in keyof T]: RouteErrorFactory<T[K]>
+/** Pass the whole handle to `defineRoute({ errors: e })`. */
+export type ErrorsHandle = {
+    [ERROR_DEFS]: Readonly<Record<string, RouteErrorDef>>
 };
+
+export type ErrorsHandleWithThrowers<T extends Record<string, RouteErrorSpec>> =
+    ErrorsHandle & {[K in keyof T & string]: ThrowFn<T[K]>};
+
+export type RouteErrorsInput = Record<string, RouteErrorDef> | ErrorsHandle;
 
 function toRouteErrorDef(spec: RouteErrorSpec): RouteErrorDef {
 
@@ -67,40 +72,32 @@ function throwRouteError(
 
 }
 
-export function routeErrors<const T extends Record<string, RouteErrorSpec>>(
-    spec: T,
-): RouteErrorsFactory<T> {
+function isErrorsHandle(errors: RouteErrorsInput): errors is ErrorsHandle {
 
-    const defs = {} as Record<keyof T & string, RouteErrorDef>;
-    const factories: Record<string, (...args: unknown[]) => CallspecRouteError<string, unknown>> = {};
+    return ERROR_DEFS in errors;
+
+}
+
+/** Declare route errors once; throw with `e.NOT_FOUND()`, pass `e` to `defineRoute({ errors: e })`. */
+export function errors<const T extends Record<string, RouteErrorSpec>>(
+    spec: T,
+): ErrorsHandleWithThrowers<T> {
+
+    const defs: Record<string, RouteErrorDef> = {};
+    const handle: Record<string, unknown> = {};
 
     for (const code of Object.keys(spec) as (keyof T & string)[]) {
 
         const entry = spec[code];
 
         defs[code] = toRouteErrorDef(entry);
-        factories[code] = (data?: unknown): CallspecRouteError<string, unknown> => throwRouteError(code, entry, data);
+        handle[code] = (data?: unknown): CallspecRouteError<string, unknown> => throwRouteError(code, entry, data);
 
     }
 
-    const result = factories as RouteErrorsFactory<T>;
+    (handle as ErrorsHandle)[ERROR_DEFS] = defs;
 
-    Object.defineProperty(result, '$defs', {
-        value: defs,
-        enumerable: false,
-    });
-
-    return result;
-
-}
-
-export type RouteErrorsInput =
-    | Record<string, RouteErrorDef>
-    | RouteErrorsHandle;
-
-function isRouteErrorsFactory(value: RouteErrorsInput): value is RouteErrorsHandle {
-
-    return typeof value === 'object' && value !== null && '$defs' in value;
+    return handle as ErrorsHandleWithThrowers<T>;
 
 }
 
@@ -114,22 +111,21 @@ export function resolveRouteErrorDefs(
 
     }
 
-    if (isRouteErrorsFactory(errors)) {
+    if (isErrorsHandle(errors)) {
 
-        return {...errors.$defs};
+        return {...errors[ERROR_DEFS]};
 
     }
 
-    return errors;
+    return errors as Record<string, RouteErrorDef>;
 
 }
 
+/** @deprecated Use {@link errors}. */
+export const routeErrors = errors;
+
+export type RouteErrorsFactory<T extends Record<string, RouteErrorSpec>> =
+    ErrorsHandleWithThrowers<T>;
+
 export type InferRouteErrorData<E extends RouteErrorDef> =
     E['data'] extends Pred<infer D> ? D : undefined;
-
-export type InferRouteErrorsMap<T extends Record<string, RouteErrorDef>> = {
-    [K in keyof T & string]: {
-        error: K
-        data: InferRouteErrorData<T[K]>
-    }
-}[keyof T & string];
