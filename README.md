@@ -116,6 +116,48 @@ app.listen(port, () => {
 
 When docs are enabled (the default), `mountSpec` serves **`/docs`**, **`/callspec.json`**, and **`/openapi.json`** together. Pass `{docs: false}` to disable all three.
 
+## API reference
+
+### `defineRoute`
+
+```typescript
+defineRoute({
+    input: p.object({…}),           // required — runtyp predicate
+    output: p.object({…}),          // required — use p.any() if unconstrained
+    meta: {summary, description, tags},
+    access?: 'public' | 'private',  // default 'private'
+    mcp?: true | {name?, annotations?},
+    errors?: errors({…}),
+    handler: (input, ctx) => …,     // arity 2 — compile-time checked against input/output
+})
+```
+
+### `defineSpec`
+
+```typescript
+defineSpec({
+    meta?: CallspecMeta,
+    routes: RoutesMap<Ctx>,          // required — your map of defineRoute entries
+    authenticate?: (token, req) => Ctx | undefined,
+})
+```
+
+Throws at load time if any route is `private` and `authenticate` is missing.
+
+### `mountSpec`
+
+```typescript
+mountSpec(router, spec, options?: MountSpecOptions)
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `basePath` | `''` | Prefix for RPC paths and for paths baked into emitted documents |
+| `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json`; or pass `{ uiPath?, callspecPath?, openApiPath? }` to override individual paths |
+| `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
+
+When `docs` is enabled, the docs UI fetches **`callspec.json`** from the configured path (default `/callspec.json` relative to the router).
+
 ### Input and output
 
 Every route requires **`input`** and **`output`** preds — same runtyp style throughout. Use `p.any()` when you do not need a precise schema. Only **`errors`** is optional.
@@ -188,17 +230,80 @@ Generated clients export per-route `GetUserError` unions and `GetUserResult`. Fr
 
 You do **not** need to publish or import your backend package in the frontend.
 
-Generate a typed client from the native document:
+The CLI (`npx callspec …`) and `generateClientFile` need the **`callspec.json`** document. That is the same JSON `mountSpec` serves at `/callspec.json` on a running API. Pick whichever source is easiest — the generator accepts a **URL or a file path** and does not care which path you used to obtain the document.
+
+### Getting `callspec.json` (three options)
+
+**Option A — Fetch from a running API (URL)**
+
+Point the CLI at a live `/callspec.json` endpoint. You do not need a local copy of the file.
 
 ```bash
 npx callspec https://api.example.com/v1/callspec.json --output src/generated/api.ts
+# local dev:
+npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
 ```
 
-Local file (monorepos, offline CI):
+Good when:
+
+- The API is up locally, in staging, or in production
+- CI can start the server (or hit a deployed env) before client generation
+- You are happy to regenerate only when a server is available
+
+If that is always true for you, this option alone is enough — you can skip Options B and C.
+
+**Option B — Read a file on disk**
+
+Check in or build a `callspec.json` file, then pass the path to the CLI.
 
 ```bash
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
+
+Good when:
+
+- You already have the document as an artifact (from CI, a script, or manual export)
+- You want a committed snapshot to diff in PRs
+- Frontend CI should not depend on a running backend
+
+The file can come from anywhere — including Option C below.
+
+**Option C — Emit from your backend route code**
+
+Your API is defined in TypeScript as a **`routes` object**: a map of names to `defineRoute({…})` entries, wrapped in `defineSpec({ meta, routes, authenticate })`. That object is the source of truth in code (sometimes called the route registry — it is just `routes.ts`, not a second spec format).
+
+`emitCallspec(api.routes, …)` writes the same JSON shape the server would return at `/callspec.json`, without starting Express:
+
+```typescript
+import {writeFileSync} from 'fs';
+import {emitCallspec, generateClientFile} from 'callspec/document';
+import {api} from './routes/spec';
+
+const document = emitCallspec(api.routes, {
+    title: api.meta.title ?? 'My API',
+    version: api.meta.version ?? '1.0.0',
+    basePath: '/v1',
+    description: api.meta.intro,
+});
+
+writeFileSync('callspec.json', JSON.stringify(document, null, 2));
+
+await generateClientFile('./callspec.json', './src/generated/api.ts');
+// or: npx callspec ./callspec.json --output ./src/generated/api.ts
+```
+
+Good when:
+
+- The API is not deployed yet (greenfield)
+- CI should generate the client without booting the server
+- You work offline or want a deterministic script step
+- Backend and frontend are in separate repos or a monorepo — emit in the backend package, then generate/copy the client into the frontend
+
+Options B and C both end at `./callspec.json` → CLI. Option A skips the local file and uses the URL as the CLI source directly. All three produce the same generated client.
+
+Copy or commit `src/generated/api.ts` into the frontend; import `ApiClient` there — never `@logfoxai/api-service`.
+
+### Using the generated client
 
 Use the generated client — every method returns a **Result**, not a thrown error:
 
@@ -259,12 +364,12 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Native Callspec document
 
-`callspec.json` is Callspec's native, versioned contract. The docs UI and client generator consume it directly.
+`callspec.json` is Callspec's native, versioned contract (`callspec: "1.0"`). The docs UI and client generator consume it directly. OpenAPI (`/openapi.json`) is a parallel projection for Swagger, Postman, and other OpenAPI tooling — both come from the same `routes` object, not from each other.
 
-Programmatic emission from your route registry:
+Programmatic emission and validation:
 
 ```typescript
-import {emitCallspec, parseCallspecDocument} from 'callspec/document';
+import {emitCallspec, emitOpenApi, parseCallspecDocument, generateClientFile} from 'callspec/document';
 
 const document = emitCallspec(api.routes, {
     title: 'My API',
@@ -274,9 +379,20 @@ const document = emitCallspec(api.routes, {
 });
 
 const validated = parseCallspecDocument(document);
+
+const openApi = emitOpenApi(api.routes, {
+    title: 'My API',
+    version: '1.0.0',
+    basePath: '/v1',
+    description: api.meta.intro,
+});
+
+await generateClientFile('./callspec.json', './src/generated/api.ts', {
+    className: 'ApiClient',
+});
 ```
 
-OpenAPI remains available for Swagger, Postman, and other OpenAPI tooling — both formats are projections of the same registry, not conversions of each other.
+`parseCallspecDocument` is for tooling that ingests external JSON (CLI, tests). Your own `emitCallspec` output is already well-formed.
 
 ## Runtime client
 
@@ -344,16 +460,18 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schem
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `commonErrors` |
-| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`) and generated client types |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `commonErrors`; types `Callspec`, `RoutesMap`, `MountSpecOptions` |
+| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CallspecRouteResult`, …) and generated client types |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile` |
 
 ## Development
 
 ```bash
-npm run validate   # build, lint, knip, route typecheck, test + coverage
+npm run validate   # build, lint, knip, typecheck:routes, test + coverage
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
+
+**`typecheck:routes`** — compile-only checks in `src/typecheck/` (via `npm run typecheck:routes`) assert that `defineRoute` handlers match their `input`/`output` preds. Add a similar file in your service repo if you want CI to catch resolver drift.
 
 Integration tests spin up Express in-process and verify `callspec.json`, OpenAPI, `/docs`, auth, MCP, RPC, and client generation end-to-end.
 
