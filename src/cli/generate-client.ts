@@ -2,22 +2,25 @@
 
 import {CallspecDocumentError} from '../callspecDocument';
 import {generateClientFile} from '../generateClient/generateClient';
+import {generateValidatorsFile} from '../generateValidators/generateValidators';
 
 function printHelp(): void {
 
     process.stdout.write(`Usage:
-  callspec <source> --output <file>
+  callspec <source> --output <file> [--validators] [--class-name <name>]
 
 Arguments:
   <source>    Path to callspec.json or HTTP(S) URL
 
 Options:
   --output      Output TypeScript file (required)
-  --class-name  Generated client class name (default: ApiClient)
+  --validators  Emit runtyp validators + Infer types (default: HTTP client)
+  --class-name  Generated client class name (default: ApiClient; client mode only)
   --help        Show this help
 
 Examples:
   callspec ./callspec.json --output ./src/generated/api.ts
+  callspec ./callspec.json --output ./src/generated/validators.ts --validators
   callspec https://api.example.com/v1/callspec.json --output ./src/generated/api.ts
 `);
 
@@ -27,6 +30,7 @@ function parseArgs(argv: string[]): {
     source?: string
     output?: string
     className?: string
+    validators?: boolean
     help?: boolean
 } {
 
@@ -55,6 +59,10 @@ function parseArgs(argv: string[]): {
 
             result.className = args[index + 1];
             index += 1;
+
+        } else if (arg === '--validators') {
+
+            result.validators = true;
 
         }
 
@@ -96,9 +104,17 @@ async function main(): Promise<void> {
 
     try {
 
-        await generateClientFile(parsed.source, parsed.output, {
-            className: parsed.className,
-        });
+        if (parsed.validators) {
+
+            await generateValidatorsFile(parsed.source, parsed.output);
+
+        } else {
+
+            await generateClientFile(parsed.source, parsed.output, {
+                className: parsed.className,
+            });
+
+        }
 
     } catch (err) {
 

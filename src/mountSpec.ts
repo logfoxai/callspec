@@ -111,7 +111,7 @@ export function mountSpec<Ctx>(
 
     const basePath = options.basePath ?? '';
     const resolvedMeta = resolveCallspecMeta(spec.meta);
-    const {routes} = spec;
+    const {routes, exports} = spec;
     const docs = resolveDocsSurfaces(options);
     const mcpSubPath = options.mcpPath ?? '/mcp';
 
@@ -120,6 +120,7 @@ export function mountSpec<Ctx>(
         version: resolvedMeta.version,
         basePath,
         description: resolvedMeta.intro,
+        exports,
     };
 
     if (docs.enabled) {

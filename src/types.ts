@@ -66,5 +66,6 @@ export type CallspecMeta = {
 export type Callspec<Ctx = unknown> = {
     meta: CallspecMeta
     routes: RoutesMap<Ctx>
+    exports?: Record<string, import('runtyp').Pred<any>>
     authenticate?: Authenticate<Ctx>
 };

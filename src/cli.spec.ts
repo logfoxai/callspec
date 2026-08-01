@@ -12,6 +12,7 @@ test('cli --help exits zero', (assert) => {
     const output = execSync('node dist/cli/generate-client.js --help', {encoding: 'utf8'});
 
     assert.equal(output.includes('--output'), true);
+    assert.equal(output.includes('--validators'), true);
     assert.equal(output.includes('callspec.json'), true);
 
 });
