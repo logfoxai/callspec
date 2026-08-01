@@ -121,6 +121,13 @@ export function resolveRouteErrorDefs(
 
 }
 
+/** Optional domain errors many routes reuse — spread into {@link errors}. */
+export const commonErrors = {
+    NOT_FOUND: {status: 404},
+    FORBIDDEN: {status: 403},
+    CONFLICT: {status: 409},
+} as const satisfies Record<string, RouteErrorSpec>;
+
 /** @deprecated Use {@link errors}. */
 export const routeErrors = errors;
 

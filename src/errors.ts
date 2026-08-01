@@ -23,6 +23,17 @@ export class CallspecUnauthorizedError extends Error {
 
 }
 
+export class CallspecInternalError extends Error {
+
+    constructor() {
+
+        super('INTERNAL_ERROR');
+        this.name = 'CallspecInternalError';
+
+    }
+
+}
+
 export class CallspecNotFoundError extends Error {
 
     constructor(name: string) {

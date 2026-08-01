@@ -441,7 +441,7 @@ test('CallspecClient.callResult: plain-text HTTP errors become object bodies', a
     if (!result.ok) {
 
         assert.equal(result.status, 401);
-        assert.equal(result.error.error, 'Unauthorized');
+        assert.equal(result.error.error, 'UNAUTHORIZED');
 
     }
 

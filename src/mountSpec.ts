@@ -1,5 +1,12 @@
 import type {Request, RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError, formatRouteErrorBody, isCallspecRouteError} from './errors';
+import {
+    CallspecInternalError,
+    CallspecUnauthorizedError,
+    CallspecValidationError,
+    formatRouteErrorBody,
+    isCallspecRouteError,
+} from './errors';
+import {FRAMEWORK_ERROR} from './frameworkErrors';
 import {executeRoute} from './executeRoute';
 import {emitCallspec} from './emitCallspec';
 import {listMcpTools} from './mcpTools';
@@ -52,14 +59,14 @@ function sendError(res: import('express').Response, err: unknown): void {
 
     if (err instanceof CallspecValidationError) {
 
-        res.status(400).json({error: err.message, errors: err.errors});
+        res.status(400).json({error: FRAMEWORK_ERROR.VALIDATION_ERROR, errors: err.errors});
         return;
 
     }
 
     if (err instanceof CallspecUnauthorizedError) {
 
-        res.status(401).send('Unauthorized');
+        res.status(401).json({error: FRAMEWORK_ERROR.UNAUTHORIZED});
         return;
 
     }
@@ -71,7 +78,20 @@ function sendError(res: import('express').Response, err: unknown): void {
 
     }
 
-    throw err;
+    if (err instanceof CallspecInternalError) {
+
+        res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
+        return;
+
+    }
+
+    res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
+
+}
+
+function joinRoutePath(basePath: string, segment: string): string {
+
+    return `${basePath}/${segment}`.replace(/\/{2,}/g, '/');
 
 }
 
@@ -160,7 +180,7 @@ export function mountSpec<Ctx>(
 
     for (const [name, route] of Object.entries(routes)) {
 
-        router.post(`${basePath}/${name}`.replace(/\/{2,}/g, '/'), (async (req, res, next) => {
+        router.post(joinRoutePath(basePath, name), (async (req, res) => {
 
             try {
 
@@ -170,15 +190,7 @@ export function mountSpec<Ctx>(
 
             } catch (err) {
 
-                try {
-
-                    sendError(res, err);
-
-                } catch (rethrow) {
-
-                    next(rethrow);
-
-                }
+                sendError(res, err);
 
             }
 
@@ -198,5 +210,14 @@ export function mountSpec<Ctx>(
         });
 
     }
+
+    router.post(joinRoutePath(basePath, ':routeName'), ((req, res) => {
+
+        res.status(404).json({
+            error: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
+            data: {route: req.params.routeName ?? ''},
+        });
+
+    }) as RequestHandler);
 
 }

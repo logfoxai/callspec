@@ -135,20 +135,29 @@ defineRoute({
 
 ### Route errors
 
-Declare domain errors on a route and throw them from the handler. Callspec maps them to HTTP status codes and a simple JSON body:
+**Framework errors** (automatic on every route — do not declare):
+
+| Code | Status | When |
+|------|--------|------|
+| `VALIDATION_ERROR` | 400 | Input failed runtyp validation |
+| `UNAUTHORIZED` | 401 | Private route without valid Bearer token |
+| `ROUTE_NOT_FOUND` | 404 | Unknown RPC method name |
+| `INTERNAL_ERROR` | 500 | Unhandled exception in handler |
+
+**Domain errors** — declare per route with `errors()` and throw from the handler:
 
 ```json
 { "error": "NOT_FOUND" }
 { "error": "USER_EXISTS", "data": { "email": "taken@example.com" } }
 ```
 
-Validation failures stay separate: `{ "error": "VALIDATION_ERROR", "errors": { ... } }`.
+Optional **`commonErrors`** preset for typical domain codes (`NOT_FOUND`, `FORBIDDEN`, `CONFLICT`):
 
 ```typescript
-import {defineRoute, errors} from 'callspec';
+import {defineRoute, errors, commonErrors} from 'callspec';
 
 const err = errors({
-    NOT_FOUND: {status: 404},
+    ...commonErrors,
     USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
 });
 
@@ -168,7 +177,7 @@ export const routes = {
 };
 ```
 
-Generated clients export per-route `GetUserError` unions and `GetUserResult` (`CallspecRouteResult<Output, Error>`) — **no try/catch for domain errors**.
+Generated clients export per-route `GetUserError` unions and `GetUserResult`. Framework errors (`UNAUTHORIZED`, `VALIDATION_ERROR`, etc.) are included in every `*Result` type automatically — **no try/catch for HTTP errors**.
 
 ## Frontend client generation
 

@@ -1,15 +1,7 @@
 import {toJsonSchema} from 'runtyp';
 import type {JsonSchema} from './callspecDocument';
+import {mergeOpenApiErrorResponses, openApiFrameworkErrorResponses} from './frameworkErrors';
 import type {RouteErrorDef} from './types';
-
-const VALIDATION_ERROR_SCHEMA: JsonSchema = {
-    type: 'object',
-    properties: {
-        error: {type: 'string'},
-        errors: {type: 'object', additionalProperties: {type: 'string'}},
-    },
-    required: ['error', 'errors'],
-};
 
 function errorWireSchema(code: string, def: RouteErrorDef): JsonSchema {
 
@@ -65,28 +57,17 @@ export function openApiErrorResponses(
     options: {includeUnauthorized?: boolean} = {},
 ): Record<string, unknown> {
 
-    const responses: Record<string, unknown> = {
-        400: {
-            description: 'Validation error',
-            content: {
-                'application/json': {
-                    schema: VALIDATION_ERROR_SCHEMA,
-                },
-            },
-        },
-    };
-
-    if (options.includeUnauthorized) {
-
-        responses['401'] = {description: 'Unauthorized'};
-
-    }
+    const framework = openApiFrameworkErrorResponses({
+        includeUnauthorized: options.includeUnauthorized,
+    });
 
     if (!errors) {
 
-        return responses;
+        return framework;
 
     }
+
+    const domain: Record<string, unknown> = {};
 
     const byStatus = new Map<number, Array<{code: string, schema: JsonSchema}>>();
 
@@ -105,21 +86,7 @@ export function openApiErrorResponses(
         const domainSchemas = entries.map((entry) => entry.schema);
         const domainDescription = entries.map((entry) => entry.code).join(' | ');
 
-        if (status === 400) {
-
-            responses[statusKey] = {
-                description: `Validation error | ${domainDescription}`,
-                content: {
-                    'application/json': {
-                        schema: {oneOf: [VALIDATION_ERROR_SCHEMA, ...domainSchemas]},
-                    },
-                },
-            };
-            continue;
-
-        }
-
-        responses[statusKey] = {
+        domain[statusKey] = {
             description: domainDescription,
             content: {
                 'application/json': {
@@ -132,6 +99,6 @@ export function openApiErrorResponses(
 
     }
 
-    return responses;
+    return mergeOpenApiErrorResponses(framework, domain);
 
 }

@@ -249,6 +249,7 @@ test('integration: private RPC returns 401 without auth', async (assert) => {
         });
 
         assert.equal(res.status, 401);
+        assert.equal(await res.json(), {error: 'UNAUTHORIZED'});
 
     });
 
@@ -268,6 +269,7 @@ test('integration: private RPC returns 401 without Bearer before authenticate', 
         });
 
         assert.equal(res.status, 401);
+        assert.equal(await res.json(), {error: 'UNAUTHORIZED'});
 
     });
 
@@ -306,6 +308,76 @@ test('integration: validation error on bad input', async (assert) => {
         assert.equal(res.status, 400);
 
     });
+
+});
+
+test('integration: unknown RPC route returns ROUTE_NOT_FOUND', async (assert) => {
+
+    await withServer(async (base) => {
+
+        const res = await fetch(`${base}/doesNotExist`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 404);
+        assert.equal(await res.json(), {error: 'ROUTE_NOT_FOUND', data: {route: 'doesNotExist'}});
+
+    });
+
+});
+
+test('integration: unhandled handler error returns INTERNAL_ERROR', async (assert) => {
+
+    const spec = defineSpec({
+        meta: {title: 'Boom API', version: '1.0.0'},
+        routes: {
+            boom: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
+                access: 'public',
+                handler: async (_input, _ctx) => {
+
+                    throw new Error('boom');
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(bodyParser.json());
+    mountSpec(router, spec);
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/boom`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 500);
+        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+
+    } finally {
+
+        await closeServer(server);
+
+    }
 
 });
 

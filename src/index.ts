@@ -23,7 +23,7 @@ export type {
     JsonSchema,
 } from './callspecDocument';
 export {generateClientFile, loadCallspecDocument} from './generateClient/generateClient';
-export {errors, routeErrors} from './routeErrors';
+export {errors, routeErrors, commonErrors} from './routeErrors';
 export type {RouteErrorSpec, ErrorsHandle, RouteErrorsInput} from './routeErrors';
 export {
     client,
@@ -41,18 +41,27 @@ export type {
     CallspecResult,
     CallspecRouteResult,
     CallspecClientErrors,
-    CallspecValidationErrorBody,
     CallspecUnexpectedErrorBody,
 } from './client';
 export {serializeResponse, deserializeResponse} from './serializer';
 export {
     CallspecValidationError,
     CallspecUnauthorizedError,
+    CallspecInternalError,
     CallspecNotFoundError,
     CallspecRouteError,
     isCallspecRouteError,
     formatRouteErrorBody,
 } from './errors';
+export {FRAMEWORK_ERROR} from './frameworkErrors';
+export type {
+    CallspecFrameworkErrorBody,
+    CallspecInternalErrorBody,
+    CallspecRouteNotFoundErrorBody,
+    CallspecUnauthorizedErrorBody,
+    CallspecValidationErrorBody,
+    FrameworkErrorCode,
+} from './frameworkErrors';
 export type {
     RouteMeta,
     McpRouteConfig,

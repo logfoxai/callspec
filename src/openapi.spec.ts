@@ -46,7 +46,7 @@ test('emitOpenApi: bearer security only on private routes', (assert) => {
     assert.equal(JSON.stringify(health?.security), '[]', 'public route opts out of bearer');
     assert.equal(JSON.stringify(secret?.security), JSON.stringify([{bearer: []}]), 'private route requires bearer');
     assert.equal(health?.responses?.['401'], undefined, 'public route has no 401');
-    assert.equal(secret?.responses?.['401']?.description, 'Unauthorized', 'private route documents 401');
+    assert.equal(secret?.responses?.['401']?.description, 'UNAUTHORIZED', 'private route documents 401');
 
     const components = doc.components as {securitySchemes?: {bearer?: unknown}};
 

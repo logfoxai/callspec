@@ -1,4 +1,18 @@
 import {deserializeResponse} from './serializer';
+import type {
+    CallspecFrameworkErrorBody,
+    CallspecValidationErrorBody,
+} from './frameworkErrors';
+import {FRAMEWORK_ERROR} from './frameworkErrors';
+
+export type {
+    CallspecFrameworkErrorBody,
+    CallspecInternalErrorBody,
+    CallspecRouteNotFoundErrorBody,
+    CallspecUnauthorizedErrorBody,
+    CallspecValidationErrorBody,
+} from './frameworkErrors';
+export {FRAMEWORK_ERROR} from './frameworkErrors';
 
 export type CallspecOk<T> = {
     ok: true
@@ -13,12 +27,7 @@ export type CallspecErr<E> = {
 
 export type CallspecResult<T, E> = CallspecOk<T> | CallspecErr<E>;
 
-export type CallspecValidationErrorBody = {
-    error: 'VALIDATION_ERROR'
-    errors: Record<string, string>
-};
-
-/** Fallback when the response body is not a declared route error or validation error. */
+/** Fallback when the response body is not a known framework or declared route error. */
 export type CallspecUnexpectedErrorBody = {
     error: string
     data?: unknown
@@ -26,7 +35,7 @@ export type CallspecUnexpectedErrorBody = {
 };
 
 export type CallspecClientErrors<E = never> =
-    | CallspecValidationErrorBody
+    | CallspecFrameworkErrorBody
     | CallspecUnexpectedErrorBody
     | ([E] extends [never] ? never : E);
 
@@ -144,11 +153,37 @@ function normalizeClientErrorBody(body: unknown): CallspecClientErrors<never> {
 
         const record = body as Record<string, unknown>;
 
-        if (record.error === 'VALIDATION_ERROR' && typeof record.errors === 'object' && record.errors !== null) {
+        if (record.error === FRAMEWORK_ERROR.VALIDATION_ERROR && typeof record.errors === 'object' && record.errors !== null) {
 
             return {
-                error: 'VALIDATION_ERROR',
+                error: FRAMEWORK_ERROR.VALIDATION_ERROR,
                 errors: record.errors as Record<string, string>,
+            } satisfies CallspecValidationErrorBody;
+
+        }
+
+        if (record.error === FRAMEWORK_ERROR.UNAUTHORIZED) {
+
+            return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
+
+        }
+
+        if (record.error === FRAMEWORK_ERROR.INTERNAL_ERROR) {
+
+            return {error: FRAMEWORK_ERROR.INTERNAL_ERROR};
+
+        }
+
+        if (
+            record.error === FRAMEWORK_ERROR.ROUTE_NOT_FOUND
+            && typeof record.data === 'object'
+            && record.data !== null
+            && typeof (record.data as {route?: unknown}).route === 'string'
+        ) {
+
+            return {
+                error: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
+                data: {route: (record.data as {route: string}).route},
             };
 
         }
@@ -158,6 +193,12 @@ function normalizeClientErrorBody(body: unknown): CallspecClientErrors<never> {
             return body as CallspecUnexpectedErrorBody;
 
         }
+
+    }
+
+    if (body === 'Unauthorized') {
+
+        return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
 
     }
 
