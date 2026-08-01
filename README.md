@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
-  <h3 align="center">One spec powers your API, docs, MCP, OpenAPI — and shared validation &amp; types for every consumer.</h3>
+  <h3 align="center">One spec powers your API, SDK, MCP, docs, and OpenAPI.</h3>
 
   <br>
 
