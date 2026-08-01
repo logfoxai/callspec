@@ -1,6 +1,5 @@
 import {test} from 'kizu';
 import express from 'express';
-import bodyParser from 'body-parser';
 import http from 'http';
 import {predicates as p} from 'runtyp';
 import {defineSpec} from './defineSpec';
@@ -79,7 +78,7 @@ function createTestApp(): http.Server {
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
 
     mountSpec(router, fixtureSpec);
 
@@ -191,6 +190,11 @@ test('integration: callspec UI at /docs', async (assert) => {
         assert.equal(res.headers.get('content-type')?.includes('text/html'), true);
         assert.equal(html.includes('window.__CALLSPEC_UI__='), true);
         assert.equal(html.includes('"specUrl":"../callspec.json"'), true);
+
+        const specFromDocs = await fetch(new URL('../callspec.json', `${base}/docs/`));
+
+        assert.equal(specFromDocs.status, 200);
+        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '1.0');
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
@@ -207,6 +211,44 @@ test('integration: callspec UI at /docs', async (assert) => {
         assert.equal(bare.status, 301);
 
     });
+
+});
+
+test('integration: docs UI loads callspec.json when mountSpec uses basePath', async (assert) => {
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, fixtureSpec, {basePath: '/v1'});
+    app.use(router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    const origin = `http://127.0.0.1:${addr.port}`;
+
+    try {
+
+        const html = await fetch(`${origin}/v1/docs/`).then((res) => res.text());
+
+        assert.equal(html.includes('"specUrl":"../callspec.json"'), true);
+
+        const specFromDocs = await fetch(new URL('../callspec.json', `${origin}/v1/docs/`));
+
+        assert.equal(specFromDocs.status, 200);
+        assert.equal((await specFromDocs.json() as {info?: {title?: string}}).info?.title, 'Fixture API');
+
+    } finally {
+
+        await closeServer(server);
+
+    }
 
 });
 
@@ -348,7 +390,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
     mountSpec(router, spec);
     app.use('/v1', router);
 
@@ -423,7 +465,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
     mountSpec(router, spec);
     app.use('/v1', router);
 
@@ -547,7 +589,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
 
     mountSpec(router, noMcpSpec);
 
@@ -584,7 +626,7 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
 
     mountSpec(router, fixtureSpec, {docs: false});
 
@@ -635,7 +677,7 @@ test('integration: default meta title and version when omitted', async (assert) 
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
 
     mountSpec(router, sparseSpec);
 

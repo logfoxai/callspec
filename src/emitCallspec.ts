@@ -8,6 +8,7 @@ import {
     type JsonSchema,
 } from './callspecDocument';
 import {documentRouteErrors} from './routeErrorDocument';
+import {omitUndefined} from './objectUtils';
 
 export type EmitCallspecOptions = {
     title: string
@@ -15,24 +16,6 @@ export type EmitCallspecOptions = {
     basePath?: string
     description?: string
 };
-
-function omitUndefined<T extends Record<string, unknown>>(value: T): T {
-
-    const out = {} as T;
-
-    for (const [key, entry] of Object.entries(value)) {
-
-        if (entry !== undefined) {
-
-            (out as Record<string, unknown>)[key] = entry;
-
-        }
-
-    }
-
-    return out;
-
-}
 
 export function emitCallspec(
     routes: RoutesMap<any>,

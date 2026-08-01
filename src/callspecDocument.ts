@@ -1,3 +1,5 @@
+import {omitUndefined} from './objectUtils';
+
 export const CALLSPEC_DOCUMENT_VERSION = '1.0' as const;
 
 export type JsonSchema = Record<string, unknown>;
@@ -158,24 +160,6 @@ function parseRoute(name: string, value: unknown): CallspecDocumentRoute {
         errors: parseRouteErrors(value.errors, name),
         mcp: {enabled: mcp.enabled},
     };
-
-}
-
-function omitUndefined<T extends Record<string, unknown>>(value: T): T {
-
-    const out = {} as T;
-
-    for (const [key, entry] of Object.entries(value)) {
-
-        if (entry !== undefined) {
-
-            (out as Record<string, unknown>)[key] = entry;
-
-        }
-
-    }
-
-    return out;
 
 }
 

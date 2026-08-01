@@ -74,9 +74,11 @@ export function joinMountPath(basePath: string, subPath: string): string {
 
 }
 
-export function siblingSpecPath(mountPath: string): string {
+export function siblingSpecPath(relativePath: string): string {
 
-    return mountPath.startsWith('/') ? `..${mountPath}` : mountPath;
+    const segment = relativePath.replace(/^\/+/, '');
+
+    return segment ? `../${segment}` : '..';
 
 }
 

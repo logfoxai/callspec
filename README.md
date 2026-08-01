@@ -127,6 +127,11 @@ defineRoute({
         results: p.array(p.object({id: p.string(), text: p.string()})),
         count: p.number(),
     }),
+    meta: {
+        summary: 'Search recent posts',
+        description: 'Returns posts matching a query.',
+        tags: ['posts'],
+    },
     handler: searchRecent,
 });
 ```
@@ -338,7 +343,7 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp) for validation and schem
 ## Development
 
 ```bash
-npm run validate   # build server + callspec UI, lint, test (incl. integration)
+npm run validate   # build, lint, knip, route typecheck, test (incl. integration)
 npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
 ```
 

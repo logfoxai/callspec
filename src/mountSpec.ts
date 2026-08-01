@@ -140,21 +140,21 @@ export function mountSpec<Ctx>(
                 title: resolvedMeta.title,
                 version: resolvedMeta.version,
                 basePath,
+                description: resolvedMeta.intro,
             }));
 
         });
 
         const uiPath = joinMountPath(basePath, docs.uiPath);
         const authHint = defaultAuthHint(resolvedMeta, routes);
-        const mcpMountPath = joinMountPath(basePath, mcpSubPath);
 
         mountCallspecUi(router, {
             path: uiPath,
-            specPath: siblingSpecPath(callspecMountPath),
+            specPath: siblingSpecPath(docs.callspecPath),
             rpcBase: '..',
             title: resolvedMeta.title,
             branding: metaBrandingFromCallspecMeta(resolvedMeta, {authHint}),
-            mcpPath: siblingSpecPath(mcpMountPath),
+            mcpPath: siblingSpecPath(mcpSubPath),
         });
 
     }

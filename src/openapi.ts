@@ -1,12 +1,13 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
-import {joinRoutePath} from './metaDefaults';
+import {joinRoutePath, hasPrivateRoutes} from './metaDefaults';
 import {openApiErrorResponses} from './routeErrorDocument';
 
 export type OpenApiOptions = {
     title: string
     version: string
     basePath?: string
+    description?: string
 };
 
 export function emitOpenApi(
@@ -16,7 +17,7 @@ export function emitOpenApi(
 
     const paths: Record<string, unknown> = {};
     const basePath = options.basePath ?? '';
-    const hasPrivate = Object.values(routes).some((route) => route.access === 'private');
+    const hasPrivate = hasPrivateRoutes(routes);
 
     for (const [name, route] of Object.entries(routes)) {
 
@@ -64,6 +65,7 @@ export function emitOpenApi(
         info: {
             title: options.title,
             version: options.version,
+            ...(options.description ? {description: options.description} : {}),
         },
         ...(hasPrivate ? {
             components: {

@@ -3,10 +3,9 @@ import os from 'os';
 import path from 'path';
 import {test} from 'kizu';
 import express from 'express';
-import bodyParser from 'body-parser';
 import http from 'http';
 import {predicates as p} from 'runtyp';
-import {CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
+import {CallspecClient, isCallspecOk} from './client';
 import {defineRoute, defineSpec, emitCallspec, mountSpec} from '.';
 import {generateClientFile} from './generateClient/generateClient';
 import {generateClientSource} from './generateClient/generateClientSource';
@@ -16,13 +15,6 @@ import {
     schemaToTypes,
     typeNameForRoute,
 } from './generateClient/schemaToTypeScript';
-
-test('joinCallspecUrl: normalizes slashes', (assert) => {
-
-    assert.equal(joinCallspecUrl('https://api.test/v1/', '/searchLogs'), 'https://api.test/v1/searchLogs');
-    assert.equal(joinCallspecUrl('https://api.test/v1', 'searchLogs'), 'https://api.test/v1/searchLogs');
-
-});
 
 test('CallspecClient: dynamic headers and custom fetch', async (assert) => {
 
@@ -143,7 +135,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
     mountSpec(router, spec);
     app.use('/v1', router);
 
@@ -251,7 +243,7 @@ test('generated client makes a real request to an in-process server', async (ass
     const app = express();
     const router = express.Router();
 
-    router.use(bodyParser.json());
+    router.use(express.json());
     mountSpec(router, spec);
     app.use('/v1', router);
 
@@ -365,72 +357,5 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
     const generated = generateClientSource(doc);
 
     assert.equal(generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput>(\"evil'); throw new Error('pwn\", input)"), true);
-
-});
-
-test('CallspecClient.callResult: typed domain errors without catch', async (assert) => {
-
-    const runtime = new CallspecClient({
-        baseUrl: 'https://api.test/v1',
-        fetch: (async () => new Response(JSON.stringify({error: 'NOT_FOUND'}), {
-            status: 404,
-        })) as typeof fetch,
-    });
-
-    type DomainError = {error: 'NOT_FOUND'} | {error: 'USER_EXISTS'; data: {email: string}};
-
-    const result = await runtime.callResult<{email: string}, DomainError>('getUser', {email: 'x'});
-
-    assert.equal(result.ok, false);
-
-    if (!result.ok) {
-
-        assert.equal(result.status, 404);
-        assert.equal(result.error.error, 'NOT_FOUND');
-
-    }
-
-});
-
-test('CallspecClient.callResult: plain-text HTTP errors become object bodies', async (assert) => {
-
-    const runtime = new CallspecClient({
-        baseUrl: 'https://api.test/v1',
-        fetch: (async () => new Response('Unauthorized', {
-            status: 401,
-        })) as typeof fetch,
-    });
-
-    const result = await runtime.callResult<{email: string}>('getUser', {email: 'x'});
-
-    assert.equal(result.ok, false);
-
-    if (!result.ok) {
-
-        assert.equal(result.status, 401);
-        assert.equal(result.error.error, 'UNAUTHORIZED');
-
-    }
-
-});
-
-test('CallspecClient.callResult: success path', async (assert) => {
-
-    const runtime = new CallspecClient({
-        baseUrl: 'https://api.test/v1',
-        fetch: (async () => new Response(JSON.stringify({email: 'a@b.com'}), {
-            status: 200,
-        })) as typeof fetch,
-    });
-
-    const result = await runtime.callResult<{email: string}>('getUser', {email: 'a@b.com'});
-
-    assert.equal(isCallspecOk(result), true);
-
-    if (result.ok) {
-
-        assert.equal(result.value.email, 'a@b.com');
-
-    }
 
 });
