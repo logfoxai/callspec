@@ -16,6 +16,11 @@ export type McpRouteConfig =
 
 export type RouteAccess = 'public' | 'private';
 
+export type RouteErrorDef = {
+    status: number
+    data?: Pred<unknown>
+};
+
 export type RouteHandler<TInput, TOutput, Ctx> = (
     input: TInput,
     ctx: Ctx,
@@ -23,7 +28,8 @@ export type RouteHandler<TInput, TOutput, Ctx> = (
 
 export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     input: Pred<TInput>
-    output?: Pred<TOutput>
+    output: Pred<TOutput>
+    errors?: Record<string, RouteErrorDef>
     meta: RouteMeta
     access: RouteAccess
     mcp?: McpRouteConfig
@@ -32,15 +38,12 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
 
 export type RoutesMap<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
 
-/** @deprecated Use {@link RoutesMap} — route map only; prefer {@link Callspec}. */
-export type Spec<Ctx = unknown> = RoutesMap<Ctx>;
-
-export type CallspecLogo = {
+type CallspecLogo = {
     light?: string
     dark?: string
 };
 
-export type CallspecWebsite = {
+type CallspecWebsite = {
     url: string
     label?: string
 };
@@ -64,22 +67,4 @@ export type Callspec<Ctx = unknown> = {
     meta: CallspecMeta
     routes: RoutesMap<Ctx>
     authenticate?: Authenticate<Ctx>
-};
-
-export type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
-
-export type InferRouteInput<R extends RouteDef<any, any, any>> =
-    R extends RouteDef<infer I, any, any> ? I : never;
-
-export type InferRouteOutput<R extends RouteDef<any, any, any>> =
-    R extends {output: Pred<infer O>}
-        ? O
-        : UnwrapPromise<ReturnType<R['handler']>>;
-
-export type InferSpec<T extends RoutesMap<any>> = {
-    [K in keyof T]: {
-        name: K & string
-        input: InferRouteInput<T[K]>
-        output: InferRouteOutput<T[K]>
-    }
 };

@@ -1,5 +1,5 @@
 import {toJsonSchema} from 'runtyp';
-import type {McpRouteConfig, RouteDef, RoutesMap} from './types';
+import type {RouteDef, RoutesMap} from './types';
 
 export function isMcpEnabled(route: RouteDef<any, any, any>): boolean {
 
@@ -19,7 +19,7 @@ export function routeMcpName(routeKey: string, route: RouteDef<any, any, any>): 
 
 }
 
-export function mcpAnnotations(route: RouteDef<any, any, any>): Record<string, unknown> | undefined {
+function mcpAnnotations(route: RouteDef<any, any, any>): Record<string, unknown> | undefined {
 
     if (route.mcp && typeof route.mcp === 'object') {
 
@@ -68,5 +68,3 @@ export function listMcpTools(routes: RoutesMap<any>): McpToolListEntry[] {
         });
 
 }
-
-export type {McpRouteConfig};

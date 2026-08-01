@@ -23,13 +23,44 @@ export class CallspecUnauthorizedError extends Error {
 
 }
 
-export class CallspecNotFoundError extends Error {
+/** Declared route error — thrown via {@link errors} and mapped to HTTP by mountSpec. */
+export class CallspecRouteError<
+    Code extends string = string,
+    Data = unknown,
+> extends Error {
 
-    constructor(name: string) {
+    readonly code: Code;
 
-        super(`Route not found: ${name}`);
-        this.name = 'CallspecNotFoundError';
+    readonly status: number;
+
+    readonly data: Data | undefined;
+
+    constructor(code: Code, status: number, data?: Data) {
+
+        super(code);
+        this.name = 'CallspecRouteError';
+        this.code = code;
+        this.status = status;
+        this.data = data;
 
     }
+
+}
+
+export function isCallspecRouteError(value: unknown): value is CallspecRouteError {
+
+    return value instanceof CallspecRouteError;
+
+}
+
+export function formatRouteErrorBody(error: CallspecRouteError): Record<string, unknown> {
+
+    if (error.data !== undefined) {
+
+        return {error: error.code, data: error.data};
+
+    }
+
+    return {error: error.code};
 
 }

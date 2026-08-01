@@ -1,6 +1,13 @@
 import type {Request, RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
+import {
+    CallspecUnauthorizedError,
+    CallspecValidationError,
+    formatRouteErrorBody,
+    isCallspecRouteError,
+} from './errors';
+import {FRAMEWORK_ERROR} from './frameworkErrors';
 import {executeRoute} from './executeRoute';
+import {emitCallspec} from './emitCallspec';
 import {listMcpTools} from './mcpTools';
 import {mountMcp} from './mountMcp';
 import {emitOpenApi} from './openapi';
@@ -8,6 +15,7 @@ import {resolveRouteContext} from './resolveRouteContext';
 import {
     defaultAuthHint,
     joinMountPath,
+    joinRoutePath,
     metaBrandingFromCallspecMeta,
     resolveCallspecMeta,
     siblingSpecPath,
@@ -16,54 +24,82 @@ import {
 import type {Callspec} from './types';
 import {mountCallspecUi} from './callspec-ui/mountCallspecUi';
 
+type MountDocsOptions = {
+    /** Docs UI mount path. Default `/docs`. */
+    uiPath?: string
+    /** Native Callspec document path. Default `/callspec.json`. */
+    callspecPath?: string
+    /** OpenAPI document path. Default `/openapi.json`. */
+    openApiPath?: string
+};
+
 export type MountSpecOptions = {
     basePath?: string
-    /** Default true — serves `/docs`. Pass `false` to disable, or a custom path string. */
-    ui?: boolean | string
-    /** Default true — serves `/openapi.json`. Pass `false` to disable, or a custom path string. */
-    openApi?: boolean | string
+    /**
+     * Default true — serves `/docs`, `/callspec.json`, and `/openapi.json` together.
+     * Pass `false` to disable all docs/spec surfaces.
+     */
+    docs?: boolean | MountDocsOptions
     /** MCP HTTP path on this router. Default `/mcp`. */
     mcpPath?: string
+};
+
+type ResolvedDocsSurfaces = {
+    enabled: boolean
+    uiPath: string
+    callspecPath: string
+    openApiPath: string
 };
 
 function sendError(res: import('express').Response, err: unknown): void {
 
     if (err instanceof CallspecValidationError) {
 
-        res.status(400).json({error: err.message, errors: err.errors});
+        res.status(400).json({error: FRAMEWORK_ERROR.VALIDATION_ERROR, errors: err.errors});
         return;
 
     }
 
     if (err instanceof CallspecUnauthorizedError) {
 
-        res.status(401).send('Unauthorized');
+        res.status(401).json({error: FRAMEWORK_ERROR.UNAUTHORIZED});
         return;
 
     }
 
-    throw err;
+    if (isCallspecRouteError(err)) {
+
+        res.status(err.status).json(formatRouteErrorBody(err));
+        return;
+
+    }
+
+    res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
 
 }
 
-function resolveSurfacePath(
-    value: boolean | string | undefined,
-    defaultPath: string,
-): {enabled: boolean, path: string} {
+function resolveDocsSurfaces(options: MountSpecOptions): ResolvedDocsSurfaces {
 
-    if (value === false) {
+    const defaults = {
+        uiPath: '/docs',
+        callspecPath: '/callspec.json',
+        openApiPath: '/openapi.json',
+    };
 
-        return {enabled: false, path: defaultPath};
+    if (options.docs === false) {
 
-    }
-
-    if (typeof value === 'string') {
-
-        return {enabled: true, path: value};
+        return {...defaults, enabled: false};
 
     }
 
-    return {enabled: true, path: defaultPath};
+    const docsOptions = typeof options.docs === 'object' ? options.docs : {};
+
+    return {
+        enabled: true,
+        uiPath: docsOptions.uiPath ?? defaults.uiPath,
+        callspecPath: docsOptions.callspecPath ?? defaults.callspecPath,
+        openApiPath: docsOptions.openApiPath ?? defaults.openApiPath,
+    };
 
 }
 
@@ -76,48 +112,56 @@ export function mountSpec<Ctx>(
     const basePath = options.basePath ?? '';
     const resolvedMeta = resolveCallspecMeta(spec.meta);
     const {routes} = spec;
-
-    const ui = resolveSurfacePath(options.ui, '/docs');
-    const openApi = resolveSurfacePath(options.openApi, '/openapi.json');
+    const docs = resolveDocsSurfaces(options);
     const mcpSubPath = options.mcpPath ?? '/mcp';
 
-    if (openApi.enabled) {
+    const emitOptions = {
+        title: resolvedMeta.title,
+        version: resolvedMeta.version,
+        basePath,
+        description: resolvedMeta.intro,
+    };
 
-        const openApiPath = joinMountPath(basePath, openApi.path);
+    if (docs.enabled) {
 
-        router.get(openApiPath, (_req, res) => {
+        const callspecMountPath = joinMountPath(basePath, docs.callspecPath);
+
+        router.get(callspecMountPath, (_req, res) => {
+
+            res.json(emitCallspec(routes, emitOptions));
+
+        });
+
+        const openApiMountPath = joinMountPath(basePath, docs.openApiPath);
+
+        router.get(openApiMountPath, (_req, res) => {
 
             res.json(emitOpenApi(routes, {
                 title: resolvedMeta.title,
                 version: resolvedMeta.version,
                 basePath,
+                description: resolvedMeta.intro,
             }));
 
         });
 
-    }
-
-    if (ui.enabled && openApi.enabled) {
-
-        const uiPath = joinMountPath(basePath, ui.path);
-        const openApiMountPath = joinMountPath(basePath, openApi.path);
-        const mcpMountPath = joinMountPath(basePath, mcpSubPath);
+        const uiPath = joinMountPath(basePath, docs.uiPath);
         const authHint = defaultAuthHint(resolvedMeta, routes);
 
         mountCallspecUi(router, {
             path: uiPath,
-            specPath: siblingSpecPath(openApiMountPath),
+            specPath: siblingSpecPath(docs.callspecPath),
             rpcBase: '..',
             title: resolvedMeta.title,
             branding: metaBrandingFromCallspecMeta(resolvedMeta, {authHint}),
-            mcpPath: siblingSpecPath(mcpMountPath),
+            mcpPath: siblingSpecPath(mcpSubPath),
         });
 
     }
 
     for (const [name, route] of Object.entries(routes)) {
 
-        router.post(`${basePath}/${name}`.replace(/\/{2,}/g, '/'), (async (req, res, next) => {
+        router.post(joinRoutePath(basePath, name), (async (req, res) => {
 
             try {
 
@@ -127,15 +171,7 @@ export function mountSpec<Ctx>(
 
             } catch (err) {
 
-                try {
-
-                    sendError(res, err);
-
-                } catch (rethrow) {
-
-                    next(rethrow);
-
-                }
+                sendError(res, err);
 
             }
 
@@ -155,5 +191,14 @@ export function mountSpec<Ctx>(
         });
 
     }
+
+    router.post(joinRoutePath(basePath, ':routeName'), ((req, res) => {
+
+        res.status(404).json({
+            error: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
+            data: {route: req.params.routeName ?? ''},
+        });
+
+    }) as RequestHandler);
 
 }

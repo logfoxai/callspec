@@ -1,17 +1,14 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
+import {joinRoutePath, hasPrivateRoutes} from './metaDefaults';
+import {openApiErrorResponses} from './routeErrorDocument';
 
 export type OpenApiOptions = {
     title: string
     version: string
     basePath?: string
+    description?: string
 };
-
-function routePath(basePath: string, name: string): string {
-
-    return `${basePath}/${name}`.replace(/\/{2,}/g, '/');
-
-}
 
 export function emitOpenApi(
     routes: RoutesMap<any>,
@@ -20,11 +17,17 @@ export function emitOpenApi(
 
     const paths: Record<string, unknown> = {};
     const basePath = options.basePath ?? '';
-    const hasPrivate = Object.values(routes).some((route) => route.access === 'private');
+    const hasPrivate = hasPrivateRoutes(routes);
 
     for (const [name, route] of Object.entries(routes)) {
 
-        paths[routePath(basePath, name)] = {
+        const outputSchema = toJsonSchema(route.output);
+
+        const errorResponses = openApiErrorResponses(route.errors, {
+            includeUnauthorized: route.access === 'private',
+        });
+
+        paths[joinRoutePath(basePath, name)] = {
             post: {
                 operationId: name,
                 summary: route.meta.summary,
@@ -39,20 +42,15 @@ export function emitOpenApi(
                     },
                 },
                 responses: {
+                    ...errorResponses,
                     200: {
                         description: 'Success',
-                        content: route.output ? {
+                        content: {
                             'application/json': {
-                                schema: toJsonSchema(route.output),
-                            },
-                        } : {
-                            'application/json': {
-                                schema: {type: 'object'},
+                                schema: outputSchema,
                             },
                         },
                     },
-                    ...(route.access === 'private' ? {401: {description: 'Unauthorized'}} : {}),
-                    400: {description: 'Validation error'},
                 },
                 security: route.access === 'private' ? [{bearer: []}] : [],
                 'x-callspec-access': route.access,
@@ -67,6 +65,7 @@ export function emitOpenApi(
         info: {
             title: options.title,
             version: options.version,
+            ...(options.description ? {description: options.description} : {}),
         },
         ...(hasPrivate ? {
             components: {

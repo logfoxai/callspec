@@ -1,21 +1,14 @@
 import './styles.css';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
+import {callspecDocumentToUiSpec} from '../toUiSpec';
+import type {CallspecUiRoute} from '../types';
+import {CallspecDocumentError} from '../../callspecDocumentTypes';
+import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {initTheme, toggleTheme, type Theme} from './theme';
 import {themeMoonIcon, themeSunIcon} from './icons';
-
-type CallspecUiRoute = {
-    name: string
-    summary: string
-    description: string
-    tags: string[]
-    access: 'public' | 'private'
-    mcp: boolean
-    inputSchema: unknown
-    outputSchema: unknown
-};
 
 type View =
     | {kind: 'home'}
@@ -29,7 +22,7 @@ declare global {
 }
 
 const config: CallspecUiConfig = window.__CALLSPEC_UI__ ?? {
-    specUrl: '../openapi.json',
+    specUrl: '../callspec.json',
     rpcBase: '..',
     mcpPath: '../mcp',
 };
@@ -618,45 +611,6 @@ function copyCurl(route: CallspecUiRoute): void {
 
 }
 
-function parseRoutes(doc: Record<string, unknown>): CallspecUiRoute[] {
-
-    const paths = doc.paths as Record<string, Record<string, unknown>> | undefined;
-    const routes: CallspecUiRoute[] = [];
-
-    if (!paths) return routes;
-
-    for (const [pathKey, methods] of Object.entries(paths)) {
-
-        const post = methods.post as Record<string, unknown> | undefined;
-
-        if (!post) continue;
-
-        const name = (post.operationId as string | undefined) ?? pathKey.replace(/^\//, '');
-        const requestBody = post.requestBody as Record<string, unknown> | undefined;
-        const reqContent = requestBody?.content as Record<string, unknown> | undefined;
-        const reqJson = reqContent?.['application/json'] as Record<string, unknown> | undefined;
-        const responses = post.responses as Record<string, unknown> | undefined;
-        const ok = responses?.['200'] as Record<string, unknown> | undefined;
-        const okContent = ok?.content as Record<string, unknown> | undefined;
-        const okJson = okContent?.['application/json'] as Record<string, unknown> | undefined;
-
-        routes.push({
-            name,
-            summary: (post.summary as string | undefined) ?? name,
-            description: (post.description as string | undefined) ?? '',
-            tags: Array.isArray(post.tags) ? post.tags.map(String) : [],
-            access: post['x-callspec-access'] === 'public' ? 'public' : 'private',
-            mcp: post['x-callspec-mcp'] === true,
-            inputSchema: reqJson?.schema ?? {type: 'object'},
-            outputSchema: okJson?.schema ?? {type: 'object'},
-        });
-
-    }
-
-    return routes.sort((a, b) => a.name.localeCompare(b.name));
-
-}
-
 async function boot(): Promise<void> {
 
     const app = document.getElementById('app');
@@ -669,13 +623,13 @@ async function boot(): Promise<void> {
 
         if (!resp.ok) throw new Error(`Could not load spec (${resp.status})`);
 
-        const doc = await resp.json() as Record<string, unknown>;
-        const info = doc.info as Record<string, unknown> | undefined;
-        const title = config.title ?? (info?.title as string | undefined) ?? 'API';
-        const version = (info?.version as string | undefined) ?? '';
+        const doc = await resp.json() as unknown;
+        const parsed = parseUiCallspecDocument(doc);
+        const title = config.title ?? parsed.info.title;
+        const version = parsed.info.version;
         const branding = config.branding;
         const showHome = hasHomePage(branding);
-        const routes = parseRoutes(doc);
+        const routes = callspecDocumentToUiSpec(parsed).routes;
 
         let view: View = viewFromHash(routes, showHome);
         let filters: RouteFilters = {
@@ -872,7 +826,11 @@ async function boot(): Promise<void> {
     } catch (err) {
 
         app.className = 'loading';
-        app.innerHTML = `<div class="error-banner">${escapeHtml(String(err))}</div>`;
+        const message = err instanceof CallspecDocumentError
+            ? err.message
+            : String(err);
+
+        app.innerHTML = `<div class="error-banner">${escapeHtml(message)}</div>`;
 
     }
 

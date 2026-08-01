@@ -2,7 +2,7 @@ export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'callspec-ui-theme';
 
-export function getPreferredTheme(): Theme {
+function getPreferredTheme(): Theme {
 
     const stored = localStorage.getItem(STORAGE_KEY);
 
@@ -16,7 +16,7 @@ export function getPreferredTheme(): Theme {
 
 }
 
-export function applyTheme(theme: Theme): void {
+function applyTheme(theme: Theme): void {
 
     document.documentElement.dataset.theme = theme;
     localStorage.setItem(STORAGE_KEY, theme);

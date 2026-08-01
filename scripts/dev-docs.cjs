@@ -5,15 +5,14 @@
  */
 const path = require('path');
 const express = require('express');
-const bodyParser = require('body-parser');
 const {mountSpec} = require('../dist');
-const {api} = require('./chirp-demo-api.cjs');
+const {api} = require('../dist/demo/chirpDemoApi');
 
 const app = express();
 const router = express.Router();
 const brandAssetsDir = path.join(__dirname, '../assets/chirp');
 
-router.use(bodyParser.json());
+router.use(express.json());
 
 mountSpec(router, api);
 

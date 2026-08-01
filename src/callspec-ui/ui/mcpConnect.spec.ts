@@ -1,7 +1,6 @@
 import {test} from 'kizu';
 import {
     claudeCodeMcpCommand,
-    cursorMcpConfig,
     mcpServersUrlConfig,
     piMcpConfig,
     serverSlugFromName,
@@ -32,15 +31,6 @@ test('mcpServersUrlConfig builds Cursor-style config', (assert) => {
 
 });
 
-test('cursorMcpConfig alias matches url transport', (assert) => {
-
-    assert.equal(
-        cursorMcpConfig('https://api.example.com/mcp', 'api'),
-        mcpServersUrlConfig('https://api.example.com/mcp', 'api'),
-        'alias',
-    );
-
-});
 
 test('vscodeMcpConfig uses servers and type http', (assert) => {
 

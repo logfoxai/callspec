@@ -4,12 +4,10 @@ import type {RequestHandler, Router} from 'express';
 import express from 'express';
 import type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
 
-export type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
-
 export type MountCallspecUiOptions = {
     /** Mount path for the UI. Default `/docs`. */
     path?: string
-    /** OpenAPI JSON URL for the UI to fetch. Default `../openapi.json`. */
+    /** Native Callspec document URL for the UI to fetch. Default `../callspec.json`. */
     specPath?: string
     /** RPC base for try-it requests. Default `..` (sibling of the docs path). */
     rpcBase?: string
@@ -54,7 +52,7 @@ function readIndexHtml(): string {
 
 }
 
-export function renderCallspecUiPage(config: CallspecUiConfig): string {
+function renderCallspecUiPage(config: CallspecUiConfig): string {
 
     const html = readIndexHtml();
     const script = `<script>window.__CALLSPEC_UI__=${JSON.stringify(config)};</script>`;
@@ -73,7 +71,7 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
 
     const mountPath = options.path ?? '/docs';
     const mountPathWithSlash = mountPath.endsWith('/') ? mountPath : `${mountPath}/`;
-    const specUrl = options.specPath ?? '../openapi.json';
+    const specUrl = options.specPath ?? '../callspec.json';
     const rpcBase = options.rpcBase ?? '..';
     const assetsDir = uiDir();
 

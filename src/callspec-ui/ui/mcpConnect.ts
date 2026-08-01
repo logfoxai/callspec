@@ -1,4 +1,5 @@
 import type {CallspecUiConfig} from '../branding';
+import {slugifyName} from '../../metaDefaults';
 import {codeBlock} from './highlight';
 
 type McpRoute = {
@@ -25,7 +26,7 @@ function escapeHtml(text: string): string {
 
 }
 
-export function resolveMcpUrl(config: CallspecUiConfig): string {
+function resolveMcpUrl(config: CallspecUiConfig): string {
 
     if (config.mcp?.url) {
 
@@ -41,7 +42,7 @@ export function resolveMcpUrl(config: CallspecUiConfig): string {
 
 export function serverSlugFromName(displayName: string): string {
 
-    return displayName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'api';
+    return slugifyName(displayName, 'api');
 
 }
 
@@ -71,12 +72,6 @@ export function mcpServersUrlConfig(
 
 }
 
-/** @deprecated Use mcpServersUrlConfig */
-export function cursorMcpConfig(mcpUrl: string, serverName: string, authHeader?: string): string {
-
-    return mcpServersUrlConfig(mcpUrl, serverName, authHeader, 'url');
-
-}
 
 export function vscodeMcpConfig(mcpUrl: string, serverName: string, authHeader?: string): string {
 
@@ -431,12 +426,5 @@ export function bindMcpConnect(root: HTMLElement): void {
         });
 
     });
-
-}
-
-/** @deprecated Use bindMcpConnect */
-export function bindCopyButtons(root: HTMLElement): void {
-
-    bindMcpConnect(root);
 
 }

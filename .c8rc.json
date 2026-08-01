@@ -1,0 +1,16 @@
+{
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec.js",
+    "src/callspec-ui/ui/main.ts",
+    "src/demo/**",
+    "src/typecheck/**"
+  ],
+  "reporter": [],
+  "all": true,
+  "cache": false,
+  "clean": true
+}

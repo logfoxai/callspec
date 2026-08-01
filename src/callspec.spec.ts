@@ -1,6 +1,7 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineSpec, defineRoute, executeRoute} from '.';
+import {defineSpec, defineRoute} from '.';
+import {executeRoute} from './executeRoute';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 
 test('defineRoute rejects non-2-arg handlers', (assert) => {
@@ -8,6 +9,7 @@ test('defineRoute rejects non-2-arg handlers', (assert) => {
     assert.throws(
         () => defineRoute({
             input: p.object({}),
+            output: p.any(),
             meta: {summary: 'x', description: 'x', tags: ['t']},
             handler: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
         }),
@@ -21,6 +23,7 @@ test('executeRoute validates and calls handler', async (assert) => {
 
     const route = defineRoute({
         input: p.object({n: p.number()}),
+        output: p.object({double: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         access: 'public',
         handler: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
@@ -36,6 +39,7 @@ test('executeRoute 401 on private without ctx', async (assert) => {
 
     const route = defineRoute({
         input: p.object({}),
+        output: p.string(),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         access: 'private',
         handler: async (_input: unknown, _ctx: unknown) => 'secret',
@@ -58,6 +62,7 @@ test('executeRoute validation error', async (assert) => {
 
     const route = defineRoute({
         input: p.object({n: p.number()}),
+        output: p.object({n: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         access: 'public',
         handler: async (input: {n: number}, _ctx: unknown) => input,
@@ -82,6 +87,7 @@ test('defineSpec wires meta and routes', (assert) => {
         routes: {
             ping: defineRoute({
                 input: p.object({}),
+                output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 access: 'public',
                 handler: async (_input: unknown, _ctx: unknown) => 'pong',
@@ -101,6 +107,7 @@ test('defineSpec requires authenticate for private routes', (assert) => {
             routes: {
                 secret: defineRoute({
                     input: p.object({}),
+                    output: p.string(),
                     meta: {summary: 'x', description: 'x', tags: ['t']},
                     access: 'private',
                     handler: async (_input: unknown, _ctx: unknown) => 'secret',
