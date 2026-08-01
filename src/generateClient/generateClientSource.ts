@@ -31,8 +31,10 @@ export function generateClientSource(
 
         const inputTypeName = typeNameForRoute(routeName, 'Input');
         const outputTypeName = typeNameForRoute(routeName, 'Output');
+        const resultTypeName = typeNameForRoute(routeName, 'Result');
         const inputTypes = schemaToTypes(route.input, inputTypeName);
         const outputTypes = schemaToTypes(route.output, outputTypeName);
+        let routeErrorTypeName: string | undefined;
 
         for (const generated of [...inputTypes.types, ...outputTypes.types]) {
 
@@ -78,13 +80,21 @@ export function generateClientSource(
 
             if (errorMembers.length) {
 
+                routeErrorTypeName = typeNameForRoute(routeName, 'Error');
+
                 typeBlocks.push(
-                    `export type ${typeNameForRoute(routeName, 'Error')} = ${errorMembers.join(' | ')};`,
+                    `export type ${routeErrorTypeName} = ${errorMembers.join(' | ')};`,
                 );
 
             }
 
         }
+
+        typeBlocks.push(
+            routeErrorTypeName
+                ? `export type ${resultTypeName} = CallspecRouteResult<${outputTypeName}, ${routeErrorTypeName}>;`
+                : `export type ${resultTypeName} = CallspecRouteResult<${outputTypeName}>;`,
+        );
 
         let methodName = sanitizeMethodName(routeName);
 
@@ -97,8 +107,8 @@ export function generateClientSource(
         usedMethodNames.add(methodName);
 
         methods.push(`
-    async ${methodName}(input: ${inputTypeName}): Promise<${outputTypeName}> {
-        return this.runtime.call(${JSON.stringify(routeName)}, input);
+    async ${methodName}(input: ${inputTypeName}): Promise<${resultTypeName}> {
+        return this.runtime.callResult<${outputTypeName}${routeErrorTypeName ? `, ${routeErrorTypeName}` : ''}>(${JSON.stringify(routeName)}, input);
     }`);
 
     }
@@ -106,7 +116,7 @@ export function generateClientSource(
     return [
         GENERATED_HEADER,
         '',
-        `import {CallspecClient, type CallspecClientConfig} from 'callspec/client';`,
+        `import {CallspecClient, type CallspecClientConfig, type CallspecRouteResult} from 'callspec/client';`,
         '',
         'export type ApiClientConfig = CallspecClientConfig;',
         '',

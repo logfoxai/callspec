@@ -6,7 +6,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import http from 'http';
 import {predicates as p} from 'runtyp';
-import {CallspecClient, CallspecHttpError, joinCallspecUrl} from './client';
+import {CallspecClient, CallspecHttpError, isCallspecOk, joinCallspecUrl} from './client';
 import {defineRoute, defineSpec, emitCallspec, mountSpec} from '.';
 import {generateClientFile} from './generateClient/generateClient';
 import {generateClientSource} from './generateClient/generateClientSource';
@@ -143,7 +143,8 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
 
     assert.equal(generated.startsWith('/**'), true);
     assert.equal(generated.includes('export class ApiClient'), true);
-    assert.equal(generated.includes('async searchLogs(input: SearchLogsInput)'), true);
+    assert.equal(generated.includes('async searchLogs(input: SearchLogsInput): Promise<SearchLogsResult>'), true);
+    assert.equal(generated.includes('CallspecRouteResult'), true);
     assert.equal(generated.includes("from 'callspec/client'"), true);
     assert.equal(generated.endsWith('\n'), true);
 
@@ -331,14 +332,20 @@ test('generated client makes a real request to an in-process server', async (ass
 
         const generated = requireGenerated(path.join(dir, 'api.js')) as {
             ApiClient: new (config: {baseUrl: string}) => {
-                echo(input: {message: string}): Promise<{echo: string}>
+                echo(input: {message: string}): Promise<{ok: true; value: {echo: string}} | {ok: false; status: number; error: unknown}>
             }
         };
 
         const api = new generated.ApiClient({baseUrl: `http://127.0.0.1:${addr.port}/v1`});
         const result = await api.echo({message: 'hello'});
 
-        assert.equal(result.echo, 'hello');
+        assert.equal(result.ok, true);
+
+        if (result.ok) {
+
+            assert.equal(result.value.echo, 'hello');
+
+        }
 
     } finally {
 
@@ -372,6 +379,7 @@ test('generateClientSource: error response types omit data when wire schema has 
     assert.equal(generated.includes("{ error: \"NOT_FOUND\" }"), true);
     assert.equal(generated.includes('data: GetUserUserExistsData'), true);
     assert.equal(generated.includes('GetUserError'), true);
+    assert.equal(generated.includes('GetUserResult = CallspecRouteResult<GetUserOutput, GetUserError>'), true);
 
 });
 
@@ -389,6 +397,73 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
 
     const generated = generateClientSource(doc);
 
-    assert.equal(generated.includes("this.runtime.call(\"evil'); throw new Error('pwn\", input)"), true);
+    assert.equal(generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput>(\"evil'); throw new Error('pwn\", input)"), true);
+
+});
+
+test('CallspecClient.callResult: typed domain errors without catch', async (assert) => {
+
+    const runtime = new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: (async () => new Response(JSON.stringify({error: 'NOT_FOUND'}), {
+            status: 404,
+        })) as typeof fetch,
+    });
+
+    type DomainError = {error: 'NOT_FOUND'} | {error: 'USER_EXISTS'; data: {email: string}};
+
+    const result = await runtime.callResult<{email: string}, DomainError>('getUser', {email: 'x'});
+
+    assert.equal(result.ok, false);
+
+    if (!result.ok) {
+
+        assert.equal(result.status, 404);
+        assert.equal(result.error.error, 'NOT_FOUND');
+
+    }
+
+});
+
+test('CallspecClient.callResult: plain-text HTTP errors become object bodies', async (assert) => {
+
+    const runtime = new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: (async () => new Response('Unauthorized', {
+            status: 401,
+        })) as typeof fetch,
+    });
+
+    const result = await runtime.callResult<{email: string}>('getUser', {email: 'x'});
+
+    assert.equal(result.ok, false);
+
+    if (!result.ok) {
+
+        assert.equal(result.status, 401);
+        assert.equal(result.error.error, 'Unauthorized');
+
+    }
+
+});
+
+test('CallspecClient.callResult: success path', async (assert) => {
+
+    const runtime = new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: (async () => new Response(JSON.stringify({email: 'a@b.com'}), {
+            status: 200,
+        })) as typeof fetch,
+    });
+
+    const result = await runtime.callResult<{email: string}>('getUser', {email: 'a@b.com'});
+
+    assert.equal(isCallspecOk(result), true);
+
+    if (result.ok) {
+
+        assert.equal(result.value.email, 'a@b.com');
+
+    }
 
 });

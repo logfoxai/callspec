@@ -168,7 +168,7 @@ export const routes = {
 };
 ```
 
-Generated clients export a per-route `GetUserError` union when errors are declared.
+Generated clients export per-route `GetUserError` unions and `GetUserResult` (`CallspecRouteResult<Output, Error>`) — **no try/catch for domain errors**.
 
 ## Frontend client generation
 
@@ -186,7 +186,7 @@ Local file (monorepos, offline CI):
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
-Use the generated client:
+Use the generated client — every method returns a **Result**, not a thrown error:
 
 ```typescript
 import {ApiClient} from './generated/api';
@@ -202,12 +202,36 @@ const result = await api.searchRecent({
     query: 'timeout',
     max_results: 10,
 });
+
+if (!result.ok) {
+    if (result.error.error === 'VALIDATION_ERROR') {
+        console.error(result.error.errors);
+        return;
+    }
+    // other declared route errors or unexpected HTTP bodies
+    console.error(result.status, result.error);
+    return;
+}
+
+result.value; // SearchRecentOutput — fully typed
 ```
+
+For routes with declared errors:
+
+```typescript
+const result = await api.getUser({email: 'missing@example.com'});
+
+if (!result.ok && result.error.error === 'NOT_FOUND') {
+    // result.error is narrowed to { error: "NOT_FOUND" }
+}
+```
+
+Network failures (DNS, offline) still throw from `fetch` — only HTTP responses become Results.
 
 The generated file:
 
 - Imports only `callspec/client` (browser-safe — no Express, runtyp, or server code)
-- Exposes one typed method per route
+- Exposes one typed method per route returning `CallspecRouteResult`
 - Preserves Callspec wire behavior (including Date deserialization)
 - Can be committed; CI can regenerate with `git diff --exit-code`
 
@@ -242,16 +266,21 @@ OpenAPI remains available for Swagger, Postman, and other OpenAPI tooling — bo
 
 ## Low-level client (legacy / advanced)
 
-The fetch-only `client()` helper remains for backward compatibility and simple scripts:
+The fetch-only `client()` helper and `CallspecClient.call()` still throw on HTTP errors for scripts and backward compatibility. Prefer the **generated client** (Result-based) for application code.
 
 ```typescript
-import {client, CallspecHttpError} from 'callspec/client';
+import {client, CallspecClient, CallspecHttpError, isCallspecOk} from 'callspec/client';
 
+// Result API (no catch for HTTP error responses):
+const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
+const result = await runtime.callResult<{results: unknown[]}>('searchRecent', {query: 'x'});
+if (isCallspecOk(result)) {
+    console.log(result.value);
+}
+
+// Throwing API (legacy):
 try {
-    const results = await client('searchRecent', {query: 'callspec'}, {
-        endpoint: 'https://api.example.com/v1',
-        fetchOptions: {headers: {Authorization: `Bearer ${token}`}},
-    });
+    await client('searchRecent', {query: 'callspec'}, {endpoint: 'https://api.example.com/v1'});
 } catch (err) {
     if (err instanceof CallspecHttpError) {
         console.error(err.status, err.body);

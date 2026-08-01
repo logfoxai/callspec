@@ -31,8 +31,19 @@ export {
     CallspecHttpError,
     Non200Response,
     joinCallspecUrl,
+    isCallspecOk,
 } from './client';
-export type {ClientOptions, CallspecClientConfig} from './client';
+export type {
+    ClientOptions,
+    CallspecClientConfig,
+    CallspecOk,
+    CallspecErr,
+    CallspecResult,
+    CallspecRouteResult,
+    CallspecClientErrors,
+    CallspecValidationErrorBody,
+    CallspecUnexpectedErrorBody,
+} from './client';
 export {serializeResponse, deserializeResponse} from './serializer';
 export {
     CallspecValidationError,

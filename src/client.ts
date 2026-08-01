@@ -1,5 +1,43 @@
 import {deserializeResponse} from './serializer';
 
+export type CallspecOk<T> = {
+    ok: true
+    value: T
+};
+
+export type CallspecErr<E> = {
+    ok: false
+    status: number
+    error: E
+};
+
+export type CallspecResult<T, E> = CallspecOk<T> | CallspecErr<E>;
+
+export type CallspecValidationErrorBody = {
+    error: 'VALIDATION_ERROR'
+    errors: Record<string, string>
+};
+
+/** Fallback when the response body is not a declared route error or validation error. */
+export type CallspecUnexpectedErrorBody = {
+    error: string
+    data?: unknown
+    errors?: Record<string, string>
+};
+
+export type CallspecClientErrors<E = never> =
+    | CallspecValidationErrorBody
+    | CallspecUnexpectedErrorBody
+    | ([E] extends [never] ? never : E);
+
+export type CallspecRouteResult<T, E = never> = CallspecResult<T, CallspecClientErrors<E>>;
+
+export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
+
+    return result.ok;
+
+}
+
 export function joinCallspecUrl(baseUrl: string, routeSegment: string): string {
 
     const base = baseUrl.replace(/\/+$/, '');
@@ -100,6 +138,41 @@ async function parseResponseBody(resp: Response): Promise<unknown> {
 
 }
 
+function normalizeClientErrorBody(body: unknown): CallspecClientErrors<never> {
+
+    if (typeof body === 'object' && body !== null && !Array.isArray(body)) {
+
+        const record = body as Record<string, unknown>;
+
+        if (record.error === 'VALIDATION_ERROR' && typeof record.errors === 'object' && record.errors !== null) {
+
+            return {
+                error: 'VALIDATION_ERROR',
+                errors: record.errors as Record<string, string>,
+            };
+
+        }
+
+        if (typeof record.error === 'string') {
+
+            return body as CallspecUnexpectedErrorBody;
+
+        }
+
+    }
+
+    if (typeof body === 'string' && body.length) {
+
+        return {error: body};
+
+    }
+
+    return body === undefined
+        ? {error: 'HTTP_ERROR'}
+        : {error: 'HTTP_ERROR', data: body};
+
+}
+
 export class CallspecClient {
 
     private readonly fetchImpl: typeof globalThis.fetch;
@@ -132,6 +205,38 @@ export class CallspecClient {
         }
 
         return body as TOutput;
+
+    }
+
+    async callResult<TOutput, TError = never>(
+        routeName: string,
+        input: unknown,
+    ): Promise<CallspecRouteResult<TOutput, TError>> {
+
+        const url = joinCallspecUrl(this.config.baseUrl, routeName);
+        const headers = await resolveHeaders(this.config.headers);
+        const {fetchOptions} = this.config;
+
+        const resp = await this.fetchImpl(url, {
+            ...fetchOptions,
+            method: 'POST',
+            headers,
+            body: JSON.stringify(input ?? {}),
+        });
+
+        const body = await parseResponseBody(resp);
+
+        if (resp.ok) {
+
+            return {ok: true, value: body as TOutput};
+
+        }
+
+        return {
+            ok: false,
+            status: resp.status,
+            error: normalizeClientErrorBody(body) as CallspecClientErrors<TError>,
+        };
 
     }
 
