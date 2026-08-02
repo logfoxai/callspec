@@ -1,6 +1,6 @@
 # Callspec error handling
 
-Design reference — implemented in v0.3.0.
+Design reference — implemented in v1.2.0.
 
 ## Three tiers
 
