@@ -1,6 +1,16 @@
 # Callspec error handling
 
-Design reference — implemented in v1.2.0.
+Design reference — implemented in v2.0.0.
+
+## Breaking changes (v2.0.0)
+
+Upgrading from v1.x:
+
+- **`commonErrors` removed** — do not spread `{…commonErrors}` into `errors()`. Common throwers (`NOT_FOUND`, `FORBIDDEN`, `CONFLICT`, `TOO_MANY_REQUESTS`, `SERVICE_UNAVAILABLE`) are always on every `errors()` / `err` handle.
+- **Do not declare common codes on routes** — they are automatic in OpenAPI, `callspec.json`, and every client `*Result` union.
+- **Strict domain registration** — throws with codes not declared on the route become `INTERNAL_ERROR` at runtime.
+- **`CallspecRouteError` no longer exported** — use `isRouteError` and `sendRouteErrorResponse` in Express middleware; throw only via `errors()` handles.
+- **Regenerate artifacts** — rerun `npx callspec …` and refresh generated client types after upgrading.
 
 ## Three tiers
 
