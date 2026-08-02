@@ -1,7 +1,8 @@
-import {mergeDomainErrorDefs} from './commonErrors';
+import {mergeDomainErrorDefs} from './builtinErrors';
 import {toJsonSchema} from 'runtyp';
 import type {JsonSchema} from './callspecDocument';
-import {mergeOpenApiErrorResponses, openApiFrameworkErrorResponses} from './frameworkErrors';
+import {mergeOpenApiErrorResponses, openApiMountBuiltinErrorResponses} from './builtinErrors';
+import {unwrapOptionalPred} from './routeErrorPred';
 import type {RouteErrorDef} from './types';
 
 function errorWireSchema(code: string, def: RouteErrorDef): JsonSchema {
@@ -13,8 +14,15 @@ function errorWireSchema(code: string, def: RouteErrorDef): JsonSchema {
 
     if (def.data) {
 
-        properties.data = toJsonSchema(def.data) as JsonSchema;
-        required.push('data');
+        const {pred, optional} = unwrapOptionalPred(def.data);
+
+        properties.data = toJsonSchema(pred) as JsonSchema;
+
+        if (!optional) {
+
+            required.push('data');
+
+        }
 
     }
 
@@ -30,7 +38,7 @@ function errorWireSchema(code: string, def: RouteErrorDef): JsonSchema {
 /** Payload schemas for callspec.json — wire shape is always `{ error, data? }`. */
 export function documentRouteErrors(
     errors: Record<string, RouteErrorDef> | undefined,
-): Record<string, {status: number, data?: JsonSchema}> | undefined {
+): Record<string, {status: number, data?: JsonSchema, dataRequired?: boolean}> | undefined {
 
     if (!errors || !Object.keys(errors).length) {
 
@@ -38,14 +46,24 @@ export function documentRouteErrors(
 
     }
 
-    const documented: Record<string, {status: number, data?: JsonSchema}> = {};
+    const documented: Record<string, {status: number, data?: JsonSchema, dataRequired?: boolean}> = {};
 
     for (const [code, def] of Object.entries(errors)) {
 
-        documented[code] = {
+        const entry: {status: number, data?: JsonSchema, dataRequired?: boolean} = {
             status: def.status,
-            ...(def.data ? {data: toJsonSchema(def.data) as JsonSchema} : {}),
         };
+
+        if (def.data) {
+
+            const {pred, optional} = unwrapOptionalPred(def.data);
+
+            entry.data = toJsonSchema(pred) as JsonSchema;
+            entry.dataRequired = !optional;
+
+        }
+
+        documented[code] = entry;
 
     }
 
@@ -58,7 +76,7 @@ export function openApiErrorResponses(
     options: {includeUnauthorized?: boolean} = {},
 ): Record<string, unknown> {
 
-    const framework = openApiFrameworkErrorResponses({
+    const mountBuiltin = openApiMountBuiltinErrorResponses({
         includeUnauthorized: options.includeUnauthorized,
     });
 
@@ -96,6 +114,6 @@ export function openApiErrorResponses(
 
     }
 
-    return mergeOpenApiErrorResponses(framework, domain);
+    return mergeOpenApiErrorResponses(mountBuiltin, domain);
 
 }

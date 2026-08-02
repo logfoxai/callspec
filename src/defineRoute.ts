@@ -1,5 +1,6 @@
 import type {Infer, Pred} from 'runtyp';
-import {resolveRouteErrorDefs, type RouteErrorsInput} from './routeErrors';
+import {mergeDomainErrorDefs} from './builtinErrors';
+import {resolveRouteErrorDefs, type DefineErrorsInput} from './defineErrors';
 import type {RouteDef, RouteHandler, RouteMeta, RouteAccess, McpRouteConfig} from './types';
 
 export function defineRoute<
@@ -13,7 +14,7 @@ export function defineRoute<
         meta: RouteMeta
         access?: RouteAccess
         mcp?: McpRouteConfig
-        errors?: RouteErrorsInput
+        errors?: DefineErrorsInput
         handler: RouteHandler<Infer<I>, Infer<O>, Ctx>
     },
 ): RouteDef<Infer<I>, Infer<O>, Ctx> {
@@ -29,7 +30,7 @@ export function defineRoute<
     return {
         input: def.input,
         output: def.output,
-        errors: resolveRouteErrorDefs(def.errors),
+        errors: mergeDomainErrorDefs(resolveRouteErrorDefs(def.errors)),
         meta: def.meta,
         access: def.access ?? 'private',
         mcp: def.mcp,

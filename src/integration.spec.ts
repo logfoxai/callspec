@@ -5,7 +5,7 @@ import {predicates as p} from 'runtyp';
 import {defineSpec} from './defineSpec';
 import {defineRoute} from './defineRoute';
 import {mountSpec} from './mountSpec';
-import {errors} from './routeErrors';
+import {defineErrors} from './defineErrors';
 import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
 import {parseCallspecDocument} from './callspecDocument';
 
@@ -423,8 +423,8 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
 
 test('integration: declared route errors map to HTTP status and body', async (assert) => {
 
-    const err = errors({
-        USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
+    const err = defineErrors({
+        USER_EXISTS: {data: p.object({email: p.string()})},
     });
 
     const spec = defineSpec({
@@ -444,13 +444,13 @@ test('integration: declared route errors map to HTTP status and body', async (as
 
                     if (input.email === 'missing@example.com') {
 
-                        throw err.NOT_FOUND();
+                        return err.NOT_FOUND();
 
                     }
 
                     if (input.email === 'taken@example.com') {
 
-                        throw err.USER_EXISTS({email: input.email});
+                        return err.USER_EXISTS({email: input.email});
 
                     }
 
@@ -495,7 +495,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
             body: JSON.stringify({email: 'taken@example.com'}),
         });
 
-        assert.equal(exists.status, 409);
+        assert.equal(exists.status, 400);
         assert.equal(await exists.json(), {error: 'USER_EXISTS', data: {email: 'taken@example.com'}});
 
         const ok = await fetch(`${base}/getUser`, {
@@ -511,7 +511,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
         const parsed = await doc.json() as {routes: {getUser: {errors?: Record<string, {status: number}>}}};
 
         assert.equal(parsed.routes.getUser.errors?.NOT_FOUND?.status, 404);
-        assert.equal(parsed.routes.getUser.errors?.USER_EXISTS?.status, 409);
+        assert.equal(parsed.routes.getUser.errors?.USER_EXISTS?.status, 400);
 
     } finally {
 
@@ -523,7 +523,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
 
 test('integration: undeclared domain errors become INTERNAL_ERROR', async (assert) => {
 
-    const thrower = errors({
+    const thrower = defineErrors({
         MYSTERY: {status: 418},
     });
 
@@ -541,7 +541,7 @@ test('integration: undeclared domain errors become INTERNAL_ERROR', async (asser
                 access: 'public',
                 handler: (_input, _ctx) => {
 
-                    throw thrower.MYSTERY();
+                    return thrower.MYSTERY();
 
                 },
             }),

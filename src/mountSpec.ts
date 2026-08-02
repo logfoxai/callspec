@@ -2,11 +2,11 @@ import type {Request, RequestHandler, Router} from 'express';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
-    isRouteError,
-    sendRouteErrorResponse,
+    isRouteFailure,
+    sendRouteFailureResponse,
 } from './errors';
-import {isAllowedRouteErrorCode} from './routeErrors';
-import {FRAMEWORK_ERROR} from './frameworkErrors';
+import {BUILTIN_ERROR} from './builtinErrors';
+import {isAllowedRouteFailure} from './defineErrors';
 import {executeRoute} from './executeRoute';
 import {emitCallspec} from './emitCallspec';
 import {listMcpTools} from './mcpTools';
@@ -52,41 +52,45 @@ type ResolvedDocsSurfaces = {
     openApiPath: string
 };
 
-function sendError(
+function sendFrameworkError(
     res: import('express').Response,
     err: unknown,
-    domainErrors: import('./types').RouteDef<any, any, any>['errors'],
 ): void {
 
     if (err instanceof CallspecValidationError) {
 
-        res.status(400).json({error: FRAMEWORK_ERROR.VALIDATION_ERROR, errors: err.errors});
+        res.status(400).json({error: BUILTIN_ERROR.VALIDATION_ERROR, errors: err.errors});
         return;
 
     }
 
     if (err instanceof CallspecUnauthorizedError) {
 
-        res.status(401).json({error: FRAMEWORK_ERROR.UNAUTHORIZED});
+        res.status(401).json({error: BUILTIN_ERROR.UNAUTHORIZED});
         return;
 
     }
 
-    if (isRouteError(err)) {
+    res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
 
-        if (!isAllowedRouteErrorCode(err.code, domainErrors)) {
+}
 
-            res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
-            return;
+import type {RouteFailure} from './types';
 
-        }
+function sendRouteFailureIfAllowed(
+    res: import('express').Response,
+    failure: RouteFailure,
+    routeErrors: import('./types').RouteDef<any, any, any>['errors'],
+): void {
 
-        sendRouteErrorResponse(res, err);
+    if (!isAllowedRouteFailure(failure, routeErrors)) {
+
+        res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
         return;
 
     }
 
-    res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
+    sendRouteFailureResponse(res, failure);
 
 }
 
@@ -179,12 +183,27 @@ export function mountSpec<Ctx>(
             try {
 
                 const ctx = await resolveRouteContext(route, spec.authenticate, req as Request);
-                const response = await executeRoute(route, req.body, ctx);
-                res.json(response);
+                const result = await executeRoute(route, req.body, ctx);
+
+                if (isRouteFailure(result)) {
+
+                    sendRouteFailureIfAllowed(res, result, route.errors);
+                    return;
+
+                }
+
+                res.json(result);
 
             } catch (err) {
 
-                sendError(res, err, route.errors);
+                if (isRouteFailure(err)) {
+
+                    sendRouteFailureIfAllowed(res, err, route.errors);
+                    return;
+
+                }
+
+                sendFrameworkError(res, err);
 
             }
 
@@ -208,7 +227,7 @@ export function mountSpec<Ctx>(
     router.post(joinRoutePath(basePath, ':routeName'), ((req, res) => {
 
         res.status(404).json({
-            error: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
+            error: BUILTIN_ERROR.ROUTE_NOT_FOUND,
             data: {route: req.params.routeName ?? ''},
         });
 

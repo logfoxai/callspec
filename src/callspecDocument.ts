@@ -20,6 +20,7 @@ export type {
 type CallspecDocumentRouteError = {
     status: number
     data?: JsonSchema
+    dataRequired?: boolean
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -77,6 +78,7 @@ function parseRouteErrors(value: unknown, routeName: string): Record<string, Cal
             ...(entry.data !== undefined
                 ? {data: parseJsonSchema(entry.data, `Route "${routeName}" error "${code}" data`)}
                 : {}),
+            ...(entry.dataRequired === false ? {dataRequired: false} : {}),
         };
 
     }

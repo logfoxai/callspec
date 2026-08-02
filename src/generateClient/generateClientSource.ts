@@ -68,11 +68,15 @@ export function generateClientSource(
 
                     }
 
-                    errorMembers.push(`{ error: ${JSON.stringify(code)}; data: ${dataTypeName} }`);
+                    const dataField = def.dataRequired === false
+                        ? `data?: ${dataTypeName}`
+                        : `data: ${dataTypeName}`;
+
+                    errorMembers.push(`{ code: ${JSON.stringify(code)}; ${dataField} }`);
 
                 } else {
 
-                    errorMembers.push(`{ error: ${JSON.stringify(code)} }`);
+                    errorMembers.push(`{ code: ${JSON.stringify(code)} }`);
 
                 }
 

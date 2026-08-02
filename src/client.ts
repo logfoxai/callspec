@@ -1,64 +1,89 @@
 import {deserializeResponse} from './serializer';
-import {COMMON_ERROR, type CommonErrorCode} from './commonErrors';
-import type {
-    CallspecFrameworkErrorBody,
-    CallspecValidationErrorBody,
-} from './frameworkErrors';
-import {FRAMEWORK_ERROR} from './frameworkErrors';
+import {
+    BUILTIN_ERROR,
+    type BuiltinErrorCode,
+    type OptionalBuiltinContext,
+    isThrowableBuiltinCode,
+} from './builtinErrors';
 
 export type {
-    CallspecFrameworkErrorBody,
-    CallspecInternalErrorBody,
-    CallspecRouteNotFoundErrorBody,
-    CallspecUnauthorizedErrorBody,
-    CallspecValidationErrorBody,
-} from './frameworkErrors';
-export {FRAMEWORK_ERROR} from './frameworkErrors';
-export {COMMON_ERROR, type CommonErrorCode} from './commonErrors';
+    BuiltinErrorCode,
+    OptionalBuiltinContext,
+    ThrowableBuiltinCode,
+} from './builtinErrors';
+export {BUILTIN_ERROR} from './builtinErrors';
 
 export type CallspecOk<T> = {
     ok: true
     value: T
 };
 
-export type CallspecErr<E> = {
+/** Failure branch — `code` is top-level, same as `value` on success. */
+export type CallspecFailure<E = never> = {
     ok: false
     status: number
-    error: E
+} & CallspecClientErrors<E>;
+
+export type CallspecResult<T, E = never> = CallspecOk<T> | CallspecFailure<E>;
+
+/** Fallback client error when the body is not a known builtin or declared route error. */
+export type CallspecClientError = {
+    code: string
+    data?: unknown
 };
 
-export type CallspecResult<T, E> = CallspecOk<T> | CallspecErr<E>;
+export type CallspecValidationClientError = {
+    code: typeof BUILTIN_ERROR.VALIDATION_ERROR
+    data: Record<string, string>
+};
 
-export type CallspecTooManyRequestsBody = {
-    error: typeof COMMON_ERROR.TOO_MANY_REQUESTS
+export type CallspecTooManyRequestsClientError = {
+    code: typeof BUILTIN_ERROR.TOO_MANY_REQUESTS
     data: {title: string, message: string}
 };
 
-export type CallspecCommonErrorBody =
-    | {error: typeof COMMON_ERROR.NOT_FOUND}
-    | {error: typeof COMMON_ERROR.FORBIDDEN}
-    | {error: typeof COMMON_ERROR.CONFLICT}
-    | CallspecTooManyRequestsBody
-    | {error: typeof COMMON_ERROR.SERVICE_UNAVAILABLE};
-
-/** Fallback when the response body is not a known framework, common, or declared route error. */
-export type CallspecUnexpectedErrorBody = {
-    error: string
-    data?: unknown
-    errors?: Record<string, string>
+export type CallspecRouteNotFoundClientError = {
+    code: typeof BUILTIN_ERROR.ROUTE_NOT_FOUND
+    data: {route: string}
 };
 
-export type CallspecClientErrors<E = never> =
-    | CallspecFrameworkErrorBody
-    | CallspecCommonErrorBody
-    | ([E] extends [never] ? never : E)
-    | CallspecUnexpectedErrorBody;
+export type CallspecBuiltinClientError =
+    | CallspecValidationClientError
+    | {code: typeof BUILTIN_ERROR.UNAUTHORIZED}
+    | {code: typeof BUILTIN_ERROR.INTERNAL_ERROR}
+    | CallspecRouteNotFoundClientError
+    | {code: typeof BUILTIN_ERROR.NOT_FOUND, data?: OptionalBuiltinContext}
+    | {code: typeof BUILTIN_ERROR.FORBIDDEN, data?: OptionalBuiltinContext}
+    | {code: typeof BUILTIN_ERROR.CONFLICT, data?: OptionalBuiltinContext}
+    | CallspecTooManyRequestsClientError
+    | {code: typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE, data?: OptionalBuiltinContext};
 
-export type CallspecRouteResult<T, E = never> = CallspecResult<T, CallspecClientErrors<E>>;
+export type CallspecClientErrors<E = never> =
+    | CallspecBuiltinClientError
+    | ([E] extends [never] ? never : E)
+    | CallspecClientError;
+
+export type CallspecRouteResult<T, E = never> = CallspecResult<T, E>;
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
     return result.ok;
+
+}
+
+export function isCallspecFailure<T, E>(result: CallspecResult<T, E>): result is CallspecFailure<E> {
+
+    return !result.ok;
+
+}
+
+export function callspecClientErrorCode(error: unknown): string | undefined {
+
+    if (typeof error !== 'object' || error === null) return undefined;
+
+    const code = (error as {code?: unknown}).code;
+
+    return typeof code === 'string' ? code : undefined;
 
 }
 
@@ -119,16 +144,24 @@ async function parseResponseBody(resp: Response): Promise<unknown> {
 
 }
 
-function isCommonErrorCode(value: string): value is CommonErrorCode {
+function wireCode(code: string, data?: unknown): CallspecClientError {
 
-    return Object.prototype.hasOwnProperty.call(COMMON_ERROR, value)
-        && (COMMON_ERROR as Record<string, string>)[value] === value;
+    return data !== undefined ? {code, data} : {code};
 
 }
 
-function coerceTooManyRequestsBody(body: Record<string, unknown>): CallspecTooManyRequestsBody | undefined {
+function builtinClientError<C extends BuiltinErrorCode>(
+    code: C,
+    data?: unknown,
+): Extract<CallspecBuiltinClientError, {code: C}> {
 
-    if (body.error === COMMON_ERROR.TOO_MANY_REQUESTS) {
+    return (data !== undefined ? {code, data} : {code}) as Extract<CallspecBuiltinClientError, {code: C}>;
+
+}
+
+function coerceTooManyRequestsBody(body: Record<string, unknown>): CallspecTooManyRequestsClientError | undefined {
+
+    if (body.error === BUILTIN_ERROR.TOO_MANY_REQUESTS) {
 
         if (typeof body.data === 'object' && body.data !== null) {
 
@@ -137,7 +170,7 @@ function coerceTooManyRequestsBody(body: Record<string, unknown>): CallspecTooMa
             if (typeof data.title === 'string' && typeof data.message === 'string') {
 
                 return {
-                    error: COMMON_ERROR.TOO_MANY_REQUESTS,
+                    code: BUILTIN_ERROR.TOO_MANY_REQUESTS,
                     data: {title: data.title, message: data.message},
                 };
 
@@ -150,7 +183,7 @@ function coerceTooManyRequestsBody(body: Record<string, unknown>): CallspecTooMa
     if (typeof body.title === 'string' && typeof body.message === 'string') {
 
         return {
-            error: COMMON_ERROR.TOO_MANY_REQUESTS,
+            code: BUILTIN_ERROR.TOO_MANY_REQUESTS,
             data: {title: body.title, message: body.message},
         };
 
@@ -159,7 +192,7 @@ function coerceTooManyRequestsBody(body: Record<string, unknown>): CallspecTooMa
     if (typeof body.message === 'string') {
 
         return {
-            error: COMMON_ERROR.TOO_MANY_REQUESTS,
+            code: BUILTIN_ERROR.TOO_MANY_REQUESTS,
             data: {title: 'Too many requests', message: body.message},
         };
 
@@ -169,82 +202,76 @@ function coerceTooManyRequestsBody(body: Record<string, unknown>): CallspecTooMa
 
 }
 
-function normalizeFrameworkBody(record: Record<string, unknown>): CallspecFrameworkErrorBody | undefined {
+function normalizeBuiltinBody(record: Record<string, unknown>): CallspecBuiltinClientError | undefined {
 
-    if (record.error === FRAMEWORK_ERROR.VALIDATION_ERROR && typeof record.errors === 'object' && record.errors !== null) {
+    if (record.error === BUILTIN_ERROR.VALIDATION_ERROR && typeof record.errors === 'object' && record.errors !== null) {
 
         return {
-            error: FRAMEWORK_ERROR.VALIDATION_ERROR,
-            errors: record.errors as Record<string, string>,
-        } satisfies CallspecValidationErrorBody;
+            code: BUILTIN_ERROR.VALIDATION_ERROR,
+            data: record.errors as Record<string, string>,
+        };
 
     }
 
-    if (record.error === FRAMEWORK_ERROR.UNAUTHORIZED) {
+    if (record.error === BUILTIN_ERROR.UNAUTHORIZED) {
 
-        return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
+        return {code: BUILTIN_ERROR.UNAUTHORIZED};
 
     }
 
-    if (record.error === FRAMEWORK_ERROR.INTERNAL_ERROR) {
+    if (record.error === BUILTIN_ERROR.INTERNAL_ERROR) {
 
-        return {error: FRAMEWORK_ERROR.INTERNAL_ERROR};
+        return {code: BUILTIN_ERROR.INTERNAL_ERROR};
 
     }
 
     if (
-        record.error === FRAMEWORK_ERROR.ROUTE_NOT_FOUND
+        record.error === BUILTIN_ERROR.ROUTE_NOT_FOUND
         && typeof record.data === 'object'
         && record.data !== null
         && typeof (record.data as {route?: unknown}).route === 'string'
     ) {
 
         return {
-            error: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
+            code: BUILTIN_ERROR.ROUTE_NOT_FOUND,
             data: {route: (record.data as {route: string}).route},
         };
 
     }
 
-    return undefined;
-
-}
-
-function normalizeCommonBody(record: Record<string, unknown>): CallspecCommonErrorBody | undefined {
-
-    if (typeof record.error !== 'string' || !isCommonErrorCode(record.error)) {
+    if (typeof record.error !== 'string' || !isThrowableBuiltinCode(record.error)) {
 
         return undefined;
 
     }
 
-    if (record.error === COMMON_ERROR.TOO_MANY_REQUESTS) {
+    if (record.error === BUILTIN_ERROR.TOO_MANY_REQUESTS) {
 
         return coerceTooManyRequestsBody(record);
 
     }
 
-    if (record.error === COMMON_ERROR.NOT_FOUND) {
+    if (record.error === BUILTIN_ERROR.NOT_FOUND) {
 
-        return {error: COMMON_ERROR.NOT_FOUND};
-
-    }
-
-    if (record.error === COMMON_ERROR.FORBIDDEN) {
-
-        return {error: COMMON_ERROR.FORBIDDEN};
+        return builtinClientError(BUILTIN_ERROR.NOT_FOUND, record.data);
 
     }
 
-    if (record.error === COMMON_ERROR.CONFLICT) {
+    if (record.error === BUILTIN_ERROR.FORBIDDEN) {
 
-        return {error: COMMON_ERROR.CONFLICT};
+        return builtinClientError(BUILTIN_ERROR.FORBIDDEN, record.data);
 
     }
 
-    if (record.error === COMMON_ERROR.SERVICE_UNAVAILABLE) {
+    if (record.error === BUILTIN_ERROR.CONFLICT) {
 
-        return {error: COMMON_ERROR.SERVICE_UNAVAILABLE};
+        return builtinClientError(BUILTIN_ERROR.CONFLICT, record.data);
+
+    }
+
+    if (record.error === BUILTIN_ERROR.SERVICE_UNAVAILABLE) {
+
+        return builtinClientError(BUILTIN_ERROR.SERVICE_UNAVAILABLE, record.data);
 
     }
 
@@ -252,29 +279,30 @@ function normalizeCommonBody(record: Record<string, unknown>): CallspecCommonErr
 
 }
 
-function normalizeByStatus(status: number, body: unknown): CallspecClientErrors<never> | undefined {
+/** Best-effort mapping for non-callspec Express middleware — prefer `error` in the JSON body. */
+function normalizeByStatus(status: number, body: unknown): CallspecClientError | undefined {
 
     if (status === 401) {
 
-        return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
+        return {code: BUILTIN_ERROR.UNAUTHORIZED};
 
     }
 
     if (status === 403) {
 
-        return {error: COMMON_ERROR.FORBIDDEN};
+        return {code: BUILTIN_ERROR.FORBIDDEN};
 
     }
 
     if (status === 404) {
 
-        return {error: COMMON_ERROR.NOT_FOUND};
+        return {code: BUILTIN_ERROR.NOT_FOUND};
 
     }
 
     if (status === 409) {
 
-        return {error: COMMON_ERROR.CONFLICT};
+        return {code: BUILTIN_ERROR.CONFLICT};
 
     }
 
@@ -293,7 +321,7 @@ function normalizeByStatus(status: number, body: unknown): CallspecClientErrors<
         }
 
         return {
-            error: COMMON_ERROR.TOO_MANY_REQUESTS,
+            code: BUILTIN_ERROR.TOO_MANY_REQUESTS,
             data: {title: 'Too many requests', message: 'Too many requests'},
         };
 
@@ -301,13 +329,13 @@ function normalizeByStatus(status: number, body: unknown): CallspecClientErrors<
 
     if (status === 503) {
 
-        return {error: COMMON_ERROR.SERVICE_UNAVAILABLE};
+        return {code: BUILTIN_ERROR.SERVICE_UNAVAILABLE};
 
     }
 
     if (status >= 500) {
 
-        return {error: FRAMEWORK_ERROR.INTERNAL_ERROR};
+        return {code: BUILTIN_ERROR.INTERNAL_ERROR};
 
     }
 
@@ -323,31 +351,30 @@ export function normalizeClientErrorBody(
     if (typeof body === 'object' && body !== null && !Array.isArray(body)) {
 
         const record = body as Record<string, unknown>;
-        const framework = normalizeFrameworkBody(record);
+        const builtin = normalizeBuiltinBody(record);
 
-        if (framework) {
+        if (builtin) {
 
-            return framework;
-
-        }
-
-        const common = normalizeCommonBody(record);
-
-        if (common) {
-
-            return common;
+            return builtin;
 
         }
 
         if (typeof record.error === 'string') {
 
-            return {
-                error: record.error,
-                ...(record.data !== undefined ? {data: record.data} : {}),
-                ...(typeof record.errors === 'object' && record.errors !== null
-                    ? {errors: record.errors as Record<string, string>}
-                    : {}),
-            };
+            if (
+                record.error === BUILTIN_ERROR.VALIDATION_ERROR
+                && typeof record.errors === 'object'
+                && record.errors !== null
+            ) {
+
+                return wireCode(record.error, record.errors as Record<string, string>);
+
+            }
+
+            return wireCode(
+                record.error,
+                record.data !== undefined ? record.data : undefined,
+            );
 
         }
 
@@ -355,7 +382,7 @@ export function normalizeClientErrorBody(
 
     if (body === 'Unauthorized') {
 
-        return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
+        return {code: BUILTIN_ERROR.UNAUTHORIZED};
 
     }
 
@@ -363,23 +390,23 @@ export function normalizeClientErrorBody(
 
         if (status === 403 && body === 'Forbidden') {
 
-            return {error: COMMON_ERROR.FORBIDDEN};
+            return {code: BUILTIN_ERROR.FORBIDDEN};
 
         }
 
         if (status === 404 && body === 'Not Found') {
 
-            return {error: COMMON_ERROR.NOT_FOUND};
+            return {code: BUILTIN_ERROR.NOT_FOUND};
 
         }
 
         if (status === 503 && body === 'Service Unavailable') {
 
-            return {error: COMMON_ERROR.SERVICE_UNAVAILABLE};
+            return {code: BUILTIN_ERROR.SERVICE_UNAVAILABLE};
 
         }
 
-        return {error: body};
+        return {code: body};
 
     }
 
@@ -392,8 +419,8 @@ export function normalizeClientErrorBody(
     }
 
     return body === undefined
-        ? {error: 'HTTP_ERROR'}
-        : {error: 'HTTP_ERROR', data: body};
+        ? {code: 'HTTP_ERROR'}
+        : {code: 'HTTP_ERROR', data: body};
 
 }
 
@@ -432,9 +459,9 @@ export class CallspecClient {
         }
 
         return {
-            ok: false,
+            ok: false as const,
             status: resp.status,
-            error: normalizeClientErrorBody(resp.status, body) as CallspecClientErrors<TError>,
+            ...normalizeClientErrorBody(resp.status, body),
         };
 
     }

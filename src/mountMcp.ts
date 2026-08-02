@@ -1,6 +1,11 @@
 import type {RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError, formatRouteErrorBody, isRouteError} from './errors';
-import {isAllowedRouteErrorCode} from './routeErrors';
+import {
+    CallspecUnauthorizedError,
+    CallspecValidationError,
+    formatRouteFailureBody,
+    isRouteFailure,
+} from './errors';
+import {isAllowedRouteFailure} from './defineErrors';
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
@@ -115,6 +120,20 @@ export function mountMcp<Ctx>(
                     const ctx = await resolveRouteContext(route, authenticate, req);
                     const result = await executeRoute(route, body.params?.arguments ?? {}, ctx);
 
+                    if (isRouteFailure(result)) {
+
+                        if (!isAllowedRouteFailure(result, route.errors)) {
+
+                            respondError(500, 'Internal error');
+                            return;
+
+                        }
+
+                        respond(toolError(JSON.stringify(formatRouteFailureBody(result))));
+                        return;
+
+                    }
+
                     respond({
                         content: [{type: 'text', text: JSON.stringify(result, null, 2)}],
                         structuredContent: result,
@@ -133,20 +152,6 @@ export function mountMcp<Ctx>(
                     if (err instanceof CallspecValidationError) {
 
                         respond(toolError(JSON.stringify(err.errors)));
-                        return;
-
-                    }
-
-                    if (isRouteError(err)) {
-
-                        if (!isAllowedRouteErrorCode(err.code, route.errors)) {
-
-                            respondError(500, 'Internal error');
-                            return;
-
-                        }
-
-                        respond(toolError(JSON.stringify(formatRouteErrorBody(err))));
                         return;
 
                     }

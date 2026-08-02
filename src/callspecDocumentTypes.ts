@@ -5,6 +5,8 @@ export type JsonSchema = Record<string, unknown>;
 type CallspecDocumentRouteError = {
     status: number
     data?: JsonSchema
+    /** When `data` is present, false means wire payload may omit `data` (from `p.optional` pred). */
+    dataRequired?: boolean
 };
 
 export type CallspecDocumentRoute = {

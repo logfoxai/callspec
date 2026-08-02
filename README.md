@@ -188,32 +188,29 @@ defineRoute({
 
 Errors are **typed return possibilities**, not mystery exceptions. Wire format is always `{ "error": "CODE", "data?": … }`. See [error-handling.md](docs/error-handling.md).
 
-**Framework errors** (automatic — never declare):
+**Success** is HTTP 200 with the route output. **Errors** use HTTP 4xx/5xx with `{ "error": "CODE", … }` — the **`error` code** is the contract; status is a transport hint for HTTP/OpenAPI.
 
-| Code | Status | When |
-|------|--------|------|
-| `VALIDATION_ERROR` | 400 | Input failed runtyp validation |
-| `UNAUTHORIZED` | 401 | Private route without valid Bearer token |
-| `ROUTE_NOT_FOUND` | 404 | Unknown RPC method name |
-| `INTERNAL_ERROR` | 500 | Unhandled exception or undeclared domain error |
+**Builtin errors** (automatic on every route — never declare):
 
-**Common errors** (automatic on every route — always in client types):
+| Code | When |
+|------|------|
+| `VALIDATION_ERROR` | Input failed runtyp validation |
+| `UNAUTHORIZED` | Private route without valid Bearer token |
+| `ROUTE_NOT_FOUND` | Unknown RPC method name |
+| `NOT_FOUND` | Handler: resource missing |
+| `FORBIDDEN` | Handler/middleware: not allowed |
+| `CONFLICT` | Handler: state conflict |
+| `TOO_MANY_REQUESTS` | Rate limit middleware |
+| `SERVICE_UNAVAILABLE` | Dependency unavailable |
+| `INTERNAL_ERROR` | Unhandled exception or undeclared domain error |
 
-| Code | Status |
-|------|--------|
-| `NOT_FOUND` | 404 |
-| `FORBIDDEN` | 403 |
-| `CONFLICT` | 409 |
-| `TOO_MANY_REQUESTS` | 429 |
-| `SERVICE_UNAVAILABLE` | 503 |
-
-**Domain errors** — declare only route-specific codes. The `errors()` handle includes common throwers automatically:
+**Domain errors** — declare only route-specific codes. The `errors()` handle includes builtin throwers automatically:
 
 ```typescript
 import {defineRoute, errors} from 'callspec';
 
 const err = errors({
-    USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
+    USER_EXISTS: {data: p.object({email: p.string()})},
 });
 
 export const routes = {
@@ -372,12 +369,11 @@ const result = await api.searchRecent({
 });
 
 if (!result.ok) {
-    if (result.error.error === 'VALIDATION_ERROR') {
-        console.error(result.error.errors);
+    if (result.code === 'VALIDATION_ERROR') {
+        console.error(result.data);
         return;
     }
-    // other declared route errors or unexpected HTTP bodies
-    console.error(result.status, result.error);
+    console.error(result.status, result.code);
     return;
 }
 
@@ -389,8 +385,8 @@ For routes with declared errors:
 ```typescript
 const result = await api.getUser({email: 'missing@example.com'});
 
-if (!result.ok && result.error.error === 'NOT_FOUND') {
-    // result.error is narrowed to { error: "NOT_FOUND" }
+if (!result.ok && result.code === 'NOT_FOUND') {
+    // narrowed to { ok: false, code: "NOT_FOUND", ... }
 }
 ```
 
@@ -456,7 +452,7 @@ const result = await runtime.callResult<{results: unknown[]}>('searchRecent', {q
 if (isCallspecOk(result)) {
     console.log(result.value);
 } else {
-    console.error(result.status, result.error);
+    console.error(result.status, result.code);
 }
 ```
 
@@ -509,9 +505,9 @@ See [Shared validation and types](#shared-validation-and-types-backend--frontend
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `err`, `COMMON_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `ErrorsHandleWithThrowers` |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `err`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `ErrorsHandleWithThrowers` |
 | `callspec/express` | `expressErrorHandler` |
-| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CallspecRouteResult`, …) and generated client types |
+| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) and generated client types |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
 
 ## Development

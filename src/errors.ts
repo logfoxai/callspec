@@ -1,3 +1,5 @@
+import type {RouteFailure} from './types';
+
 export class CallspecValidationError extends Error {
 
     errors: Record<string, string>;
@@ -23,7 +25,7 @@ export class CallspecUnauthorizedError extends Error {
 
 }
 
-/** Thrown via {@link errors} handles — mapped to HTTP by mountSpec / expressErrorHandler. */
+/** Thrown via {@link defineErrors} handles — mapped to HTTP by mountSpec / expressErrorHandler. */
 export class RouteError<
     Code extends string = string,
     Data = unknown,
@@ -44,6 +46,37 @@ export class RouteError<
         this.data = data;
 
     }
+
+}
+
+export function isRouteFailure(value: unknown): value is RouteFailure {
+
+    return typeof value === 'object'
+        && value !== null
+        && (value as RouteFailure).ok === false
+        && typeof (value as RouteFailure).code === 'string'
+        && typeof (value as RouteFailure).status === 'number';
+
+}
+
+export function formatRouteFailureBody(failure: RouteFailure): Record<string, unknown> {
+
+    if (failure.data !== undefined) {
+
+        return {error: failure.code, data: failure.data};
+
+    }
+
+    return {error: failure.code};
+
+}
+
+export function sendRouteFailureResponse(
+    res: {status: (code: number) => {json: (body: unknown) => void}},
+    failure: RouteFailure,
+): void {
+
+    res.status(failure.status).json(formatRouteFailureBody(failure));
 
 }
 

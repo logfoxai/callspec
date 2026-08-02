@@ -105,7 +105,7 @@ test('CallspecClient.callResult returns typed error bodies', async (assert) => {
         if (!result.ok) {
 
             assert.equal(result.status, 401);
-            assert.equal(result.error.error, 'UNAUTHORIZED');
+            assert.equal(result.code, 'UNAUTHORIZED');
 
         }
 
@@ -179,8 +179,8 @@ test('CallspecClient.callResult preserves unknown domain error bodies', async (a
         if (!result.ok) {
 
             assert.equal(result.status, 409);
-            assert.equal(result.error.error, 'USER_EXISTS');
-            assert.equal((result.error as {data?: {email: string}}).data?.email, 'taken@example.com');
+            assert.equal(result.code, 'USER_EXISTS');
+            assert.equal((result as {data?: {email: string}}).data?.email, 'taken@example.com');
 
         }
 
@@ -212,14 +212,47 @@ test('CallspecClient.callResult normalizes legacy 429 bodies', async (assert) =>
 
         if (!result.ok) {
 
-            assert.equal(result.error.error, 'TOO_MANY_REQUESTS');
+            assert.equal(result.code, 'TOO_MANY_REQUESTS');
 
-            if (result.error.error === 'TOO_MANY_REQUESTS') {
+            if (result.code === 'TOO_MANY_REQUESTS') {
 
-                assert.equal(result.error.data.title, 'Slow down');
-                assert.equal(result.error.data.message, 'Try again later');
+                assert.equal(result.data.title, 'Slow down');
+                assert.equal(result.data.message, 'Try again later');
 
             }
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps VALIDATION_ERROR wire errors to data', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'VALIDATION_ERROR',
+        errors: {email: 'required'},
+    }), {
+        status: 400,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.code, 'VALIDATION_ERROR');
+            assert.equal(result.data, {email: 'required'});
 
         }
 

@@ -7,7 +7,7 @@ import {
     type CallspecDocumentRoute,
     type JsonSchema,
 } from './callspecDocument';
-import {mergeDomainErrorDefs} from './commonErrors';
+import {mergeDomainErrorDefs} from './builtinErrors';
 import {documentRouteErrors} from './routeErrorDocument';
 import {omitUndefined} from './objectUtils';
 

@@ -4,9 +4,11 @@ import {
     CallspecValidationError,
     formatRouteErrorBody,
     isRouteError,
+    isRouteFailure,
     sendRouteErrorResponse,
+    sendRouteFailureResponse,
 } from './errors';
-import {FRAMEWORK_ERROR} from './frameworkErrors';
+import {BUILTIN_ERROR} from './builtinErrors';
 
 export function expressErrorHandler(): ErrorRequestHandler {
 
@@ -21,14 +23,21 @@ export function expressErrorHandler(): ErrorRequestHandler {
 
         if (err instanceof CallspecValidationError) {
 
-            res.status(400).json({error: FRAMEWORK_ERROR.VALIDATION_ERROR, errors: err.errors});
+            res.status(400).json({error: BUILTIN_ERROR.VALIDATION_ERROR, errors: err.errors});
             return;
 
         }
 
         if (err instanceof CallspecUnauthorizedError) {
 
-            res.status(401).json({error: FRAMEWORK_ERROR.UNAUTHORIZED});
+            res.status(401).json({error: BUILTIN_ERROR.UNAUTHORIZED});
+            return;
+
+        }
+
+        if (isRouteFailure(err)) {
+
+            sendRouteFailureResponse(res, err);
             return;
 
         }
@@ -40,7 +49,7 @@ export function expressErrorHandler(): ErrorRequestHandler {
 
         }
 
-        res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
+        res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
 
     };
 

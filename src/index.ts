@@ -3,10 +3,23 @@ export {defineSpec} from './defineSpec';
 export type {Callspec} from './defineSpec';
 export {mountSpec} from './mountSpec';
 export type {MountSpecOptions} from './mountSpec';
-export {errors, err} from './routeErrors';
-export type {ErrorsHandleWithThrowers, RouteErrorsInput, RouteErrorSpec} from './routeErrors';
-export {COMMON_ERROR, commonErrorSpecs, commonErrorDefs, mergeDomainErrorDefs} from './commonErrors';
-export type {CommonErrorCode} from './commonErrors';
+export {defineErrors, err} from './defineErrors';
+export type {ErrorsHandleWithFailers, DefineErrorsInput, RouteErrorSpec} from './defineErrors';
+export {
+    BUILTIN_ERROR,
+    builtInErrorDefs,
+    mergeDomainErrorDefs,
+} from './builtinErrors';
+export type {BuiltinErrorCode, ThrowableBuiltinCode} from './builtinErrors';
 export {expressErrorHandler} from './expressErrorHandler';
-export {isRouteError, formatRouteErrorBody, sendRouteErrorResponse} from './errors';
+export {
+    isRouteFailure,
+    formatRouteFailureBody,
+    sendRouteFailureResponse,
+    isRouteError,
+    formatRouteErrorBody,
+    sendRouteErrorResponse,
+} from './errors';
+export type {RouteFailure} from './types';
+export {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 export type {RoutesMap} from './types';

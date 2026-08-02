@@ -16,8 +16,11 @@ export type McpRouteConfig =
 
 export type RouteAccess = 'public' | 'private';
 
+/** Default HTTP status for domain route errors when `status` is omitted. */
+export const DEFAULT_ROUTE_ERROR_STATUS = 400;
+
 export type RouteErrorSpec = {
-    status: number
+    status?: number
     data?: Pred<unknown>
 };
 
@@ -26,10 +29,18 @@ export type RouteErrorDef = {
     data?: Pred<unknown>
 };
 
+/** Declared route failure — return from handlers via `defineErrors` / `err` handles. */
+export type RouteFailure = {
+    ok: false
+    code: string
+    status: number
+    data?: unknown
+};
+
 export type RouteHandler<TInput, TOutput, Ctx> = (
     input: TInput,
     ctx: Ctx,
-) => Promise<TOutput> | TOutput;
+) => Promise<TOutput | RouteFailure> | TOutput | RouteFailure;
 
 export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     input: Pred<TInput>

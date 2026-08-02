@@ -1,4 +1,4 @@
-import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
+import {CallspecUnauthorizedError, CallspecValidationError, isRouteFailure} from './errors';
 import {serializeResponse} from './serializer';
 import type {RouteDef} from './types';
 
@@ -23,6 +23,12 @@ export async function executeRoute<TInput, TOutput, Ctx>(
     }
 
     const result = await route.handler(inputResult.value, ctx as Ctx);
+
+    if (isRouteFailure(result)) {
+
+        return result;
+
+    }
 
     return serializeResponse(result);
 
