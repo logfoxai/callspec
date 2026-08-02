@@ -1,21 +1,50 @@
 import type {Infer, Pred} from 'runtyp';
-import {mergeDomainErrorDefs} from './builtinErrors';
-import {resolveRouteErrorDefs, type DefineErrorsInput} from './defineErrors';
+import {builtInErrorDefs} from './builtinErrors';
+import {
+    resolveRouteErrorDefs,
+    type BuiltinRouteFailures,
+    type DefineErrorsInput,
+    type RouteFailuresFor,
+} from './defineErrors';
 import type {RouteDef, RouteHandler, RouteMeta, RouteAccess, McpRouteConfig} from './types';
+
+type DefineRouteBase<I extends Pred<any>, O extends Pred<any>> = {
+    input: I
+    output: O
+    meta: RouteMeta
+    access?: RouteAccess
+    mcp?: McpRouteConfig
+};
+
+/** Route with no domain errors — builtins only on the handler return type. */
+export function defineRoute<I extends Pred<any>, O extends Pred<any>, Ctx>(
+    def: DefineRouteBase<I, O> & {
+        errors?: undefined
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
+    },
+): RouteDef<Infer<I>, Infer<O>, Ctx>;
+
+/** Route with domain errors declared on `errors:`. */
+export function defineRoute<
+    I extends Pred<any>,
+    O extends Pred<any>,
+    Ctx,
+    const E extends DefineErrorsInput,
+>(
+    def: DefineRouteBase<I, O> & {
+        errors: E
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, RouteFailuresFor<E>>
+    },
+): RouteDef<Infer<I>, Infer<O>, Ctx>;
 
 export function defineRoute<
     I extends Pred<any>,
     O extends Pred<any>,
     Ctx,
 >(
-    def: {
-        input: I
-        output: O
-        meta: RouteMeta
-        access?: RouteAccess
-        mcp?: McpRouteConfig
+    def: DefineRouteBase<I, O> & {
         errors?: DefineErrorsInput
-        handler: RouteHandler<Infer<I>, Infer<O>, Ctx>
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
 ): RouteDef<Infer<I>, Infer<O>, Ctx> {
 
@@ -27,10 +56,15 @@ export function defineRoute<
 
     }
 
+    const domainErrors = resolveRouteErrorDefs(def.errors);
+
     return {
         input: def.input,
         output: def.output,
-        errors: mergeDomainErrorDefs(resolveRouteErrorDefs(def.errors)),
+        errors: {
+            ...builtInErrorDefs,
+            ...domainErrors,
+        },
         meta: def.meta,
         access: def.access ?? 'private',
         mcp: def.mcp,

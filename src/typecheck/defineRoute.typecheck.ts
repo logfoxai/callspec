@@ -4,6 +4,7 @@
  */
 import {predicates as p} from 'runtyp';
 import {defineRoute} from '../defineRoute';
+import {defineErrors, err} from '../defineErrors';
 
 type Ctx = {userId: string};
 
@@ -98,4 +99,50 @@ defineRoute({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     access: 'public',
     handler: correctResolver,
+});
+
+const domainErr = defineErrors({
+    MY_CODE: {},
+});
+
+defineRoute({
+    input: p.object({}),
+    output: p.string(),
+    meta: {summary: 'x', description: 'x', tags: ['t']},
+    access: 'public',
+    errors: domainErr,
+    handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
+});
+
+defineRoute({
+    input: p.object({}),
+    output: p.string(),
+    meta: {summary: 'x', description: 'x', tags: ['t']},
+    access: 'public',
+    errors: domainErr,
+    // @ts-expect-error undeclared domain failure on this route
+    handler: (_input, _ctx: Ctx) => {
+
+        const other = defineErrors({OTHER: {}});
+
+        return other.OTHER();
+
+    },
+});
+
+defineRoute({
+    input: p.object({}),
+    output: p.string(),
+    meta: {summary: 'x', description: 'x', tags: ['t']},
+    access: 'public',
+    handler: (_input, _ctx: Ctx) => err.NOT_FOUND(),
+});
+
+defineRoute({
+    input: p.object({}),
+    output: p.string(),
+    meta: {summary: 'x', description: 'x', tags: ['t']},
+    access: 'public',
+    // @ts-expect-error route without errors: allows builtins only
+    handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });

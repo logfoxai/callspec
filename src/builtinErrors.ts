@@ -69,33 +69,21 @@ export const builtInErrors = {
     },
 } satisfies Record<ThrowableBuiltinCode, RouteErrorSpec>;
 
-export function builtInErrorDefs(): Record<ThrowableBuiltinCode, RouteErrorDef> {
-
-    const defs = {} as Record<ThrowableBuiltinCode, RouteErrorDef>;
-
-    for (const [code, spec] of Object.entries(builtInErrors) as [ThrowableBuiltinCode, RouteErrorSpec][]) {
-
-        defs[code] = {
-            status: spec.status ?? DEFAULT_ROUTE_ERROR_STATUS,
-            ...(spec.data ? {data: spec.data} : {}),
-        };
-
-    }
-
-    return defs;
-
-}
-
-export function mergeDomainErrorDefs(
-    domain: Record<string, RouteErrorDef> | undefined,
-): Record<string, RouteErrorDef> {
+function toBuiltInErrorDef(spec: RouteErrorSpec): RouteErrorDef {
 
     return {
-        ...builtInErrorDefs(),
-        ...domain,
+        status: spec.status ?? DEFAULT_ROUTE_ERROR_STATUS,
+        ...(spec.data ? {data: spec.data} : {}),
     };
 
 }
+
+/** Builtin error defs merged onto every route at defineRoute time. */
+export const builtInErrorDefs = Object.fromEntries(
+    (Object.entries(builtInErrors) as [ThrowableBuiltinCode, RouteErrorSpec][]).map(
+        ([code, spec]) => [code, toBuiltInErrorDef(spec)],
+    ),
+) as Record<ThrowableBuiltinCode, RouteErrorDef>;
 
 export function isThrowableBuiltinCode(code: string): code is ThrowableBuiltinCode {
 

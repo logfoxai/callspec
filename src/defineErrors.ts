@@ -9,12 +9,16 @@ import {
 
 export type {RouteErrorSpec} from './types';
 
-type FailFn<Spec extends RouteErrorSpec> =
+type FailFn<Spec extends RouteErrorSpec, Code extends string> =
     Spec['data'] extends Pred<infer D>
         ? undefined extends D
-            ? (data?: Exclude<D, undefined>) => RouteFailure
-            : (data: D) => RouteFailure
-        : () => RouteFailure;
+            ? (data?: Exclude<D, undefined>) => RouteFailure & {code: Code}
+            : (data: D) => RouteFailure & {code: Code}
+        : () => RouteFailure & {code: Code};
+
+type BuiltinFailers = {
+    [K in ThrowableBuiltinCode]: FailFn<(typeof builtInErrors)[K], K>
+};
 
 /** Internal marker — domain defs only (builtin failers are implicit). */
 const ERROR_DEFS = Symbol.for('callspec.errors.defs');
@@ -24,14 +28,27 @@ type ErrorsHandle = {
     [ERROR_DEFS]: Readonly<Record<string, RouteErrorDef>>
 };
 
-type BuiltinFailers = {
-    [K in ThrowableBuiltinCode]: FailFn<(typeof builtInErrors)[K]>
-};
-
 export type ErrorsHandleWithFailers<T extends Record<string, RouteErrorSpec>> =
-    ErrorsHandle & BuiltinFailers & {[K in keyof T & string]: FailFn<T[K]>};
+    ErrorsHandle & BuiltinFailers & {[K in keyof T & string]: FailFn<T[K], K>};
 
 export type DefineErrorsInput = Record<string, RouteErrorDef> | ErrorsHandle;
+
+type FailersFromHandle<H> = Extract<
+    {
+        [K in keyof H]: H[K] extends (...args: any[]) => infer R ? R : never
+    }[keyof H],
+    RouteFailure
+>;
+
+type DomainFailuresFromDefs<E extends Record<string, RouteErrorDef>> = Extract<
+    {
+        [K in keyof E & string]: RouteFailure & {code: K}
+    }[keyof E & string],
+    RouteFailure
+>;
+
+/** Union of RouteFailure values from an errors handle (builtins + domain failers). */
+export type RouteFailuresFrom<E> = FailersFromHandle<E>;
 
 function resolveRouteErrorStatus(spec: RouteErrorSpec): number {
 
@@ -48,11 +65,11 @@ function toRouteErrorDef(spec: RouteErrorSpec): RouteErrorDef {
 
 }
 
-function failRouteError(
-    code: string,
+function failRouteError<const Code extends string>(
+    code: Code,
     spec: RouteErrorSpec,
     data?: unknown,
-): RouteFailure {
+): RouteFailure & {code: Code} {
 
     if (spec.data) {
 
@@ -119,7 +136,8 @@ export function defineErrors<const T extends Record<string, RouteErrorSpec>>(
 
         const entry = builtInErrors[code];
 
-        handle[code] = (data?: unknown): RouteFailure => failRouteError(code, entry, data);
+        handle[code] = (data?: unknown): RouteFailure & {code: typeof code} =>
+            failRouteError(code, entry, data);
 
     }
 
@@ -128,7 +146,8 @@ export function defineErrors<const T extends Record<string, RouteErrorSpec>>(
         const entry = spec[code];
 
         domainDefs[code] = toRouteErrorDef(entry);
-        handle[code] = (data?: unknown): RouteFailure => failRouteError(code, entry, data);
+        handle[code] = (data?: unknown): RouteFailure & {code: typeof code} =>
+            failRouteError(code, entry, data);
 
     }
 
@@ -140,6 +159,19 @@ export function defineErrors<const T extends Record<string, RouteErrorSpec>>(
 
 /** Builtin-only fail handle — use in resolvers when a route has no domain errors. */
 export const err = defineErrors({});
+
+/** Failures from {@link err} — builtins only (every route allows these). */
+export type BuiltinRouteFailures = FailersFromHandle<typeof err>;
+
+/** Failures allowed on a route from its `errors:` param (builtins when omitted). */
+export type RouteFailuresFor<E> =
+    [E] extends [undefined]
+        ? BuiltinRouteFailures
+        : E extends ErrorsHandle
+            ? FailersFromHandle<E>
+            : E extends Record<string, RouteErrorDef>
+                ? BuiltinRouteFailures | DomainFailuresFromDefs<E>
+                : BuiltinRouteFailures;
 
 export function resolveRouteErrorDefs(
     errors?: DefineErrorsInput,
@@ -160,15 +192,5 @@ export function resolveRouteErrorDefs(
     }
 
     return errors as Record<string, RouteErrorDef>;
-
-}
-
-export function isAllowedRouteFailure(
-    failure: RouteFailure,
-    routeErrors: Record<string, RouteErrorDef> | undefined,
-): boolean {
-
-    return routeErrors !== undefined
-        && Object.prototype.hasOwnProperty.call(routeErrors, failure.code);
 
 }

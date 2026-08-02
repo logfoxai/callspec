@@ -1,4 +1,4 @@
-import {mergeDomainErrorDefs} from './builtinErrors';
+import {builtInErrorDefs} from './builtinErrors';
 import {toJsonSchema} from 'runtyp';
 import type {JsonSchema} from './callspecDocument';
 import {mergeOpenApiErrorResponses, openApiMountBuiltinErrorResponses} from './builtinErrors';
@@ -80,7 +80,10 @@ export function openApiErrorResponses(
         includeUnauthorized: options.includeUnauthorized,
     });
 
-    const errors = mergeDomainErrorDefs(domainErrors);
+    const errors = {
+        ...builtInErrorDefs,
+        ...domainErrors,
+    };
 
     const domain: Record<string, unknown> = {};
 

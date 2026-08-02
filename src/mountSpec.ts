@@ -6,7 +6,6 @@ import {
     sendRouteFailureResponse,
 } from './errors';
 import {BUILTIN_ERROR} from './builtinErrors';
-import {isAllowedRouteFailure} from './defineErrors';
 import {executeRoute} from './executeRoute';
 import {emitCallspec} from './emitCallspec';
 import {listMcpTools} from './mcpTools';
@@ -24,6 +23,7 @@ import {
 } from './metaDefaults';
 import type {Callspec} from './types';
 import {mountCallspecUi} from './callspec-ui/mountCallspecUi';
+import {defaultLogUnhandledError, logRequest} from './mountSpecLogging';
 
 type MountDocsOptions = {
     /** Docs UI mount path. Default `/docs`. */
@@ -43,6 +43,13 @@ export type MountSpecOptions = {
     docs?: boolean | MountDocsOptions
     /** MCP HTTP path on this router. Default `/mcp`. */
     mcpPath?: string
+    /**
+     * Request logging (jsout-express) and unhandled-error logging (jsout) on this router.
+     * Default true — pass `false` in tests to silence output.
+     */
+    logging?: boolean
+    /** Override unhandled-error logging. Default uses jsout `logger.error`. */
+    logUnhandledError?: (err: unknown, req: Request) => void
 };
 
 type ResolvedDocsSurfaces = {
@@ -52,45 +59,7 @@ type ResolvedDocsSurfaces = {
     openApiPath: string
 };
 
-function sendFrameworkError(
-    res: import('express').Response,
-    err: unknown,
-): void {
-
-    if (err instanceof CallspecValidationError) {
-
-        res.status(400).json({error: BUILTIN_ERROR.VALIDATION_ERROR, errors: err.errors});
-        return;
-
-    }
-
-    if (err instanceof CallspecUnauthorizedError) {
-
-        res.status(401).json({error: BUILTIN_ERROR.UNAUTHORIZED});
-        return;
-
-    }
-
-    res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
-
-}
-
-import type {RouteFailure} from './types';
-
-function sendRouteFailureIfAllowed(
-    res: import('express').Response,
-    failure: RouteFailure,
-    routeErrors: import('./types').RouteDef<any, any, any>['errors'],
-): void {
-
-    if (!isAllowedRouteFailure(failure, routeErrors)) {
-
-        res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
-        return;
-
-    }
-
-    sendRouteFailureResponse(res, failure);
+function noopLogUnhandledError(_err: unknown, _req: Request): void {
 
 }
 
@@ -130,6 +99,15 @@ export function mountSpec<Ctx>(
     const {routes, exports} = spec;
     const docs = resolveDocsSurfaces(options);
     const mcpSubPath = options.mcpPath ?? '/mcp';
+    const loggingEnabled = options.logging !== false;
+    const logUnhandledError = options.logUnhandledError
+        ?? (loggingEnabled ? defaultLogUnhandledError : noopLogUnhandledError);
+
+    if (loggingEnabled) {
+
+        router.use(logRequest);
+
+    }
 
     const emitOptions = {
         title: resolvedMeta.title,
@@ -187,7 +165,7 @@ export function mountSpec<Ctx>(
 
                 if (isRouteFailure(result)) {
 
-                    sendRouteFailureIfAllowed(res, result, route.errors);
+                    sendRouteFailureResponse(res, result);
                     return;
 
                 }
@@ -198,12 +176,27 @@ export function mountSpec<Ctx>(
 
                 if (isRouteFailure(err)) {
 
-                    sendRouteFailureIfAllowed(res, err, route.errors);
+                    sendRouteFailureResponse(res, err);
                     return;
 
                 }
 
-                sendFrameworkError(res, err);
+                if (err instanceof CallspecValidationError) {
+
+                    res.status(400).json({error: BUILTIN_ERROR.VALIDATION_ERROR, errors: err.errors});
+                    return;
+
+                }
+
+                if (err instanceof CallspecUnauthorizedError) {
+
+                    res.status(401).json({error: BUILTIN_ERROR.UNAUTHORIZED});
+                    return;
+
+                }
+
+                logUnhandledError(err, req as Request);
+                res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
 
             }
 

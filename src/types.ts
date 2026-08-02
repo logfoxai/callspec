@@ -37,10 +37,15 @@ export type RouteFailure = {
     data?: unknown
 };
 
-export type RouteHandler<TInput, TOutput, Ctx> = (
+export type RouteHandler<
+    TInput,
+    TOutput,
+    Ctx,
+    TFailure extends RouteFailure = RouteFailure,
+> = (
     input: TInput,
     ctx: Ctx,
-) => Promise<TOutput | RouteFailure> | TOutput | RouteFailure;
+) => Promise<TOutput | TFailure> | TOutput | TFailure;
 
 export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     input: Pred<TInput>

@@ -5,7 +5,6 @@ import {
     formatRouteFailureBody,
     isRouteFailure,
 } from './errors';
-import {isAllowedRouteFailure} from './defineErrors';
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
@@ -121,13 +120,6 @@ export function mountMcp<Ctx>(
                     const result = await executeRoute(route, body.params?.arguments ?? {}, ctx);
 
                     if (isRouteFailure(result)) {
-
-                        if (!isAllowedRouteFailure(result, route.errors)) {
-
-                            respondError(500, 'Internal error');
-                            return;
-
-                        }
 
                         respond(toolError(JSON.stringify(formatRouteFailureBody(result))));
                         return;

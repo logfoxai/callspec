@@ -11,12 +11,35 @@ Upgrading from v1.x:
 - **`RouteFailure`** — `{ ok: false, code, status, data? }` returned by handlers and `defineErrors` / `err` handles.
 - **`commonErrors` removed** — do not spread legacy common maps. Builtins merge onto every route at `defineRoute` time.
 - **Do not declare builtin codes on routes** — they are automatic in OpenAPI, `callspec.json`, and every client `*Result` union.
-- **Strict domain registration** — returned codes not declared on the route become `INTERNAL_ERROR` at runtime.
+- **Strict domain registration** — returned domain codes must be declared on the route; TypeScript checks handler return types against `errors:` at compile time (no runtime allowlist).
 - **`BUILTIN_ERROR` replaces `FRAMEWORK_ERROR` / `COMMON_ERROR`** — one constant for all automatic codes.
 - **Flat client Result** — `{ ok: true, value } | { ok: false, status, code, data? }` (not wire-shaped `{ error }`).
 - **Regenerate artifacts** — rerun `npx callspec …` and refresh generated client types after upgrading.
 
-Framework validation, auth, and unexpected bugs still **throw** — mountSpec maps them to `VALIDATION_ERROR`, `UNAUTHORIZED`, and `INTERNAL_ERROR`.
+Framework validation and auth **throw** `CallspecValidationError` / `CallspecUnauthorizedError` — mountSpec maps those inline. Any other unhandled error becomes **`INTERNAL_ERROR`** (see below).
+
+## Unhandled errors → `INTERNAL_ERROR`
+
+Anything that escapes a route handler — and is **not** an intentional `RouteFailure` return/throw or a framework validation/auth throw — becomes **`INTERNAL_ERROR`**: HTTP **500** and wire body `{ "error": "INTERNAL_ERROR" }`.
+
+This includes:
+
+- Synchronous throws (`throw new Error('…')`)
+- Rejected promises from async handlers (propagate through `await` in `executeRoute`)
+
+**mountSpec handles this end-to-end** — no separate error middleware or logger wiring for RPC routes. It logs unhandled errors with **jsout** (`logger.error`, serialized automatically) and logs every request with **jsout-express** (`logRequest` on the mounted router):
+
+```typescript
+mountSpec(router, spec); // INTERNAL_ERROR + jsout request/error logging
+```
+
+Pass `logging: false` in tests to silence output. Override `logUnhandledError` only if you need custom behavior.
+
+`expressErrorHandler()` remains exported for **non-callspec** Express routes (upload handlers, custom middleware) that use `next(err)`.
+
+### Logfox api-service
+
+RPC logging is fully owned by `mountSpec` on `apiRouter`. App-level `logRequest` (re-exported from callspec) covers `/upload` and other non-RPC routes; `/health` and `/v1` are skipped to avoid duplicate or probe noise. `errorHandler.ts` covers non-RPC errors (malformed JSON, postgres `57014` → `SERVICE_UNAVAILABLE`).
 
 ## Two tiers
 
@@ -37,7 +60,7 @@ Framework validation, auth, and unexpected bugs still **throw** — mountSpec ma
 | `CONFLICT` | 409 | handler |
 | `TOO_MANY_REQUESTS` | 429 | rate-limit middleware |
 | `SERVICE_UNAVAILABLE` | 503 | handler or middleware |
-| `INTERNAL_ERROR` | 500 | mountSpec (undeclared failure / unhandled throw) |
+| `INTERNAL_ERROR` | 500 | mountSpec (unhandled throw or rejected promise in handler) |
 
 `ROUTE_NOT_FOUND` and `NOT_FOUND` both use HTTP 404 but mean different things — the **`code`** is the contract; status is a transport hint.
 
@@ -83,11 +106,14 @@ defineRoute({
   },
 });
 
+// Handler return type is checked: only registerErr codes + builtins allowed.
+// Use RouteFailuresFrom<typeof registerErr> on extracted resolver functions.
+
 // anywhere in handler or helper:
 return err.NOT_FOUND({ message: '…' });
 ```
 
-Helpers can return `RouteFailure | undefined` or `SessionContext | RouteFailure`; callers propagate with `if (isRouteFailure(x)) return x`.
+Helpers can return `RouteFailuresFrom<typeof err>` / domain handles, or `SessionContext | BuiltinRouteFailures`; callers propagate with `if (isRouteFailure(x)) return x`.
 
 Express middleware that cannot return through mountSpec may still **`throw`** a `RouteFailure` object; use `isRouteFailure` + `sendRouteFailureResponse` in the error handler.
 
@@ -95,10 +121,10 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 
 - Return failures via `defineErrors()` handles (`err`, `defineErrors({ DOMAIN: … })`)
 - Builtins are always allowed — merged onto every route at definition time
-- Undeclared domain return → `INTERNAL_ERROR`
+- Undeclared domain returns are a **compile error** on the route handler (routes without `errors:` allow builtins only)
 - Client `normalizeClientErrorBody(status, body)` maps foreign Express middleware responses to builtin types
 
 ## Logfox
 
-- **api-service:** `domainErrors.ts` domain handles; per-route `errors:` in `routes.ts`; helpers return `RouteFailure`; `sendRouteFailureResponse` in Express error handler
+- **api-service:** `domainErrors.ts` domain handles + `RouteFailuresFrom` aliases; per-route `errors:` in `routes.ts`; helpers/resolvers return typed failures matching the route contract
 - **app-frontend:** work with `CallspecRouteResult` directly; branch on `BUILTIN_ERROR` / domain codes — no `unwrapCallspec` bridge

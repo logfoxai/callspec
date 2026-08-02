@@ -202,7 +202,7 @@ Errors are **typed return possibilities**, not mystery exceptions. Wire format i
 | `CONFLICT` | Handler: state conflict |
 | `TOO_MANY_REQUESTS` | Rate limit middleware |
 | `SERVICE_UNAVAILABLE` | Dependency unavailable |
-| `INTERNAL_ERROR` | Unhandled exception or undeclared domain error |
+| `INTERNAL_ERROR` | Unhandled throw or rejected promise — mountSpec logs and responds automatically |
 
 **Domain errors** — declare only route-specific codes. The `errors()` handle includes builtin throwers automatically:
 
@@ -229,7 +229,7 @@ export const routes = {
 };
 ```
 
-Use `expressErrorHandler()` from `callspec/express` for middleware outside `mountSpec`. Generated clients normalize typical Express error bodies and export per-route `*Result` unions — **no try/catch for HTTP errors**.
+`mountSpec` handles unhandled handler errors and logging end-to-end (jsout + jsout-express). Use `expressErrorHandler()` from `callspec/express` only for routes **outside** mountSpec. Re-exported `logRequest` is available for additional Express routers. Generated clients normalize typical Express error bodies and export per-route `*Result` unions — **no try/catch for HTTP errors**.
 
 ## Shared validation and types (backend + frontend)
 

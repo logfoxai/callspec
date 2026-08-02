@@ -80,7 +80,7 @@ function createTestApp(): http.Server {
 
     router.use(express.json());
 
-    mountSpec(router, fixtureSpec);
+    mountSpec(router, fixtureSpec, {logging: false});
 
     app.use('/v1', router);
 
@@ -220,7 +220,7 @@ test('integration: docs UI loads callspec.json when mountSpec uses basePath', as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, fixtureSpec, {basePath: '/v1'});
+    mountSpec(router, fixtureSpec, {basePath: '/v1', logging: false});
     app.use(router);
 
     const server = http.createServer(app);
@@ -391,7 +391,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, spec, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -412,6 +412,119 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
 
         assert.equal(res.status, 500);
         assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (assert) => {
+
+    const spec = defineSpec({
+        meta: {title: 'Reject API', version: '1.0.0'},
+        routes: {
+            reject: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Reject', description: 'Reject', tags: ['x']},
+                access: 'public',
+                handler: async (_input, _ctx) => Promise.reject(new Error('reject')),
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, spec, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/reject`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 500);
+        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: logUnhandledError is called for unhandled handler errors', async (assert) => {
+
+    let logged: unknown;
+
+    const spec = defineSpec({
+        meta: {title: 'Log API', version: '1.0.0'},
+        routes: {
+            boom: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
+                access: 'public',
+                handler: async (_input, _ctx) => {
+
+                    throw new Error('logged boom');
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, spec, {
+        logging: false,
+        logUnhandledError: (err) => {
+
+            logged = err;
+
+        },
+    });
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/boom`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 500);
+        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+        assert.equal(logged instanceof Error, true);
+        assert.equal((logged as Error).message, 'logged boom');
 
     } finally {
 
@@ -465,7 +578,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, spec, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -521,9 +634,9 @@ test('integration: declared route errors map to HTTP status and body', async (as
 
 });
 
-test('integration: undeclared domain errors become INTERNAL_ERROR', async (assert) => {
+test('integration: declared domain failure is returned on the wire', async (assert) => {
 
-    const thrower = defineErrors({
+    const domainErr = defineErrors({
         MYSTERY: {status: 418},
     });
 
@@ -533,17 +646,14 @@ test('integration: undeclared domain errors become INTERNAL_ERROR', async (asser
             boom: defineRoute({
                 input: p.object({}),
                 output: p.string(),
+                errors: domainErr,
                 meta: {
                     summary: 'Boom',
-                    description: 'Throws undeclared domain error',
+                    description: 'Returns declared domain error',
                     tags: ['test'],
                 },
                 access: 'public',
-                handler: (_input, _ctx) => {
-
-                    return thrower.MYSTERY();
-
-                },
+                handler: (_input, _ctx) => domainErr.MYSTERY(),
             }),
         },
     });
@@ -552,7 +662,7 @@ test('integration: undeclared domain errors become INTERNAL_ERROR', async (asser
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, spec, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -571,8 +681,8 @@ test('integration: undeclared domain errors become INTERNAL_ERROR', async (asser
             body: JSON.stringify({}),
         });
 
-        assert.equal(res.status, 500);
-        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+        assert.equal(res.status, 418);
+        assert.equal(await res.json(), {error: 'MYSTERY'});
 
     } finally {
 
@@ -651,7 +761,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
 
     router.use(express.json());
 
-    mountSpec(router, noMcpSpec);
+    mountSpec(router, noMcpSpec, {logging: false});
 
     app.use('/v1', router);
 
@@ -688,7 +798,7 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
 
     router.use(express.json());
 
-    mountSpec(router, fixtureSpec, {docs: false});
+    mountSpec(router, fixtureSpec, {docs: false, logging: false});
 
     app.use(router);
 
@@ -739,7 +849,7 @@ test('integration: default meta title and version when omitted', async (assert) 
 
     router.use(express.json());
 
-    mountSpec(router, sparseSpec);
+    mountSpec(router, sparseSpec, {logging: false});
 
     app.use(router);
 
