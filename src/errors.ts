@@ -23,8 +23,8 @@ export class CallspecUnauthorizedError extends Error {
 
 }
 
-/** Declared route error — thrown via {@link errors} and mapped to HTTP by mountSpec. */
-export class CallspecRouteError<
+/** Thrown via {@link errors} handles — mapped to HTTP by mountSpec / expressErrorHandler. */
+export class RouteError<
     Code extends string = string,
     Data = unknown,
 > extends Error {
@@ -38,7 +38,7 @@ export class CallspecRouteError<
     constructor(code: Code, status: number, data?: Data) {
 
         super(code);
-        this.name = 'CallspecRouteError';
+        this.name = 'RouteError';
         this.code = code;
         this.status = status;
         this.data = data;
@@ -47,13 +47,13 @@ export class CallspecRouteError<
 
 }
 
-export function isCallspecRouteError(value: unknown): value is CallspecRouteError {
+export function isRouteError(value: unknown): value is RouteError {
 
-    return value instanceof CallspecRouteError;
+    return value instanceof RouteError;
 
 }
 
-export function formatRouteErrorBody(error: CallspecRouteError): Record<string, unknown> {
+export function formatRouteErrorBody(error: RouteError): Record<string, unknown> {
 
     if (error.data !== undefined) {
 
@@ -62,5 +62,14 @@ export function formatRouteErrorBody(error: CallspecRouteError): Record<string, 
     }
 
     return {error: error.code};
+
+}
+
+export function sendRouteErrorResponse(
+    res: {status: (code: number) => {json: (body: unknown) => void}},
+    error: RouteError,
+): void {
+
+    res.status(error.status).json(formatRouteErrorBody(error));
 
 }

@@ -321,7 +321,6 @@ test('generated client makes a real request to an in-process server', async (ass
 test('generateClientSource: error response types omit data when wire schema has no data field', (assert) => {
 
     const err = errors({
-        NOT_FOUND: {status: 404},
         USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
     });
 
@@ -359,6 +358,9 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
 
     const generated = generateClientSource(doc);
 
-    assert.equal(generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput>(\"evil'); throw new Error('pwn\", input)"), true);
+    assert.equal(
+        generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput, EvilThrowNewErrorPwnError>(\"evil'); throw new Error('pwn\", input)"),
+        true,
+    );
 
 });

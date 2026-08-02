@@ -186,29 +186,33 @@ defineRoute({
 
 ### Route errors
 
-**Framework errors** (automatic on every route — do not declare):
+Errors are **typed return possibilities**, not mystery exceptions. Wire format is always `{ "error": "CODE", "data?": … }`. See [error-handling.md](docs/error-handling.md).
+
+**Framework errors** (automatic — never declare):
 
 | Code | Status | When |
 |------|--------|------|
 | `VALIDATION_ERROR` | 400 | Input failed runtyp validation |
 | `UNAUTHORIZED` | 401 | Private route without valid Bearer token |
 | `ROUTE_NOT_FOUND` | 404 | Unknown RPC method name |
-| `INTERNAL_ERROR` | 500 | Unhandled exception in handler |
+| `INTERNAL_ERROR` | 500 | Unhandled exception or undeclared domain error |
 
-**Domain errors** — declare per route with `errors()` and throw from the handler:
+**Common errors** (automatic on every route — always in client types):
 
-```json
-{ "error": "NOT_FOUND" }
-{ "error": "USER_EXISTS", "data": { "email": "taken@example.com" } }
-```
+| Code | Status |
+|------|--------|
+| `NOT_FOUND` | 404 |
+| `FORBIDDEN` | 403 |
+| `CONFLICT` | 409 |
+| `TOO_MANY_REQUESTS` | 429 |
+| `SERVICE_UNAVAILABLE` | 503 |
 
-Optional **`commonErrors`** preset for typical domain codes (`NOT_FOUND`, `FORBIDDEN`, `CONFLICT`):
+**Domain errors** — declare only route-specific codes. The `errors()` handle includes common throwers automatically:
 
 ```typescript
-import {defineRoute, errors, commonErrors} from 'callspec';
+import {defineRoute, errors} from 'callspec';
 
 const err = errors({
-    ...commonErrors,
     USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
 });
 
@@ -228,7 +232,7 @@ export const routes = {
 };
 ```
 
-Generated clients export per-route `GetUserError` unions and `GetUserResult`. Framework errors (`UNAUTHORIZED`, `VALIDATION_ERROR`, etc.) are included in every `*Result` type automatically — **no try/catch for HTTP errors**.
+Use `expressErrorHandler()` from `callspec/express` for middleware outside `mountSpec`. Generated clients normalize typical Express error bodies and export per-route `*Result` unions — **no try/catch for HTTP errors**.
 
 ## Shared validation and types (backend + frontend)
 
@@ -505,7 +509,8 @@ See [Shared validation and types](#shared-validation-and-types-backend--frontend
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `commonErrors`; types `Callspec`, `RoutesMap`, `MountSpecOptions` |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `err`, `COMMON_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `ErrorsHandleWithThrowers` |
+| `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CallspecRouteResult`, …) and generated client types |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
 

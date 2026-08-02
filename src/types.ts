@@ -16,6 +16,11 @@ export type McpRouteConfig =
 
 export type RouteAccess = 'public' | 'private';
 
+export type RouteErrorSpec = {
+    status: number
+    data?: Pred<unknown>
+};
+
 export type RouteErrorDef = {
     status: number
     data?: Pred<unknown>

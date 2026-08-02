@@ -2,9 +2,10 @@ import type {Request, RequestHandler, Router} from 'express';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
-    formatRouteErrorBody,
-    isCallspecRouteError,
+    isRouteError,
+    sendRouteErrorResponse,
 } from './errors';
+import {isAllowedRouteErrorCode} from './routeErrors';
 import {FRAMEWORK_ERROR} from './frameworkErrors';
 import {executeRoute} from './executeRoute';
 import {emitCallspec} from './emitCallspec';
@@ -51,7 +52,11 @@ type ResolvedDocsSurfaces = {
     openApiPath: string
 };
 
-function sendError(res: import('express').Response, err: unknown): void {
+function sendError(
+    res: import('express').Response,
+    err: unknown,
+    domainErrors: import('./types').RouteDef<any, any, any>['errors'],
+): void {
 
     if (err instanceof CallspecValidationError) {
 
@@ -67,9 +72,16 @@ function sendError(res: import('express').Response, err: unknown): void {
 
     }
 
-    if (isCallspecRouteError(err)) {
+    if (isRouteError(err)) {
 
-        res.status(err.status).json(formatRouteErrorBody(err));
+        if (!isAllowedRouteErrorCode(err.code, domainErrors)) {
+
+            res.status(500).json({error: FRAMEWORK_ERROR.INTERNAL_ERROR});
+            return;
+
+        }
+
+        sendRouteErrorResponse(res, err);
         return;
 
     }
@@ -172,7 +184,7 @@ export function mountSpec<Ctx>(
 
             } catch (err) {
 
-                sendError(res, err);
+                sendError(res, err, route.errors);
 
             }
 

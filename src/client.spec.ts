@@ -158,7 +158,7 @@ test('CallspecClient merges fetchOptions headers without dropping Content-Type',
 
 });
 
-test('CallspecClient.callResult preserves JSON error bodies', async (assert) => {
+test('CallspecClient.callResult maps unknown 401 JSON to UNAUTHORIZED', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
@@ -176,7 +176,46 @@ test('CallspecClient.callResult preserves JSON error bodies', async (assert) => 
         if (!result.ok) {
 
             assert.equal(result.status, 401);
-            assert.equal(result.error.error, 'nope');
+            assert.equal(result.error.error, 'UNAUTHORIZED');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult normalizes legacy 429 bodies', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        title: 'Slow down',
+        message: 'Try again later',
+    }), {
+        status: 429,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('createUserSession', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.error.error, 'TOO_MANY_REQUESTS');
+
+            if (result.error.error === 'TOO_MANY_REQUESTS') {
+
+                assert.equal(result.error.data.title, 'Slow down');
+                assert.equal(result.error.data.message, 'Try again later');
+
+            }
 
         }
 

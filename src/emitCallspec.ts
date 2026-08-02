@@ -7,6 +7,7 @@ import {
     type CallspecDocumentRoute,
     type JsonSchema,
 } from './callspecDocument';
+import {mergeDomainErrorDefs} from './commonErrors';
 import {documentRouteErrors} from './routeErrorDocument';
 import {omitUndefined} from './objectUtils';
 
@@ -42,7 +43,7 @@ export function emitCallspec(
             access: route.access,
             input: toJsonSchema(route.input) as JsonSchema,
             output: toJsonSchema(route.output) as JsonSchema,
-            errors: documentRouteErrors(route.errors),
+            errors: documentRouteErrors(mergeDomainErrorDefs(route.errors)),
             mcp: {
                 enabled: Boolean(route.mcp),
             },

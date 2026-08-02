@@ -424,7 +424,6 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
 test('integration: declared route errors map to HTTP status and body', async (assert) => {
 
     const err = errors({
-        NOT_FOUND: {status: 404},
         USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
     });
 
@@ -513,6 +512,67 @@ test('integration: declared route errors map to HTTP status and body', async (as
 
         assert.equal(parsed.routes.getUser.errors?.NOT_FOUND?.status, 404);
         assert.equal(parsed.routes.getUser.errors?.USER_EXISTS?.status, 409);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: undeclared domain errors become INTERNAL_ERROR', async (assert) => {
+
+    const thrower = errors({
+        MYSTERY: {status: 418},
+    });
+
+    const spec = defineSpec({
+        meta: {title: 'Strict API', version: '1.0.0'},
+        routes: {
+            boom: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {
+                    summary: 'Boom',
+                    description: 'Throws undeclared domain error',
+                    tags: ['test'],
+                },
+                access: 'public',
+                handler: (_input, _ctx) => {
+
+                    throw thrower.MYSTERY();
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, spec);
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/boom`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 500);
+        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
 
     } finally {
 

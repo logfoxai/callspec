@@ -1,3 +1,4 @@
+import {mergeDomainErrorDefs} from './commonErrors';
 import {toJsonSchema} from 'runtyp';
 import type {JsonSchema} from './callspecDocument';
 import {mergeOpenApiErrorResponses, openApiFrameworkErrorResponses} from './frameworkErrors';
@@ -53,7 +54,7 @@ export function documentRouteErrors(
 }
 
 export function openApiErrorResponses(
-    errors: Record<string, RouteErrorDef> | undefined,
+    domainErrors: Record<string, RouteErrorDef> | undefined,
     options: {includeUnauthorized?: boolean} = {},
 ): Record<string, unknown> {
 
@@ -61,11 +62,7 @@ export function openApiErrorResponses(
         includeUnauthorized: options.includeUnauthorized,
     });
 
-    if (!errors) {
-
-        return framework;
-
-    }
+    const errors = mergeDomainErrorDefs(domainErrors);
 
     const domain: Record<string, unknown> = {};
 

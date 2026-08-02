@@ -1,5 +1,6 @@
 import type {RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError, formatRouteErrorBody, isCallspecRouteError} from './errors';
+import {CallspecUnauthorizedError, CallspecValidationError, formatRouteErrorBody, isRouteError} from './errors';
+import {isAllowedRouteErrorCode} from './routeErrors';
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
@@ -136,7 +137,14 @@ export function mountMcp<Ctx>(
 
                     }
 
-                    if (isCallspecRouteError(err)) {
+                    if (isRouteError(err)) {
+
+                        if (!isAllowedRouteErrorCode(err.code, route.errors)) {
+
+                            respondError(500, 'Internal error');
+                            return;
+
+                        }
 
                         respond(toolError(JSON.stringify(formatRouteErrorBody(err))));
                         return;
