@@ -214,14 +214,6 @@ function normalizeCommonBody(record: Record<string, unknown>): CallspecCommonErr
 
     if (typeof record.error !== 'string' || !isCommonErrorCode(record.error)) {
 
-        const tooMany = coerceTooManyRequestsBody(record);
-
-        if (tooMany) {
-
-            return tooMany;
-
-        }
-
         return undefined;
 
     }
@@ -349,15 +341,13 @@ export function normalizeClientErrorBody(
 
         if (typeof record.error === 'string') {
 
-            const byStatus = normalizeByStatus(status, body);
-
-            if (byStatus) {
-
-                return byStatus;
-
-            }
-
-            return body as CallspecUnexpectedErrorBody;
+            return {
+                error: record.error,
+                ...(record.data !== undefined ? {data: record.data} : {}),
+                ...(typeof record.errors === 'object' && record.errors !== null
+                    ? {errors: record.errors as Record<string, string>}
+                    : {}),
+            };
 
         }
 

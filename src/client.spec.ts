@@ -158,25 +158,29 @@ test('CallspecClient merges fetchOptions headers without dropping Content-Type',
 
 });
 
-test('CallspecClient.callResult maps unknown 401 JSON to UNAUTHORIZED', async (assert) => {
+test('CallspecClient.callResult preserves unknown domain error bodies', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
-    globalThis.fetch = (async () => new Response(JSON.stringify({error: 'nope'}), {
-        status: 401,
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'USER_EXISTS',
+        data: {email: 'taken@example.com'},
+    }), {
+        status: 409,
     })) as typeof fetch;
 
     try {
 
         const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult('secret', {});
+        const result = await runtime.callResult('register', {});
 
         assert.equal(result.ok, false);
 
         if (!result.ok) {
 
-            assert.equal(result.status, 401);
-            assert.equal(result.error.error, 'UNAUTHORIZED');
+            assert.equal(result.status, 409);
+            assert.equal(result.error.error, 'USER_EXISTS');
+            assert.equal((result.error as {data?: {email: string}}).data?.email, 'taken@example.com');
 
         }
 
