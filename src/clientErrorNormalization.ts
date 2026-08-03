@@ -39,7 +39,6 @@ const FUZZY_PHRASE_TO_CODE: Record<string, BuiltinErrorCode> = {
     serviceunavailable: BUILTIN_ERROR.SERVICE_UNAVAILABLE,
     badgateway: BUILTIN_ERROR.SERVICE_UNAVAILABLE,
     gatewaytimeout: BUILTIN_ERROR.SERVICE_UNAVAILABLE,
-    internalerror: BUILTIN_ERROR.INTERNAL_ERROR,
 };
 
 function responseHeadersRecord(headers: Headers): Record<string, string> {
@@ -435,14 +434,6 @@ function matchCallspecJson<E>(
             code: BUILTIN_ERROR.VALIDATION_ERROR,
             data: record.errors as Record<string, string>,
         } as CallspecClientErrors<E>;
-
-    }
-
-    if (isBuiltinErrorCode(record.error)) {
-
-        return (record.data !== undefined
-            ? {code: record.error, data: record.data}
-            : {code: record.error}) as CallspecClientErrors<E>;
 
     }
 

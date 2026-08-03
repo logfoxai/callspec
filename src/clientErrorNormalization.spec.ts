@@ -98,6 +98,35 @@ test('resolveRouteClientError: INTERNAL_ERROR only when server sends it', (asser
 
 });
 
+test('resolveRouteClientError: plain internal error text does not map to INTERNAL_ERROR', (assert) => {
+
+    const result = resolveRouteClientError({
+        status: 500,
+        body: 'internal error',
+    });
+
+    assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+});
+
+test('resolveRouteClientError: malformed TOO_MANY_REQUESTS JSON yields UNKNOWN_ERROR', (assert) => {
+
+    const body = {error: 'TOO_MANY_REQUESTS'};
+    const result = resolveRouteClientError({
+        status: 429,
+        body,
+    });
+
+    assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+    if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+        assert.equal(result.data.body, body);
+
+    }
+
+});
+
 test('normalizeClientErrorBody: fuzzy bad gateway phrase', (assert) => {
 
     const result = normalizeClientErrorBody(400, 'Bad Gateway');
