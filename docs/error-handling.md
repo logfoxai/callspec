@@ -69,8 +69,8 @@ import { logger } from 'jsout';
 
 mountSpec(router, spec, {
   handleUnhandledError(thrown, req) {
-    if (isPgQueryTimeout(thrown)) {
-      logger.warn('query timeout', thrown);
+    if (isKnownTransientFailure(thrown)) {
+      logger.warn('transient failure', thrown);
       return err.SERVICE_UNAVAILABLE({ message: 'Try again.' });
     }
   },
@@ -86,20 +86,7 @@ Routes **outside** `mountSpec` (multipart upload, custom middleware) still use E
 - **`expressErrorHandler()`** from `callspec/express` — maps `RouteFailure` throws and framework errors to callspec JSON
 - **`logRequest`** from `callspec` — optional request logging on those routers
 
-Malformed JSON on a router with `body-parser` may hit your app-level handler before RPC runs — see Logfox api-service below.
-
-### Logfox api-service
-
-| Surface | Errors | Request logging |
-|---------|--------|-----------------|
-| `POST /v1/<method>` | `mountSpec` on `apiRouter` (`src/routes/api.ts`) | `mountSpec` `logRequest` |
-| Postgres query timeout (`57014`) | `handleUnhandledError` → `SERVICE_UNAVAILABLE` + `logger.warn` | — |
-| `POST /upload`, `/email-preview`, … | App `errorHandler.ts` → `expressErrorHandler()` | App `index.ts` `logRequest` (skips `/v1` and `/health`) |
-| Malformed JSON (non-RPC body parser) | App `errorHandler.ts` → 400 `VALIDATION_ERROR` | — |
-| `GET /health` | Plain text (LB probes) | Skipped |
-| Rate limit exceeded | `ipRateLimitMiddleware` → 429 | — |
-
-Full contract reference: [callspec error-handling.md](https://github.com/logfoxai/callspec/blob/main/docs/error-handling.md). Service wiring: `api-service` README § Errors & logging.
+Malformed JSON on a router with `body-parser` may hit your app-level handler before RPC runs.
 
 ## Two tiers
 
@@ -185,8 +172,3 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 - Builtins are always allowed — merged onto every route at definition time
 - Undeclared domain returns are a **compile error** on the route handler (routes without `errors:` allow builtins only)
 - Client `normalizeClientErrorBody(status, body)` parses foreign Express middleware responses (non-RPC / legacy). **`CallspecClient.callResult`** coerces undeclared wire codes to **`INTERNAL_ERROR`** — only builtins and route-declared domain codes appear on typed `CallspecRouteResult` failures.
-
-## Logfox
-
-- **api-service:** `domainErrors.ts` domain handles + `RouteFailuresFrom` aliases; per-route `errors:` in `routes.ts`; helpers/resolvers return typed failures matching the route contract
-- **app-frontend:** work with `CallspecRouteResult` directly; branch on `BUILTIN_ERROR` / domain codes
