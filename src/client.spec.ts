@@ -158,7 +158,7 @@ test('CallspecClient merges fetchOptions headers without dropping Content-Type',
 
 });
 
-test('CallspecClient.callResult preserves unknown domain error bodies', async (assert) => {
+test('CallspecClient.callResult maps undeclared domain errors to INTERNAL_ERROR', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
@@ -179,8 +179,72 @@ test('CallspecClient.callResult preserves unknown domain error bodies', async (a
         if (!result.ok) {
 
             assert.equal(result.status, 409);
+            assert.equal(result.code, 'INTERNAL_ERROR');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult preserves declared domain error bodies', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'USER_EXISTS',
+        data: {email: 'taken@example.com'},
+    }), {
+        status: 409,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {}, {
+            allowedErrorCodes: ['USER_EXISTS'],
+        });
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 409);
             assert.equal(result.code, 'USER_EXISTS');
             assert.equal((result as {data?: {email: string}}).data?.email, 'taken@example.com');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps unparseable error bodies to INTERNAL_ERROR', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response('<html>bad gateway</html>', {
+        status: 502,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.code, 'INTERNAL_ERROR');
 
         }
 

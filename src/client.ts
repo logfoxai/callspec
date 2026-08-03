@@ -3,6 +3,7 @@ import {
     BUILTIN_ERROR,
     type BuiltinErrorCode,
     type OptionalBuiltinContext,
+    isBuiltinErrorCode,
     isThrowableBuiltinCode,
 } from './builtinErrors';
 
@@ -26,11 +27,16 @@ export type CallspecFailure<E = never> = {
 
 export type CallspecResult<T, E = never> = CallspecOk<T> | CallspecFailure<E>;
 
-/** Fallback client error when the body is not a known builtin or declared route error. */
+/**
+ * Loose parse result from {@link normalizeClientErrorBody} — may include undeclared codes.
+ * Use on non-RPC / legacy routes; {@link CallspecClient.callResult} coerces to the route contract.
+ */
 export type CallspecClientError = {
     code: string
     data?: unknown
 };
+
+export type NormalizedClientErrorBody = CallspecBuiltinClientError | CallspecClientError;
 
 export type CallspecValidationClientError = {
     code: typeof BUILTIN_ERROR.VALIDATION_ERROR
@@ -58,12 +64,17 @@ export type CallspecBuiltinClientError =
     | CallspecTooManyRequestsClientError
     | {code: typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE, data?: OptionalBuiltinContext};
 
+/** Contract failure codes for a route — builtins plus declared domain errors only. */
 export type CallspecClientErrors<E = never> =
     | CallspecBuiltinClientError
-    | ([E] extends [never] ? never : E)
-    | CallspecClientError;
+    | ([E] extends [never] ? never : E);
 
 export type CallspecRouteResult<T, E = never> = CallspecResult<T, E>;
+
+export type CallResultOptions = {
+    /** Domain error codes from callspec.json for this route. Builtins are always allowed. */
+    allowedErrorCodes?: readonly string[]
+};
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
@@ -343,10 +354,40 @@ function normalizeByStatus(status: number, body: unknown): CallspecClientError |
 
 }
 
+function internalErrorFallback(): {code: typeof BUILTIN_ERROR.INTERNAL_ERROR} {
+
+    return {code: BUILTIN_ERROR.INTERNAL_ERROR};
+
+}
+
+/** Map a parsed wire error to the route contract; undeclared codes become INTERNAL_ERROR. */
+export function coerceToRouteClientError<E>(
+    parsed: NormalizedClientErrorBody,
+    options?: CallResultOptions,
+): CallspecClientErrors<E> {
+
+    const {code} = parsed;
+
+    if (isBuiltinErrorCode(code)) {
+
+        return parsed as CallspecBuiltinClientError;
+
+    }
+
+    if (options?.allowedErrorCodes?.includes(code)) {
+
+        return parsed as ([E] extends [never] ? never : E);
+
+    }
+
+    return internalErrorFallback();
+
+}
+
 export function normalizeClientErrorBody(
     status: number,
     body: unknown,
-): CallspecClientErrors<never> {
+): NormalizedClientErrorBody {
 
     if (typeof body === 'object' && body !== null && !Array.isArray(body)) {
 
@@ -418,9 +459,7 @@ export function normalizeClientErrorBody(
 
     }
 
-    return body === undefined
-        ? {code: 'HTTP_ERROR'}
-        : {code: 'HTTP_ERROR', data: body};
+    return internalErrorFallback();
 
 }
 
@@ -437,6 +476,7 @@ export class CallspecClient {
     async callResult<TOutput, TError = never>(
         routeName: string,
         input: unknown,
+        options?: CallResultOptions,
     ): Promise<CallspecRouteResult<TOutput, TError>> {
 
         const url = joinCallspecUrl(this.config.baseUrl, routeName);
@@ -458,10 +498,13 @@ export class CallspecClient {
 
         }
 
+        const parsed = normalizeClientErrorBody(resp.status, body);
+        const coerced = coerceToRouteClientError<TError>(parsed, options);
+
         return {
             ok: false as const,
             status: resp.status,
-            ...normalizeClientErrorBody(resp.status, body),
+            ...coerced,
         };
 
     }

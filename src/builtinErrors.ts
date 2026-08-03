@@ -91,6 +91,12 @@ export function isThrowableBuiltinCode(code: string): code is ThrowableBuiltinCo
 
 }
 
+export function isBuiltinErrorCode(code: string): code is BuiltinErrorCode {
+
+    return (Object.values(BUILTIN_ERROR) as string[]).includes(code);
+
+}
+
 const VALIDATION_ERROR_SCHEMA: JsonSchema = {
     type: 'object',
     properties: {

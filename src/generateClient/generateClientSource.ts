@@ -110,9 +110,19 @@ export function generateClientSource(
 
         usedMethodNames.add(methodName);
 
+        const allowedErrorCodesJson = route.errors
+            ? JSON.stringify(
+                Object.keys(route.errors).sort((a, b) => a.localeCompare(b)),
+            )
+            : undefined;
+
+        const callOptionsArg = allowedErrorCodesJson
+            ? `, { allowedErrorCodes: ${allowedErrorCodesJson} }`
+            : '';
+
         methods.push(`
     async ${methodName}(input: ${inputTypeName}): Promise<${resultTypeName}> {
-        return this.runtime.callResult<${outputTypeName}${routeErrorTypeName ? `, ${routeErrorTypeName}` : ''}>(${JSON.stringify(routeName)}, input);
+        return this.runtime.callResult<${outputTypeName}${routeErrorTypeName ? `, ${routeErrorTypeName}` : ''}>(${JSON.stringify(routeName)}, input${callOptionsArg});
     }`);
 
     }

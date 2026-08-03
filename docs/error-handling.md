@@ -184,7 +184,7 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 - Return failures via `defineErrors()` handles (`err`, `defineErrors({ DOMAIN: … })`)
 - Builtins are always allowed — merged onto every route at definition time
 - Undeclared domain returns are a **compile error** on the route handler (routes without `errors:` allow builtins only)
-- Client `normalizeClientErrorBody(status, body)` maps foreign Express middleware responses to builtin types
+- Client `normalizeClientErrorBody(status, body)` parses foreign Express middleware responses (non-RPC / legacy). **`CallspecClient.callResult`** coerces undeclared wire codes to **`INTERNAL_ERROR`** — only builtins and route-declared domain codes appear on typed `CallspecRouteResult` failures.
 
 ## Logfox
 
