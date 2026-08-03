@@ -16,6 +16,8 @@
   </p>
 </div>
 
+**Support:** I personally support callspec on Discord — **skyyskater**.
+
 Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicates and get an HTTP RPC server, white-label docs, the native **`callspec.json`** contract, OpenAPI 3.1, an MCP server, and **generated consumer artifacts** for TypeScript clients and forms.
 
 **The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, and shared runtyp preds — so the browser never imports your Express server just to validate a filter or a registration form.
