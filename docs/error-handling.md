@@ -2,6 +2,8 @@
 
 Design reference for the callspec error contract, mountSpec runtime, and client Result shape.
 
+**Support:** I'm personally helping adopters with error handling and mountSpec wiring on Discord — find me as **skyyskater**.
+
 ## Overview
 
 - **`defineErrors()`** — domain error maps; shorthand **`err`** is builtins-only.
