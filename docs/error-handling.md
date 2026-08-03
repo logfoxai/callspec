@@ -177,6 +177,8 @@ Helpers can return `RouteFailuresFrom<typeof err>` / domain handles, or `Session
 
 Express middleware that cannot return through mountSpec may still **`throw`** a `RouteFailure` object; use `isRouteFailure` + `sendRouteFailureResponse` in the error handler.
 
+**Legacy `RouteError` (Error subclass):** still supported for throws via `isRouteError` / `expressErrorHandler`. Prefer `RouteFailure` returns; new code should not introduce `RouteError`.
+
 ## Rules
 
 - Return failures via `defineErrors()` handles (`err`, `defineErrors({ DOMAIN: … })`)
