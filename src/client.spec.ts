@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {test} from 'kizu';
-import {CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
+import {BUILTIN_ERROR, CLIENT_ERROR, CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
 
 test('client bundle is fetch-only (no node server imports)', (assert) => {
 
@@ -117,6 +117,36 @@ test('CallspecClient.callResult returns typed error bodies', async (assert) => {
 
 });
 
+test('CallspecClient.callResult maps 401 plain message via status', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response('Bearer token required', {
+        status: 401,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('secret', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 401);
+            assert.equal(result.code, BUILTIN_ERROR.UNAUTHORIZED);
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
 test('CallspecClient merges fetchOptions headers without dropping Content-Type', async (assert) => {
 
     const calls: {init?: RequestInit}[] = [];
@@ -158,14 +188,12 @@ test('CallspecClient merges fetchOptions headers without dropping Content-Type',
 
 });
 
-test('CallspecClient.callResult maps undeclared domain errors to INTERNAL_ERROR', async (assert) => {
+test('CallspecClient.callResult maps undeclared domain errors to UNKNOWN_ERROR', async (assert) => {
 
     const originalFetch = globalThis.fetch;
+    const body = {error: 'USER_EXISTS', data: {email: 'taken@example.com'}};
 
-    globalThis.fetch = (async () => new Response(JSON.stringify({
-        error: 'USER_EXISTS',
-        data: {email: 'taken@example.com'},
-    }), {
+    globalThis.fetch = (async () => new Response(JSON.stringify(body), {
         status: 409,
     })) as typeof fetch;
 
@@ -179,7 +207,13 @@ test('CallspecClient.callResult maps undeclared domain errors to INTERNAL_ERROR'
         if (!result.ok) {
 
             assert.equal(result.status, 409);
-            assert.equal(result.code, 'INTERNAL_ERROR');
+            assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+            if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+                assert.equal(result.data.body, body);
+
+            }
 
         }
 
@@ -227,11 +261,11 @@ test('CallspecClient.callResult preserves declared domain error bodies', async (
 
 });
 
-test('CallspecClient.callResult maps unparseable error bodies to INTERNAL_ERROR', async (assert) => {
+test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
-    globalThis.fetch = (async () => new Response('<html>bad gateway</html>', {
+    globalThis.fetch = (async () => new Response('<html>502 Bad Gateway</html>', {
         status: 502,
     })) as typeof fetch;
 
@@ -244,7 +278,47 @@ test('CallspecClient.callResult maps unparseable error bodies to INTERNAL_ERROR'
 
         if (!result.ok) {
 
-            assert.equal(result.code, 'INTERNAL_ERROR');
+            assert.equal(result.status, 502);
+            assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps unmapped 500 to UNKNOWN_ERROR with headers', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+    const body = '<html>something weird</html>';
+
+    globalThis.fetch = (async () => new Response(body, {
+        status: 500,
+        headers: {'Server': 'nginx', 'Content-Type': 'text/html'},
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 500);
+            assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+            if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+                assert.equal(result.data.body, body);
+                assert.equal(result.data.headers?.server, 'nginx');
+
+            }
 
         }
 

@@ -465,7 +465,7 @@ if (isCallspecOk(result)) {
 }
 ```
 
-For application code, prefer the **generated client** — it wraps `CallspecClient.callResult` with per-route input/output/error types.
+For application code, prefer the **generated client** — it wraps `CallspecClient.callResult` with per-route input/output/error types. Failed responses are normalized in order: exact callspec JSON → known body phrases → HTTP status → fuzzy match → client-only **`UNKNOWN_ERROR`** (raw body and response headers for debugging). **`INTERNAL_ERROR`** appears only when the server sends it — see [Client error normalization](docs/error-handling.md#client-error-normalization).
 
 ## Getting started
 
@@ -516,7 +516,7 @@ See [Shared validation and types](#shared-validation-and-types-backend--frontend
 |--------|-----|
 | `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure` |
 | `callspec/express` | `expressErrorHandler` |
-| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) and generated client types |
+| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, `normalizeClientErrorBody`, …) and generated client types |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
 
 ## Development

@@ -10,7 +10,7 @@ Design reference for the callspec error contract, mountSpec runtime, and client 
 - **Builtins on every route** — merged at `defineRoute` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
 - **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks handler return types against `errors:` at compile time (no runtime allowlist).
 - **`BUILTIN_ERROR`** — one constant namespace for all automatic codes (validation, auth, route-not-found, etc.).
-- **Client Result** — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`.
+- Client Result — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`. Every failure union includes client-only **`UNKNOWN_ERROR`** when the response is outside the route contract.
 - **Codegen** — after changing routes or error specs, rerun `npx callspec …` and refresh generated client types.
 
 Framework validation and auth **throw** `CallspecValidationError` / `CallspecUnauthorizedError` — mountSpec maps those inline. Any other unhandled error becomes **`INTERNAL_ERROR`** (see [mountSpec runtime](#mountspec-runtime)).
@@ -135,6 +135,22 @@ Domain and builtin specs use the same mechanism — declare `data: p.optional(yo
 
 Domain errors omit `status` to default to **400** (`DEFAULT_ROUTE_ERROR_STATUS`). Override `status` only when you care about HTTP/OpenAPI transport mapping.
 
+## Client error normalization
+
+`CallspecClient.callResult` maps failed HTTP responses to typed `{ ok: false, status, code, data? }` results. **`INTERNAL_ERROR` is only used when the server sends that code on the wire** — the client never invents it during normalization.
+
+### Pipeline (in order)
+
+1. **Exact callspec JSON** — `{ error: "CODE", data? }` (and `errors` on `VALIDATION_ERROR`). Builtin codes and route-declared domain codes (from codegen `allowedErrorCodes`) map to typed failures. An `{ error }` field that is **not** on the contract becomes **`UNKNOWN_ERROR`** (preserves raw body).
+2. **Exact body phrases** — case-insensitive literals such as `Unauthorized`, `Forbidden`, `Bad Gateway`, `Service Unavailable`.
+3. **HTTP status** — takes priority over fuzzy body matching. Examples: 401 → `UNAUTHORIZED`, 502/503/504 → `SERVICE_UNAVAILABLE`, 429 → `TOO_MANY_REQUESTS`. Unmapped statuses fall through.
+4. **Fuzzy body match** — strip HTML for matching only; normalize case/spacing/underscores; map phrases (`badgateway`, `unauthorized`, …) and code-like strings to known builtins or declared domain codes.
+5. **`UNKNOWN_ERROR`** (client-only, not in `callspec.json`) — `{ code: 'UNKNOWN_ERROR', data: { body, headers? } }`. **`body` is the raw parsed response** (string or JSON) for operator debugging; **`headers`** are response headers when present. Do not show `UNKNOWN_ERROR.data` to end users — log or devtools only.
+
+HTML tag stripping applies **only** while matching (steps 2–4). It is not applied to `UNKNOWN_ERROR.data.body`.
+
+For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same pipeline (optional `responseHeaders` in options).
+
 ## Handler pattern
 
 ```typescript
@@ -171,4 +187,4 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 - Return failures via `defineErrors()` handles (`err`, `defineErrors({ DOMAIN: … })`)
 - Builtins are always allowed — merged onto every route at definition time
 - Undeclared domain returns are a **compile error** on the route handler (routes without `errors:` allow builtins only)
-- Client `normalizeClientErrorBody(status, body)` parses foreign Express middleware responses (non-RPC / legacy). **`CallspecClient.callResult`** coerces undeclared wire codes to **`INTERNAL_ERROR`** — only builtins and route-declared domain codes appear on typed `CallspecRouteResult` failures.
+- **`CallspecClient.callResult`** — see [Client error normalization](#client-error-normalization). Mapped failures use builtins + route-declared codes; anything else is client-only **`UNKNOWN_ERROR`** with raw `body` / `headers` for debugging.
