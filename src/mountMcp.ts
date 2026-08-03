@@ -134,6 +134,13 @@ export function mountMcp<Ctx>(
 
                 } catch (err) {
 
+                    if (isRouteFailure(err)) {
+
+                        respond(toolError(JSON.stringify(formatRouteFailureBody(err))));
+                        return;
+
+                    }
+
                     if (err instanceof CallspecUnauthorizedError) {
 
                         respond(toolError('Unauthorized — Bearer token required'));

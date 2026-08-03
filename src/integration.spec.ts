@@ -470,6 +470,80 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
 
 });
 
+test('integration: handleUnhandledError maps throw to wire failure', async (assert) => {
+
+    const spec = defineSpec({
+        meta: {title: 'Hook API', version: '1.0.0'},
+        routes: {
+            timeout: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Timeout', description: 'Timeout', tags: ['x']},
+                access: 'public',
+                handler: async (_input, _ctx) => {
+
+                    const err = new Error('canceling statement due to statement timeout') as Error & {code: string};
+                    err.code = '57014';
+                    throw err;
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, spec, {
+        logging: false,
+        handleUnhandledError: (err) => {
+
+            if (typeof err === 'object' && err !== null && (err as {code?: string}).code === '57014') {
+
+                return {
+                    ok: false,
+                    code: 'SERVICE_UNAVAILABLE',
+                    status: 503,
+                    data: {message: 'The request took too long to process. Please try again.'},
+                };
+
+            }
+
+        },
+    });
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/timeout`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 503);
+        assert.equal(await res.json(), {
+            error: 'SERVICE_UNAVAILABLE',
+            data: {message: 'The request took too long to process. Please try again.'},
+        });
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
 test('integration: logUnhandledError is called for unhandled handler errors', async (assert) => {
 
     let logged: unknown;

@@ -130,7 +130,7 @@ defineRoute({
     meta: {summary, description, tags},
     access?: 'public' | 'private',  // default 'private'
     mcp?: true | {name?, annotations?},
-    errors?: errors({…}),
+    errors?: defineErrors({…}),
     handler: (input, ctx) => …,     // arity 2 — compile-time checked against input/output
 })
 ```
@@ -159,8 +159,13 @@ mountSpec(router, spec, options?: MountSpecOptions)
 | `basePath` | `''` | Prefix for RPC paths and for paths baked into emitted documents |
 | `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json`; or pass `{ uiPath?, callspecPath?, openApiPath? }` to override individual paths |
 | `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
+| `logging` | `true` | jsout-express request log on this router + jsout error log on unhandled throws; pass `false` in tests |
+| `handleUnhandledError` | — | `(err, req) => RouteFailure \| undefined` — map infra throws before `INTERNAL_ERROR` |
+| `logUnhandledError` | jsout `logger.error` | Override unhandled-error logging only |
 
 When `docs` is enabled, the docs UI fetches **`callspec.json`** from the configured path (default `/callspec.json` relative to the router).
+
+**Errors and logging:** `mountSpec` owns the RPC catch path and default logging — no separate error middleware for `/v1`. See [error-handling.md § mountSpec runtime](docs/error-handling.md#mountspec-runtime).
 
 ### Input and output
 
@@ -204,12 +209,12 @@ Errors are **typed return possibilities**, not mystery exceptions. Wire format i
 | `SERVICE_UNAVAILABLE` | Dependency unavailable |
 | `INTERNAL_ERROR` | Unhandled throw or rejected promise — mountSpec logs and responds automatically |
 
-**Domain errors** — declare only route-specific codes. The `errors()` handle includes builtin throwers automatically:
+**Domain errors** — declare only route-specific codes. Builtin failers (`err.NOT_FOUND()`, etc.) are always available without declaring them on the route:
 
 ```typescript
-import {defineRoute, errors} from 'callspec';
+import {defineRoute, defineErrors, err} from 'callspec';
 
-const err = errors({
+const userErr = defineErrors({
     USER_EXISTS: {data: p.object({email: p.string()})},
 });
 
@@ -217,19 +222,19 @@ export const routes = {
     getUser: defineRoute({
         input: p.object({email: p.string()}),
         output: p.object({email: p.string(), name: p.string()}),
-        errors: err,
+        errors: userErr,
         meta: {summary: 'Get user', description: 'Lookup by email', tags: ['users']},
         access: 'public',
         handler: async (input, _ctx) => {
-            if (!user) throw err.NOT_FOUND();
-            if (taken) throw err.USER_EXISTS({email: input.email});
+            if (!user) return err.NOT_FOUND();
+            if (taken) return userErr.USER_EXISTS({email: input.email});
             return user;
         },
     }),
 };
 ```
 
-`mountSpec` handles unhandled handler errors and logging end-to-end (jsout + jsout-express). Use `expressErrorHandler()` from `callspec/express` only for routes **outside** mountSpec. Re-exported `logRequest` is available for additional Express routers. Generated clients normalize typical Express error bodies and export per-route `*Result` unions — **no try/catch for HTTP errors**.
+`mountSpec` handles unhandled handler errors and logging end-to-end (see [mountSpec runtime](docs/error-handling.md#mountspec-runtime)). Use `expressErrorHandler()` from `callspec/express` only for routes **outside** mountSpec. Re-exported `logRequest` is for additional Express routers. Generated clients normalize typical Express error bodies and export per-route `*Result` unions — **no try/catch for HTTP errors**.
 
 ## Shared validation and types (backend + frontend)
 
@@ -505,7 +510,7 @@ See [Shared validation and types](#shared-validation-and-types-backend--frontend
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `errors`, `err`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `ErrorsHandleWithThrowers` |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure` |
 | `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) and generated client types |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |

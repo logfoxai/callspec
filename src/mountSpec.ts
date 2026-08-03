@@ -21,7 +21,7 @@ import {
     siblingSpecPath,
     slugServerName,
 } from './metaDefaults';
-import type {Callspec} from './types';
+import type {Callspec, RouteFailure} from './types';
 import {mountCallspecUi} from './callspec-ui/mountCallspecUi';
 import {defaultLogUnhandledError, logRequest} from './mountSpecLogging';
 
@@ -48,6 +48,11 @@ export type MountSpecOptions = {
      * Default true — pass `false` in tests to silence output.
      */
     logging?: boolean
+    /**
+     * Map unexpected throws to intentional `RouteFailure` responses before log +
+     * `INTERNAL_ERROR`. Return undefined to fall through to the default path.
+     */
+    handleUnhandledError?: (err: unknown, req: Request) => RouteFailure | undefined
     /** Override unhandled-error logging. Default uses jsout `logger.error`. */
     logUnhandledError?: (err: unknown, req: Request) => void
 };
@@ -102,6 +107,7 @@ export function mountSpec<Ctx>(
     const loggingEnabled = options.logging !== false;
     const logUnhandledError = options.logUnhandledError
         ?? (loggingEnabled ? defaultLogUnhandledError : noopLogUnhandledError);
+    const handleUnhandledError = options.handleUnhandledError;
 
     if (loggingEnabled) {
 
@@ -191,6 +197,15 @@ export function mountSpec<Ctx>(
                 if (err instanceof CallspecUnauthorizedError) {
 
                     res.status(401).json({error: BUILTIN_ERROR.UNAUTHORIZED});
+                    return;
+
+                }
+
+                const handled = handleUnhandledError?.(err, req as Request);
+
+                if (handled) {
+
+                    sendRouteFailureResponse(res, handled);
                     return;
 
                 }

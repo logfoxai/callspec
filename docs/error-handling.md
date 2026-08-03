@@ -1,45 +1,105 @@
 # Callspec error handling
 
-Design reference — implemented in v2.0.0.
+Design reference for the callspec error contract, mountSpec runtime, and client Result shape.
 
-## Breaking changes (v2.0.0)
+## Overview
 
-Upgrading from v1.x:
+- **`defineErrors()`** — domain error maps; shorthand **`err`** is builtins-only.
+- **Return failures from handlers** — `return err.NOT_FOUND()` / `return registerErr.USER_EXISTS({ … })`; success is a plain route output object.
+- **`RouteFailure`** — `{ ok: false, code, status, data? }` from handlers and from `defineErrors` / `err` handles.
+- **Builtins on every route** — merged at `defineRoute` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
+- **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks handler return types against `errors:` at compile time (no runtime allowlist).
+- **`BUILTIN_ERROR`** — one constant namespace for all automatic codes (validation, auth, route-not-found, etc.).
+- **Client Result** — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`.
+- **Codegen** — after changing routes or error specs, rerun `npx callspec …` and refresh generated client types.
 
-- **`errors()` → `defineErrors()`** — domain error maps use `defineErrors({ … })`; shorthand `err` is builtins-only.
-- **Return failures from handlers** — `return err.NOT_FOUND()` / `return registerErr.USER_EXISTS({ … })`; success is a plain output object (no `ok()` wrapper).
-- **`RouteFailure`** — `{ ok: false, code, status, data? }` returned by handlers and `defineErrors` / `err` handles.
-- **`commonErrors` removed** — do not spread legacy common maps. Builtins merge onto every route at `defineRoute` time.
-- **Do not declare builtin codes on routes** — they are automatic in OpenAPI, `callspec.json`, and every client `*Result` union.
-- **Strict domain registration** — returned domain codes must be declared on the route; TypeScript checks handler return types against `errors:` at compile time (no runtime allowlist).
-- **`BUILTIN_ERROR` replaces `FRAMEWORK_ERROR` / `COMMON_ERROR`** — one constant for all automatic codes.
-- **Flat client Result** — `{ ok: true, value } | { ok: false, status, code, data? }` (not wire-shaped `{ error }`).
-- **Regenerate artifacts** — rerun `npx callspec …` and refresh generated client types after upgrading.
+Framework validation and auth **throw** `CallspecValidationError` / `CallspecUnauthorizedError` — mountSpec maps those inline. Any other unhandled error becomes **`INTERNAL_ERROR`** (see [mountSpec runtime](#mountspec-runtime)).
 
-Framework validation and auth **throw** `CallspecValidationError` / `CallspecUnauthorizedError` — mountSpec maps those inline. Any other unhandled error becomes **`INTERNAL_ERROR`** (see below).
+## mountSpec runtime
 
-## Unhandled errors → `INTERNAL_ERROR`
-
-Anything that escapes a route handler — and is **not** an intentional `RouteFailure` return/throw or a framework validation/auth throw — becomes **`INTERNAL_ERROR`**: HTTP **500** and wire body `{ "error": "INTERNAL_ERROR" }`.
-
-This includes:
-
-- Synchronous throws (`throw new Error('…')`)
-- Rejected promises from async handlers (propagate through `await` in `executeRoute`)
-
-**mountSpec handles this end-to-end** — no separate error middleware or logger wiring for RPC routes. It logs unhandled errors with **jsout** (`logger.error`, serialized automatically) and logs every request with **jsout-express** (`logRequest` on the mounted router):
+For RPC routes mounted with `mountSpec`, **errors and logging are owned by callspec** — you do not wire `expressErrorHandler`, jsout, or jsout-express on that router for normal operation.
 
 ```typescript
-mountSpec(router, spec); // INTERNAL_ERROR + jsout request/error logging
+mountSpec(router, spec); // request log + catch path + INTERNAL_ERROR — zero extra middleware
 ```
 
-Pass `logging: false` in tests to silence output. Override `logUnhandledError` only if you need custom behavior.
+### Catch order (per request)
 
-`expressErrorHandler()` remains exported for **non-callspec** Express routes (upload handlers, custom middleware) that use `next(err)`.
+After `executeRoute` returns or throws:
+
+| Step | Condition | HTTP response | Default error log |
+|------|-----------|---------------|-------------------|
+| 1 | Handler **returns** `RouteFailure` | Wire failure (`sendRouteFailureResponse`) | None |
+| 2 | Handler **throws** `RouteFailure` | Wire failure | None |
+| 3 | `CallspecValidationError` (input validation) | 400 `VALIDATION_ERROR` + `errors` | None |
+| 4 | `CallspecUnauthorizedError` (private route, bad/missing token) | 401 `UNAUTHORIZED` | None |
+| 5 | `handleUnhandledError(err, req)` returns `RouteFailure` | Wire failure | **You** choose (mountSpec skips default error log) |
+| 6 | Anything else (bug, rejected promise, unknown throw) | 500 `INTERNAL_ERROR` | jsout `logger.error` via `logUnhandledError` |
+
+**Success** is step 0: HTTP **200** + route output JSON — no error log.
+
+Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures: synchronous `throw new Error('…')`, rejected async handlers, driver/library throws, etc.
+
+### Logging
+
+| Event | Who | When | Default |
+|-------|-----|------|---------|
+| RPC request | `mountSpec` → jsout-express `logRequest` | Every request on the mounted router (on response finish) | On when `logging !== false` |
+| Unhandled bug | `logUnhandledError` | Catch step 6 only | `logger.error(undefined, err, { url, method })` |
+| Infra / known throw | Your `handleUnhandledError` | Catch step 5 | Your level — e.g. `logger.warn` for query timeout, no log for benign cases |
+| Intentional failure | — | Steps 1–4 | No error log |
+
+**`MountSpecOptions`:**
+
+| Option | Default | Purpose |
+|--------|---------|---------|
+| `logging` | `true` | `false` silences request logging and default error logging (use in tests) |
+| `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 6 |
+| `logUnhandledError` | jsout `logger.error` | Override only the step-6 error log |
+
+Re-exported **`logRequest`** from `callspec` is the same jsout-express middleware — use it on **other** Express routers (upload, webhooks) so request logs match.
+
+### Known infrastructure throws
+
+Handle expected non-bug throws in `handleUnhandledError`. Return a `RouteFailure` to respond on the wire; return `undefined` to fall through to log + `INTERNAL_ERROR`.
+
+```typescript
+import { err, mountSpec } from 'callspec';
+import { logger } from 'jsout';
+
+mountSpec(router, spec, {
+  handleUnhandledError(thrown, req) {
+    if (isPgQueryTimeout(thrown)) {
+      logger.warn('query timeout', thrown);
+      return err.SERVICE_UNAVAILABLE({ message: 'Try again.' });
+    }
+  },
+});
+```
+
+Import **`err`** (builtins-only handle) or your domain handle — do not confuse the caught value with the callspec handle.
+
+### Non-RPC Express routes
+
+Routes **outside** `mountSpec` (multipart upload, custom middleware) still use Express `next(err)`:
+
+- **`expressErrorHandler()`** from `callspec/express` — maps `RouteFailure` throws and framework errors to callspec JSON
+- **`logRequest`** from `callspec` — optional request logging on those routers
+
+Malformed JSON on a router with `body-parser` may hit your app-level handler before RPC runs — see Logfox api-service below.
 
 ### Logfox api-service
 
-RPC logging is fully owned by `mountSpec` on `apiRouter`. App-level `logRequest` (re-exported from callspec) covers `/upload` and other non-RPC routes; `/health` and `/v1` are skipped to avoid duplicate or probe noise. `errorHandler.ts` covers non-RPC errors (malformed JSON, postgres `57014` → `SERVICE_UNAVAILABLE`).
+| Surface | Errors | Request logging |
+|---------|--------|-----------------|
+| `POST /v1/<method>` | `mountSpec` on `apiRouter` (`src/routes/api.ts`) | `mountSpec` `logRequest` |
+| Postgres query timeout (`57014`) | `handleUnhandledError` → `SERVICE_UNAVAILABLE` + `logger.warn` | — |
+| `POST /upload`, `/email-preview`, … | App `errorHandler.ts` → `expressErrorHandler()` | App `index.ts` `logRequest` (skips `/v1` and `/health`) |
+| Malformed JSON (non-RPC body parser) | App `errorHandler.ts` → 400 `VALIDATION_ERROR` | — |
+| `GET /health` | Plain text (LB probes) | Skipped |
+| Rate limit exceeded | `ipRateLimitMiddleware` → 429 | — |
+
+Full contract reference: [callspec error-handling.md](https://github.com/logfoxai/callspec/blob/main/docs/error-handling.md). Service wiring: `api-service` README § Errors & logging.
 
 ## Two tiers
 
@@ -102,7 +162,7 @@ defineRoute({
   errors: registerErr,
   handler: async (input, ctx) => {
     if (taken) return registerErr.USER_ALREADY_EXISTS();
-    return { userId: '…' }; // plain success — no ok() wrapper
+    return { userId: '…' };
   },
 });
 
@@ -127,4 +187,4 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 ## Logfox
 
 - **api-service:** `domainErrors.ts` domain handles + `RouteFailuresFrom` aliases; per-route `errors:` in `routes.ts`; helpers/resolvers return typed failures matching the route contract
-- **app-frontend:** work with `CallspecRouteResult` directly; branch on `BUILTIN_ERROR` / domain codes — no `unwrapCallspec` bridge
+- **app-frontend:** work with `CallspecRouteResult` directly; branch on `BUILTIN_ERROR` / domain codes
