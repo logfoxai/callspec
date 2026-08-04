@@ -16,6 +16,7 @@ export type {
     CallspecBuiltinClientError,
     CallspecUnknownClientError,
     CallResultOptions,
+    DomainErrorContract,
 } from './clientTypes';
 
 export {
@@ -151,6 +152,7 @@ export class CallspecClient {
             status: resp.status,
             body,
             allowedErrorCodes: options?.allowedErrorCodes,
+            domainErrors: options?.domainErrors,
             responseHeaders: resp.headers,
         });
 

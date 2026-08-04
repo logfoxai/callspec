@@ -1,6 +1,22 @@
 import {test} from 'kizu';
-import {BUILTIN_ERROR} from './builtinErrors';
-import {CLIENT_ERROR, normalizeClientErrorBody, resolveRouteClientError} from './clientErrorNormalization';
+import {BUILTIN_ERROR} from '../builtinErrors';
+import {CLIENT_ERROR} from './types';
+import {matchFuzzyBuiltin} from './matchBuiltinHeuristics';
+import {normalizeClientErrorBody, resolveRouteClientError} from './resolveRouteClientError';
+
+const userExistsParsing = {
+    allowedErrorCodes: ['USER_EXISTS'],
+    domainErrors: {
+        USER_EXISTS: {
+            dataRequired: true,
+            data: {
+                type: 'object',
+                properties: {email: {type: 'string'}},
+                required: ['email'],
+            },
+        },
+    },
+} as const;
 
 test('resolveRouteClientError: 401 plain message maps via status before fuzzy', (assert) => {
 
@@ -37,7 +53,7 @@ test('resolveRouteClientError: declared domain error from callspec JSON', (asser
     const result = resolveRouteClientError({
         status: 409,
         body: {error: 'USER_EXISTS', data: {email: 'taken@example.com'}},
-        allowedErrorCodes: ['USER_EXISTS'],
+        ...userExistsParsing,
     });
 
     assert.equal(result.code, 'USER_EXISTS');
@@ -50,14 +66,41 @@ test('resolveRouteClientError: declared domain error from callspec JSON', (asser
 
 });
 
-test('resolveRouteClientError: 502 HTML maps to SERVICE_UNAVAILABLE via status', (assert) => {
+test('resolveRouteClientError: domain error with missing required data yields UNKNOWN_ERROR', (assert) => {
 
+    const body = {error: 'USER_EXISTS'};
     const result = resolveRouteClientError({
-        status: 502,
-        body: '<html><body>502 Bad Gateway</body></html>',
+        status: 409,
+        body,
+        ...userExistsParsing,
     });
 
-    assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
+    assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+    if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+        assert.equal(result.data.body, body);
+
+    }
+
+});
+
+test('resolveRouteClientError: domain code without domainErrors schema yields UNKNOWN_ERROR', (assert) => {
+
+    const body = {error: 'USER_EXISTS', data: {email: 'taken@example.com'}};
+    const result = resolveRouteClientError({
+        status: 409,
+        body,
+        allowedErrorCodes: ['USER_EXISTS'],
+    });
+
+    assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+    if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+        assert.equal(result.data.body, body);
+
+    }
 
 });
 
@@ -109,28 +152,18 @@ test('resolveRouteClientError: plain internal error text does not map to INTERNA
 
 });
 
-test('resolveRouteClientError: malformed TOO_MANY_REQUESTS JSON yields UNKNOWN_ERROR', (assert) => {
-
-    const body = {error: 'TOO_MANY_REQUESTS'};
-    const result = resolveRouteClientError({
-        status: 429,
-        body,
-    });
-
-    assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
-
-    if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
-
-        assert.equal(result.data.body, body);
-
-    }
-
-});
-
 test('normalizeClientErrorBody: fuzzy bad gateway phrase', (assert) => {
 
     const result = normalizeClientErrorBody(400, 'Bad Gateway');
 
     assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
+
+});
+
+test('matchFuzzyBuiltin: maps bad gateway phrase', (assert) => {
+
+    const result = matchFuzzyBuiltin('Bad Gateway');
+
+    assert.equal(result?.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
 });

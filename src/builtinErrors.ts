@@ -55,10 +55,10 @@ export const builtInErrors = {
     },
     TOO_MANY_REQUESTS: {
         status: 429,
-        data: p.object({
-            title: p.string(),
-            message: p.string(),
-        }),
+        data: p.optional(p.object({
+            title: p.optional(p.string()),
+            message: p.optional(p.string()),
+        })),
     },
     SERVICE_UNAVAILABLE: {
         status: 503,

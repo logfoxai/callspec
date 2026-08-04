@@ -127,9 +127,11 @@ HTTP status is **not** the semantic layer. It exists for:
 Generated clients and app code should branch on **`result.code`** when `!result.ok`, not `result.status`. The client maps wire `{ error, data? }` to `{ ok: false, status, code, data? }`.
 
 **`data` on the client Result** mirrors the error spec's `data` pred:
-- **Required pred** — `data` always present (`TOO_MANY_REQUESTS`, domain errors with required payload)
-- **Optional pred** (`p.optional(...)`) — `data` on the wire only when provided; declare `data: p.optional(yourPred)` on the error spec (builtins like `NOT_FOUND` use optional `{ message?, description? }`)
+- **Required pred** — `data` always present on validated domain failures; builtins like `VALIDATION_ERROR` and `ROUTE_NOT_FOUND` require wire payloads when typed
+- **Optional pred** (`p.optional(...)`) — `{ code }` alone is valid; include `data` only when the wire payload validates (`TOO_MANY_REQUESTS`, `NOT_FOUND`, etc.)
 - **No pred** — no `data` property
+
+When the client cannot validate a declared domain error payload (missing/invalid `data`), the failure becomes **`UNKNOWN_ERROR`** with the raw body. The client **never invents** payload fields.
 
 Domain and builtin specs use the same mechanism — declare `data: p.optional(yourPred)` for optional typed context.
 
@@ -141,9 +143,9 @@ Domain errors omit `status` to default to **400** (`DEFAULT_ROUTE_ERROR_STATUS`)
 
 ### Pipeline (in order)
 
-1. **Exact callspec JSON** — `{ error: "CODE", data? }` (and `errors` on `VALIDATION_ERROR`). Builtin codes and route-declared domain codes (from codegen `allowedErrorCodes`) map to typed failures. An `{ error }` field that is **not** on the contract becomes **`UNKNOWN_ERROR`** (preserves raw body).
+1. **Exact callspec JSON** — `{ error: "CODE", data? }` (and `errors` on `VALIDATION_ERROR`). Builtin codes and route-declared domain codes map to typed failures when the wire shape validates. Domain payloads are checked against `callspec.json` schemas (codegen passes `domainErrors`). An `{ error }` field that fails validation or is undeclared becomes **`UNKNOWN_ERROR`** (preserves raw body).
 2. **Exact body phrases** — case-insensitive literals such as `Unauthorized`, `Forbidden`, `Bad Gateway`, `Service Unavailable`.
-3. **HTTP status** — takes priority over fuzzy body matching. Examples: 401 → `UNAUTHORIZED`, 502/503/504 → `SERVICE_UNAVAILABLE`, 429 → `TOO_MANY_REQUESTS`. Unmapped statuses fall through.
+3. **HTTP status** — takes priority over fuzzy body matching. Examples: 401 → `UNAUTHORIZED`, 502/503/504 → `SERVICE_UNAVAILABLE`, 429 → `TOO_MANY_REQUESTS` (code only when the body has no validated payload). Unmapped statuses fall through.
 4. **Fuzzy body match** — strip HTML for matching only; normalize case/spacing/underscores; map phrases (`badgateway`, `unauthorized`, …) and code-like strings to known builtins or declared domain codes.
 5. **`UNKNOWN_ERROR`** (client-only, not in `callspec.json`) — `{ code: 'UNKNOWN_ERROR', data: { body, headers? } }`. **`body` is the raw parsed response** (string or JSON) for operator debugging; **`headers`** are response headers when present. Do not show `UNKNOWN_ERROR.data` to end users — log or devtools only.
 

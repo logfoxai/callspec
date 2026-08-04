@@ -1,4 +1,5 @@
 import {BUILTIN_ERROR, type OptionalBuiltinContext} from './builtinErrors';
+import type {DomainErrorContract} from './clientErrorDataValidation';
 
 export type CallspecOk<T> = {
     ok: true
@@ -10,9 +11,14 @@ type CallspecValidationClientError = {
     data: Record<string, string>
 };
 
+export type TooManyRequestsContext = {
+    title?: string
+    message?: string
+};
+
 export type CallspecTooManyRequestsClientError = {
     code: typeof BUILTIN_ERROR.TOO_MANY_REQUESTS
-    data: {title: string, message: string}
+    data?: TooManyRequestsContext
 };
 
 type CallspecRouteNotFoundClientError = {
@@ -56,7 +62,11 @@ export type CallspecResult<T, E = never> = CallspecOk<T> | CallspecFailure<E>;
 
 export type CallspecRouteResult<T, E = never> = CallspecResult<T, E>;
 
+export type {DomainErrorContract} from './clientErrorDataValidation';
+
 export type CallResultOptions = {
     /** Domain error codes from callspec.json for this route. Builtins are always allowed. */
     allowedErrorCodes?: readonly string[]
+    /** Per-code payload schemas from callspec.json — required for validated domain error parsing. */
+    domainErrors?: Readonly<Record<string, DomainErrorContract>>
 };

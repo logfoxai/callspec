@@ -110,14 +110,50 @@ export function generateClientSource(
 
         usedMethodNames.add(methodName);
 
-        const allowedErrorCodesJson = route.errors
-            ? JSON.stringify(
-                Object.keys(route.errors).sort((a, b) => a.localeCompare(b)),
-            )
+        const domainErrorCodes = route.errors
+            ? Object.keys(route.errors).sort((a, b) => a.localeCompare(b))
             : undefined;
 
-        const callOptionsArg = allowedErrorCodesJson
-            ? `, { allowedErrorCodes: ${allowedErrorCodesJson} }`
+        const allowedErrorCodesJson = domainErrorCodes
+            ? JSON.stringify(domainErrorCodes)
+            : undefined;
+
+        const domainErrorsJson = domainErrorCodes
+            ? `{ ${domainErrorCodes.map((code) => {
+                const def = route.errors![code]!;
+                const parts: string[] = [];
+
+                if (def.data) {
+
+                    parts.push(`data: ${JSON.stringify(def.data)}`);
+                    parts.push(`dataRequired: ${def.dataRequired === false ? 'false' : 'true'}`);
+
+                } else {
+
+                    parts.push('dataRequired: false');
+
+                }
+
+                return `${JSON.stringify(code)}: { ${parts.join(', ')} }`;
+            }).join(', ')} }`
+            : undefined;
+
+        const callOptionParts: string[] = [];
+
+        if (allowedErrorCodesJson) {
+
+            callOptionParts.push(`allowedErrorCodes: ${allowedErrorCodesJson}`);
+
+        }
+
+        if (domainErrorsJson) {
+
+            callOptionParts.push(`domainErrors: ${domainErrorsJson}`);
+
+        }
+
+        const callOptionsArg = callOptionParts.length
+            ? `, { ${callOptionParts.join(', ')} }`
             : '';
 
         methods.push(`

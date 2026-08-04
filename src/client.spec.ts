@@ -241,6 +241,16 @@ test('CallspecClient.callResult preserves declared domain error bodies', async (
         const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
         const result = await runtime.callResult('register', {}, {
             allowedErrorCodes: ['USER_EXISTS'],
+            domainErrors: {
+                USER_EXISTS: {
+                    dataRequired: true,
+                    data: {
+                        type: 'object',
+                        properties: {email: {type: 'string'}},
+                        required: ['email'],
+                    },
+                },
+            },
         });
 
         assert.equal(result.ok, false);
@@ -354,8 +364,8 @@ test('CallspecClient.callResult normalizes legacy 429 bodies', async (assert) =>
 
             if (result.code === 'TOO_MANY_REQUESTS') {
 
-                assert.equal(result.data.title, 'Slow down');
-                assert.equal(result.data.message, 'Try again later');
+                assert.equal(result.data?.title, 'Slow down');
+                assert.equal(result.data?.message, 'Try again later');
 
             }
 

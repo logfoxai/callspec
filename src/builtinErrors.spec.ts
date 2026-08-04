@@ -20,6 +20,7 @@ test('defineErrors: builtin failers are always on the handle', (assert) => {
     assert.equal(routeErr.NOT_FOUND().status, 404);
     assert.equal(routeErr.FORBIDDEN().status, 403);
     assert.equal(routeErr.TOO_MANY_REQUESTS({title: 'x', message: 'y'}).code, BUILTIN_ERROR.TOO_MANY_REQUESTS);
+    assert.equal(routeErr.TOO_MANY_REQUESTS().code, BUILTIN_ERROR.TOO_MANY_REQUESTS);
 
 });
 

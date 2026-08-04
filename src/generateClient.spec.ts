@@ -342,6 +342,9 @@ test('generateClientSource: error response types omit data when wire schema has 
     assert.equal(generated.includes('GetUserError'), true);
     assert.equal(generated.includes('GetUserResult = CallspecRouteResult<GetUserOutput, GetUserError>'), true);
     assert.equal(generated.includes('allowedErrorCodes: ["CONFLICT","FORBIDDEN","NOT_FOUND","SERVICE_UNAVAILABLE","TOO_MANY_REQUESTS","USER_EXISTS"]'), true);
+    assert.equal(generated.includes('"USER_EXISTS": { data:'), true);
+    assert.equal(generated.includes('"TOO_MANY_REQUESTS": { data:'), true);
+    assert.equal(/"TOO_MANY_REQUESTS": \{ data: .*, dataRequired: false \}/.test(generated), true);
 
 });
 
