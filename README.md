@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-dark.svg?cb=3" media="(prefers-color-scheme: dark)" />
-    <source srcset="assets/callspec-lockup-light.svg?cb=3" media="(prefers-color-scheme: light)" />
-    <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
+    <source srcset="assets/callspec-lockup-dark.png?cb=1" media="(prefers-color-scheme: dark)" />
+    <source srcset="assets/callspec-lockup-light.png?cb=1" media="(prefers-color-scheme: light)" />
+    <img src="assets/callspec-lockup-light.png?cb=1" alt="callspec" />
   </picture>
 
   <h3 align="center">Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.</h3>
@@ -35,16 +35,79 @@ Docs, OpenAPI, and MCP paths are configurable defaults on `mountSpec`.
 
 ## Getting started
 
-### 1. Backend — define routes and mount the server
+Recommended path: **backend → generate SDK from live contract → call from your app**. Deeper options (committed contract, CI, React, auth) are in **[Guide](#guide)** below.
+
+### 1. Backend
 
 ```bash
 npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
 
-**Requirements:** Node.js 18+, TypeScript 5+, Express 4.x (peer).
+Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Define your RPC methods once with `defineRoute` / `defineSpec`, then `mountSpec` wires the Express server, docs UI, `callspec.json`, OpenAPI, and MCP.
+Define runtyp preds once, wire handlers with `RouteHandler` + `defineRoute`, export a `defineSpec`, then `mountSpec` serves RPC, docs, `callspec.json`, OpenAPI, and MCP. Copy-paste server: **[docs/complete-example.md](docs/complete-example.md)**.
+
+```typescript
+// server/index.ts — after routes.ts exports `api`
+import express from 'express';
+import {mountSpec} from 'callspec';
+import {api} from './routes';
+
+const app = express();
+const router = express.Router();
+router.use(express.json());
+
+mountSpec(router, api, {basePath: '/v1'});
+
+app.use('/v1', router);
+app.listen(3000);
+```
+
+```bash
+npx tsx server/index.ts
+```
+
+Open [http://127.0.0.1:3000/v1/docs](http://127.0.0.1:3000/v1/docs) and try a route.
+
+### 2. Generate the SDK
+
+With the API running, point the CLI at the live contract (no server package in the browser):
+
+```bash
+npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
+```
+
+### 3. Call from your app
+
+```typescript
+import {ApiClient} from './generated/api';
+
+const api = new ApiClient({baseUrl: 'http://127.0.0.1:3000/v1'});
+
+const result = await api.searchRecentPosts({query: 'hello', max_results: 10});
+if (!result.ok) {
+    // branch on result.code — see [error-handling.md](docs/error-handling.md)
+    throw new Error(result.code);
+}
+result.value.results;
+```
+
+### Try the demo
+
+In this repo:
+
+```bash
+npm run build && npm run dev:docs
+```
+
+Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API (`Authorization: Bearer demo` for private routes).
+
+## Guide
+
+### Full backend example
+
+Separate preds, handlers, and route defs — same pattern as [complete-example.md](docs/complete-example.md):
 
 ```typescript
 // server/routes.ts
@@ -98,24 +161,6 @@ export const api = defineSpec({
 });
 ```
 
-```typescript
-// server/index.ts
-import express from 'express';
-import {mountSpec} from 'callspec';
-import {api} from './routes';
-
-const app = express();
-const router = express.Router();
-router.use(express.json());
-
-mountSpec(router, api, {basePath: '/v1'});
-
-app.use('/v1', router);
-app.listen(3000);
-```
-
-Start the server, then open:
-
 | Surface | URL |
 |---------|-----|
 | Docs UI | `http://127.0.0.1:3000/v1/docs` |
@@ -124,11 +169,11 @@ Start the server, then open:
 | RPC | `POST http://127.0.0.1:3000/v1/searchRecentPosts` |
 | MCP | `http://127.0.0.1:3000/v1/mcp` |
 
-Auth example: `Authorization: Bearer demo`. Fuller example (MCP, branding): [docs/complete-example.md](docs/complete-example.md).
+`mountSpec` path options (`docs`, `mcpPath`, per-path overrides): [API reference § mountSpec](#mountspec).
 
-#### Optional — write `callspec.json`
+### Writing `callspec.json`
 
-You do **not** need a committed contract — client codegen can always use the live URL (§2). To produce a file locally or in backend CI without booting HTTP:
+You do **not** need a committed contract — codegen can always use the live URL (Getting started §2). To produce a file for CI or offline use:
 
 **From a running server:**
 
@@ -136,7 +181,7 @@ You do **not** need a committed contract — client codegen can always use the l
 curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 ```
 
-**From TypeScript** (same projection `mountSpec` serves — `meta` + `basePath` from your spec):
+**From TypeScript** (same projection `mountSpec` serves):
 
 ```typescript
 // scripts/write-callspec-json.ts
@@ -166,25 +211,22 @@ writeFileSync(
 npx tsx scripts/write-callspec-json.ts
 ```
 
-### 2. Frontend — generate the TypeScript SDK
+### Frontend codegen
 
-You do **not** import the server package in the browser. Point the CLI at **`callspec.json`** — file or URL. The document already contains routes, errors, `info`, and paths; codegen does not take title, version, or basePath.
-
-**Local dev** (API running):
+The CLI reads **`callspec.json`** (file or URL). The document already contains routes, errors, `info`, and paths — codegen does not take title, version, or basePath.
 
 ```bash
+# local dev (API running)
 npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
-```
 
-**CI or offline** (committed contract from optional step above):
-
-```bash
+# CI or offline (committed contract)
 npx callspec ./callspec.json --output src/generated/api.ts
+
+# shared runtyp preds for forms (optional)
+npx callspec ./callspec.json --output src/generated/validators.ts --validators
 ```
 
 Commit `callspec.json` and/or generated `api.ts`; fail CI on drift if you regenerate in the pipeline.
-
-Add a script in your frontend app:
 
 ```json
 "scripts": {
@@ -192,7 +234,7 @@ Add a script in your frontend app:
 }
 ```
 
-### 3. Frontend — call the API from your app
+### Frontend usage
 
 The generated `ApiClient` imports only `callspec/client` (browser-safe). Every method returns a **Result** — branch on `ok` and `code`:
 
@@ -224,8 +266,6 @@ export async function searchRecentPosts(query: string) {
 }
 ```
 
-Use it from React, Vue, or plain TS — same typed client everywhere:
-
 ```tsx
 // src/components/Search.tsx
 import {useState} from 'react';
@@ -250,18 +290,6 @@ export function Search() {
 ```
 
 Same methods, same types, same error codes as the server and MCP tools — no hand-rolled `fetch`.
-
-### Try the demo
-
-In this repo:
-
-```bash
-npm run build && npm run dev:docs
-```
-
-Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
-
-`mountSpec` path options (`docs`, `mcpPath`, per-path overrides): see [API reference § mountSpec](#mountspec) below.
 
 ## Errors
 
@@ -421,9 +449,9 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp): preds validate at runti
 
 ## Frontend client generation
 
-See **Getting started §2–3** for the main flow.
+See **Getting started** for the happy path and **[Guide § Frontend codegen](#frontend-codegen)** for CI, validators, and package scripts.
 
-The CLI reads **`callspec.json`** (file or URL) and writes a typed client. It does not take title, version, or basePath — those live in the document because `mountSpec` (or `emitCallspec`) already wrote them from `defineSpec({ meta })` and `basePath`. See **Getting started §1 optional** for producing the file.
+The CLI reads **`callspec.json`** (file or URL) and writes a typed client. It does not take title, version, or basePath — those live in the document because `mountSpec` (or `emitCallspec`) already wrote them from `defineSpec({ meta })` and `basePath`. See **Guide § Writing callspec.json** for producing the file.
 
 ```bash
 # deployed or local API
@@ -453,7 +481,7 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Native Callspec document & OpenAPI
 
-`callspec.json` is Callspec's native contract (`callspec: "1.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk (Getting started §1 optional). The docs UI and TypeScript client generator consume that file as-is.
+`callspec.json` is Callspec's native contract (`callspec: "1.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([Guide § Writing callspec.json](#writing-callspecjson)). The docs UI and TypeScript client generator consume that file as-is.
 
 **OpenAPI 3.1** (`/openapi.json`) is a parallel projection from the same `routes` object (not derived from `callspec.json`). Same inputs, outputs, auth, and error bodies — ready for OpenAPI tooling, gateways, and multi-language SDK generators. RPC methods appear as `POST` paths; errors are grouped by HTTP status.
 
