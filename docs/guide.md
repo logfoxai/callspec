@@ -6,9 +6,11 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 Same `searchProducts` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
+**Route authoring:** declare preds and `defineErrors` once. Type extracted handlers with `Infer<typeof …>` so IDE autocomplete works. Type extracted helpers with `RouteFailuresFrom<typeof …>`. Pass the handler to `defineRoute` — it checks input, output, and allowed failures; you never repeat schemas as hand-written interfaces.
+
 ```typescript
 // server/routes/searchProducts.ts
-import {defineRoute, defineErrors, type RouteHandler} from 'callspec';
+import {defineRoute, defineErrors, isRouteFailure, type RouteFailuresFrom} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 const catalog = new Map([
@@ -30,24 +32,35 @@ const searchProductsOutput = p.object({
     count: p.number(),
 });
 
-const searchProductsHandler: RouteHandler<
-    Infer<typeof searchProductsInput>,
-    Infer<typeof searchProductsOutput>,
-    unknown
-> = async (input, _ctx) => {
+type SearchProduct = Infer<typeof searchProductsOutput>['results'][number];
+
+function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
+    const product = catalog.get(id);
+    if (!product) return searchErr.PRODUCT_NOT_FOUND({id});
+    return product;
+}
+
+function searchByKeywords(keywords: string): Infer<typeof searchProductsOutput>['results'] {
+    const needle = keywords.toLowerCase();
+    return [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
+}
+
+async function searchProductsHandler(
+    input: Infer<typeof searchProductsInput>,
+    _ctx: unknown,
+) {
     if (input.id) {
-        const product = catalog.get(input.id);
-        if (!product) return searchErr.PRODUCT_NOT_FOUND({id: input.id});
+        const product = lookupById(input.id);
+        if (isRouteFailure(product)) return product;
         return {results: [product], count: 1};
     }
     const keywords = input.keywords?.trim();
     if (keywords) {
-        const needle = keywords.toLowerCase();
-        const results = [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
+        const results = searchByKeywords(keywords);
         return {results, count: results.length};
     }
     return searchErr.SEARCH_CRITERIA_REQUIRED();
-};
+}
 
 export const searchProducts = defineRoute({
     input: searchProductsInput,

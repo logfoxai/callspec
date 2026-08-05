@@ -4,7 +4,7 @@ Copy-paste server with meta branding and all default surfaces.
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRoute, defineErrors, mountSpec, type RouteHandler} from 'callspec';
+import {defineSpec, defineRoute, defineErrors, mountSpec, isRouteFailure, type RouteFailuresFrom} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 const catalog = new Map([
@@ -26,14 +26,21 @@ const searchProductsOutput = p.object({
     count: p.number(),
 });
 
-const searchProductsHandler: RouteHandler<
-    Infer<typeof searchProductsInput>,
-    Infer<typeof searchProductsOutput>,
-    unknown
-> = async (input, _ctx) => {
+type SearchProduct = Infer<typeof searchProductsOutput>['results'][number];
+
+function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
+    const product = catalog.get(id);
+    if (!product) return searchErr.PRODUCT_NOT_FOUND({id});
+    return product;
+}
+
+async function searchProductsHandler(
+    input: Infer<typeof searchProductsInput>,
+    _ctx: unknown,
+) {
     if (input.id) {
-        const product = catalog.get(input.id);
-        if (!product) return searchErr.PRODUCT_NOT_FOUND({id: input.id});
+        const product = lookupById(input.id);
+        if (isRouteFailure(product)) return product;
         return {results: [product], count: 1};
     }
     const keywords = input.keywords?.trim();
@@ -43,7 +50,7 @@ const searchProductsHandler: RouteHandler<
         return {results, count: results.length};
     }
     return searchErr.SEARCH_CRITERIA_REQUIRED();
-};
+}
 
 export const meta = {
     title: 'My API',

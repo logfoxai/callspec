@@ -2,10 +2,10 @@
 
 ## `defineRoute`
 
-Define **runtyp preds once**, then type handlers with `Infer<typeof …>`:
+Declare **runtyp preds once**, extract the handler, wire with `defineRoute`:
 
 ```typescript
-import {defineRoute, defineErrors, type RouteHandler} from 'callspec';
+import {defineRoute, defineErrors, isRouteFailure, type RouteFailuresFrom} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 const searchProductsInput = p.object({
@@ -21,15 +21,27 @@ const searchErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-const searchProducts: RouteHandler<
-    Infer<typeof searchProductsInput>,
-    Infer<typeof searchProductsOutput>,
-    unknown
-> = async (input, _ctx) => {
-    if (input.id) { /* lookup by id */ }
+type SearchProduct = Infer<typeof searchProductsOutput>['results'][number];
+
+const catalog = new Map<string, SearchProduct>(); // your data source
+
+function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
+    if (!catalog.has(id)) return searchErr.PRODUCT_NOT_FOUND({id});
+    return catalog.get(id)!;
+}
+
+async function searchProductsHandler(
+    input: Infer<typeof searchProductsInput>,
+    _ctx: unknown,
+) {
+    if (input.id) {
+        const product = lookupById(input.id);
+        if (isRouteFailure(product)) return product;
+        return {results: [product], count: 1};
+    }
     if (input.keywords?.trim()) { /* keyword search */ }
     return searchErr.SEARCH_CRITERIA_REQUIRED();
-};
+}
 
 defineRoute({
     input: searchProductsInput,
@@ -38,11 +50,20 @@ defineRoute({
     meta: {summary: '…', description: '…', tags: ['catalog']},
     access: 'public',  // default 'private'
     mcp: true,           // optional
-    handler: searchProducts,
+    handler: searchProductsHandler,
 })
 ```
 
-`defineRoute` checks the handler against the preds at compile time (arity 2: `input`, `ctx`). **Always declare the handler separately** — preds, then `RouteHandler<…>`, then pass `handler` into `defineRoute`.
+**Typing rules (no duplicate schemas):**
+
+| Piece | Declare once as… | Extracted code uses… |
+|-------|------------------|----------------------|
+| Wire input | `searchProductsInput` pred | `Infer<typeof searchProductsInput>` on handler params |
+| Success output | `searchProductsOutput` pred | `Infer<typeof searchProductsOutput>` (or slices like `['results'][number]`) |
+| Domain failures | `searchErr = defineErrors({…})` | `RouteFailuresFrom<typeof searchErr>` on helpers |
+| Handler check | — | `defineRoute({ input, output, errors, handler })` validates the wiring |
+
+`defineRoute` checks the handler at compile time (arity 2: `input`, `ctx`). You do not need `RouteHandler<…>` in application code — preds + `Infer` + `RouteFailuresFrom` give IDE autocomplete without repeating shapes.
 
 Every route requires **`input`** and **`output`** preds. Use `p.any()` when you do not need a precise schema. Only **`errors`** is optional.
 

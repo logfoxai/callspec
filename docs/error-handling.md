@@ -165,8 +165,10 @@ For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)
 
 ## Handler pattern
 
+Preds and errors once; extracted handler + helpers; `defineRoute` wires and checks:
+
 ```typescript
-import {defineRoute, defineErrors, err, type RouteHandler} from 'callspec';
+import {defineRoute, defineErrors, err, isRouteFailure, type RouteFailuresFrom} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 const registerInput = p.object({email: p.string()});
@@ -175,31 +177,32 @@ const registerErr = defineErrors({
     USER_ALREADY_EXISTS: {},
 });
 
-const register: RouteHandler<
-    Infer<typeof registerInput>,
-    Infer<typeof registerOutput>,
-    unknown
-> = async (input, _ctx) => {
+function ensureAvailable(email: string): void | RouteFailuresFrom<typeof registerErr> {
     if (taken) return registerErr.USER_ALREADY_EXISTS();
+}
+
+async function registerHandler(
+    input: Infer<typeof registerInput>,
+    _ctx: unknown,
+) {
+    const blocked = ensureAvailable(input.email);
+    if (isRouteFailure(blocked)) return blocked;
     return {userId: '…'};
-};
+}
 
 defineRoute({
     input: registerInput,
     output: registerOutput,
     errors: registerErr,
     meta: {summary: 'Register', description: 'Create a user account.', tags: ['auth']},
-    handler: register,
+    handler: registerHandler,
 });
-
-// Handler return type is checked: only registerErr codes + builtins allowed.
-// Use RouteFailuresFrom<typeof registerErr> on extracted resolver functions.
 
 // anywhere in handler or helper:
 return err.NOT_FOUND({message: '…'});
 ```
 
-Helpers can return `RouteFailuresFrom<typeof err>` / domain handles, or `SessionContext | BuiltinRouteFailures`; callers propagate with `if (isRouteFailure(x)) return x`.
+Helpers return `RouteFailuresFrom<typeof registerErr>` (or `void` / domain data); callers propagate with `if (isRouteFailure(x)) return x`.
 
 Express middleware that cannot return through mountSpec may still **`throw`** a `RouteFailure` object; use `isRouteFailure` + `sendRouteFailureResponse` in the error handler.
 
