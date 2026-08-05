@@ -52,32 +52,30 @@ Define your RPC methods once with `defineRoute` / `defineSpec`, then `mountSpec`
 // server/routes.ts
 import {defineSpec, defineRoute} from 'callspec';
 import type {Authenticate, RouteHandler} from 'callspec';
-import {predicates as p} from 'runtyp';
+import {predicates as p, type Infer} from 'runtyp';
 
 type Ctx = {userId: string};
 
-type SearchRecentPostsInput = {
-    query: string
-    max_results?: number
-};
+const searchRecentPostsInput = p.object({
+    query: p.string(),
+    max_results: p.optional(p.number({range: {min: 1, max: 100}})),
+});
 
-type SearchRecentPostsResult = {
-    id: string
-    text: string
-    authorId: string
-};
-
-type SearchRecentPostsOutput = {
-    results: SearchRecentPostsResult[]
-    count: number
-};
+const searchRecentPostsOutput = p.object({
+    results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
+    count: p.number(),
+});
 
 const authenticate: Authenticate<Ctx> = async (token, _req) => {
     if (!token) return undefined;
     return {userId: 'user_123'};
 };
 
-const searchRecentPosts: RouteHandler<SearchRecentPostsInput, SearchRecentPostsOutput, Ctx> = async (input, ctx) => ({
+const searchRecentPosts: RouteHandler<
+    Infer<typeof searchRecentPostsInput>,
+    Infer<typeof searchRecentPostsOutput>,
+    Ctx
+> = async (input, ctx) => ({
     results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
     count: 1,
 });
@@ -87,14 +85,8 @@ export const api = defineSpec({
     authenticate,
     routes: {
         searchRecentPosts: defineRoute({
-            input: p.object({
-                query: p.string(),
-                max_results: p.optional(p.number({range: {min: 1, max: 100}})),
-            }),
-            output: p.object({
-                results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
-                count: p.number(),
-            }),
+            input: searchRecentPostsInput,
+            output: searchRecentPostsOutput,
             meta: {
                 summary: 'Search recent posts',
                 description: 'Returns posts matching a query.',
@@ -255,18 +247,18 @@ Errors are **typed return possibilities**, not mystery exceptions. Full guide: [
 ```typescript
 import {defineRoute, defineErrors, err} from 'callspec';
 import type {RouteHandler} from 'callspec';
-import {predicates as p} from 'runtyp';
+import {predicates as p, type Infer} from 'runtyp';
 
 type Ctx = unknown;
 
-type GetUserInput = {email: string};
-type GetUserOutput = {email: string; name: string};
+const getUserInput = p.object({email: p.string()});
+const getUserOutput = p.object({email: p.string(), name: p.string()});
 
 const userErr = defineErrors({
     USER_EXISTS: {data: p.object({email: p.string()})},
 });
 
-const getUser: RouteHandler<GetUserInput, GetUserOutput, Ctx> = async (input, _ctx) => {
+const getUser: RouteHandler<Infer<typeof getUserInput>, Infer<typeof getUserOutput>, Ctx> = async (input, _ctx) => {
     if (!user) return err.NOT_FOUND();
     if (taken) return userErr.USER_EXISTS({email: input.email});
     return user;
@@ -274,8 +266,8 @@ const getUser: RouteHandler<GetUserInput, GetUserOutput, Ctx> = async (input, _c
 
 export const routes = {
     getUser: defineRoute({
-        input: p.object({email: p.string()}),
-        output: p.object({email: p.string(), name: p.string()}),
+        input: getUserInput,
+        output: getUserOutput,
         errors: userErr,
         meta: {summary: 'Get user', description: 'Lookup by email', tags: ['users']},
         access: 'public',
@@ -320,27 +312,30 @@ Wire format is always `{ "error": "CODE", "data?": … }`. The **`error` code** 
 
 ### `defineRoute`
 
-Define handlers **separately** — not inline — with explicit input/output types via `RouteHandler`:
+Define **runtyp preds once**, then type handlers with `Infer<typeof …>`. Pass preds and handlers separately into `defineRoute`:
 
 ```typescript
+const searchRecentPostsInput = p.object({…});
+const searchRecentPostsOutput = p.object({…});
+
+const searchRecentPosts: RouteHandler<
+    Infer<typeof searchRecentPostsInput>,
+    Infer<typeof searchRecentPostsOutput>,
+    Ctx
+> = async (input, ctx) => ({…});
+
 defineRoute({
-    input: p.object({…}),           // required — runtyp predicate
-    output: p.object({…}),          // required — use p.any() if unconstrained
+    input: searchRecentPostsInput,
+    output: searchRecentPostsOutput,
     meta: {summary, description, tags},
     access?: 'public' | 'private',  // default 'private'
     mcp?: true | {name?, annotations?},
     errors?: defineErrors({…}),
-    handler: searchRecentPosts,    // RouteHandler<Input, Output, Ctx>
+    handler: searchRecentPosts,
 })
 ```
 
-```typescript
-const searchRecentPosts: RouteHandler<SearchRecentPostsInput, SearchRecentPostsOutput, Ctx> = async (input, ctx) => {
-    return {…};
-};
-```
-
-`defineRoute` checks the handler against `input` / `output` preds at compile time (arity 2: `input`, `ctx`).
+`defineRoute` checks the handler against the preds at compile time (arity 2: `input`, `ctx`).
 
 ### `defineSpec`
 

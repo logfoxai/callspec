@@ -6,21 +6,25 @@ A fuller Callspec API with auth, MCP, meta branding, and all default surfaces.
 import express from 'express';
 import {defineSpec, defineRoute, mountSpec} from 'callspec';
 import type {Authenticate, RouteHandler} from 'callspec';
-import {predicates as p} from 'runtyp';
+import {predicates as p, type Infer} from 'runtyp';
 
 type AuthContext = {userId: string};
 
-type SearchRecentPostsInput = {
-    query: string
-    max_results?: number
-};
+const searchRecentPostsInput = p.object({
+    query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
+    max_results: p.optional(p.number({range: {min: 1, max: 100}})),
+});
 
-type SearchRecentPostsOutput = {
-    results: {id: string; text: string; authorId: string}[]
-    count: number
-};
+const searchRecentPostsOutput = p.object({
+    results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
+    count: p.number(),
+});
 
-const searchRecentPosts: RouteHandler<SearchRecentPostsInput, SearchRecentPostsOutput, AuthContext> = async (input, ctx) => ({
+const searchRecentPosts: RouteHandler<
+    Infer<typeof searchRecentPostsInput>,
+    Infer<typeof searchRecentPostsOutput>,
+    AuthContext
+> = async (input, ctx) => ({
     results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
     count: 1,
 });
@@ -39,14 +43,8 @@ export const meta = {
 
 export const routes = {
     searchRecentPosts: defineRoute({
-        input: p.object({
-            query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
-            max_results: p.optional(p.number({range: {min: 1, max: 100}})),
-        }),
-        output: p.object({
-            results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
-            count: p.number(),
-        }),
+        input: searchRecentPostsInput,
+        output: searchRecentPostsOutput,
         meta: {
             summary: 'Search recent posts',
             description: 'Returns posts matching a query.',
