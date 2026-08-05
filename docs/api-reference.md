@@ -49,7 +49,7 @@ export const getProductById = resolveRoute(getProductByIdContract, getProductByI
 
 Helpers that return domain failures: `RouteFailuresFrom<typeof productErr>`. Plain domain functions (e.g. `lookupById` returning `Product | null`) stay free of Callspec — map to route failures in the resolver.
 
-Private routes: annotate auth context on the param — `resolverFor(route)(async (input, ctx: Ctx) => …)`.
+Private routes: annotate auth context on the param — `resolverFor(route)(async (input, ctx: Ctx) => …)`. See [Guide § Authentication](guide.md#authentication) and [Guide § Request context](guide.md#request-context).
 
 ### Testing resolvers
 
@@ -145,9 +145,11 @@ See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime
 
 ## Auth and scope
 
+See [Guide § Authentication](guide.md#authentication) and [Guide § Request context](guide.md#request-context) for full examples.
+
 - **`auth: 'none'`** — no credentials required
 - **`auth: 'bearer'`** (default) — 401 without valid Bearer token
-- **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it
+- **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it with the Express `req`
 
 **Scope** controls export surfaces (not HTTP mounting — all routes stay callable on the server):
 

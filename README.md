@@ -171,7 +171,7 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 | Doc | What's in it |
 |-----|----------------|
-| [Guide](docs/guide.md) | Full server layout, writing `callspec.json`, CI codegen, React client, shared validators |
+| [Guide](docs/guide.md) | Full server layout, authentication, request context, CI codegen, React client, shared validators |
 | [Complete example](docs/complete-example.md) | Single-file copy-paste server |
 | [API reference](docs/api-reference.md) | `defineRoute`, `defineSpec`, `mountSpec`, auth, MCP, docs UI, package exports |
 | [Error handling](docs/error-handling.md) | Result contract, domain errors, builtins, client normalization |

@@ -89,28 +89,6 @@ export const listProducts = resolveRoute(listProductsContract, listProductsResol
 
 Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). Map to route failures only in resolvers that need them. **Unit-test the exported resolver** — call it with input + ctx; no HTTP. See [API reference § Testing resolvers](api-reference.md#testing-resolvers).
 
-**Private routes:** share `type Ctx = { … }` with `authenticate`. Define the resolver separately; annotate `ctx: Ctx` on the param:
-
-```typescript
-import {defineRouteContract, resolveRoute, resolverFor} from 'callspec';
-import {predicates as p} from 'runtyp';
-
-type Ctx = {userId: string};
-
-const getProfileContract = defineRouteContract({
-    input: p.object({}),
-    output: p.object({userId: p.string()}),
-    meta: {summary: 'Get profile', tags: ['users']},
-    auth: 'bearer',
-});
-
-export const getProfileResolver = resolverFor(getProfileContract)(
-    async (input, ctx: Ctx) => ({userId: ctx.userId}),
-);
-
-export const getProfile = resolveRoute(getProfileContract, getProfileResolver);
-```
-
 ```typescript
 // server/routes.ts
 import {defineSpec} from 'callspec';
@@ -124,6 +102,8 @@ export const api = defineSpec({
     exports: {product, productList},
 });
 ```
+
+Bearer routes and `authenticate`: [Authentication](#authentication).
 
 ```typescript
 // server/index.ts
@@ -158,6 +138,134 @@ app.listen(port, () => {
 | MCP | `http://127.0.0.1:3000/v1/mcp` |
 
 `mountSpec` path options: [API reference § mountSpec](api-reference.md#mountspec).
+
+## Authentication
+
+Credentials are per-route, not in the input pred. Two modes:
+
+| `auth` | Behavior |
+|--------|----------|
+| `'none'` | No token required — resolver gets `ctx: undefined` unless the client sent a Bearer token and you wired `authenticate` |
+| `'bearer'` (default) | Missing or invalid token → **401 `UNAUTHORIZED`** before the resolver runs |
+
+Any route with `auth: 'bearer'` requires `authenticate` on the spec — `defineSpec` throws at load time if it is missing.
+
+```typescript
+// server/auth.ts
+import type {Request} from 'express';
+import type {Authenticate} from 'callspec';
+
+export type Ctx = {userId: string};
+
+export const authenticate: Authenticate<Ctx> = async (token, req) => {
+    const session = await verifySession(token, req);
+    if (!session) return undefined;
+    return {userId: session.userId};
+};
+```
+
+```typescript
+// server/routes/getProfile.ts
+import {defineRouteContract, resolveRoute, resolverFor} from 'callspec';
+import {predicates as p} from 'runtyp';
+import type {Ctx} from '../auth';
+
+export const getProfileContract = defineRouteContract({
+    input: p.object({}),
+    output: p.object({userId: p.string()}),
+    meta: {summary: 'Get profile', tags: ['users']},
+    auth: 'bearer',
+});
+
+export const getProfileResolver = resolverFor(getProfileContract)(
+    async (_input, ctx: Ctx) => ({userId: ctx.userId}),
+);
+
+export const getProfile = resolveRoute(getProfileContract, getProfileResolver);
+```
+
+```typescript
+// server/routes.ts — add authenticate when you introduce bearer routes
+import {defineSpec} from 'callspec';
+import {authenticate} from './auth';
+import {product, productList} from './schemas/catalog';
+import {getProfile} from './routes/getProfile';
+import {getProductById} from './routes/getProductById';
+import {listProducts} from './routes/listProducts';
+
+export const api = defineSpec({
+    meta: {
+        title: 'My API',
+        version: '1.0.0',
+        intro: 'Product catalog with typed RPC.',
+        authHint: 'Authorization: Bearer <session token>',
+    },
+    routes: {getProductById, listProducts, getProfile},
+    exports: {product, productList},
+    authenticate,
+});
+```
+
+**Client:** pass the token on every call — generated `ApiClient` accepts `headers` (static or a function):
+
+```typescript
+const api = new ApiClient({
+    baseUrl: 'http://127.0.0.1:3000/v1',
+    headers: () => ({Authorization: `Bearer ${getSessionToken()}`}),
+});
+```
+
+**Docs / MCP:** `meta.authHint` shows in the docs UI and MCP connect flow. OpenAPI Bearer security is derived from route `auth` automatically.
+
+`scope: 'private'` is separate — it hides a route from exports (SDK, docs, OpenAPI) but does not change the auth gate. See [API reference § Auth and scope](api-reference.md#auth-and-scope).
+
+## Request context
+
+The resolver's second argument is **request context** — whatever your `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per HTTP/MCP request after auth.
+
+`authenticate` receives the Bearer token (already extracted) and the Express **`req`**. Use `req` when context depends on more than the token alone — tenant header, cookie session, client IP allowlists, tracing ids, etc.
+
+```typescript
+// server/auth.ts
+import type {Request} from 'express';
+import type {Authenticate} from 'callspec';
+
+export type Ctx = {
+    userId: string
+    tenantId: string
+};
+
+export const authenticate: Authenticate<Ctx> = async (token, req: Request) => {
+    const user = await verifyJwt(token);
+    if (!user) return undefined;
+
+    const tenantId = req.headers['x-tenant-id'];
+    if (typeof tenantId !== 'string') return undefined;
+
+    return {userId: user.sub, tenantId};
+};
+```
+
+Share **`Ctx`** between `authenticate` and resolvers — annotate `ctx: Ctx` on the resolver param so `resolverFor` checks input, output, errors, and context together:
+
+```typescript
+export const listOrdersResolver = resolverFor(listOrdersContract)(
+    async (input, ctx: Ctx) => {
+        return fetchOrders({tenantId: ctx.tenantId, ...input});
+    },
+);
+```
+
+**Public routes** (`auth: 'none'`): resolver normally sees `ctx` as `undefined`. If the client still sends `Authorization: Bearer …` and you defined `authenticate`, callspec resolves context anyway — useful for optional signed-in behavior on public endpoints.
+
+**Testing:** pass a fake `ctx` directly — no HTTP, no Express:
+
+```typescript
+const orders = await listOrdersResolver({status: 'open'}, {
+    userId: 'user_1',
+    tenantId: 'acme',
+});
+```
 
 ## Writing `callspec.json`
 
