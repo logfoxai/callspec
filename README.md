@@ -20,8 +20,6 @@ Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicate
 
 Callspec is RPC: named methods (`searchRecent`), not REST resources. Every method has typed input, output, and errors. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
 
-**The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, and shared runtyp preds — so the browser never imports your Express server just to validate a filter or a registration form.
-
 ## Features
 
 - **HTTP RPC** — named methods over `POST`, with runtyp validation at the boundary
