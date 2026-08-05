@@ -20,7 +20,7 @@ const routes = {
             tags: ['health'],
         },
         auth: 'none',
-        handler: (_input, _ctx) => 'OK',
+        resolver: (_input, _ctx) => 'OK',
     }),
 
     echo: defineRoute({
@@ -32,7 +32,7 @@ const routes = {
             tags: ['demo'],
         },
         auth: 'bearer',
-        handler: (input: {message: string}, _ctx) => ({echo: input.message}),
+        resolver: (input: {message: string}, _ctx) => ({echo: input.message}),
     }),
 
     greet: defineRoute({
@@ -45,7 +45,7 @@ const routes = {
         },
         auth: 'none',
         mcp: true,
-        handler: (input: {name: string}, _ctx) => ({hello: input.name}),
+        resolver: (input: {name: string}, _ctx) => ({hello: input.name}),
     }),
 
 };
@@ -142,7 +142,7 @@ test('integration: callspec.json lists all fixture routes', async (assert) => {
         const doc = await res.json() as Record<string, unknown>;
 
         assert.equal(res.status, 200);
-        assert.equal(doc.callspec, '1.1');
+        assert.equal(doc.callspec, '2.0');
         assert.equal((doc.info as {title: string}).title, 'Fixture API');
 
         const spec = callspecDocumentToUiSpec(parseCallspecDocument(doc));
@@ -194,7 +194,7 @@ test('integration: callspec UI at /docs', async (assert) => {
         const specFromDocs = await fetch(new URL('../callspec.json', `${base}/docs/`));
 
         assert.equal(specFromDocs.status, 200);
-        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '1.1');
+        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '2.0');
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
@@ -378,7 +378,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
                 auth: 'none',
-                handler: async (_input, _ctx) => {
+                resolver: async (_input, _ctx) => {
 
                     throw new Error('boom');
 
@@ -431,7 +431,7 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
                 output: p.string(),
                 meta: {summary: 'Reject', description: 'Reject', tags: ['x']},
                 auth: 'none',
-                handler: async (_input, _ctx) => Promise.reject(new Error('reject')),
+                resolver: async (_input, _ctx) => Promise.reject(new Error('reject')),
             }),
         },
     });
@@ -480,7 +480,7 @@ test('integration: handleUnhandledError maps throw to wire failure', async (asse
                 output: p.string(),
                 meta: {summary: 'Timeout', description: 'Timeout', tags: ['x']},
                 auth: 'none',
-                handler: async (_input, _ctx) => {
+                resolver: async (_input, _ctx) => {
 
                     const err = new Error('canceling statement due to statement timeout') as Error & {code: string};
                     err.code = '57014';
@@ -556,7 +556,7 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
                 auth: 'none',
-                handler: async (_input, _ctx) => {
+                resolver: async (_input, _ctx) => {
 
                     throw new Error('logged boom');
 
@@ -627,7 +627,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
                     tags: ['users'],
                 },
                 auth: 'none',
-                handler: (input: {email: string}, _ctx: unknown) => {
+                resolver: (input: {email: string}, _ctx: unknown) => {
 
                     if (input.email === 'missing@example.com') {
 
@@ -727,7 +727,7 @@ test('integration: declared domain failure is returned on the wire', async (asse
                     tags: ['test'],
                 },
                 auth: 'none',
-                handler: (_input, _ctx) => domainErr.MYSTERY(),
+                resolver: (_input, _ctx) => domainErr.MYSTERY(),
             }),
         },
     });
@@ -825,7 +825,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 auth: 'none',
-                handler: (_input, _ctx) => 'pong',
+                resolver: (_input, _ctx) => 'pong',
             }),
         },
     });
@@ -913,7 +913,7 @@ test('integration: default meta title and version when omitted', async (assert) 
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 auth: 'none',
-                handler: (_input, _ctx) => 'pong',
+                resolver: (_input, _ctx) => 'pong',
             }),
         },
     });

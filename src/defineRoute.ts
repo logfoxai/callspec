@@ -6,7 +6,7 @@ import {
     type DefineErrorsInput,
     type RouteFailuresFor,
 } from './defineErrors';
-import type {RouteDef, RouteHandler, RouteMeta, RouteAuth, RouteScope, McpRouteConfig} from './types';
+import type {RouteDef, RouteResolver, RouteMeta, RouteAuth, RouteScope, McpRouteConfig} from './types';
 
 type DefineRouteBase<I extends Pred<any>, O extends Pred<any>> = {
     input: I
@@ -17,11 +17,11 @@ type DefineRouteBase<I extends Pred<any>, O extends Pred<any>> = {
     mcp?: McpRouteConfig
 };
 
-/** Route with no domain errors — builtins only on the handler return type. */
+/** Route with no domain errors — builtins only on the resolver return type. */
 export function defineRoute<I extends Pred<any>, O extends Pred<any>, Ctx>(
     def: DefineRouteBase<I, O> & {
         errors?: undefined
-        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
+        resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
 ): RouteDef<Infer<I>, Infer<O>, Ctx>;
 
@@ -34,7 +34,7 @@ export function defineRoute<
 >(
     def: DefineRouteBase<I, O> & {
         errors: E
-        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, RouteFailuresFor<E>>
+        resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, RouteFailuresFor<E>>
     },
 ): RouteDef<Infer<I>, Infer<O>, Ctx>;
 
@@ -45,14 +45,14 @@ export function defineRoute<
 >(
     def: DefineRouteBase<I, O> & {
         errors?: DefineErrorsInput
-        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
+        resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
 ): RouteDef<Infer<I>, Infer<O>, Ctx> {
 
-    if (def.handler.length !== 2) {
+    if (def.resolver.length !== 2) {
 
         throw new Error(
-            `Route handler must accept (input, ctx) — arity 2, got ${def.handler.length}`,
+            `Route resolver must accept (input, ctx) — arity 2, got ${def.resolver.length}`,
         );
 
     }
@@ -70,7 +70,7 @@ export function defineRoute<
         auth: def.auth ?? 'bearer',
         scope: def.scope ?? 'public',
         mcp: def.mcp,
-        handler: def.handler,
+        resolver: def.resolver,
     };
 
 }

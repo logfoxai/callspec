@@ -12,7 +12,7 @@ test('exportedRoutes: includes only scope public routes', (assert) => {
             meta: {summary: 'x', description: 'x', tags: []},
             scope: 'public',
             auth: 'none',
-            handler: async (_input, _ctx) => ({}),
+            resolver: async (_input, _ctx) => ({}),
         }),
         internal: defineRoute({
             input: p.object({}),
@@ -20,7 +20,7 @@ test('exportedRoutes: includes only scope public routes', (assert) => {
             meta: {summary: 'x', description: 'x', tags: []},
             scope: 'private',
             auth: 'none',
-            handler: async (_input, _ctx) => ({}),
+            resolver: async (_input, _ctx) => ({}),
         }),
     };
 
@@ -36,14 +36,14 @@ test('hasBearerRoutes: true when any route requires bearer auth', (assert) => {
             output: p.object({}),
             meta: {summary: 'x', description: 'x', tags: []},
             auth: 'none',
-            handler: async (_input, _ctx) => ({}),
+            resolver: async (_input, _ctx) => ({}),
         }),
         secured: defineRoute({
             input: p.object({}),
             output: p.object({}),
             meta: {summary: 'x', description: 'x', tags: []},
             auth: 'bearer',
-            handler: async (_input, _ctx) => ({}),
+            resolver: async (_input, _ctx) => ({}),
         }),
     };
 

@@ -45,40 +45,15 @@ function parseScope(value: unknown, routeName: string): 'public' | 'private' {
 
 }
 
-/** Legacy callspec 1.0 `access` → auth only; exported routes were always public scope. */
-function authScopeFromLegacyAccess(
-    access: unknown,
-    routeName: string,
-): {auth: 'none' | 'bearer'; scope: 'public'} {
-
-    if (access === 'public') return {auth: 'none', scope: 'public'};
-    if (access === 'private') return {auth: 'bearer', scope: 'public'};
-
-    throw new CallspecDocumentError(`Route "${routeName}" has invalid access value`);
-
-}
-
 function parseAuthScope(
     value: Record<string, unknown>,
     routeName: string,
 ): {auth: 'none' | 'bearer'; scope: 'public' | 'private'} {
 
-    if (value.auth !== undefined || value.scope !== undefined) {
-
-        return {
-            auth: parseAuth(value.auth, routeName),
-            scope: parseScope(value.scope ?? 'public', routeName),
-        };
-
-    }
-
-    if (value.access !== undefined) {
-
-        return authScopeFromLegacyAccess(value.access, routeName);
-
-    }
-
-    throw new CallspecDocumentError(`Route "${routeName}" must include auth (or legacy access)`);
+    return {
+        auth: parseAuth(value.auth, routeName),
+        scope: parseScope(value.scope ?? 'public', routeName),
+    };
 
 }
 

@@ -29,7 +29,7 @@ const api = defineSpec({
             },
             auth: 'bearer',
             mcp: true,
-            handler: async (_input, _ctx) => ({results: []}),
+            resolver: async (_input, _ctx) => ({results: []}),
         }),
         healthcheck: defineRoute({
             input: p.object({}),
@@ -40,7 +40,7 @@ const api = defineSpec({
                 tags: ['system'],
             },
             auth: 'none',
-            handler: async (_input, _ctx) => ({status: 'ok'}),
+            resolver: async (_input, _ctx) => ({status: 'ok'}),
         }),
     },
     authenticate: () => ({userId: 'test'}),
@@ -140,7 +140,7 @@ test('parseCallspecDocument: rejects malformed documents', (assert) => {
     );
 
     assert.throws(
-        () => parseCallspecDocument({callspec: '1.0'}),
+        () => parseCallspecDocument({callspec: '2.0'}),
         /must include info/,
     );
 
@@ -155,7 +155,7 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
             meta: {summary: 'Public', description: 'Exported', tags: []},
             scope: 'public',
             auth: 'none',
-            handler: async (_input, _ctx) => ({ok: true}),
+            resolver: async (_input, _ctx) => ({ok: true}),
         }),
         internalRoute: defineRoute({
             input: p.object({}),
@@ -163,7 +163,7 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
             meta: {summary: 'Internal', description: 'Not exported', tags: []},
             scope: 'private',
             auth: 'none',
-            handler: async (_input, _ctx) => ({ok: true}),
+            resolver: async (_input, _ctx) => ({ok: true}),
         }),
     };
 
@@ -175,43 +175,16 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
 
 });
 
-test('parseCallspecDocument: maps legacy access field from callspec 1.0', (assert) => {
+test('parseCallspecDocument: rejects callspec 1.x documents', (assert) => {
 
-    const doc = parseCallspecDocument({
-        callspec: '1.0',
-        info: {title: 'Legacy', version: '1.0.0'},
-        routes: {
-            health: {
-                name: 'health',
-                path: '/health',
-                method: 'POST',
-                summary: 'Health',
-                description: '',
-                tags: [],
-                access: 'public',
-                input: {type: 'object'},
-                output: {type: 'object'},
-                mcp: {enabled: false},
-            },
-            secret: {
-                name: 'secret',
-                path: '/secret',
-                method: 'POST',
-                summary: 'Secret',
-                description: '',
-                tags: [],
-                access: 'private',
-                input: {type: 'object'},
-                output: {type: 'object'},
-                mcp: {enabled: false},
-            },
-        },
-    });
-
-    assert.equal(doc.routes.health.auth, 'none');
-    assert.equal(doc.routes.health.scope, 'public');
-    assert.equal(doc.routes.secret.auth, 'bearer');
-    assert.equal(doc.routes.secret.scope, 'public');
+    assert.throws(
+        () => parseCallspecDocument({
+            callspec: '1.0',
+            info: {title: 'Legacy', version: '1.0.0'},
+            routes: {},
+        }),
+        /Unsupported Callspec document version/,
+    );
 
 });
 
@@ -219,7 +192,7 @@ test('parseCallspecDocument: rejects unsupported major versions', (assert) => {
 
     assert.throws(
         () => parseCallspecDocument({
-            callspec: '2.0',
+            callspec: '3.0',
             info: {title: 'X', version: '1.0.0'},
             routes: {},
         }),

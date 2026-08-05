@@ -88,7 +88,7 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
             output: p.object({results: p.array(p.object({id: p.string()}))}),
             meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
             auth: 'bearer',
-            handler: async (_input, _ctx) => ({results: []}),
+            resolver: async (_input, _ctx) => ({results: []}),
         }),
     };
 
@@ -126,7 +126,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
             auth: 'none',
-            handler: async (_input, _ctx) => 'pong',
+            resolver: async (_input, _ctx) => 'pong',
         }),
     };
 
@@ -234,7 +234,7 @@ test('generated client makes a real request to an in-process server', async (ass
             output: p.object({echo: p.string()}),
             meta: {summary: 'Echo', description: 'Echo', tags: ['demo']},
             auth: 'none',
-            handler: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
+            resolver: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
         }),
     };
 
@@ -331,7 +331,7 @@ test('generateClientSource: error response types omit data when wire schema has 
             errors: err,
             meta: {summary: 'Get user', description: 'Get user', tags: ['users']},
             auth: 'none',
-            handler: async (input, _ctx) => ({email: input.email}),
+            resolver: async (input, _ctx) => ({email: input.email}),
         }),
     }, {title: 'Errors API', version: '1.0.0'});
 
@@ -356,7 +356,7 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
             output: p.string(),
             meta: {summary: 'Evil', description: 'Evil', tags: ['x']},
             auth: 'none',
-            handler: async (_input, _ctx) => 'ok',
+            resolver: async (_input, _ctx) => 'ok',
         }),
     }, {title: 'Evil API', version: '1.0.0'});
 

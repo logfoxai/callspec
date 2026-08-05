@@ -190,7 +190,7 @@ const registerResolver = resolverFor(registerRoute)(async (input, _ctx) => {
 defineRoute({
     ...registerRoute,
     meta: {summary: 'Register', description: 'Create a user account.', tags: ['auth']},
-    handler: registerResolver,
+    resolver: registerResolver,
 });
 
 // anywhere in resolver or helper:

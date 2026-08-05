@@ -1,4 +1,4 @@
-export const CALLSPEC_DOCUMENT_VERSION = '1.1' as const;
+export const CALLSPEC_DOCUMENT_VERSION = '2.0' as const;
 
 export type JsonSchema = Record<string, unknown>;
 

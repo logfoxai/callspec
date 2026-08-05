@@ -212,7 +212,7 @@ const routes = {
             tags: ['system'],
         },
         auth: 'none',
-        handler: (_input, _ctx) => ({status: 'ok'}),
+        resolver: (_input, _ctx) => ({status: 'ok'}),
     }),
 
     getUserById: defineRoute({
@@ -229,7 +229,7 @@ const routes = {
         },
         auth: 'bearer',
         mcp: true,
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockUser(input.id, 'janedoe'),
         }),
     }),
@@ -247,7 +247,7 @@ const routes = {
         },
         auth: 'bearer',
         mcp: true,
-        handler: (input: {username: string}, _ctx: ChirpCtx) => ({
+        resolver: (input: {username: string}, _ctx: ChirpCtx) => ({
             data: mockUser('2244994945', input.username),
         }),
     }),
@@ -266,7 +266,7 @@ const routes = {
             tags: ['users'],
         },
         auth: 'bearer',
-        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
+        resolver: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('1001', 'alex_codes'),
             mockUser('1002', 'sam_reads'),
             mockUser('1003', 'taylor_ops'),
@@ -287,7 +287,7 @@ const routes = {
             tags: ['users'],
         },
         auth: 'bearer',
-        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
+        resolver: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('2001', 'vercel'),
             mockUser('2002', 'github'),
         ], {previous_token: input.pagination_token ?? null}),
@@ -315,7 +315,7 @@ const routes = {
         },
         auth: 'bearer',
         mcp: true,
-        handler: (input: {text: string}, ctx: ChirpCtx) => ({
+        resolver: (input: {text: string}, ctx: ChirpCtx) => ({
             data: mockTweet('1992312312312312321', input.text, ctx.userId),
         }),
     }),
@@ -331,7 +331,7 @@ const routes = {
             tags: ['tweets'],
         },
         auth: 'bearer',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: {deleted: true, id: input.id},
         }),
     }),
@@ -349,7 +349,7 @@ const routes = {
             tags: ['tweets'],
         },
         auth: 'none',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockTweet(input.id, 'Just shipped a new API docs UI with callspec 🎉', '2244994945'),
         }),
     }),
@@ -370,7 +370,7 @@ const routes = {
         },
         auth: 'bearer',
         mcp: true,
-        handler: (input: {query: string}, _ctx: ChirpCtx) => paginated([
+        resolver: (input: {query: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('3001', `Results for: ${input.query}`, '2244994945'),
             mockTweet('3002', 'Another match from the last 7 days', '1001'),
         ]),
@@ -392,7 +392,7 @@ const routes = {
             tags: ['timelines'],
         },
         auth: 'bearer',
-        handler: (_input, ctx: ChirpCtx) => paginated([
+        resolver: (_input, ctx: ChirpCtx) => paginated([
             mockTweet('4001', 'Morning standup notes thread 🧵', ctx.userId),
             mockTweet('4002', 'TIL: JSON Schema from runtyp predicates', '2001'),
             mockTweet('4003', 'Shipping docs today', '2002'),
@@ -414,7 +414,7 @@ const routes = {
             tags: ['timelines'],
         },
         auth: 'bearer',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => paginated([
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('5001', 'Working on RPC + OpenAPI from one spec', input.id),
             mockTweet('5002', 'callspec UI looking clean', input.id),
         ]),
@@ -433,7 +433,7 @@ const routes = {
             tags: ['lists'],
         },
         auth: 'bearer',
-        handler: (input: {name: string; description?: string; private?: boolean}, ctx: ChirpCtx) => ({
+        resolver: (input: {name: string; description?: string; private?: boolean}, ctx: ChirpCtx) => ({
             data: {
                 id: '1313131313131311313',
                 name: input.name,
@@ -461,7 +461,7 @@ const routes = {
             tags: ['lists'],
         },
         auth: 'bearer',
-        handler: (_input, _ctx) => paginated([
+        resolver: (_input, _ctx) => paginated([
             mockUser('6001', 'designbot'),
             mockUser('6002', 'infra_daily'),
         ]),
@@ -479,7 +479,7 @@ const routes = {
             tags: ['direct messages'],
         },
         auth: 'bearer',
-        handler: (input: {text: string; participant_id: string}, ctx: ChirpCtx) => ({
+        resolver: (input: {text: string; participant_id: string}, ctx: ChirpCtx) => ({
             data: {
                 dm_conversation_id: '12345-67890',
                 dm_event_id: '9876543210',

@@ -4,7 +4,7 @@ import {parseUiCallspecDocument} from './parseUiDocument';
 test('parseUiCallspecDocument: coerces minimal route shape', (assert) => {
 
     const doc = parseUiCallspecDocument({
-        callspec: '1.0',
+        callspec: '2.0',
         info: {title: 'Demo', version: '1.0.0'},
         routes: {
             ping: {
@@ -27,7 +27,7 @@ test('parseUiCallspecDocument: coerces minimal route shape', (assert) => {
 test('parseUiCallspecDocument: rejects missing info', (assert) => {
 
     assert.throws(
-        () => parseUiCallspecDocument({callspec: '1.0', routes: {}}),
+        () => parseUiCallspecDocument({callspec: '2.0', routes: {}}),
         /info\.title and info\.version/,
     );
 

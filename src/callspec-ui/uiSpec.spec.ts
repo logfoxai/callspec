@@ -8,7 +8,7 @@ import {parseCallspecDocument} from '../callspecDocument';
 test('callspecDocumentToUiSpec: extracts routes from native document', (assert) => {
 
     const doc = parseCallspecDocument({
-        callspec: '1.0',
+        callspec: '2.0',
         info: {title: 'Demo API', version: '1.0.0'},
         routes: {
             healthcheck: {
@@ -69,7 +69,7 @@ test('emitCallspec to UI spec: native round trip', (assert) => {
             output: p.string(),
             meta: {summary: 'Health', description: 'Health', tags: ['health']},
             auth: 'none',
-            handler: async (_input, _ctx) => 'ok',
+            resolver: async (_input, _ctx) => 'ok',
         }),
     }, {
         title: 'Demo API',

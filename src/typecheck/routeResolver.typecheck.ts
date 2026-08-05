@@ -31,7 +31,7 @@ defineRoute({
     ...searchRoute,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
     auth: 'none',
-    handler: searchResolver,
+    resolver: searchResolver,
 });
 
 const typedResolver: RouteResolverFor<typeof searchRoute, Ctx> = async (input, _ctx) => {
@@ -44,7 +44,7 @@ defineRoute({
     ...searchRoute,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
     auth: 'none',
-    handler: typedResolver,
+    resolver: typedResolver,
 });
 
 // @ts-expect-error wrong input field type

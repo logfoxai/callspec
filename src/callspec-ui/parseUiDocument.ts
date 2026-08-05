@@ -15,22 +15,10 @@ function coerceSchema(value: unknown): JsonSchema {
 
 function coerceAuthScope(route: Record<string, unknown>): {auth: 'none' | 'bearer'; scope: 'public' | 'private'} {
 
-    if (route.auth === 'none' || route.auth === 'bearer') {
-
-        return {
-            auth: route.auth,
-            scope: route.scope === 'private' ? 'private' : 'public',
-        };
-
-    }
-
-    if (route.access === 'private') {
-
-        return {auth: 'bearer', scope: 'public'};
-
-    }
-
-    return {auth: 'none', scope: 'public'};
+    return {
+        auth: route.auth === 'bearer' ? 'bearer' : 'none',
+        scope: route.scope === 'private' ? 'private' : 'public',
+    };
 
 }
 

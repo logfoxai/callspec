@@ -11,7 +11,7 @@ import {isDiscontinued, lookupById} from '../domain/products';
 
 const productErr = defineErrors({
     PRODUCT_NOT_FOUND: {status: 404},
-    PRODUCT_DISCONTINUED: {status: 410},
+    PRODUCT_DISCONTINUED: {},
 });
 
 const product = p.object({id: p.string(), name: p.string(), priceCents: p.number()});
@@ -39,7 +39,7 @@ export const getProductById = defineRoute({
     ...getProductByIdRoute,
     meta: {summary: '…', description: '…', tags: ['catalog']},
     auth: 'none',
-    handler: getProductByIdResolver,
+    resolver: getProductByIdResolver,
 });
 ```
 
@@ -86,7 +86,7 @@ defineRoute({
     auth?: 'none' | 'bearer',  // default 'bearer'
     scope?: 'public' | 'private',  // default 'public' — exported to callspec.json, OpenAPI, docs, SDK, MCP
     mcp?: true | McpRouteConfig,
-    handler: RouteResolverFor<…>,  // your resolver (property name is `handler`)
+    resolver: RouteResolverFor<…>,
 })
 ```
 
@@ -145,7 +145,7 @@ Builtin codes (automatic on every route — never declare): `VALIDATION_ERROR`, 
 
 ## Native Callspec document & OpenAPI
 
-`callspec.json` is Callspec's native contract (`callspec: "1.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([Guide § Writing callspec.json](guide.md#writing-callspecjson)).
+`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([Guide § Writing callspec.json](guide.md#writing-callspecjson)).
 
 **OpenAPI 3.1** (`/openapi.json`) is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors are grouped by HTTP status.
 
@@ -186,7 +186,7 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `aut
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `resolverFor`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteResolverFor`, `RouteResolverDef`, `RouteHandler`, `Authenticate` |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `resolverFor`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteResolverFor`, `RouteResolverDef`, `RouteResolver`, `Authenticate` |
 | `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |

@@ -4,34 +4,34 @@ import {defineSpec, defineRoute} from '.';
 import {executeRoute} from './executeRoute';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 
-test('defineRoute rejects non-2-arg handlers', (assert) => {
+test('defineRoute rejects non-2-arg resolvers', (assert) => {
 
     assert.throws(
         () => defineRoute({
             input: p.object({}),
             output: p.any(),
             meta: {summary: 'x', description: 'x', tags: ['t']},
-            handler: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
+            resolver: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
         }),
         /arity 2/,
-        'throws on 0-arg handler',
+        'throws on 0-arg resolver',
     );
 
 });
 
-test('executeRoute validates and calls handler', async (assert) => {
+test('executeRoute validates and calls resolver', async (assert) => {
 
     const route = defineRoute({
         input: p.object({n: p.number()}),
         output: p.object({double: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         auth: 'none',
-        handler: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
+        resolver: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
     });
 
     const out = await executeRoute(route, {n: 3}, undefined);
 
-    assert.equal(out, {double: 6}, 'handler result');
+    assert.equal(out, {double: 6}, 'resolver result');
 
 });
 
@@ -42,7 +42,7 @@ test('executeRoute 401 on private without ctx', async (assert) => {
         output: p.string(),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         auth: 'bearer',
-        handler: async (_input: unknown, _ctx: unknown) => 'secret',
+        resolver: async (_input: unknown, _ctx: unknown) => 'secret',
     });
 
     try {
@@ -65,7 +65,7 @@ test('executeRoute validation error', async (assert) => {
         output: p.object({n: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         auth: 'none',
-        handler: async (input: {n: number}, _ctx: unknown) => input,
+        resolver: async (input: {n: number}, _ctx: unknown) => input,
     });
 
     try {
@@ -90,12 +90,12 @@ test('defineSpec wires meta and routes', (assert) => {
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 auth: 'none',
-                handler: async (_input: unknown, _ctx: unknown) => 'pong',
+                resolver: async (_input: unknown, _ctx: unknown) => 'pong',
             }),
         },
     });
 
-    assert.equal(typeof api.routes.ping.handler, 'function', 'spec has route');
+    assert.equal(typeof api.routes.ping.resolver, 'function', 'spec has route');
     assert.equal(api.meta.title, undefined, 'meta starts sparse');
 
 });
@@ -110,7 +110,7 @@ test('defineSpec requires authenticate for bearer routes', (assert) => {
                     output: p.string(),
                     meta: {summary: 'x', description: 'x', tags: ['t']},
                     auth: 'bearer',
-                    handler: async (_input: unknown, _ctx: unknown) => 'secret',
+                    resolver: async (_input: unknown, _ctx: unknown) => 'secret',
                 }),
             },
         }),

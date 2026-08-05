@@ -4,41 +4,53 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 ## Full backend example
 
-Same `getProductById` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
+Same catalog routes — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
-**Route authoring:** declare preds once in a `getProductByIdRoute` object, pass to `resolverFor(…)(async …)` for full IDE autocomplete on input, output, and errors, then spread into `defineRoute`. Domain logic lives in plain functions (e.g. `lookupById` returns a product or `null`); map to route failures in the resolver. See [API reference § Resolvers](api-reference.md#resolvers).
+**Less boilerplate:** declare preds and errors once in a shared schema module; each route file imports what it needs and only adds route-specific meta + resolver logic. Use a named `resolverFor(…)(…)` const when you export it for tests; otherwise inline the resolver in `defineRoute`.
+
+### Shared schemas
+
+Most routes reuse domain preds — you define them once, not per route file.
 
 ```typescript
-// server/routes/getProductById.ts
-import {defineRoute, defineErrors, resolverFor} from 'callspec';
-import {predicates as p, type Infer} from 'runtyp';
-import {isDiscontinued, lookupById} from '../domain/products';
+// server/schemas/catalog.ts
+import {defineErrors} from 'callspec';
+import {predicates as p} from 'runtyp';
 
-const productErr = defineErrors({
+export const productErr = defineErrors({
     PRODUCT_NOT_FOUND: {status: 404},
-    PRODUCT_DISCONTINUED: {status: 410},
+    PRODUCT_DISCONTINUED: {},
 });
 
-const product = p.object({
+export const product = p.object({
     id: p.string(),
     name: p.string(),
     priceCents: p.number(),
 });
 
+export const productIdInput = p.object({id: p.string()});
+
+export const productList = p.object({
+    items: p.array(product),
+    count: p.number(),
+});
+```
+
+Pass named preds to `defineSpec({ exports: { product, productList, … } })` when you want them in codegen / `--validators`.
+
+### Routes
+
+```typescript
+// server/routes/getProductById.ts
+import {defineRoute, resolverFor} from 'callspec';
+import {isDiscontinued, lookupById} from '../domain/products';
+import {product, productErr, productIdInput} from '../schemas/catalog';
+
 const getProductByIdRoute = {
-    input: p.object({id: p.string()}),
+    input: productIdInput,
     output: product,
     errors: productErr,
 } as const;
-
-export type Product = Infer<typeof product>;
-
-const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
-    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
-    const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND();
-    return found;
-});
 
 export const getProductById = defineRoute({
     ...getProductByIdRoute,
@@ -49,9 +61,40 @@ export const getProductById = defineRoute({
     },
     auth: 'none',
     mcp: true,
-    handler: getProductByIdResolver,
+    resolver: resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+        if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
+        const found = lookupById(input.id);
+        if (!found) return productErr.PRODUCT_NOT_FOUND();
+        return found;
+    }),
 });
 ```
+
+```typescript
+// server/routes/listProducts.ts — reuses product + productList preds, no new types
+import {defineRoute, resolverFor} from 'callspec';
+import {predicates as p} from 'runtyp';
+import {listProducts as fetchProductList} from '../domain/products';
+import {productList} from '../schemas/catalog';
+
+const listProductsRoute = {
+    input: p.object({}),
+    output: productList,
+} as const;
+
+export const listProducts = defineRoute({
+    ...listProductsRoute,
+    meta: {
+        summary: 'List products',
+        description: 'Returns all active catalog products.',
+        tags: ['catalog'],
+    },
+    auth: 'none',
+    resolver: resolverFor(listProductsRoute)(async (_input, _ctx) => fetchProductList()),
+});
+```
+
+Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). Map to route failures only in resolvers that need them. See [API reference § Resolvers](api-reference.md#resolvers).
 
 **Private routes:** share `type Ctx = { … }` with `authenticate`. Annotate the resolver param as `ctx: Ctx` inside `resolverFor(…)(async (input, ctx) => …)`:
 
@@ -66,11 +109,14 @@ const getProfileResolver = resolverFor(getProfileRoute)(async (input, ctx: Ctx) 
 ```typescript
 // server/routes.ts
 import {defineSpec} from 'callspec';
+import {product, productList} from './schemas/catalog';
 import {getProductById} from './routes/getProductById';
+import {listProducts} from './routes/listProducts';
 
 export const api = defineSpec({
     meta: {title: 'My API', version: '1.0.0', intro: 'Product catalog with typed RPC.'},
-    routes: {getProductById},
+    routes: {getProductById, listProducts},
+    exports: {product, productList},
 });
 ```
 

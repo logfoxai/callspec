@@ -29,7 +29,7 @@ defineRoute({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler output must match output pred
-    handler: async (_input, _ctx: Ctx) => ({hello: 123}),
+    resolver: async (_input, _ctx: Ctx) => ({hello: 123}),
 });
 
 async function wrongInputResolver(input: {name: number}, _ctx: Ctx) {
@@ -44,7 +44,7 @@ defineRoute({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler input must match input pred
-    handler: wrongInputResolver,
+    resolver: wrongInputResolver,
 });
 
 defineRoute({
@@ -53,7 +53,7 @@ defineRoute({
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler input must match input pred
-    handler: wrongSearchResolver,
+    resolver: wrongSearchResolver,
 });
 
 defineRoute({
@@ -61,7 +61,7 @@ defineRoute({
     output: searchOutput,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
     auth: 'none',
-    handler: searchResolver,
+    resolver: searchResolver,
 });
 
 async function wrongOutputResolver(_input: {name: string}, _ctx: Ctx) {
@@ -76,7 +76,7 @@ defineRoute({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler output must match output pred
-    handler: wrongOutputResolver,
+    resolver: wrongOutputResolver,
 });
 
 async function correctResolver(input: {name: string}, _ctx: Ctx) {
@@ -90,7 +90,7 @@ defineRoute({
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
-    handler: correctResolver,
+    resolver: correctResolver,
 });
 
 defineRoute({
@@ -98,7 +98,7 @@ defineRoute({
     output: p.any(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
-    handler: correctResolver,
+    resolver: correctResolver,
 });
 
 const domainErr = defineErrors({
@@ -111,7 +111,7 @@ defineRoute({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     errors: domainErr,
-    handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
+    resolver: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });
 
 defineRoute({
@@ -121,7 +121,7 @@ defineRoute({
     auth: 'none',
     errors: domainErr,
     // @ts-expect-error undeclared domain failure on this route
-    handler: (_input, _ctx: Ctx) => {
+    resolver: (_input, _ctx: Ctx) => {
 
         const other = defineErrors({OTHER: {}});
 
@@ -135,7 +135,7 @@ defineRoute({
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
-    handler: (_input, _ctx: Ctx) => err.NOT_FOUND(),
+    resolver: (_input, _ctx: Ctx) => err.NOT_FOUND(),
 });
 
 defineRoute({
@@ -144,5 +144,5 @@ defineRoute({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error route without errors: allows builtins only
-    handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
+    resolver: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });

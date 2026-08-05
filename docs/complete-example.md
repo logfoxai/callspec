@@ -10,7 +10,7 @@ import {isDiscontinued, lookupById} from './domain/products';
 
 const productErr = defineErrors({
     PRODUCT_NOT_FOUND: {status: 404},
-    PRODUCT_DISCONTINUED: {status: 410},
+    PRODUCT_DISCONTINUED: {},
 });
 
 const product = p.object({
@@ -49,7 +49,7 @@ export const routes = {
         },
         auth: 'none',
         mcp: true,
-        handler: getProductByIdResolver,
+        resolver: getProductByIdResolver,
     }),
 };
 
