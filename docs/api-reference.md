@@ -7,37 +7,37 @@ Declare preds once, get full IDE support on the resolver body:
 ```typescript
 import {defineRoute, defineErrors, resolverFor, type RouteResolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
+import {lookupById} from '../domain/products';
 
-const searchErr = defineErrors({
-    SEARCH_CRITERIA_REQUIRED: {},
+const productErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-const searchProductsRoute = {
-    input: p.object({id: p.optional(p.string()), keywords: p.optional(p.string())}),
-    output: p.object({
-        results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
-        count: p.number(),
-    }),
-    errors: searchErr,
+const product = p.object({id: p.string(), name: p.string(), priceCents: p.number()});
+
+const getProductByIdRoute = {
+    input: p.object({id: p.string()}),
+    output: product,
+    errors: productErr,
 } as const;
 
 // Option A — resolverFor (inline autocomplete, no manual type annotation)
-const searchProductsResolver = resolverFor(searchProductsRoute)(async (input, _ctx) => {
-    input.keywords; // typed
-    return searchErr.SEARCH_CRITERIA_REQUIRED();
+const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    const found = lookupById(input.id);
+    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    return found;
 });
 
 // Option B — explicit type (same types, useful for exported/testable resolvers)
-const otherResolver: RouteResolverFor<typeof searchProductsRoute> = async (input, _ctx) => {
-    return {results: [], count: 0};
+const otherResolver: RouteResolverFor<typeof getProductByIdRoute> = async (input, _ctx) => {
+    return {id: input.id, name: '…', priceCents: 0};
 };
 
-export const searchProducts = defineRoute({
-    ...searchProductsRoute,
+export const getProductById = defineRoute({
+    ...getProductByIdRoute,
     meta: {summary: '…', description: '…', tags: ['catalog']},
     access: 'public',
-    handler: searchProductsResolver,
+    handler: getProductByIdResolver,
 });
 ```
 
@@ -47,7 +47,7 @@ export const searchProducts = defineRoute({
 | `RouteResolverFor<typeof routeDef, Ctx?>` | Explicit resolver type when you prefer a type declaration |
 | `RouteResolverDef` | Shape of `{ input, output, errors? }` — spread into `defineRoute` |
 
-Helpers that return domain failures: `RouteFailuresFrom<typeof searchErr>`.
+Helpers that return domain failures: `RouteFailuresFrom<typeof productErr>`. Plain domain functions (e.g. `lookupById` returning `Product | null`) stay free of Callspec — map to route failures in the resolver.
 
 Private routes: annotate auth context on the param — `resolverFor(route)(async (input, ctx: Ctx) => …)`.
 
@@ -57,17 +57,15 @@ Private routes: annotate auth context on the param — `resolverFor(route)(async
 
 ```typescript
 import {isRouteFailure} from 'callspec';
+import {lookupById} from '../domain/products';
 
-const result = await searchProductsResolver({keywords: 'trail'}, {});
+const missing = await getProductByIdResolver({id: 'missing'}, {});
+expect(isRouteFailure(missing) && missing.code).toBe('PRODUCT_NOT_FOUND');
 
-if (isRouteFailure(result)) {
-    expect(result.code).toBe('SEARCH_CRITERIA_REQUIRED');
-} else {
-    expect(result.count).toBeGreaterThan(0);
-}
+const found = await getProductByIdResolver({id: 'sku-1'}, {});
+expect(isRouteFailure(found)).toBe(false);
 
-// helpers too:
-const product = lookupById('sku-1');
+expect(lookupById('missing')).toBeNull();
 ```
 
 Export the resolver (and helpers) from the route module when tests live in another file.
@@ -150,7 +148,7 @@ Low-level `CallspecClient` if you need it; prefer the generated client for app c
 import {CallspecClient, isCallspecOk} from 'callspec/client';
 
 const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
-const result = await runtime.callResult<{results: unknown[]; count: number}>('searchProducts', {keywords: 'trail'});
+const result = await runtime.callResult<{id: string; name: string; priceCents: number}>('getProductById', {id: 'sku-1'});
 
 if (isCallspecOk(result)) {
     console.log(result.value);

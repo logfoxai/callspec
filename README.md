@@ -16,13 +16,13 @@
   </p>
 </div>
 
-Define your API once with simple TypeScript — methods like `searchProducts` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
+Define your API once with simple TypeScript — methods like `getProductById` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
 
-On the frontend you call `api.searchProducts({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
+On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
 ## Features
 
-- ⚡ **RPC methods** — define `searchProducts`, not resource CRUD; Callspec mounts the server for you
+- ⚡ **RPC methods** — define `getProductById`, not resource CRUD; Callspec mounts the server for you
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers; shared types end-to-end
 - 🎯 **Result-typed errors** — end-to-end error codes from resolver → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
@@ -44,20 +44,17 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return domain failures from resolvers (`return searchErr.PRODUCT_NOT_FOUND({…})`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
+Return domain failures from resolvers (`return productErr.PRODUCT_NOT_FOUND({…})`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
+
+Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` returns a product or `null`.
 
 ```typescript
-// server/routes/searchProducts.ts
-import {defineRoute, defineErrors, isRouteFailure, resolverFor, type RouteFailuresFrom} from 'callspec';
-import {predicates as p, type Infer} from 'runtyp';
+// server/routes/getProductById.ts
+import {defineRoute, defineErrors, resolverFor} from 'callspec';
+import {predicates as p} from 'runtyp';
+import {lookupById} from '../domain/products';
 
-const catalog = new Map([
-    ['sku-1', {id: 'sku-1', name: 'Trail Pack 24L', priceCents: 8900}],
-    ['sku-2', {id: 'sku-2', name: 'Insulated Bottle', priceCents: 2400}],
-]);
-
-const searchErr = defineErrors({
-    SEARCH_CRITERIA_REQUIRED: {},
+const productErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
@@ -67,47 +64,24 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-const searchProductsRoute = {
-    input: p.object({
-        id: p.optional(p.string()),
-        keywords: p.optional(p.string()),
-    }),
-    output: p.object({
-        results: p.array(product),
-        count: p.number(),
-    }),
-    errors: searchErr,
+const getProductByIdRoute = {
+    input: p.object({id: p.string()}),
+    output: product,
+    errors: productErr,
 } as const;
 
-type Product = Infer<typeof product>;
-
-function lookupById(id: string): Product | RouteFailuresFrom<typeof searchErr> {
-    const product = catalog.get(id);
-    if (!product) return searchErr.PRODUCT_NOT_FOUND({id});
-    return product;
-}
-
-const searchProductsResolver = resolverFor(searchProductsRoute)(async (input, _ctx) => {
-    if (input.id) {
-        const product = lookupById(input.id);
-        if (isRouteFailure(product)) return product;
-        return {results: [product], count: 1};
-    }
-    const keywords = input.keywords?.trim();
-    if (keywords) {
-        const needle = keywords.toLowerCase();
-        const results = [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
-        return {results, count: results.length};
-    }
-    return searchErr.SEARCH_CRITERIA_REQUIRED();
+const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    const found = lookupById(input.id);
+    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    return found;
 });
 
-export const searchProducts = defineRoute({
-    ...searchProductsRoute,
-    meta: {summary: 'Search products', description: 'Look up by product id or search by keywords.', tags: ['catalog']},
+export const getProductById = defineRoute({
+    ...getProductByIdRoute,
+    meta: {summary: 'Get product by ID', description: 'Returns a product or PRODUCT_NOT_FOUND.', tags: ['catalog']},
     access: 'public',
     mcp: true,
-    handler: searchProductsResolver,
+    handler: getProductByIdResolver,
 });
 ```
 
@@ -116,11 +90,11 @@ export const searchProducts = defineRoute({
 import {defineSpec} from 'callspec';
 import {mountSpec} from 'callspec';
 import express from 'express';
-import {searchProducts} from './routes/searchProducts';
+import {getProductById} from './routes/getProductById';
 
 export const api = defineSpec({
     meta: {title: 'My API', version: '1.0.0'},
-    routes: {searchProducts},
+    routes: {getProductById},
 });
 
 const app = express();
@@ -128,7 +102,15 @@ const router = express.Router();
 router.use(express.json());
 mountSpec(router, api);
 app.use('/v1', router);
-app.listen(3000);
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`RPC:         http://127.0.0.1:${port}/v1/getProductById`);
+    console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
+    console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
+    console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);
+    console.log(`MCP:         http://127.0.0.1:${port}/v1/mcp`);
+});
 ```
 
 ```bash
@@ -145,36 +127,32 @@ npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.t
 
 ### 3. Call from your app
 
-Codegen exports **`SearchProductsInput`**, **`SearchProductsOutput`**, and **`SearchProductsResult`** — input, success value, and a discriminated error union.
+Codegen exports **`GetProductByIdInput`**, **`GetProductByIdOutput`**, and **`GetProductByIdResult`** — input, success value, and a discriminated error union.
 
 ```typescript
 import {
     ApiClient,
-    type SearchProductsInput,
-    type SearchProductsOutput,
-    type SearchProductsResult,
+    type GetProductByIdInput,
+    type GetProductByIdOutput,
+    type GetProductByIdResult,
 } from './generated/api';
 
 const api = new ApiClient({baseUrl: 'http://127.0.0.1:3000/v1'});
 
-const input: SearchProductsInput = {keywords: 'trail'};
-const result: SearchProductsResult = await api.searchProducts(input);
+const input: GetProductByIdInput = {id: 'sku-1'};
+const result: GetProductByIdResult = await api.getProductById(input);
 
 if (!result.ok) {
     if (result.code === 'PRODUCT_NOT_FOUND') {
         const missingId: string = result.data.id;
         throw new Error(`Unknown sku ${missingId}`);
     }
-    if (result.code === 'SEARCH_CRITERIA_REQUIRED') {
-        throw new Error('Pass id or keywords');
-    }
     throw new Error(result.code);
 }
 
-const {results, count}: SearchProductsOutput = result.value;
-const first = results[0];
-first.priceCents; // number — fully typed from your server preds
-count; // number
+const product: GetProductByIdOutput = result.value;
+product.name; // string — fully typed from your server preds
+product.priceCents; // number
 ```
 
 ### Try the demo

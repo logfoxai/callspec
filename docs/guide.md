@@ -4,22 +4,17 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 ## Full backend example
 
-Same `searchProducts` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
+Same `getProductById` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
-**Route authoring:** declare preds once in a `searchProductsRoute` object, pass to `resolverFor(…)(async …)` for full IDE autocomplete on input, output, and errors, then spread into `defineRoute`. Helpers use `RouteFailuresFrom<typeof …>`. See [API reference § Resolvers](api-reference.md#resolvers).
+**Route authoring:** declare preds once in a `getProductByIdRoute` object, pass to `resolverFor(…)(async …)` for full IDE autocomplete on input, output, and errors, then spread into `defineRoute`. Domain logic lives in plain functions (e.g. `lookupById` returns a product or `null`); map to route failures in the resolver. See [API reference § Resolvers](api-reference.md#resolvers).
 
 ```typescript
-// server/routes/searchProducts.ts
-import {defineRoute, defineErrors, isRouteFailure, resolverFor, type RouteFailuresFrom} from 'callspec';
+// server/routes/getProductById.ts
+import {defineRoute, defineErrors, resolverFor} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
+import {lookupById} from '../domain/products';
 
-const catalog = new Map([
-    ['sku-1', {id: 'sku-1', name: 'Trail Pack 24L', priceCents: 8900}],
-    ['sku-2', {id: 'sku-2', name: 'Insulated Bottle', priceCents: 2400}],
-]);
-
-const searchErr = defineErrors({
-    SEARCH_CRITERIA_REQUIRED: {},
+const productErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
@@ -29,55 +24,30 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-const searchProductsRoute = {
-    input: p.object({
-        id: p.optional(p.string()),
-        keywords: p.optional(p.string()),
-    }),
-    output: p.object({
-        results: p.array(product),
-        count: p.number(),
-    }),
-    errors: searchErr,
+const getProductByIdRoute = {
+    input: p.object({id: p.string()}),
+    output: product,
+    errors: productErr,
 } as const;
 
 export type Product = Infer<typeof product>;
 
-function lookupById(id: string): Product | RouteFailuresFrom<typeof searchErr> {
-    const product = catalog.get(id);
-    if (!product) return searchErr.PRODUCT_NOT_FOUND({id});
-    return product;
-}
-
-function searchByKeywords(keywords: string): Product[] {
-    const needle = keywords.toLowerCase();
-    return [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
-}
-
-const searchProductsResolver = resolverFor(searchProductsRoute)(async (input, _ctx) => {
-    if (input.id) {
-        const product = lookupById(input.id);
-        if (isRouteFailure(product)) return product;
-        return {results: [product], count: 1};
-    }
-    const keywords = input.keywords?.trim();
-    if (keywords) {
-        const results = searchByKeywords(keywords);
-        return {results, count: results.length};
-    }
-    return searchErr.SEARCH_CRITERIA_REQUIRED();
+const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    const found = lookupById(input.id);
+    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    return found;
 });
 
-export const searchProducts = defineRoute({
-    ...searchProductsRoute,
+export const getProductById = defineRoute({
+    ...getProductByIdRoute,
     meta: {
-        summary: 'Search products',
-        description: 'Look up by product id or search by keywords.',
+        summary: 'Get product by ID',
+        description: 'Returns a product or PRODUCT_NOT_FOUND.',
         tags: ['catalog'],
     },
     access: 'public',
     mcp: true,
-    handler: searchProductsResolver,
+    handler: getProductByIdResolver,
 });
 ```
 
@@ -94,11 +64,11 @@ const getProfileResolver = resolverFor(getProfileRoute)(async (input, ctx: Ctx) 
 ```typescript
 // server/routes.ts
 import {defineSpec} from 'callspec';
-import {searchProducts} from './routes/searchProducts';
+import {getProductById} from './routes/getProductById';
 
 export const api = defineSpec({
-    meta: {title: 'My API', version: '1.0.0', intro: 'Product catalog with typed RPC search.'},
-    routes: {searchProducts},
+    meta: {title: 'My API', version: '1.0.0', intro: 'Product catalog with typed RPC.'},
+    routes: {getProductById},
 });
 ```
 
@@ -115,7 +85,15 @@ router.use(express.json());
 mountSpec(router, api);
 
 app.use('/v1', router);
-app.listen(3000);
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`RPC:         http://127.0.0.1:${port}/v1/getProductById`);
+    console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
+    console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
+    console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);
+    console.log(`MCP:         http://127.0.0.1:${port}/v1/mcp`);
+});
 ```
 
 | Surface | URL |
@@ -123,7 +101,7 @@ app.listen(3000);
 | Docs UI | `http://127.0.0.1:3000/v1/docs` |
 | Contract | `http://127.0.0.1:3000/v1/callspec.json` |
 | OpenAPI | `http://127.0.0.1:3000/v1/openapi.json` |
-| RPC | `POST http://127.0.0.1:3000/v1/searchProducts` |
+| RPC | `POST http://127.0.0.1:3000/v1/getProductById` |
 | MCP | `http://127.0.0.1:3000/v1/mcp` |
 
 `mountSpec` path options: [API reference § mountSpec](api-reference.md#mountspec).
@@ -202,26 +180,23 @@ callspec <source> --output <file> [--class-name ApiClient]
 Every generated method returns a **Result** with exported types per route. See [error-handling.md](error-handling.md) for the full contract.
 
 ```typescript
-// src/app/searchProducts.ts
+// src/app/getProductById.ts
 import {
     ApiClient,
-    type SearchProductsInput,
-    type SearchProductsOutput,
-    type SearchProductsResult,
+    type GetProductByIdInput,
+    type GetProductByIdOutput,
+    type GetProductByIdResult,
 } from '../generated/api';
 
 const api = new ApiClient({
     baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/v1',
 });
 
-export async function searchProducts(keywords: string): Promise<SearchProductsOutput['results']> {
-    const input: SearchProductsInput = {keywords};
-    const result: SearchProductsResult = await api.searchProducts(input);
+export async function fetchProduct(id: string): Promise<GetProductByIdOutput> {
+    const input: GetProductByIdInput = {id};
+    const result: GetProductByIdResult = await api.getProductById(input);
 
     if (!result.ok) {
-        if (result.code === 'SEARCH_CRITERIA_REQUIRED') {
-            throw new Error('Enter keywords or a product id');
-        }
         if (result.code === 'PRODUCT_NOT_FOUND') {
             throw new Error(`Unknown product ${result.data.id}`);
         }
@@ -231,29 +206,31 @@ export async function searchProducts(keywords: string): Promise<SearchProductsOu
         throw new Error(result.code);
     }
 
-    return result.value.results;
+    return result.value;
 }
 ```
 
 ```tsx
-// src/components/ProductSearch.tsx
+// src/components/ProductView.tsx
 import {useState} from 'react';
-import type {SearchProductsOutputResultsItem} from '../generated/api';
-import {searchProducts} from '../app/searchProducts';
+import type {GetProductByIdOutput} from '../generated/api';
+import {fetchProduct} from '../app/getProductById';
 
-export function ProductSearch() {
-    const [keywords, setKeywords] = useState('');
-    const [results, setResults] = useState<SearchProductsOutputResultsItem[]>([]);
+export function ProductView() {
+    const [productId, setProductId] = useState('sku-1');
+    const [product, setProduct] = useState<GetProductByIdOutput | null>(null);
 
-    async function onSearch() {
-        setResults(await searchProducts(keywords));
+    async function onLoad() {
+        setProduct(await fetchProduct(productId));
     }
 
     return (
         <>
-            <input value={keywords} onChange={(e) => setKeywords(e.target.value)} />
-            <button type="button" onClick={() => void onSearch()}>Search</button>
-            <ul>{results.map((p) => <li key={p.id}>{p.name} — ${(p.priceCents / 100).toFixed(2)}</li>)}</ul>
+            <input value={productId} onChange={(e) => setProductId(e.target.value)} />
+            <button type="button" onClick={() => void onLoad()}>Load</button>
+            {product && (
+                <p>{product.name} — ${(product.priceCents / 100).toFixed(2)}</p>
+            )}
         </>
     );
 }
