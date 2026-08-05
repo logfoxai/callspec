@@ -18,11 +18,11 @@
 
 Define your API once with simple TypeScript and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client with **shared types** (and optional shared validators for forms).
 
-You define **methods** — `searchRecent`, `createTweet` — each with typed input, output, and errors. Call them over HTTP as `POST /v1/<method>`. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
+You define **methods** — `searchRecent`, `createTweet` — each with typed input, output, and errors. Call them over HTTP as `POST …/<method>` (mount path is yours — e.g. `/v1`). Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
 
 ## Features
 
-- ⚡ **HTTP RPC** — named methods over `POST`, with runtyp validation at the boundary
+- ⚡ **HTTP RPC** — named methods over `POST …/<method>`, with runtyp validation at the boundary
 - 🎯 **Result-typed errors** — handlers `return` failures; clients switch on `code`, not try/catch
 - 📄 **OpenAPI 3.1** — emitted from the same registry for tooling, gateways, and multi-language generators
 - 🤖 **MCP** — opt-in tools that call the same handlers as HTTP (same auth, same validation)
