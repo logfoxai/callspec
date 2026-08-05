@@ -128,9 +128,49 @@ Start the server, then open:
 
 Auth example: `Authorization: Bearer demo`. Fuller example (MCP, branding): [docs/complete-example.md](docs/complete-example.md).
 
+#### Optional — write `callspec.json`
+
+You do **not** need a committed contract — client codegen can always use the live URL (§2). To produce a file locally or in backend CI without booting HTTP:
+
+**From a running server:**
+
+```bash
+curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
+```
+
+**From TypeScript** (same projection `mountSpec` serves — `meta` + `basePath` from your spec):
+
+```typescript
+// scripts/write-callspec-json.ts
+import {writeFileSync} from 'fs';
+import {emitCallspec} from 'callspec/document';
+import {api} from '../server/routes';
+
+const basePath = '/v1'; // must match mountSpec in server/index.ts
+
+writeFileSync(
+    'callspec.json',
+    JSON.stringify(
+        emitCallspec(api.routes, {
+            title: api.meta.title ?? 'My API',
+            version: api.meta.version ?? '1.0.0',
+            basePath,
+            description: api.meta.intro,
+            exports: api.exports,
+        }),
+        null,
+        2,
+    ),
+);
+```
+
+```bash
+npx tsx scripts/write-callspec-json.ts
+```
+
 ### 2. Frontend — generate the TypeScript SDK
 
-You do **not** import the server package in the browser. Generate a client from **`callspec.json`** — the contract `mountSpec` serves at `/v1/callspec.json` (routes, errors, `info.title`, `info.version`, paths — everything codegen needs).
+You do **not** import the server package in the browser. Point the CLI at **`callspec.json`** — file or URL. The document already contains routes, errors, `info`, and paths; codegen does not take title, version, or basePath.
 
 **Local dev** (API running):
 
@@ -138,16 +178,10 @@ You do **not** import the server package in the browser. Generate a client from 
 npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
 ```
 
-**CI or offline** — same CLI, local file (no overrides; the document is already complete):
+**CI or offline** (committed contract from optional step above):
 
 ```bash
 npx callspec ./callspec.json --output src/generated/api.ts
-```
-
-Refresh the checked-in file when routes change — pull it from the running API:
-
-```bash
-curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 ```
 
 Commit `callspec.json` and/or generated `api.ts`; fail CI on drift if you regenerate in the pipeline.
@@ -391,7 +425,7 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp): preds validate at runti
 
 See **Getting started §2–3** for the main flow.
 
-The CLI reads **`callspec.json`** (file or URL) and writes a typed client. It does not take title, version, or basePath — those live in the document (`info`, route `path` fields) because `mountSpec` already emitted them from your `defineSpec({ meta })` and `basePath` option.
+The CLI reads **`callspec.json`** (file or URL) and writes a typed client. It does not take title, version, or basePath — those live in the document because `mountSpec` (or `emitCallspec`) already wrote them from `defineSpec({ meta })` and `basePath`. See **Getting started §1 optional** for producing the file.
 
 ```bash
 # deployed or local API
@@ -404,7 +438,7 @@ npx callspec ./callspec.json --output src/generated/api.ts
 npx callspec ./callspec.json --output src/generated/validators.ts --validators
 ```
 
-Optional: `--class-name ApiClient` (default). Programmatic emit/codegen exists in `callspec/document` for backend tooling; the CLI is enough for app repos.
+Optional: `--class-name ApiClient` (default). `emitCallspec` and friends live in `callspec/document` for the optional write step above — not for client codegen.
 
 ### Generated client details
 
@@ -421,11 +455,11 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Native Callspec document & OpenAPI
 
-`callspec.json` is Callspec's native contract (`callspec: "1.0"`). `mountSpec` serves it at `/callspec.json` — built from your routes plus `defineSpec({ meta })` and the `mountSpec` `basePath`. The docs UI and TypeScript client generator consume that file as-is.
+`callspec.json` is Callspec's native contract (`callspec: "1.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk (Getting started §1 optional). The docs UI and TypeScript client generator consume that file as-is.
 
 **OpenAPI 3.1** (`/openapi.json`) is a parallel projection from the same `routes` object (not derived from `callspec.json`). Same inputs, outputs, auth, and error bodies — ready for OpenAPI tooling, gateways, and multi-language SDK generators. RPC methods appear as `POST` paths; errors are grouped by HTTP status.
 
-Server-side emit helpers (`emitCallspec`, `emitOpenApi`, `parseCallspecDocument`) live in `callspec/document` for tests and tooling — not needed for normal client codegen.
+`emitOpenApi` and `parseCallspecDocument` are also in `callspec/document` for server tooling and tests.
 
 ## Runtime client
 
