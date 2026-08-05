@@ -33,10 +33,6 @@ On the frontend you call `api.searchRecent({…})` and get a **Result** back —
 
 Docs, OpenAPI, and MCP paths are configurable defaults on `mountSpec`.
 
-## Getting help
-
-callspec is early — if you're trying it out or stuck on something, reach me on Discord (**skyyskater**). I maintain the project and answer adopters there directly.
-
 ## Getting started
 
 ```bash
@@ -45,6 +41,8 @@ npm i -D tsx typescript @types/express
 ```
 
 **Requirements:** Node.js 18+, TypeScript 5+, Express 4.x (peer).
+
+Reach out to **skyyskater** on Discord for direct support.
 
 **Try the demo** (in this repo):
 
