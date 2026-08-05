@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
-  <h3 align="center">TypeScript RPC: one registry for your API, MCP, docs, and typed client.</h3>
+  <h3 align="center">TypeScript RPC that also emits OpenAPI — plus MCP, docs, and a typed client.</h3>
 
   <br>
 
@@ -16,11 +16,11 @@
   </p>
 </div>
 
-Callspec is for **full-stack TypeScript** teams: define routes once with [runtyp](https://github.com/logfoxai/runtyp) predicates, and `mountSpec` gives you the HTTP RPC server, boundary validation, Result-typed errors, white-label docs, native **`callspec.json`**, an **MCP server on the same handlers**, and a generated TypeScript client — so the browser never imports your Express app just for types or form validation.
+Callspec is for **full-stack TypeScript** teams: define routes once with [runtyp](https://github.com/logfoxai/runtyp) predicates, and `mountSpec` gives you the HTTP RPC server, boundary validation, Result-typed errors, white-label docs, native **`callspec.json`**, an **OpenAPI 3.1 spec**, an **MCP server on the same handlers**, and a generated TypeScript client — so the browser never imports your Express app just for types or form validation.
 
-It is **not** a multi-language SDK factory. The first-class client is TypeScript. OpenAPI 3.1 is emitted as a parallel export when you want interop with other OpenAPI tooling.
+It is **not** a multi-language SDK factory. The first-class client is TypeScript. What it *does* give you is a real **OpenAPI 3.1 document** from the same registry (`/openapi.json`) — so you can feed any OpenAPI-based SDK generator, docs portal, or gateway without maintaining a separate spec by hand.
 
-**The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, shared runtyp preds, and agent tools — HTTP and MCP call the same handlers with the same auth and input checks.
+**The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, shared runtyp preds, agent tools, and OpenAPI — HTTP and MCP call the same handlers with the same auth and input checks.
 
 Every API and MCP call gets **input validation** at the boundary with clear error messages. The same schemas codegen into the frontend (types today; runtyp validators via `spec.exports` — see [exports plan](docs/exports-and-codegen.plan.md)).
 
@@ -29,7 +29,7 @@ Every API and MCP call gets **input validation** at the boundary with clear erro
 | **HTTP RPC API** | `POST /v1/<methodName>` |
 | **Interactive UI docs** | `/docs` |
 | **Native Callspec document** | `/callspec.json` |
-| **OpenAPI 3.1** (interop export) | `/openapi.json` |
+| **OpenAPI 3.1 spec** | `/openapi.json` |
 | **MCP tools** (same handlers) | `/mcp` |
 | **Generated TypeScript client** | `npx callspec … --output …` |
 | **Exported schemas** | `defineSpec({ exports: { … } })` → shared preds in `callspec.json` |
@@ -422,7 +422,7 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 `callspec.json` is Callspec's native, versioned contract (`callspec: "1.0"`). The docs UI and TypeScript client generator consume it directly — that is the lossless IR for this stack (routes, access, MCP flags, exports, Result-oriented error codes).
 
-OpenAPI (`/openapi.json`) is a **parallel projection** from the same `routes` object (not derived from `callspec.json`). Use it when other tools need OpenAPI; expect a REST-shaped view of RPC methods (always `POST`, errors grouped by HTTP status). Keep Callspec’s native document for the TypeScript client and docs UI.
+**OpenAPI 3.1** (`/openapi.json`) is a first-class **parallel projection** from the same `routes` object (not derived from `callspec.json`). Same inputs/outputs/errors/auth surface as your live API — ready to hand to OpenAPI SDK generators, API gateways, and external docs tooling. Shape notes: RPC methods are `POST` paths; errors are grouped by HTTP status. Keep `callspec.json` for the TypeScript client and Callspec UI; use OpenAPI when the wider ecosystem needs a standard spec.
 
 Programmatic emission and validation:
 
