@@ -16,22 +16,22 @@
   </p>
 </div>
 
-Define your API once with simple TypeScript and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client with **shared types** (and optional shared validators for forms).
+Define your API once with simple TypeScript — methods like `searchRecent` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a tightly integrated **TypeScript SDK**, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
 
-You define **methods** — `searchRecent`, `createTweet` — each with typed input, output, and errors. Call them over HTTP as `POST …/<method>` (mount path is yours — e.g. `/v1`). Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
+On the frontend you call `api.searchRecent({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
 ## Features
 
-- ⚡ **HTTP RPC** — named methods over `POST …/<method>`, with runtyp validation at the boundary
-- 🎯 **Result-typed errors** — handlers `return` failures; clients switch on `code`, not try/catch
-- 📄 **OpenAPI 3.1** — emitted from the same registry for tooling, gateways, and multi-language generators
-- 🤖 **MCP** — opt-in tools that call the same handlers as HTTP (same auth, same validation)
-- 📘 **Docs UI** — white-label explorer for trying RPCs and connecting MCP clients
-- 🧩 **TypeScript client + shared types** — generated from the contract; browser-safe, one Result per method
-- ✅ **Shared validators** — optional `exports` + `--validators` so forms can reuse the same runtyp preds
-- 🔐 **Auth** — `public` / `private` routes with Bearer; OpenAPI security derived automatically
+- ⚡ **RPC methods** — define `searchRecent`, not resource CRUD; Callspec mounts the server for you
+- 🧩 **TypeScript SDK** — first-class client with shared types; feels like part of your app, not a bolted-on generator
+- 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
+- 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
+- 🤖 **MCP** — same methods as your SDK, same auth and validation
+- 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
+- ✅ **Shared validators** — optional `exports` + `--validators` for forms that reuse server preds
+- 🔐 **Auth** — `public` / `private` with Bearer; reflected in OpenAPI automatically
 
-Paths like `/docs`, `/openapi.json`, and `/mcp` are defaults — override via `mountSpec` options.
+Docs, OpenAPI, and MCP paths are configurable defaults on `mountSpec`.
 
 ## Getting help
 
