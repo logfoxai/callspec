@@ -22,14 +22,14 @@ Callspec is RPC: named methods (`searchRecent`), not REST resources. Every metho
 
 ## Features
 
-- **HTTP RPC** — named methods over `POST`, with runtyp validation at the boundary
-- **Result-typed errors** — handlers `return` failures; clients switch on `code`, not try/catch
-- **OpenAPI 3.1** — emitted from the same registry for tooling, gateways, and multi-language generators
-- **MCP** — opt-in tools that call the same handlers as HTTP (same auth, same validation)
-- **Docs UI** — white-label explorer for trying RPCs and connecting MCP clients
-- **TypeScript client** — generated from the contract; browser-safe, one Result per method
-- **Shared validators** — `exports` + codegen so React forms reuse the same runtyp preds
-- **Auth** — `public` / `private` routes with Bearer; OpenAPI security derived automatically
+- ⚡ **HTTP RPC** — named methods over `POST`, with runtyp validation at the boundary
+- 🎯 **Result-typed errors** — handlers `return` failures; clients switch on `code`, not try/catch
+- 📄 **OpenAPI 3.1** — emitted from the same registry for tooling, gateways, and multi-language generators
+- 🤖 **MCP** — opt-in tools that call the same handlers as HTTP (same auth, same validation)
+- 📘 **Docs UI** — white-label explorer for trying RPCs and connecting MCP clients
+- 🧩 **TypeScript client** — generated from the contract; browser-safe, one Result per method
+- ✅ **Shared validators** — `exports` + codegen so React forms reuse the same runtyp preds
+- 🔐 **Auth** — `public` / `private` routes with Bearer; OpenAPI security derived automatically
 
 Paths like `/docs`, `/openapi.json`, and `/mcp` are defaults — override via `mountSpec` options.
 
