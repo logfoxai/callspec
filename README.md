@@ -61,21 +61,27 @@ const searchErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
+const product = p.object({
+    id: p.string(),
+    name: p.string(),
+    priceCents: p.number(),
+});
+
 const searchProductsRoute = {
     input: p.object({
         id: p.optional(p.string()),
         keywords: p.optional(p.string()),
     }),
     output: p.object({
-        results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+        results: p.array(product),
         count: p.number(),
     }),
     errors: searchErr,
 } as const;
 
-type SearchProduct = Infer<typeof searchProductsRoute.output>['results'][number];
+type Product = Infer<typeof product>;
 
-function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
+function lookupById(id: string): Product | RouteFailuresFrom<typeof searchErr> {
     const product = catalog.get(id);
     if (!product) return searchErr.PRODUCT_NOT_FOUND({id});
     return product;
