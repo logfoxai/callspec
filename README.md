@@ -52,88 +52,48 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
-## Complete example
+## Minimal example
 
 ```typescript
 import express from 'express';
 import {defineSpec, defineRoute, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-type AuthContext = {userId: string};
-
-async function searchRecent(
-    input: {query: string; max_results?: number},
-    ctx: AuthContext,
-) {
-    return {
-        results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
-        count: 1,
-    };
-}
-
-async function getUserContext(token: string, _req: express.Request): Promise<AuthContext | undefined> {
-    if (token.startsWith('demo-')) return {userId: 'user_123'};
-    return undefined;
-}
-
-export const meta = {
-    title: 'My API',
-    version: process.env.VERSION ?? '1.0.0',
-    intro: 'Search and manage posts from one typed RPC surface.',
-    mcpInstructions: 'Read-only search tools require Bearer demo-* tokens in this example.',
-};
-
-export const authenticate = getUserContext;
-
-export const routes = {
-    searchRecent: defineRoute({
-        input: p.object({
-            query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
-            max_results: p.optional(p.number({range: {min: 1, max: 100}})),
+const api = defineSpec({
+    meta: {title: 'My API', version: '1.0.0'},
+    routes: {
+        ping: defineRoute({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Ping', description: 'Health check', tags: ['system']},
+            access: 'public',
+            handler: async () => ({ok: true}),
         }),
-        output: p.object({
-            results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
-            count: p.number(),
-        }),
-        meta: {
-            summary: 'Search recent posts',
-            description: 'Returns posts matching a query.',
-            tags: ['posts'],
-        },
-        access: 'private',
-        mcp: true,
-        handler: searchRecent,
-    }),
-};
-
-export const api = defineSpec({
-    meta,
-    routes,
-    authenticate,
+    },
 });
 
 const app = express();
 const router = express.Router();
-
 router.use(express.json());
 
-mountSpec(router, api);
+mountSpec(router, api, {
+    basePath: '/v1', // recorded in OpenAPI / callspec.json (match app.use below)
+    mcpPath: '/mcp', // default; only mounted if a route sets mcp: true
+    docs: {
+        uiPath: '/docs',                 // default
+        callspecPath: '/callspec.json',  // default
+        openApiPath: '/openapi.json',    // default
+    },
+    // docs: false,  // disable docs UI + callspec.json + OpenAPI together
+});
 
 app.use('/v1', router);
-
-const port = Number(process.env.PORT ?? 3000);
-
-app.listen(port, () => {
-    console.log(`RPC:         http://127.0.0.1:${port}/v1/searchRecent`);
-    console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
-    console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
-    console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);
-    console.log(`MCP:         http://127.0.0.1:${port}/v1/mcp`);
-    console.log('Auth:        Authorization: Bearer demo-anything');
-});
+app.listen(3000);
 ```
 
-When docs are enabled (the default), `mountSpec` serves **`/docs`**, **`/callspec.json`**, and **`/openapi.json`** together. Pass `{docs: false}` to disable all three.
+Omit `docs` (or pass `true`) for the same defaults. Pass `docs: false` for RPC-only (no UI / specs). Set any of `uiPath`, `callspecPath`, `openApiPath`, or `mcpPath` independently.
+
+Fuller example with auth and MCP: [docs/complete-example.md](docs/complete-example.md).
 
 ## Errors
 
