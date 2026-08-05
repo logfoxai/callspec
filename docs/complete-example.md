@@ -5,24 +5,30 @@ A fuller Callspec API with auth, MCP, meta branding, and all default surfaces.
 ```typescript
 import express from 'express';
 import {defineSpec, defineRoute, mountSpec} from 'callspec';
+import type {Authenticate, RouteHandler} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 type AuthContext = {userId: string};
 
-async function searchRecent(
-    input: {query: string; max_results?: number},
-    ctx: AuthContext,
-) {
-    return {
-        results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
-        count: 1,
-    };
-}
+type SearchRecentInput = {
+    query: string
+    max_results?: number
+};
 
-async function getUserContext(token: string, _req: express.Request): Promise<AuthContext | undefined> {
+type SearchRecentOutput = {
+    results: {id: string; text: string; authorId: string}[]
+    count: number
+};
+
+const searchRecent: RouteHandler<SearchRecentInput, SearchRecentOutput, AuthContext> = async (input, ctx) => ({
+    results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
+    count: 1,
+});
+
+const authenticate: Authenticate<AuthContext> = async (token, _req) => {
     if (token.startsWith('demo-')) return {userId: 'user_123'};
     return undefined;
-}
+};
 
 export const meta = {
     title: 'My API',
@@ -30,8 +36,6 @@ export const meta = {
     intro: 'Search and manage posts from one typed RPC surface.',
     mcpInstructions: 'Read-only search tools require Bearer demo-* tokens in this example.',
 };
-
-export const authenticate = getUserContext;
 
 export const routes = {
     searchRecent: defineRoute({

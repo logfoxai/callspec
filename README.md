@@ -50,14 +50,41 @@ Define your RPC methods once with `defineRoute` / `defineSpec`, then `mountSpec`
 
 ```typescript
 // server/routes.ts
-import {defineSpec, defineRoute, mountSpec} from 'callspec';
+import {defineSpec, defineRoute} from 'callspec';
+import type {Authenticate, RouteHandler} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 type Ctx = {userId: string};
 
+type SearchRecentInput = {
+    query: string
+    max_results?: number
+};
+
+type SearchRecentResult = {
+    id: string
+    text: string
+    authorId: string
+};
+
+type SearchRecentOutput = {
+    results: SearchRecentResult[]
+    count: number
+};
+
+const authenticate: Authenticate<Ctx> = async (token, _req) => {
+    if (!token) return undefined;
+    return {userId: 'user_123'};
+};
+
+const searchRecent: RouteHandler<SearchRecentInput, SearchRecentOutput, Ctx> = async (input, ctx) => ({
+    results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
+    count: 1,
+});
+
 export const api = defineSpec({
     meta: {title: 'My API', version: '1.0.0', intro: 'Search posts from a typed RPC surface.'},
-    authenticate: async (token) => (token ? {userId: 'user_123'} : undefined),
+    authenticate,
     routes: {
         searchRecent: defineRoute({
             input: p.object({
@@ -65,15 +92,16 @@ export const api = defineSpec({
                 max_results: p.optional(p.number({range: {min: 1, max: 100}})),
             }),
             output: p.object({
-                results: p.array(p.object({id: p.string(), text: p.string()})),
+                results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
                 count: p.number(),
             }),
-            meta: {summary: 'Search recent posts', tags: ['posts']},
+            meta: {
+                summary: 'Search recent posts',
+                description: 'Returns posts matching a query.',
+                tags: ['posts'],
+            },
             access: 'private',
-            handler: async (input, ctx) => ({
-                results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
-                count: 1,
-            }),
+            handler: searchRecent,
         }),
     },
 });
@@ -224,10 +252,23 @@ Errors are **typed return possibilities**, not mystery exceptions. Full guide: [
 
 ```typescript
 import {defineRoute, defineErrors, err} from 'callspec';
+import type {RouteHandler} from 'callspec';
+import {predicates as p} from 'runtyp';
+
+type Ctx = unknown;
+
+type GetUserInput = {email: string};
+type GetUserOutput = {email: string; name: string};
 
 const userErr = defineErrors({
     USER_EXISTS: {data: p.object({email: p.string()})},
 });
+
+const getUser: RouteHandler<GetUserInput, GetUserOutput, Ctx> = async (input, _ctx) => {
+    if (!user) return err.NOT_FOUND();
+    if (taken) return userErr.USER_EXISTS({email: input.email});
+    return user;
+};
 
 export const routes = {
     getUser: defineRoute({
@@ -236,11 +277,7 @@ export const routes = {
         errors: userErr,
         meta: {summary: 'Get user', description: 'Lookup by email', tags: ['users']},
         access: 'public',
-        handler: async (input, _ctx) => {
-            if (!user) return err.NOT_FOUND();
-            if (taken) return userErr.USER_EXISTS({email: input.email});
-            return user;
-        },
+        handler: getUser,
     }),
 };
 ```
@@ -281,6 +318,8 @@ Wire format is always `{ "error": "CODE", "data?": … }`. The **`error` code** 
 
 ### `defineRoute`
 
+Define handlers **separately** — not inline — with explicit input/output types via `RouteHandler`:
+
 ```typescript
 defineRoute({
     input: p.object({…}),           // required — runtyp predicate
@@ -289,9 +328,17 @@ defineRoute({
     access?: 'public' | 'private',  // default 'private'
     mcp?: true | {name?, annotations?},
     errors?: defineErrors({…}),
-    handler: (input, ctx) => …,     // arity 2 — compile-time checked against input/output
+    handler: searchRecent,           // RouteHandler<Input, Output, Ctx>
 })
 ```
+
+```typescript
+const searchRecent: RouteHandler<SearchRecentInput, SearchRecentOutput, Ctx> = async (input, ctx) => {
+    return {…};
+};
+```
+
+`defineRoute` checks the handler against `input` / `output` preds at compile time (arity 2: `input`, `ctx`).
 
 ### `defineSpec`
 
@@ -300,7 +347,7 @@ defineSpec({
     meta?: CallspecMeta,
     routes: RoutesMap<Ctx>,          // required — your map of defineRoute entries
     exports?: Record<string, Pred>,  // named schemas for consumer codegen (filters, domain preds)
-    authenticate?: (token, req) => Ctx | undefined,
+    authenticate?: Authenticate<Ctx>,
 })
 ```
 
@@ -470,7 +517,7 @@ OpenAPI Bearer security is **auto-derived** from route `access`.
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure` |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteHandler`, `Authenticate` |
 | `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
