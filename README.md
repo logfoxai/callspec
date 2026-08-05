@@ -16,13 +16,13 @@
   </p>
 </div>
 
-Define your API once with simple TypeScript — methods like `echo` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
+Define your API once with simple TypeScript — methods like `getNote` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
 
-On the frontend you call `api.echo({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
+On the frontend you call `api.getNote({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
 ## Features
 
-- ⚡ **RPC methods** — define `echo`, not resource CRUD; Callspec mounts the server for you
+- ⚡ **RPC methods** — define `getNote`, not resource CRUD; Callspec mounts the server for you
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers; shared types end-to-end
 - 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
@@ -44,26 +44,31 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return domain failures from handlers (`return echoErr.MESSAGE_EMPTY()`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
+Return domain failures from handlers (`return getNoteErr.NOTE_NOT_FOUND({…})`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
 
 ```typescript
-// server/routes/echo.ts
+// server/routes/getNote.ts
 import {defineRoute, defineErrors} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const echoErr = defineErrors({
-    MESSAGE_EMPTY: {},
+const notes = new Map([
+    ['1', {id: '1', title: 'Groceries', body: 'Milk, eggs, bread'}],
+]);
+
+const getNoteErr = defineErrors({
+    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-export const echo = defineRoute({
-    input: p.object({message: p.string()}),
-    output: p.object({echo: p.string()}),
-    errors: echoErr,
-    meta: {summary: 'Echo a message'},
+export const getNote = defineRoute({
+    input: p.object({id: p.string()}),
+    output: p.object({id: p.string(), title: p.string(), body: p.string()}),
+    errors: getNoteErr,
+    meta: {summary: 'Get note by ID', tags: ['notes']},
     access: 'public',
     handler: async (input) => {
-        if (!input.message.trim()) return echoErr.MESSAGE_EMPTY();
-        return {echo: input.message};
+        const note = notes.get(input.id);
+        if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
+        return note;
     },
 });
 ```
@@ -73,9 +78,9 @@ export const echo = defineRoute({
 import {defineSpec} from 'callspec';
 import {mountSpec} from 'callspec';
 import express from 'express';
-import {echo} from './routes/echo';
+import {getNote} from './routes/getNote';
 
-export const api = defineSpec({meta: {title: 'My API', version: '1.0.0'}, routes: {echo}});
+export const api = defineSpec({meta: {title: 'My API', version: '1.0.0'}, routes: {getNote}});
 
 const app = express();
 const router = express.Router();
@@ -103,15 +108,15 @@ npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.t
 import {ApiClient} from './generated/api';
 
 const api = new ApiClient({baseUrl: 'http://127.0.0.1:3000/v1'});
-const result = await api.echo({message: 'hello'});
+const result = await api.getNote({id: '1'});
 
 if (!result.ok) {
-    if (result.code === 'MESSAGE_EMPTY') { /* user-facing hint */ }
+    if (result.code === 'NOTE_NOT_FOUND') { /* result.data.id */ }
     if (result.code === 'VALIDATION_ERROR') { /* bad wire input */ }
     throw new Error(result.code);
 }
 
-result.value.echo;
+result.value.title;
 ```
 
 ### Try the demo

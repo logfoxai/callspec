@@ -5,22 +5,29 @@
 Define **runtyp preds once**, then type handlers with `Infer<typeof …>`:
 
 ```typescript
-const echoInput = p.object({message: p.string()});
-const echoOutput = p.object({echo: p.string()});
+const getNoteInput = p.object({id: p.string()});
+const getNoteOutput = p.object({id: p.string(), title: p.string(), body: p.string()});
+const getNoteErr = defineErrors({
+    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
+});
 
-const echo: RouteHandler<
-    Infer<typeof echoInput>,
-    Infer<typeof echoOutput>
-> = async (input) => ({echo: input.message});
+const getNote: RouteHandler<
+    Infer<typeof getNoteInput>,
+    Infer<typeof getNoteOutput>
+> = async (input) => {
+    const note = notes.get(input.id);
+    if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
+    return note;
+};
 
 defineRoute({
-    input: echoInput,
-    output: echoOutput,
+    input: getNoteInput,
+    output: getNoteOutput,
+    errors: getNoteErr,
     meta: {summary, description, tags},
     access?: 'public' | 'private',  // default 'private'
     mcp?: true | {name?, annotations?},
-    errors?: defineErrors({…}),
-    handler: echo,
+    handler: getNote,
 })
 ```
 
@@ -90,7 +97,7 @@ Low-level `CallspecClient` if you need it; prefer the generated client for app c
 import {CallspecClient, isCallspecOk} from 'callspec/client';
 
 const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
-const result = await runtime.callResult<{echo: string}>('echo', {message: 'hello'});
+const result = await runtime.callResult<{id: string; title: string; body: string}>('getNote', {id: '1'});
 
 if (isCallspecOk(result)) {
     console.log(result.value);

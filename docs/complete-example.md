@@ -7,30 +7,39 @@ import express from 'express';
 import {defineSpec, defineRoute, defineErrors, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const echoErr = defineErrors({
-    MESSAGE_EMPTY: {},
+const notes = new Map([
+    ['1', {id: '1', title: 'Groceries', body: 'Milk, eggs, bread'}],
+]);
+
+const getNoteErr = defineErrors({
+    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
 export const meta = {
     title: 'My API',
     version: process.env.VERSION ?? '1.0.0',
-    intro: 'Minimal typed RPC surface.',
+    intro: 'Notes API with typed RPC.',
 };
 
 export const routes = {
-    echo: defineRoute({
-        input: p.object({message: p.string({description: 'Message to echo back'})}),
-        output: p.object({echo: p.string()}),
-        errors: echoErr,
+    getNote: defineRoute({
+        input: p.object({id: p.string({description: 'Note ID'})}),
+        output: p.object({
+            id: p.string(),
+            title: p.string(),
+            body: p.string(),
+        }),
+        errors: getNoteErr,
         meta: {
-            summary: 'Echo a message',
-            description: 'Returns the input message.',
-            tags: ['demo'],
+            summary: 'Get note by ID',
+            description: 'Returns a note or NOTE_NOT_FOUND.',
+            tags: ['notes'],
         },
         access: 'public',
         handler: async (input) => {
-            if (!input.message.trim()) return echoErr.MESSAGE_EMPTY();
-            return {echo: input.message};
+            const note = notes.get(input.id);
+            if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
+            return note;
         },
     }),
 };
@@ -49,7 +58,7 @@ app.use('/v1', router);
 const port = Number(process.env.PORT ?? 3000);
 
 app.listen(port, () => {
-    console.log(`RPC:         http://127.0.0.1:${port}/v1/echo`);
+    console.log(`RPC:         http://127.0.0.1:${port}/v1/getNote`);
     console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
     console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
     console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);

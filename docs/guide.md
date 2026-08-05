@@ -4,30 +4,35 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 ## Full backend example
 
-Same `echo` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
+Same `getNote` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
 ```typescript
-// server/routes/echo.ts
+// server/routes/getNote.ts
 import {defineRoute, defineErrors} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const echoErr = defineErrors({
-    MESSAGE_EMPTY: {},
+const notes = new Map([
+    ['1', {id: '1', title: 'Groceries', body: 'Milk, eggs, bread'}],
+]);
+
+const getNoteErr = defineErrors({
+    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-export const echo = defineRoute({
-    input: p.object({message: p.string()}),
-    output: p.object({echo: p.string()}),
-    errors: echoErr,
+export const getNote = defineRoute({
+    input: p.object({id: p.string()}),
+    output: p.object({id: p.string(), title: p.string(), body: p.string()}),
+    errors: getNoteErr,
     meta: {
-        summary: 'Echo a message',
-        description: 'Returns the input message.',
-        tags: ['demo'],
+        summary: 'Get note by ID',
+        description: 'Returns a note or NOTE_NOT_FOUND.',
+        tags: ['notes'],
     },
     access: 'public',
     handler: async (input) => {
-        if (!input.message.trim()) return echoErr.MESSAGE_EMPTY();
-        return {echo: input.message};
+        const note = notes.get(input.id);
+        if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
+        return note;
     },
 });
 ```
@@ -35,11 +40,11 @@ export const echo = defineRoute({
 ```typescript
 // server/routes.ts
 import {defineSpec} from 'callspec';
-import {echo} from './routes/echo';
+import {getNote} from './routes/getNote';
 
 export const api = defineSpec({
-    meta: {title: 'My API', version: '1.0.0', intro: 'Minimal typed RPC surface.'},
-    routes: {echo},
+    meta: {title: 'My API', version: '1.0.0', intro: 'Notes API with typed RPC.'},
+    routes: {getNote},
 });
 ```
 
@@ -64,7 +69,7 @@ app.listen(3000);
 | Docs UI | `http://127.0.0.1:3000/v1/docs` |
 | Contract | `http://127.0.0.1:3000/v1/callspec.json` |
 | OpenAPI | `http://127.0.0.1:3000/v1/openapi.json` |
-| RPC | `POST http://127.0.0.1:3000/v1/echo` |
+| RPC | `POST http://127.0.0.1:3000/v1/getNote` |
 | MCP | `http://127.0.0.1:3000/v1/mcp` |
 
 `mountSpec` path options: [API reference § mountSpec](api-reference.md#mountspec).
@@ -143,19 +148,19 @@ callspec <source> --output <file> [--class-name ApiClient]
 Every generated method returns a **Result** — branch on `ok` and `code`. See [error-handling.md](error-handling.md) for the full contract.
 
 ```typescript
-// src/app/echo.ts
+// src/app/getNote.ts
 import {ApiClient} from '../generated/api';
 
 const api = new ApiClient({
     baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/v1',
 });
 
-export async function echoMessage(message: string) {
-    const result = await api.echo({message});
+export async function fetchNote(id: string) {
+    const result = await api.getNote({id});
 
     if (!result.ok) {
-        if (result.code === 'MESSAGE_EMPTY') {
-            throw new Error('Enter a message');
+        if (result.code === 'NOTE_NOT_FOUND') {
+            throw new Error(`No note ${result.data.id}`);
         }
         if (result.code === 'VALIDATION_ERROR') {
             throw new Error(`Invalid input: ${JSON.stringify(result.data)}`);
@@ -163,28 +168,31 @@ export async function echoMessage(message: string) {
         throw new Error(result.code);
     }
 
-    return result.value.echo;
+    return result.value;
 }
 ```
 
 ```tsx
-// src/components/Echo.tsx
+// src/components/NoteView.tsx
 import {useState} from 'react';
-import {echoMessage} from '../app/echo';
+import {fetchNote} from '../app/getNote';
 
-export function Echo() {
-    const [message, setMessage] = useState('');
-    const [reply, setReply] = useState('');
+export function NoteView() {
+    const [note, setNote] = useState<{title: string; body: string} | null>(null);
 
-    async function onSend() {
-        setReply(await echoMessage(message));
+    async function onLoad() {
+        setNote(await fetchNote('1'));
     }
 
     return (
         <>
-            <input value={message} onChange={(e) => setMessage(e.target.value)} />
-            <button type="button" onClick={() => void onSend()}>Send</button>
-            <p>{reply}</p>
+            <button type="button" onClick={() => void onLoad()}>Load note</button>
+            {note && (
+                <>
+                    <h2>{note.title}</h2>
+                    <p>{note.body}</p>
+                </>
+            )}
         </>
     );
 }
