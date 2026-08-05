@@ -254,9 +254,7 @@ Every route requires **`input`** and **`output`** preds. Use `p.any()` when you 
 
 ## Shared validation and types (backend + frontend)
 
-**Problem:** Teams define runtyp preds on the server, then copy-paste (or drift) the same rules in React forms, or worse — add the API package as a dependency and pull Express, databases, and cloud SDKs into the browser bundle just for types.
-
-**Callspec fix:** Routes declare wire validation once. `callspec.json` is the portable contract. Codegen copies **types** (and, with `exports`, **named runtyp preds**) into the consumer app.
+Routes declare wire validation once. Codegen gives the frontend the same **types** (and, with `exports`, **named runtyp preds**) so forms and RPC stay in sync without copy-paste drift.
 
 | What | Where it lives | Who uses it |
 |------|----------------|-------------|
