@@ -35,6 +35,8 @@ Docs, OpenAPI, and MCP paths are configurable defaults on `mountSpec`.
 
 ## Getting started
 
+### Prerequisites
+
 ```bash
 npm i callspec runtyp express
 npm i -D tsx typescript @types/express
@@ -44,7 +46,169 @@ npm i -D tsx typescript @types/express
 
 Reach out to **skyyskater** on Discord for direct support.
 
-**Try the demo** (in this repo):
+### 1. Backend — define routes and mount the server
+
+Define your RPC methods once with `defineRoute` / `defineSpec`, then `mountSpec` wires the Express server, docs UI, `callspec.json`, OpenAPI, and MCP.
+
+```typescript
+// server/routes.ts
+import {defineSpec, defineRoute, mountSpec} from 'callspec';
+import {predicates as p} from 'runtyp';
+
+type Ctx = {userId: string};
+
+export const api = defineSpec({
+    meta: {title: 'My API', version: '1.0.0', intro: 'Search posts from a typed RPC surface.'},
+    authenticate: async (token) => (token ? {userId: 'user_123'} : undefined),
+    routes: {
+        searchRecent: defineRoute({
+            input: p.object({
+                query: p.string(),
+                max_results: p.optional(p.number({range: {min: 1, max: 100}})),
+            }),
+            output: p.object({
+                results: p.array(p.object({id: p.string(), text: p.string()})),
+                count: p.number(),
+            }),
+            meta: {summary: 'Search recent posts', tags: ['posts']},
+            access: 'private',
+            handler: async (input, ctx) => ({
+                results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
+                count: 1,
+            }),
+        }),
+    },
+});
+```
+
+```typescript
+// server/index.ts
+import express from 'express';
+import {mountSpec} from 'callspec';
+import {api} from './routes';
+
+const app = express();
+const router = express.Router();
+router.use(express.json());
+
+mountSpec(router, api, {basePath: '/v1'});
+
+app.use('/v1', router);
+app.listen(3000);
+```
+
+Start the server, then open:
+
+| Surface | URL |
+|---------|-----|
+| Docs UI | `http://127.0.0.1:3000/v1/docs` |
+| Contract | `http://127.0.0.1:3000/v1/callspec.json` |
+| OpenAPI | `http://127.0.0.1:3000/v1/openapi.json` |
+| RPC | `POST http://127.0.0.1:3000/v1/searchRecent` |
+
+Auth example: `Authorization: Bearer demo`. Fuller example (MCP, branding): [docs/complete-example.md](docs/complete-example.md).
+
+### 2. Frontend — generate the TypeScript SDK
+
+You do **not** import the server package in the browser. Generate a client from **`callspec.json`** — the same document `mountSpec` serves.
+
+With the API running:
+
+```bash
+npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
+```
+
+Or from a checked-in file / CI (no running server):
+
+```typescript
+import {writeFileSync} from 'fs';
+import {emitCallspec, generateClientFile} from 'callspec/document';
+import {api} from '../server/routes';
+
+writeFileSync(
+    'callspec.json',
+    JSON.stringify(emitCallspec(api.routes, {
+        title: api.meta.title ?? 'My API',
+        version: api.meta.version ?? '1.0.0',
+        basePath: '/v1',
+    }), null, 2),
+);
+
+await generateClientFile('./callspec.json', './src/generated/api.ts');
+```
+
+Add a script in your frontend app:
+
+```json
+"scripts": {
+  "generate:api": "callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts"
+}
+```
+
+Regenerate when routes change; commit the output or fail CI on drift.
+
+### 3. Frontend — call the API from your app
+
+The generated `ApiClient` imports only `callspec/client` (browser-safe). Every method returns a **Result** — branch on `ok` and `code`:
+
+```typescript
+// src/app/searchPosts.ts
+import {ApiClient} from '../generated/api';
+
+const api = new ApiClient({
+    baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/v1',
+    headers: () => ({
+        Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+    }),
+});
+
+export async function searchPosts(query: string) {
+    const result = await api.searchRecent({query, max_results: 10});
+
+    if (!result.ok) {
+        if (result.code === 'VALIDATION_ERROR') {
+            throw new Error(`Invalid input: ${JSON.stringify(result.data)}`);
+        }
+        if (result.code === 'UNAUTHORIZED') {
+            throw new Error('Sign in required');
+        }
+        throw new Error(result.code);
+    }
+
+    return result.value.results;
+}
+```
+
+Use it from React, Vue, or plain TS — same typed client everywhere:
+
+```tsx
+// src/components/Search.tsx
+import {useState} from 'react';
+import {searchPosts} from '../app/searchPosts';
+
+export function Search() {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState<{id: string; text: string}[]>([]);
+
+    async function onSearch() {
+        setResults(await searchPosts(query));
+    }
+
+    return (
+        <>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} />
+            <button type="button" onClick={() => void onSearch()}>Search</button>
+            <ul>{results.map((r) => <li key={r.id}>{r.text}</li>)}</ul>
+        </>
+    );
+}
+```
+
+Same methods, same types, same error codes as the server and MCP tools — no hand-rolled `fetch`.
+
+### Try the demo
+
+In this repo:
 
 ```bash
 npm run build && npm run dev:docs
@@ -52,48 +216,7 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API. Use `Authorization: Bearer demo` for private routes and MCP tools.
 
-## Minimal example
-
-```typescript
-import express from 'express';
-import {defineSpec, defineRoute, mountSpec} from 'callspec';
-import {predicates as p} from 'runtyp';
-
-const api = defineSpec({
-    meta: {title: 'My API', version: '1.0.0'},
-    routes: {
-        ping: defineRoute({
-            input: p.object({}),
-            output: p.object({ok: p.boolean()}),
-            meta: {summary: 'Ping', description: 'Health check', tags: ['system']},
-            access: 'public',
-            handler: async () => ({ok: true}),
-        }),
-    },
-});
-
-const app = express();
-const router = express.Router();
-router.use(express.json());
-
-mountSpec(router, api, {
-    basePath: '/v1', // recorded in OpenAPI / callspec.json (match app.use below)
-    mcpPath: '/mcp', // default; only mounted if a route sets mcp: true
-    docs: {
-        uiPath: '/docs',                 // default
-        callspecPath: '/callspec.json',  // default
-        openApiPath: '/openapi.json',    // default
-    },
-    // docs: false,  // disable docs UI + callspec.json + OpenAPI together
-});
-
-app.use('/v1', router);
-app.listen(3000);
-```
-
-Omit `docs` (or pass `true`) for the same defaults. Pass `docs: false` for RPC-only (no UI / specs). Set any of `uiPath`, `callspecPath`, `openApiPath`, or `mcpPath` independently.
-
-Fuller example with auth and MCP: [docs/complete-example.md](docs/complete-example.md).
+`mountSpec` path options (`docs`, `mcpPath`, per-path overrides): see [API reference § mountSpec](#mountspec) below.
 
 ## Errors
 
@@ -231,6 +354,10 @@ Powered by [runtyp](https://github.com/logfoxai/runtyp): preds validate at runti
 
 ## Frontend client generation
 
+See **Getting started §2–3** for the main backend → generate → use flow.
+
+Advanced options below: offline emit, validators, runtime client.
+
 You do **not** need to publish or import your backend package in the frontend.
 
 The CLI needs the **`callspec.json`** document — the same JSON `mountSpec` serves at `/callspec.json`. Pass a URL or a file path.
@@ -261,34 +388,7 @@ writeFileSync('callspec.json', JSON.stringify(document, null, 2));
 await generateClientFile('./callspec.json', './src/generated/api.ts');
 ```
 
-### Using the generated client
-
-```typescript
-import {ApiClient} from './generated/api';
-
-const api = new ApiClient({
-    baseUrl: 'https://api.example.com/v1',
-    headers: () => ({
-        Authorization: `Bearer ${getToken()}`,
-    }),
-});
-
-const result = await api.searchRecent({
-    query: 'timeout',
-    max_results: 10,
-});
-
-if (!result.ok) {
-    if (result.code === 'VALIDATION_ERROR') {
-        console.error(result.data);
-        return;
-    }
-    console.error(result.status, result.code);
-    return;
-}
-
-result.value; // SearchRecentOutput — fully typed
-```
+### Generated client details
 
 The generated file:
 
