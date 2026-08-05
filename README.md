@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
-  <h3 align="center">Simple TypeScript. One registry powers your API, SDK, MCP, docs, and OpenAPI.</h3>
+  <h3 align="center">Simple TypeScript powers your API, SDK, MCP, docs, and OpenAPI.</h3>
 
   <br>
 
