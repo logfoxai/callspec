@@ -4,35 +4,53 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 ## Full backend example
 
-Same `getNote` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
+Same `searchProducts` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
 ```typescript
-// server/routes/getNote.ts
+// server/routes/searchProducts.ts
 import {defineRoute, defineErrors} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const notes = new Map([
-    ['1', {id: '1', title: 'Groceries', body: 'Milk, eggs, bread'}],
+const catalog = new Map([
+    ['sku-1', {id: 'sku-1', name: 'Trail Pack 24L', priceCents: 8900}],
+    ['sku-2', {id: 'sku-2', name: 'Insulated Bottle', priceCents: 2400}],
 ]);
 
-const getNoteErr = defineErrors({
-    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
+const searchErr = defineErrors({
+    SEARCH_CRITERIA_REQUIRED: {},
+    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-export const getNote = defineRoute({
-    input: p.object({id: p.string()}),
-    output: p.object({id: p.string(), title: p.string(), body: p.string()}),
-    errors: getNoteErr,
+export const searchProducts = defineRoute({
+    input: p.object({
+        id: p.optional(p.string()),
+        keywords: p.optional(p.string()),
+    }),
+    output: p.object({
+        results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+        count: p.number(),
+    }),
+    errors: searchErr,
     meta: {
-        summary: 'Get note by ID',
-        description: 'Returns a note or NOTE_NOT_FOUND.',
-        tags: ['notes'],
+        summary: 'Search products',
+        description: 'Look up by product id or search by keywords.',
+        tags: ['catalog'],
     },
     access: 'public',
-    handler: async (input) => {
-        const note = notes.get(input.id);
-        if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
-        return note;
+    mcp: true,
+    handler: async (input, _ctx) => {
+        if (input.id) {
+            const product = catalog.get(input.id);
+            if (!product) return searchErr.PRODUCT_NOT_FOUND({id: input.id});
+            return {results: [product], count: 1};
+        }
+        const keywords = input.keywords?.trim();
+        if (keywords) {
+            const needle = keywords.toLowerCase();
+            const results = [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
+            return {results, count: results.length};
+        }
+        return searchErr.SEARCH_CRITERIA_REQUIRED();
     },
 });
 ```
@@ -40,11 +58,11 @@ export const getNote = defineRoute({
 ```typescript
 // server/routes.ts
 import {defineSpec} from 'callspec';
-import {getNote} from './routes/getNote';
+import {searchProducts} from './routes/searchProducts';
 
 export const api = defineSpec({
-    meta: {title: 'My API', version: '1.0.0', intro: 'Notes API with typed RPC.'},
-    routes: {getNote},
+    meta: {title: 'My API', version: '1.0.0', intro: 'Product catalog with typed RPC search.'},
+    routes: {searchProducts},
 });
 ```
 
@@ -58,7 +76,7 @@ const app = express();
 const router = express.Router();
 router.use(express.json());
 
-mountSpec(router, api, {basePath: '/v1'});
+mountSpec(router, api);
 
 app.use('/v1', router);
 app.listen(3000);
@@ -69,7 +87,7 @@ app.listen(3000);
 | Docs UI | `http://127.0.0.1:3000/v1/docs` |
 | Contract | `http://127.0.0.1:3000/v1/callspec.json` |
 | OpenAPI | `http://127.0.0.1:3000/v1/openapi.json` |
-| RPC | `POST http://127.0.0.1:3000/v1/getNote` |
+| RPC | `POST http://127.0.0.1:3000/v1/searchProducts` |
 | MCP | `http://127.0.0.1:3000/v1/mcp` |
 
 `mountSpec` path options: [API reference § mountSpec](api-reference.md#mountspec).
@@ -145,22 +163,31 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Frontend usage
 
-Every generated method returns a **Result** — branch on `ok` and `code`. See [error-handling.md](error-handling.md) for the full contract.
+Every generated method returns a **Result** with exported types per route. See [error-handling.md](error-handling.md) for the full contract.
 
 ```typescript
-// src/app/getNote.ts
-import {ApiClient} from '../generated/api';
+// src/app/searchProducts.ts
+import {
+    ApiClient,
+    type SearchProductsInput,
+    type SearchProductsOutput,
+    type SearchProductsResult,
+} from '../generated/api';
 
 const api = new ApiClient({
     baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/v1',
 });
 
-export async function fetchNote(id: string) {
-    const result = await api.getNote({id});
+export async function searchProducts(keywords: string): Promise<SearchProductsOutput['results']> {
+    const input: SearchProductsInput = {keywords};
+    const result: SearchProductsResult = await api.searchProducts(input);
 
     if (!result.ok) {
-        if (result.code === 'NOTE_NOT_FOUND') {
-            throw new Error(`No note ${result.data.id}`);
+        if (result.code === 'SEARCH_CRITERIA_REQUIRED') {
+            throw new Error('Enter keywords or a product id');
+        }
+        if (result.code === 'PRODUCT_NOT_FOUND') {
+            throw new Error(`Unknown product ${result.data.id}`);
         }
         if (result.code === 'VALIDATION_ERROR') {
             throw new Error(`Invalid input: ${JSON.stringify(result.data)}`);
@@ -168,31 +195,29 @@ export async function fetchNote(id: string) {
         throw new Error(result.code);
     }
 
-    return result.value;
+    return result.value.results;
 }
 ```
 
 ```tsx
-// src/components/NoteView.tsx
+// src/components/ProductSearch.tsx
 import {useState} from 'react';
-import {fetchNote} from '../app/getNote';
+import type {SearchProductsOutputResultsItem} from '../generated/api';
+import {searchProducts} from '../app/searchProducts';
 
-export function NoteView() {
-    const [note, setNote] = useState<{title: string; body: string} | null>(null);
+export function ProductSearch() {
+    const [keywords, setKeywords] = useState('');
+    const [results, setResults] = useState<SearchProductsOutputResultsItem[]>([]);
 
-    async function onLoad() {
-        setNote(await fetchNote('1'));
+    async function onSearch() {
+        setResults(await searchProducts(keywords));
     }
 
     return (
         <>
-            <button type="button" onClick={() => void onLoad()}>Load note</button>
-            {note && (
-                <>
-                    <h2>{note.title}</h2>
-                    <p>{note.body}</p>
-                </>
-            )}
+            <input value={keywords} onChange={(e) => setKeywords(e.target.value)} />
+            <button type="button" onClick={() => void onSearch()}>Search</button>
+            <ul>{results.map((p) => <li key={p.id}>{p.name} — ${(p.priceCents / 100).toFixed(2)}</li>)}</ul>
         </>
     );
 }

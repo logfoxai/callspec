@@ -5,29 +5,37 @@
 Define **runtyp preds once**, then type handlers with `Infer<typeof …>`:
 
 ```typescript
-const getNoteInput = p.object({id: p.string()});
-const getNoteOutput = p.object({id: p.string(), title: p.string(), body: p.string()});
-const getNoteErr = defineErrors({
-    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
+const searchProductsInput = p.object({
+    id: p.optional(p.string()),
+    keywords: p.optional(p.string()),
+});
+const searchProductsOutput = p.object({
+    results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+    count: p.number(),
+});
+const searchErr = defineErrors({
+    SEARCH_CRITERIA_REQUIRED: {},
+    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-const getNote: RouteHandler<
-    Infer<typeof getNoteInput>,
-    Infer<typeof getNoteOutput>
-> = async (input) => {
-    const note = notes.get(input.id);
-    if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
-    return note;
+const searchProducts: RouteHandler<
+    Infer<typeof searchProductsInput>,
+    Infer<typeof searchProductsOutput>,
+    unknown
+> = async (input, _ctx) => {
+    if (input.id) { /* lookup by id */ }
+    if (input.keywords?.trim()) { /* keyword search */ }
+    return searchErr.SEARCH_CRITERIA_REQUIRED();
 };
 
 defineRoute({
-    input: getNoteInput,
-    output: getNoteOutput,
-    errors: getNoteErr,
-    meta: {summary, description, tags},
-    access?: 'public' | 'private',  // default 'private'
-    mcp?: true | {name?, annotations?},
-    handler: getNote,
+    input: searchProductsInput,
+    output: searchProductsOutput,
+    errors: searchErr,
+    meta: {summary: '…', description: '…', tags: ['catalog']},
+    access: 'public',  // default 'private'
+    mcp: true,           // optional
+    handler: searchProducts,
 })
 ```
 
@@ -97,7 +105,7 @@ Low-level `CallspecClient` if you need it; prefer the generated client for app c
 import {CallspecClient, isCallspecOk} from 'callspec/client';
 
 const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
-const result = await runtime.callResult<{id: string; title: string; body: string}>('getNote', {id: '1'});
+const result = await runtime.callResult<{results: unknown[]; count: number}>('searchProducts', {keywords: 'trail'});
 
 if (isCallspecOk(result)) {
     console.log(result.value);

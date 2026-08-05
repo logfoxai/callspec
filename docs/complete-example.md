@@ -7,39 +7,54 @@ import express from 'express';
 import {defineSpec, defineRoute, defineErrors, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const notes = new Map([
-    ['1', {id: '1', title: 'Groceries', body: 'Milk, eggs, bread'}],
+const catalog = new Map([
+    ['sku-1', {id: 'sku-1', name: 'Trail Pack 24L', priceCents: 8900}],
+    ['sku-2', {id: 'sku-2', name: 'Insulated Bottle', priceCents: 2400}],
 ]);
 
-const getNoteErr = defineErrors({
-    NOTE_NOT_FOUND: {data: p.object({id: p.string()})},
+const searchErr = defineErrors({
+    SEARCH_CRITERIA_REQUIRED: {},
+    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
 export const meta = {
     title: 'My API',
     version: process.env.VERSION ?? '1.0.0',
-    intro: 'Notes API with typed RPC.',
+    intro: 'Product catalog with typed RPC search.',
+    mcpInstructions: 'Search by id or keywords — public in this example.',
 };
 
 export const routes = {
-    getNote: defineRoute({
-        input: p.object({id: p.string({description: 'Note ID'})}),
-        output: p.object({
-            id: p.string(),
-            title: p.string(),
-            body: p.string(),
+    searchProducts: defineRoute({
+        input: p.object({
+            id: p.optional(p.string({description: 'Product id (sku)'})),
+            keywords: p.optional(p.string({description: 'Search product names'})),
         }),
-        errors: getNoteErr,
+        output: p.object({
+            results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+            count: p.number(),
+        }),
+        errors: searchErr,
         meta: {
-            summary: 'Get note by ID',
-            description: 'Returns a note or NOTE_NOT_FOUND.',
-            tags: ['notes'],
+            summary: 'Search products',
+            description: 'Look up by product id or search by keywords.',
+            tags: ['catalog'],
         },
         access: 'public',
-        handler: async (input) => {
-            const note = notes.get(input.id);
-            if (!note) return getNoteErr.NOTE_NOT_FOUND({id: input.id});
-            return note;
+        mcp: true,
+        handler: async (input, _ctx) => {
+            if (input.id) {
+                const product = catalog.get(input.id);
+                if (!product) return searchErr.PRODUCT_NOT_FOUND({id: input.id});
+                return {results: [product], count: 1};
+            }
+            const keywords = input.keywords?.trim();
+            if (keywords) {
+                const needle = keywords.toLowerCase();
+                const results = [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
+                return {results, count: results.length};
+            }
+            return searchErr.SEARCH_CRITERIA_REQUIRED();
         },
     }),
 };
@@ -58,11 +73,12 @@ app.use('/v1', router);
 const port = Number(process.env.PORT ?? 3000);
 
 app.listen(port, () => {
-    console.log(`RPC:         http://127.0.0.1:${port}/v1/getNote`);
+    console.log(`RPC:         http://127.0.0.1:${port}/v1/searchProducts`);
     console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
     console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
     console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);
+    console.log(`MCP:         http://127.0.0.1:${port}/v1/mcp`);
 });
 ```
 
-With defaults, `mountSpec` serves `/docs`, `/callspec.json`, and `/openapi.json`. See the [README](../README.md) for per-path overrides and MCP.
+With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). See the [README](../README.md) for per-path overrides.
