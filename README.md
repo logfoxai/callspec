@@ -16,7 +16,7 @@
   </p>
 </div>
 
-Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicates and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client — including shared validators for forms.
+Define your API once with simple TypeScript and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client — including shared validators for forms.
 
 Callspec is RPC: named methods (`searchRecent`), not REST resources. Every method has typed input, output, and errors. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
 
