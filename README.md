@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
-  <h3 align="center">Simple TypeScript powers your RPC API, typed client, MCP, docs, and OpenAPI spec.</h3>
+  <h3 align="center">Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.</h3>
 
   <br>
 
@@ -16,17 +16,17 @@
   </p>
 </div>
 
-Define your API once with simple TypeScript — methods like `searchRecent` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a tightly integrated **typed client**, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
+Define your API once with simple TypeScript — methods like `searchRecent` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
 
 On the frontend you call `api.searchRecent({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
 ## Features
 
 - ⚡ **RPC methods** — define `searchRecent`, not resource CRUD; Callspec mounts the server for you
-- 🧩 **Typed client** — shared types end-to-end; feels like part of your app, not a bolted-on generator
-- 🎯 **Result-typed errors** — end-to-end error codes from handler → client → OpenAPI → MCP
+- 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers; shared types end-to-end
+- 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
-- 🤖 **MCP** — same handlers as HTTP RPC, same auth and validation
+- 🤖 **MCP** — same methods as your SDK, same auth and validation
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
 - ✅ **Shared validators** — optional `exports` + `--validators` for forms that reuse server preds
 - 🔐 **Auth** — `public` / `private` with Bearer; reflected in OpenAPI automatically
