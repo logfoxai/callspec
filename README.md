@@ -35,7 +35,7 @@ Docs, OpenAPI, and MCP paths are configurable defaults on `mountSpec`.
 
 ## Getting started
 
-### Prerequisites
+### 1. Backend — define routes and mount the server
 
 ```bash
 npm i callspec runtyp express
@@ -43,8 +43,6 @@ npm i -D tsx typescript @types/express
 ```
 
 **Requirements:** Node.js 18+, TypeScript 5+, Express 4.x (peer).
-
-### 1. Backend — define routes and mount the server
 
 Define your RPC methods once with `defineRoute` / `defineSpec`, then `mountSpec` wires the Express server, docs UI, `callspec.json`, OpenAPI, and MCP.
 
