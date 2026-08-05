@@ -46,56 +46,30 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Define each route in its own file with `defineRoute`, assemble `defineSpec`, then `mountSpec` serves RPC, docs, `callspec.json`, OpenAPI, and MCP. Fuller copy-paste server: **[docs/complete-example.md](docs/complete-example.md)**.
+Define each route in its own file with `defineRoute`, assemble `defineSpec`, then `mountSpec` serves RPC, docs, `callspec.json`, OpenAPI, and MCP. Auth, MCP, and richer routes: **[Guide § Full backend example](#full-backend-example)**.
 
 ```typescript
-// server/routes/searchRecentPosts.ts
+// server/routes/echo.ts
 import {defineRoute} from 'callspec';
-import type {RouteHandler} from 'callspec';
-import {predicates as p, type Infer} from 'runtyp';
+import {predicates as p} from 'runtyp';
 
-export type Ctx = {userId: string};
-
-const input = p.object({
-    query: p.string(),
-    max_results: p.optional(p.number({range: {min: 1, max: 100}})),
-});
-
-const output = p.object({
-    results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
-    count: p.number(),
-});
-
-const handler: RouteHandler<Infer<typeof input>, Infer<typeof output>, Ctx> = async (input, ctx) => ({
-    results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
-    count: 1,
-});
-
-export const searchRecentPosts = defineRoute({
-    input,
-    output,
-    meta: {summary: 'Search recent posts', tags: ['posts']},
-    access: 'private',
-    mcp: true,
-    handler,
+export const echo = defineRoute({
+    input: p.object({message: p.string()}),
+    output: p.object({echo: p.string()}),
+    meta: {summary: 'Echo a message'},
+    access: 'public',
+    handler: async (input) => ({echo: input.message}),
 });
 ```
 
 ```typescript
 // server/routes.ts
 import {defineSpec} from 'callspec';
-import type {Authenticate} from 'callspec';
-import {searchRecentPosts, type Ctx} from './routes/searchRecentPosts';
-
-const authenticate: Authenticate<Ctx> = async (token, _req) => {
-    if (!token) return undefined;
-    return {userId: 'user_123'};
-};
+import {echo} from './routes/echo';
 
 export const api = defineSpec({
-    meta: {title: 'My API', version: '1.0.0', intro: 'Search posts from a typed RPC surface.'},
-    authenticate,
-    routes: {searchRecentPosts},
+    meta: {title: 'My API', version: '1.0.0'},
+    routes: {echo},
 });
 ```
 
@@ -136,12 +110,12 @@ import {ApiClient} from './generated/api';
 
 const api = new ApiClient({baseUrl: 'http://127.0.0.1:3000/v1'});
 
-const result = await api.searchRecentPosts({query: 'hello', max_results: 10});
+const result = await api.echo({message: 'hello'});
 if (!result.ok) {
     // branch on result.code — see [error-handling.md](docs/error-handling.md)
     throw new Error(result.code);
 }
-result.value.results;
+result.value.echo;
 ```
 
 ### Try the demo
@@ -158,7 +132,7 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 ### Full backend example
 
-One file per route (`defineRoute` + preds + handler), then assemble the spec — same pattern as [complete-example.md](docs/complete-example.md):
+Private route with auth and MCP — one file per `defineRoute`, then assemble the spec. Copy-paste single file: [complete-example.md](docs/complete-example.md).
 
 ```typescript
 // server/routes/searchRecentPosts.ts
