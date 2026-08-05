@@ -16,13 +16,13 @@
   </p>
 </div>
 
-Define your API once with simple TypeScript — methods like `searchRecent` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
+Define your API once with simple TypeScript — methods like `searchRecentPosts` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
 
-On the frontend you call `api.searchRecent({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
+On the frontend you call `api.searchRecentPosts({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
 ## Features
 
-- ⚡ **RPC methods** — define `searchRecent`, not resource CRUD; Callspec mounts the server for you
+- ⚡ **RPC methods** — define `searchRecentPosts`, not resource CRUD; Callspec mounts the server for you
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers; shared types end-to-end
 - 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
@@ -56,19 +56,19 @@ import {predicates as p} from 'runtyp';
 
 type Ctx = {userId: string};
 
-type SearchRecentInput = {
+type SearchRecentPostsInput = {
     query: string
     max_results?: number
 };
 
-type SearchRecentResult = {
+type SearchRecentPostsResult = {
     id: string
     text: string
     authorId: string
 };
 
-type SearchRecentOutput = {
-    results: SearchRecentResult[]
+type SearchRecentPostsOutput = {
+    results: SearchRecentPostsResult[]
     count: number
 };
 
@@ -77,7 +77,7 @@ const authenticate: Authenticate<Ctx> = async (token, _req) => {
     return {userId: 'user_123'};
 };
 
-const searchRecent: RouteHandler<SearchRecentInput, SearchRecentOutput, Ctx> = async (input, ctx) => ({
+const searchRecentPosts: RouteHandler<SearchRecentPostsInput, SearchRecentPostsOutput, Ctx> = async (input, ctx) => ({
     results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
     count: 1,
 });
@@ -86,7 +86,7 @@ export const api = defineSpec({
     meta: {title: 'My API', version: '1.0.0', intro: 'Search posts from a typed RPC surface.'},
     authenticate,
     routes: {
-        searchRecent: defineRoute({
+        searchRecentPosts: defineRoute({
             input: p.object({
                 query: p.string(),
                 max_results: p.optional(p.number({range: {min: 1, max: 100}})),
@@ -101,7 +101,8 @@ export const api = defineSpec({
                 tags: ['posts'],
             },
             access: 'private',
-            handler: searchRecent,
+            mcp: true,
+            handler: searchRecentPosts,
         }),
     },
 });
@@ -130,7 +131,8 @@ Start the server, then open:
 | Docs UI | `http://127.0.0.1:3000/v1/docs` |
 | Contract | `http://127.0.0.1:3000/v1/callspec.json` |
 | OpenAPI | `http://127.0.0.1:3000/v1/openapi.json` |
-| RPC | `POST http://127.0.0.1:3000/v1/searchRecent` |
+| RPC | `POST http://127.0.0.1:3000/v1/searchRecentPosts` |
+| MCP | `http://127.0.0.1:3000/v1/mcp` |
 
 Auth example: `Authorization: Bearer demo`. Fuller example (MCP, branding): [docs/complete-example.md](docs/complete-example.md).
 
@@ -178,7 +180,7 @@ Regenerate when routes change; commit the output or fail CI on drift.
 The generated `ApiClient` imports only `callspec/client` (browser-safe). Every method returns a **Result** — branch on `ok` and `code`:
 
 ```typescript
-// src/app/searchPosts.ts
+// src/app/searchRecentPosts.ts
 import {ApiClient} from '../generated/api';
 
 const api = new ApiClient({
@@ -188,8 +190,8 @@ const api = new ApiClient({
     }),
 });
 
-export async function searchPosts(query: string) {
-    const result = await api.searchRecent({query, max_results: 10});
+export async function searchRecentPosts(query: string) {
+    const result = await api.searchRecentPosts({query, max_results: 10});
 
     if (!result.ok) {
         if (result.code === 'VALIDATION_ERROR') {
@@ -210,14 +212,14 @@ Use it from React, Vue, or plain TS — same typed client everywhere:
 ```tsx
 // src/components/Search.tsx
 import {useState} from 'react';
-import {searchPosts} from '../app/searchPosts';
+import {searchRecentPosts} from '../app/searchRecentPosts';
 
 export function Search() {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<{id: string; text: string}[]>([]);
 
     async function onSearch() {
-        setResults(await searchPosts(query));
+        setResults(await searchRecentPosts(query));
     }
 
     return (
@@ -328,12 +330,12 @@ defineRoute({
     access?: 'public' | 'private',  // default 'private'
     mcp?: true | {name?, annotations?},
     errors?: defineErrors({…}),
-    handler: searchRecent,           // RouteHandler<Input, Output, Ctx>
+    handler: searchRecentPosts,    // RouteHandler<Input, Output, Ctx>
 })
 ```
 
 ```typescript
-const searchRecent: RouteHandler<SearchRecentInput, SearchRecentOutput, Ctx> = async (input, ctx) => {
+const searchRecentPosts: RouteHandler<SearchRecentPostsInput, SearchRecentPostsOutput, Ctx> = async (input, ctx) => {
     return {…};
 };
 ```
@@ -482,7 +484,7 @@ Low-level `CallspecClient` if you need it; prefer the generated client for app c
 import {CallspecClient, isCallspecOk} from 'callspec/client';
 
 const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
-const result = await runtime.callResult<{results: unknown[]}>('searchRecent', {query: 'x'});
+const result = await runtime.callResult<{results: unknown[]}>('searchRecentPosts', {query: 'x'});
 
 if (isCallspecOk(result)) {
     console.log(result.value);

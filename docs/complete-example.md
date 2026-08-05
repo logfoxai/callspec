@@ -10,17 +10,17 @@ import {predicates as p} from 'runtyp';
 
 type AuthContext = {userId: string};
 
-type SearchRecentInput = {
+type SearchRecentPostsInput = {
     query: string
     max_results?: number
 };
 
-type SearchRecentOutput = {
+type SearchRecentPostsOutput = {
     results: {id: string; text: string; authorId: string}[]
     count: number
 };
 
-const searchRecent: RouteHandler<SearchRecentInput, SearchRecentOutput, AuthContext> = async (input, ctx) => ({
+const searchRecentPosts: RouteHandler<SearchRecentPostsInput, SearchRecentPostsOutput, AuthContext> = async (input, ctx) => ({
     results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
     count: 1,
 });
@@ -38,7 +38,7 @@ export const meta = {
 };
 
 export const routes = {
-    searchRecent: defineRoute({
+    searchRecentPosts: defineRoute({
         input: p.object({
             query: p.string({description: 'Search query (supports from:, #hashtag, …)'}),
             max_results: p.optional(p.number({range: {min: 1, max: 100}})),
@@ -54,7 +54,7 @@ export const routes = {
         },
         access: 'private',
         mcp: true,
-        handler: searchRecent,
+        handler: searchRecentPosts,
     }),
 };
 
@@ -76,7 +76,7 @@ app.use('/v1', router);
 const port = Number(process.env.PORT ?? 3000);
 
 app.listen(port, () => {
-    console.log(`RPC:         http://127.0.0.1:${port}/v1/searchRecent`);
+    console.log(`RPC:         http://127.0.0.1:${port}/v1/searchRecentPosts`);
     console.log(`Docs:        http://127.0.0.1:${port}/v1/docs`);
     console.log(`Callspec:    http://127.0.0.1:${port}/v1/callspec.json`);
     console.log(`OpenAPI:     http://127.0.0.1:${port}/v1/openapi.json`);
