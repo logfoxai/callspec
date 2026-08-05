@@ -5,7 +5,7 @@
 Declare preds once, get full IDE support on the resolver body:
 
 ```typescript
-import {defineRoute, defineErrors, resolverFor, type RouteResolverFor} from 'callspec';
+import {defineRouteContract, defineErrors, defineRoute, resolveRoute, resolverFor, type RouteResolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {isDiscontinued, lookupById} from '../domain/products';
 
@@ -16,38 +16,37 @@ const productErr = defineErrors({
 
 const product = p.object({id: p.string(), name: p.string(), priceCents: p.number()});
 
-const getProductByIdRoute = {
+const getProductByIdContract = defineRouteContract({
     input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
-} as const;
+    meta: {summary: 'Get product by ID', tags: ['catalog']},
+    auth: 'none',
+    mcp: true,
+});
 
-// Option A — resolverFor (inline autocomplete, no manual type annotation)
-const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx) => {
     if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
     if (!found) return productErr.PRODUCT_NOT_FOUND();
     return found;
 });
 
-// Option B — explicit type (same types, useful for exported/testable resolvers)
-const otherResolver: RouteResolverFor<typeof getProductByIdRoute> = async (input, _ctx) => {
+// Explicit resolver type (same inference as resolverFor)
+const otherResolver: RouteResolverFor<typeof getProductByIdContract> = async (input, _ctx) => {
     return {id: input.id, name: '…', priceCents: 0};
 };
 
-export const getProductById = defineRoute({
-    ...getProductByIdRoute,
-    meta: {summary: '…', tags: ['catalog']},
-    auth: 'none',
-    resolver: getProductByIdResolver,
-});
+export const getProductById = resolveRoute(getProductByIdContract, getProductByIdResolver);
 ```
 
 | Export | Purpose |
 |--------|---------|
-| `resolverFor(routeDef)` | Returns `(fn) => fn` with full resolver typing from `routeDef` |
-| `RouteResolverFor<typeof routeDef, Ctx?>` | Explicit resolver type when you prefer a type declaration |
-| `RouteResolverDef` | Shape of `{ input, output, errors? }` — spread into `defineRoute` |
+| `defineRouteContract(def)` | Step 1 — preds, errors, meta, auth, scope, mcp (no resolver) |
+| `resolveRoute(contract, resolver)` | Step 2 — typed route for `defineSpec` |
+| `resolverFor(contract)` | Returns `(fn) => fn` with full resolver typing from the contract |
+| `RouteResolverFor<typeof contract, Ctx?>` | Explicit resolver type when you prefer a type declaration |
+| `defineRoute({ …, resolver })` | One-shot when you do not need a separate contract |
 
 Helpers that return domain failures: `RouteFailuresFrom<typeof productErr>`. Plain domain functions (e.g. `lookupById` returning `Product | null`) stay free of Callspec — map to route failures in the resolver.
 
@@ -74,6 +73,26 @@ expect(lookupById('missing')).toBeNull();
 ```
 
 Export the resolver (and helpers) from the route module when tests live in another file.
+
+## `defineRouteContract` / `resolveRoute`
+
+Two-step route definition with full typing:
+
+```typescript
+defineRouteContract({
+    input: Pred,
+    output: Pred,
+    errors?: ErrorsHandle,
+    meta: RouteMeta,
+    auth?: 'none' | 'bearer',
+    scope?: 'public' | 'private',
+    mcp?: true | McpRouteConfig,
+})
+
+resolveRoute(contract, resolver)  // → RouteDef for defineSpec
+```
+
+Pass the contract to `resolverFor` for a typed, testable resolver. Pass both to `resolveRoute` for the route entry in `defineSpec({ routes })`.
 
 ## `defineRoute`
 
@@ -186,7 +205,7 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `aut
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `resolverFor`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteResolverFor`, `RouteResolverDef`, `RouteResolver`, `Authenticate` |
+| `callspec` | `defineRouteContract`, `resolveRoute`, `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `resolverFor`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteContractInput`, `RouteResolverFor`, `RouteResolverDef`, `RouteResolver`, `Authenticate` |
 | `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |

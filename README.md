@@ -50,7 +50,7 @@ Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` re
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRoute, defineErrors, resolverFor} from 'callspec';
+import {defineRouteContract, defineErrors, resolveRoute, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {isDiscontinued, lookupById} from '../domain/products';
 
@@ -65,13 +65,16 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-const getProductByIdRoute = {
+export const getProductByIdContract = defineRouteContract({
     input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
-} as const;
+    meta: {summary: 'Get product by ID', tags: ['catalog']},
+    auth: 'none',
+    mcp: true,
+});
 
-export const getProductByIdResolver = resolverFor(getProductByIdRoute)(
+export const getProductByIdResolver = resolverFor(getProductByIdContract)(
     async (input, _ctx) => {
         if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
         const found = lookupById(input.id);
@@ -80,16 +83,7 @@ export const getProductByIdResolver = resolverFor(getProductByIdRoute)(
     },
 );
 
-export const getProductById = defineRoute({
-    ...getProductByIdRoute,
-    meta: {
-        summary: 'Get product by ID',
-        tags: ['catalog'],
-    },
-    auth: 'none',
-    mcp: true,
-    resolver: getProductByIdResolver,
-});
+export const getProductById = resolveRoute(getProductByIdContract, getProductByIdResolver);
 ```
 
 ```typescript

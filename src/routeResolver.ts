@@ -1,7 +1,7 @@
 import type {Infer, Pred} from 'runtyp';
 import type {DefineErrorsInput, RouteFailuresFor} from './defineErrors';
 
-/** Preds (+ optional errors) for a route — share between `resolverFor` and `defineRoute`. */
+/** Preds (+ optional errors) for a route — share between `defineRouteContract`, `resolverFor`, and `resolveRoute`. */
 export type RouteResolverDef = {
     input: Pred<any>
     output: Pred<any>

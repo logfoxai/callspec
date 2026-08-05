@@ -6,7 +6,7 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 Same catalog routes — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
-**Less boilerplate:** declare preds and errors once in a shared schema module. Each route file: route def → **separate exported resolver** → `defineRoute`. Test resolvers directly — no HTTP, no Express.
+**Two steps per route:** `defineRouteContract` (preds, errors, meta — no resolver) → typed resolver via `resolverFor` → `resolveRoute` for `defineSpec`. Test the exported resolver directly — no HTTP, no Express.
 
 ### Shared schemas
 
@@ -42,17 +42,20 @@ Pass named preds to `defineSpec({ exports: { product, productList, … } })` whe
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRoute, resolverFor} from 'callspec';
+import {defineRouteContract, resolveRoute, resolverFor} from 'callspec';
 import {isDiscontinued, lookupById} from '../domain/products';
 import {product, productErr, productIdInput} from '../schemas/catalog';
 
-const getProductByIdRoute = {
+export const getProductByIdContract = defineRouteContract({
     input: productIdInput,
     output: product,
     errors: productErr,
-} as const;
+    meta: {summary: 'Get product by ID', tags: ['catalog']},
+    auth: 'none',
+    mcp: true,
+});
 
-export const getProductByIdResolver = resolverFor(getProductByIdRoute)(
+export const getProductByIdResolver = resolverFor(getProductByIdContract)(
     async (input, _ctx) => {
         if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
         const found = lookupById(input.id);
@@ -61,43 +64,28 @@ export const getProductByIdResolver = resolverFor(getProductByIdRoute)(
     },
 );
 
-export const getProductById = defineRoute({
-    ...getProductByIdRoute,
-    meta: {
-        summary: 'Get product by ID',
-        tags: ['catalog'],
-    },
-    auth: 'none',
-    mcp: true,
-    resolver: getProductByIdResolver,
-});
+export const getProductById = resolveRoute(getProductByIdContract, getProductByIdResolver);
 ```
 
 ```typescript
 // server/routes/listProducts.ts — reuses product + productList preds, no new types
-import {defineRoute, resolverFor} from 'callspec';
+import {defineRouteContract, resolveRoute, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {listProducts as fetchProductList} from '../domain/products';
 import {productList} from '../schemas/catalog';
 
-const listProductsRoute = {
+export const listProductsContract = defineRouteContract({
     input: p.object({}),
     output: productList,
-} as const;
+    meta: {summary: 'List products', tags: ['catalog']},
+    auth: 'none',
+});
 
-export const listProductsResolver = resolverFor(listProductsRoute)(
+export const listProductsResolver = resolverFor(listProductsContract)(
     async (_input, _ctx) => fetchProductList(),
 );
 
-export const listProducts = defineRoute({
-    ...listProductsRoute,
-    meta: {
-        summary: 'List products',
-        tags: ['catalog'],
-    },
-    auth: 'none',
-    resolver: listProductsResolver,
-});
+export const listProducts = resolveRoute(listProductsContract, listProductsResolver);
 ```
 
 Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). Map to route failures only in resolvers that need them. **Unit-test the exported resolver** — call it with input + ctx; no HTTP. See [API reference § Testing resolvers](api-reference.md#testing-resolvers).
@@ -105,11 +93,23 @@ Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). M
 **Private routes:** share `type Ctx = { … }` with `authenticate`. Define the resolver separately; annotate `ctx: Ctx` on the param:
 
 ```typescript
+import {defineRouteContract, resolveRoute, resolverFor} from 'callspec';
+import {predicates as p} from 'runtyp';
+
 type Ctx = {userId: string};
 
-export const getProfileResolver = resolverFor(getProfileRoute)(
+const getProfileContract = defineRouteContract({
+    input: p.object({}),
+    output: p.object({userId: p.string()}),
+    meta: {summary: 'Get profile', tags: ['users']},
+    auth: 'bearer',
+});
+
+export const getProfileResolver = resolverFor(getProfileContract)(
     async (input, ctx: Ctx) => ({userId: ctx.userId}),
 );
+
+export const getProfile = resolveRoute(getProfileContract, getProfileResolver);
 ```
 
 ```typescript
