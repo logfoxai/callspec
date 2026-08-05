@@ -16,7 +16,7 @@
   </p>
 </div>
 
-Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicates and get an **HTTP RPC** server, white-label docs, the native **`callspec.json`** contract, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client — including shared validators for forms.
+Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicates and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client — including shared validators for forms.
 
 Callspec is RPC: named methods (`searchRecent`), not REST resources. Every method has typed input, output, and errors. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
 
@@ -26,12 +26,11 @@ Callspec is RPC: named methods (`searchRecent`), not REST resources. Every metho
 |---------|----------|
 | **HTTP RPC** | `POST /v1/<methodName>` |
 | **Interactive UI docs** | `/docs` |
-| **Native Callspec document** | `/callspec.json` |
 | **OpenAPI 3.1** | `/openapi.json` |
 | **MCP tools** | `/mcp` (same handlers as HTTP) |
 | **Generated TS client** | `npx callspec … --output …` → Result per method |
-| **Exported schemas** | `defineSpec({ exports: { … } })` → shared preds in `callspec.json` |
-| **Generated validators** | `npx callspec … --validators` → runtyp preds for routes + exports |
+| **Generated validators** | `npx callspec … --validators` |
+| **Exported schemas** | `defineSpec({ exports })` → shared preds for forms |
 | **Runtime client** | `CallspecClient` from `callspec/client` |
 | **Server validation** | runtyp at route boundary |
 
