@@ -4,8 +4,8 @@ Copy-paste server with meta branding and all default surfaces.
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRoute, defineErrors, mountSpec} from 'callspec';
-import {predicates as p} from 'runtyp';
+import {defineSpec, defineRoute, defineErrors, mountSpec, type RouteHandler} from 'callspec';
+import {predicates as p, type Infer} from 'runtyp';
 
 const catalog = new Map([
     ['sku-1', {id: 'sku-1', name: 'Trail Pack 24L', priceCents: 8900}],
@@ -17,6 +17,34 @@ const searchErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
+const searchProductsInput = p.object({
+    id: p.optional(p.string({description: 'Product id (sku)'})),
+    keywords: p.optional(p.string({description: 'Search product names'})),
+});
+const searchProductsOutput = p.object({
+    results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+    count: p.number(),
+});
+
+const searchProductsHandler: RouteHandler<
+    Infer<typeof searchProductsInput>,
+    Infer<typeof searchProductsOutput>,
+    unknown
+> = async (input, _ctx) => {
+    if (input.id) {
+        const product = catalog.get(input.id);
+        if (!product) return searchErr.PRODUCT_NOT_FOUND({id: input.id});
+        return {results: [product], count: 1};
+    }
+    const keywords = input.keywords?.trim();
+    if (keywords) {
+        const needle = keywords.toLowerCase();
+        const results = [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
+        return {results, count: results.length};
+    }
+    return searchErr.SEARCH_CRITERIA_REQUIRED();
+};
+
 export const meta = {
     title: 'My API',
     version: process.env.VERSION ?? '1.0.0',
@@ -26,14 +54,8 @@ export const meta = {
 
 export const routes = {
     searchProducts: defineRoute({
-        input: p.object({
-            id: p.optional(p.string({description: 'Product id (sku)'})),
-            keywords: p.optional(p.string({description: 'Search product names'})),
-        }),
-        output: p.object({
-            results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
-            count: p.number(),
-        }),
+        input: searchProductsInput,
+        output: searchProductsOutput,
         errors: searchErr,
         meta: {
             summary: 'Search products',
@@ -42,20 +64,7 @@ export const routes = {
         },
         access: 'public',
         mcp: true,
-        handler: async (input, _ctx) => {
-            if (input.id) {
-                const product = catalog.get(input.id);
-                if (!product) return searchErr.PRODUCT_NOT_FOUND({id: input.id});
-                return {results: [product], count: 1};
-            }
-            const keywords = input.keywords?.trim();
-            if (keywords) {
-                const needle = keywords.toLowerCase();
-                const results = [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
-                return {results, count: results.length};
-            }
-            return searchErr.SEARCH_CRITERIA_REQUIRED();
-        },
+        handler: searchProductsHandler,
     }),
 };
 

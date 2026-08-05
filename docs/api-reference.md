@@ -5,6 +5,9 @@
 Define **runtyp preds once**, then type handlers with `Infer<typeof …>`:
 
 ```typescript
+import {defineRoute, defineErrors, type RouteHandler} from 'callspec';
+import {predicates as p, type Infer} from 'runtyp';
+
 const searchProductsInput = p.object({
     id: p.optional(p.string()),
     keywords: p.optional(p.string()),
@@ -39,7 +42,7 @@ defineRoute({
 })
 ```
 
-`defineRoute` checks the handler against the preds at compile time (arity 2: `input`, `ctx`).
+`defineRoute` checks the handler against the preds at compile time (arity 2: `input`, `ctx`). **Always declare the handler separately** — preds, then `RouteHandler<…>`, then pass `handler` into `defineRoute`.
 
 Every route requires **`input`** and **`output`** preds. Use `p.any()` when you do not need a precise schema. Only **`errors`** is optional.
 
