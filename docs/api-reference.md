@@ -7,7 +7,7 @@ Declare preds once, get full IDE support on the resolver body:
 ```typescript
 import {defineRouteContract, defineErrors, defineRoute, err, resolveRoute, resolverFor, type RouteResolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {isDiscontinued, lookupById} from '../domain/products';
+import {lookupById} from '../domain/products';
 
 const productErr = defineErrors({
     PRODUCT_DISCONTINUED: {},
@@ -25,10 +25,10 @@ const getProductByIdContract = defineRouteContract({
 });
 
 const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx) => {
-    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
     if (!found) return err.NOT_FOUND();
-    return found;
+    if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
+    return {id: found.id, name: found.name, priceCents: found.priceCents};
 });
 
 // Explicit resolver type (same inference as resolverFor)
@@ -57,7 +57,7 @@ Private routes: annotate auth context on the param — `resolverFor(route)(async
 
 ```typescript
 import {isRouteFailure} from 'callspec';
-import {isDiscontinued, lookupById} from '../domain/products';
+import {lookupById} from '../domain/products';
 
 const discontinued = await getProductByIdResolver({id: 'sku-old'}, {});
 expect(isRouteFailure(discontinued) && discontinued.code).toBe('PRODUCT_DISCONTINUED');
@@ -69,6 +69,7 @@ const found = await getProductByIdResolver({id: 'sku-1'}, {});
 expect(isRouteFailure(found)).toBe(false);
 
 expect(lookupById('missing')).toBeNull();
+expect(lookupById('sku-old')?.discontinued).toBe(true);
 ```
 
 Export the resolver (and helpers) from the route module when tests live in another file.

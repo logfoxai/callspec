@@ -1,12 +1,12 @@
 # Complete example
 
-Copy-paste server with meta branding and all default surfaces. Assumes `domain/products.ts` exports `lookupById(id)` (product or `null`) and `isDiscontinued(id)`.
+Copy-paste server with meta branding and all default surfaces. Assumes `domain/products.ts` exports `lookupById(id)` — product or `null`; retired skus have `discontinued: true`.
 
 ```typescript
 import express from 'express';
 import {defineSpec, defineRouteContract, defineErrors, err, mountSpec, resolveRoute, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {isDiscontinued, lookupById} from './domain/products';
+import {lookupById} from './domain/products';
 
 const productErr = defineErrors({
     PRODUCT_DISCONTINUED: {},
@@ -28,10 +28,10 @@ const getProductByIdContract = defineRouteContract({
 });
 
 const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx) => {
-    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
     if (!found) return err.NOT_FOUND();
-    return found;
+    if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
+    return {id: found.id, name: found.name, priceCents: found.priceCents};
 });
 
 export {getProductByIdResolver};

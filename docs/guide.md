@@ -42,7 +42,7 @@ Pass named preds to `defineSpec({ exports: { product, productList, … } })` whe
 ```typescript
 // server/routes/getProductById.ts
 import {defineRouteContract, err, resolveRoute, resolverFor} from 'callspec';
-import {isDiscontinued, lookupById} from '../domain/products';
+import {lookupById} from '../domain/products';
 import {product, productErr, productIdInput} from '../schemas/catalog';
 
 export const getProductByIdContract = defineRouteContract({
@@ -56,10 +56,10 @@ export const getProductByIdContract = defineRouteContract({
 
 export const getProductByIdResolver = resolverFor(getProductByIdContract)(
     async (input, _ctx) => {
-        if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
         const found = lookupById(input.id);
         if (!found) return err.NOT_FOUND();
-        return found;
+        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
+        return {id: found.id, name: found.name, priceCents: found.priceCents};
     },
 );
 
