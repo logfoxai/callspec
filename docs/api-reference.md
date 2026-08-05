@@ -28,7 +28,7 @@ const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input,
     const found = lookupById(input.id);
     if (!found) return err.NOT_FOUND();
     if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
-    return {id: found.id, name: found.name, priceCents: found.priceCents};
+    return found;
 });
 
 // Explicit resolver type (same inference as resolverFor)
