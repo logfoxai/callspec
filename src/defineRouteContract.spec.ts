@@ -1,6 +1,6 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineErrors} from './defineErrors';
+import {defineErrors, err} from './defineErrors';
 import {defineRouteContract, resolveRoute} from './defineRouteContract';
 import {executeRoute} from './executeRoute';
 import {resolverFor} from './routeResolver';
@@ -8,7 +8,7 @@ import {resolverFor} from './routeResolver';
 test('resolveRoute matches defineRoute behavior', async (assert) => {
 
     const productErr = defineErrors({
-        PRODUCT_NOT_FOUND: {status: 404},
+        PRODUCT_DISCONTINUED: {},
     });
 
     const contract = defineRouteContract({
@@ -21,7 +21,7 @@ test('resolveRoute matches defineRoute behavior', async (assert) => {
 
     const resolver = resolverFor(contract)(async (input, _ctx) => {
 
-        if (input.id === 'missing') return productErr.PRODUCT_NOT_FOUND();
+        if (input.id === 'missing') return err.NOT_FOUND();
 
         return {id: input.id, name: 'Widget'};
 
@@ -37,8 +37,8 @@ test('resolveRoute matches defineRoute behavior', async (assert) => {
 
     assert.equal(
         await executeRoute(route, {id: 'missing'}, undefined),
-        productErr.PRODUCT_NOT_FOUND(),
-        'domain failure',
+        err.NOT_FOUND(),
+        'builtin not found',
     );
 
 });

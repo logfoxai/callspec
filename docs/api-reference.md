@@ -5,12 +5,11 @@
 Declare preds once, get full IDE support on the resolver body:
 
 ```typescript
-import {defineRouteContract, defineErrors, defineRoute, resolveRoute, resolverFor, type RouteResolverFor} from 'callspec';
+import {defineRouteContract, defineErrors, defineRoute, err, resolveRoute, resolverFor, type RouteResolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {isDiscontinued, lookupById} from '../domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {status: 404},
     PRODUCT_DISCONTINUED: {},
 });
 
@@ -28,7 +27,7 @@ const getProductByIdContract = defineRouteContract({
 const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx) => {
     if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND();
+    if (!found) return err.NOT_FOUND();
     return found;
 });
 
@@ -64,7 +63,7 @@ const discontinued = await getProductByIdResolver({id: 'sku-old'}, {});
 expect(isRouteFailure(discontinued) && discontinued.code).toBe('PRODUCT_DISCONTINUED');
 
 const missing = await getProductByIdResolver({id: 'missing'}, {});
-expect(isRouteFailure(missing) && missing.code).toBe('PRODUCT_NOT_FOUND');
+expect(isRouteFailure(missing) && missing.code).toBe('NOT_FOUND');
 
 const found = await getProductByIdResolver({id: 'sku-1'}, {});
 expect(isRouteFailure(found)).toBe(false);

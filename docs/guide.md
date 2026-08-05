@@ -18,7 +18,6 @@ import {defineErrors} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 export const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {status: 404},
     PRODUCT_DISCONTINUED: {},
 });
 
@@ -42,7 +41,7 @@ Pass named preds to `defineSpec({ exports: { product, productList, … } })` whe
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRouteContract, resolveRoute, resolverFor} from 'callspec';
+import {defineRouteContract, err, resolveRoute, resolverFor} from 'callspec';
 import {isDiscontinued, lookupById} from '../domain/products';
 import {product, productErr, productIdInput} from '../schemas/catalog';
 
@@ -59,7 +58,7 @@ export const getProductByIdResolver = resolverFor(getProductByIdContract)(
     async (input, _ctx) => {
         if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
         const found = lookupById(input.id);
-        if (!found) return productErr.PRODUCT_NOT_FOUND();
+        if (!found) return err.NOT_FOUND();
         return found;
     },
 );
@@ -246,7 +245,7 @@ export async function fetchProduct(id: string) {
     const result = await api.getProductById({id});
 
     if (!result.ok) {
-        if (result.code === 'PRODUCT_NOT_FOUND') {
+        if (result.code === 'NOT_FOUND') {
             toast.error(`Unknown product ${id}`);
             return null;
         }

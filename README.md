@@ -44,18 +44,17 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return domain failures from resolvers (`return productErr.PRODUCT_NOT_FOUND()`) — don't throw. Set `status` on the error when you want a specific HTTP code (defaults to 400). Builtins like `VALIDATION_ERROR` are automatic.
+Return domain failures from resolvers (`return err.NOT_FOUND()`, `return productErr.PRODUCT_DISCONTINUED()`) — don't throw. Builtins are automatic on every route; declare `defineErrors` only for domain-specific codes. Set `status` on domain errors when you want a specific HTTP code (defaults to 400).
 
 Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` returns a product or `null`, `isDiscontinued(id)` for retired skus.
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRouteContract, defineErrors, resolveRoute, resolverFor} from 'callspec';
+import {defineRouteContract, defineErrors, err, resolveRoute, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {isDiscontinued, lookupById} from '../domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {status: 404},
     PRODUCT_DISCONTINUED: {},
 });
 
@@ -78,7 +77,7 @@ export const getProductByIdResolver = resolverFor(getProductByIdContract)(
     async (input, _ctx) => {
         if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
         const found = lookupById(input.id);
-        if (!found) return productErr.PRODUCT_NOT_FOUND();
+        if (!found) return err.NOT_FOUND();
         return found;
     },
 );
@@ -140,7 +139,7 @@ const id = 'sku-1';
 const result = await api.getProductById({id});
 
 if (!result.ok) {
-    if (result.code === 'PRODUCT_NOT_FOUND') {
+    if (result.code === 'NOT_FOUND') {
         toast.error(`Unknown sku ${id}`);
         return;
     }

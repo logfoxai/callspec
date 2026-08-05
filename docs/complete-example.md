@@ -4,12 +4,11 @@ Copy-paste server with meta branding and all default surfaces. Assumes `domain/p
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRouteContract, defineErrors, mountSpec, resolveRoute, resolverFor} from 'callspec';
+import {defineSpec, defineRouteContract, defineErrors, err, mountSpec, resolveRoute, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {isDiscontinued, lookupById} from './domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {status: 404},
     PRODUCT_DISCONTINUED: {},
 });
 
@@ -31,7 +30,7 @@ const getProductByIdContract = defineRouteContract({
 const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx) => {
     if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND();
+    if (!found) return err.NOT_FOUND();
     return found;
 });
 

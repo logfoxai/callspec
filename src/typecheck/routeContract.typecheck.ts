@@ -3,14 +3,14 @@
  * Compile-only assertions — checked via `npm run typecheck:routes`.
  */
 import {predicates as p} from 'runtyp';
-import {defineErrors} from '../defineErrors';
+import {defineErrors, err} from '../defineErrors';
 import {defineRouteContract, resolveRoute} from '../defineRouteContract';
 import {resolverFor} from '../routeResolver';
 
 type Ctx = {userId: string};
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {status: 404},
+    PRODUCT_DISCONTINUED: {},
 });
 
 const getProductByIdContract = defineRouteContract({
@@ -23,7 +23,7 @@ const getProductByIdContract = defineRouteContract({
 
 const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx: Ctx) => {
 
-    if (input.id === 'missing') return productErr.PRODUCT_NOT_FOUND();
+    if (input.id === 'missing') return err.NOT_FOUND();
 
     return {id: input.id, name: 'Widget'};
 
@@ -77,5 +77,11 @@ const noErrorsContract = defineRouteContract({
 resolveRoute(
     noErrorsContract,
     // @ts-expect-error route without errors allows builtins only
-    async (_input, _ctx: Ctx) => productErr.PRODUCT_NOT_FOUND(),
+    async (_input, _ctx: Ctx) => {
+
+        const domain = defineErrors({MY_CODE: {}});
+
+        return domain.MY_CODE();
+
+    },
 );
