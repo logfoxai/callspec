@@ -44,8 +44,6 @@ npm i -D tsx typescript @types/express
 
 **Requirements:** Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Reach out to **skyyskater** on Discord for direct support.
-
 ### 1. Backend — define routes and mount the server
 
 Define your RPC methods once with `defineRoute` / `defineSpec`, then `mountSpec` wires the Express server, docs UI, `callspec.json`, OpenAPI, and MCP.
@@ -494,3 +492,7 @@ callspec is early — and we're looking for **maintainers and contributors** who
 
 - **Issues & ideas:** [github.com/logfoxai/callspec/issues](https://github.com/logfoxai/callspec/issues)
 - **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, etc.)
+
+## Support
+
+Questions or stuck on an integration? Join us on [Discord](https://discord.gg/2wyYnBDhWQ) — reach out to **skyyskater** for direct help.
