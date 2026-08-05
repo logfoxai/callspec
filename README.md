@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
-  <h3 align="center">TypeScript RPC that also emits OpenAPI — plus MCP, docs, and a typed client.</h3>
+  <h3 align="center">One spec powers your API, SDK, MCP, docs, and OpenAPI.</h3>
 
   <br>
 
@@ -16,11 +16,9 @@
   </p>
 </div>
 
-Callspec is for **full-stack TypeScript** teams: define routes once with [runtyp](https://github.com/logfoxai/runtyp) predicates, and `mountSpec` gives you the HTTP RPC server, boundary validation, Result-typed errors, white-label docs, native **`callspec.json`**, an **OpenAPI 3.1 spec**, an **MCP server on the same handlers**, and a generated TypeScript client — so the browser never imports your Express app just for types or form validation.
+Define your API once with [runtyp](https://github.com/logfoxai/runtyp) predicates and get an HTTP RPC server, white-label docs, the native **`callspec.json`** contract, OpenAPI 3.1, an MCP server, and **generated consumer artifacts** for TypeScript clients and forms.
 
-It is **not** a multi-language SDK factory. The first-class client is TypeScript. What it *does* give you is a real **OpenAPI 3.1 document** from the same registry (`/openapi.json`) — so you can feed any OpenAPI-based SDK generator, docs portal, or gateway without maintaining a separate spec by hand.
-
-**The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, shared runtyp preds, agent tools, and OpenAPI — HTTP and MCP call the same handlers with the same auth and input checks.
+**The point is not “generate a client.”** The point is **one contract** for backend validation, frontend types, and shared runtyp preds — so the browser never imports your Express server just to validate a filter or a registration form.
 
 Every API and MCP call gets **input validation** at the boundary with clear error messages. The same schemas codegen into the frontend (types today; runtyp validators via `spec.exports` — see [exports plan](docs/exports-and-codegen.plan.md)).
 
@@ -29,9 +27,9 @@ Every API and MCP call gets **input validation** at the boundary with clear erro
 | **HTTP RPC API** | `POST /v1/<methodName>` |
 | **Interactive UI docs** | `/docs` |
 | **Native Callspec document** | `/callspec.json` |
-| **OpenAPI 3.1 spec** | `/openapi.json` |
-| **MCP tools** (same handlers) | `/mcp` |
-| **Generated TypeScript client** | `npx callspec … --output …` |
+| **OpenAPI 3.1** | `/openapi.json` |
+| **MCP tools** | `/mcp` |
+| **Generated HTTP client** | `npx callspec … --output …` |
 | **Exported schemas** | `defineSpec({ exports: { … } })` → shared preds in `callspec.json` |
 | **Generated validators** | `npx callspec … --output … --validators` → runtyp preds for routes + exports |
 | **Runtime client** | `CallspecClient` from `callspec/client` |
@@ -420,9 +418,7 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Native Callspec document
 
-`callspec.json` is Callspec's native, versioned contract (`callspec: "1.0"`). The docs UI and TypeScript client generator consume it directly — that is the lossless IR for this stack (routes, access, MCP flags, exports, Result-oriented error codes).
-
-**OpenAPI 3.1** (`/openapi.json`) is a first-class **parallel projection** from the same `routes` object (not derived from `callspec.json`). Same inputs/outputs/errors/auth surface as your live API — ready to hand to OpenAPI SDK generators, API gateways, and external docs tooling. Shape notes: RPC methods are `POST` paths; errors are grouped by HTTP status. Keep `callspec.json` for the TypeScript client and Callspec UI; use OpenAPI when the wider ecosystem needs a standard spec.
+`callspec.json` is Callspec's native, versioned contract (`callspec: "1.0"`). The docs UI and client generator consume it directly. OpenAPI (`/openapi.json`) is a parallel projection for Swagger, Postman, and other OpenAPI tooling — both come from the same `routes` object, not from each other.
 
 Programmatic emission and validation:
 
@@ -492,11 +488,11 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
 
-Agents **execute** your API: they call the **same handlers** as HTTP RPC — same auth gate, same **input validation**, same error contract. This is a live tool surface on your process, not a separate docs-search layer.
+Agents call the **same handlers** as HTTP RPC — same auth gate, same **input validation**.
 
 ## callspec UI
 
-Minimal, fast docs UI baked into the package — an API explorer colocated with your routes. Browse methods, try RPCs, read schemas, and **connect MCP clients** from the home page. Disable with `{docs: false}` when you want the API private and agents on `/mcp` only.
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read schemas, and **connect MCP clients** from the home page.
 
 Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `authHint`, `mcpInstructions`).
 
@@ -536,7 +532,7 @@ Integration tests spin up Express in-process and verify `callspec.json`, OpenAPI
 
 ## Help build the standard
 
-callspec is early — and we're looking for **maintainers and contributors** who care about TypeScript-first RPC with agents in the loop: one registry, Result-typed errors, shared validation, and MCP on the same handlers.
+callspec is early — and we're looking for **maintainers and contributors** who want to help define how typed APIs work in the age of agents.
 
 - **Issues & ideas:** [github.com/logfoxai/callspec/issues](https://github.com/logfoxai/callspec/issues)
 - **PRs welcome** — `npm run validate` before you push; conventional commits (`feat:`, `fix:`, `docs:`, etc.)
