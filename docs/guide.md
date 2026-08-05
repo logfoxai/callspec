@@ -6,7 +6,7 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 Same catalog routes — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
-**Less boilerplate:** declare preds and errors once in a shared schema module; each route file imports what it needs and only adds route-specific meta + resolver logic. Use a named `resolverFor(…)(…)` const when you export it for tests; otherwise inline the resolver in `defineRoute`.
+**Less boilerplate:** declare preds and errors once in a shared schema module. Each route file: route def → **separate exported resolver** → `defineRoute`. Test resolvers directly — no HTTP, no Express.
 
 ### Shared schemas
 
@@ -52,6 +52,15 @@ const getProductByIdRoute = {
     errors: productErr,
 } as const;
 
+export const getProductByIdResolver = resolverFor(getProductByIdRoute)(
+    async (input, _ctx) => {
+        if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
+        const found = lookupById(input.id);
+        if (!found) return productErr.PRODUCT_NOT_FOUND();
+        return found;
+    },
+);
+
 export const getProductById = defineRoute({
     ...getProductByIdRoute,
     meta: {
@@ -61,12 +70,7 @@ export const getProductById = defineRoute({
     },
     auth: 'none',
     mcp: true,
-    resolver: resolverFor(getProductByIdRoute)(async (input, _ctx) => {
-        if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
-        const found = lookupById(input.id);
-        if (!found) return productErr.PRODUCT_NOT_FOUND();
-        return found;
-    }),
+    resolver: getProductByIdResolver,
 });
 ```
 
@@ -82,6 +86,10 @@ const listProductsRoute = {
     output: productList,
 } as const;
 
+export const listProductsResolver = resolverFor(listProductsRoute)(
+    async (_input, _ctx) => fetchProductList(),
+);
+
 export const listProducts = defineRoute({
     ...listProductsRoute,
     meta: {
@@ -90,20 +98,20 @@ export const listProducts = defineRoute({
         tags: ['catalog'],
     },
     auth: 'none',
-    resolver: resolverFor(listProductsRoute)(async (_input, _ctx) => fetchProductList()),
+    resolver: listProductsResolver,
 });
 ```
 
-Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). Map to route failures only in resolvers that need them. See [API reference § Resolvers](api-reference.md#resolvers).
+Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). Map to route failures only in resolvers that need them. **Unit-test the exported resolver** — call it with input + ctx; no HTTP. See [API reference § Testing resolvers](api-reference.md#testing-resolvers).
 
-**Private routes:** share `type Ctx = { … }` with `authenticate`. Annotate the resolver param as `ctx: Ctx` inside `resolverFor(…)(async (input, ctx) => …)`:
+**Private routes:** share `type Ctx = { … }` with `authenticate`. Define the resolver separately; annotate `ctx: Ctx` on the param:
 
 ```typescript
 type Ctx = {userId: string};
 
-const getProfileResolver = resolverFor(getProfileRoute)(async (input, ctx: Ctx) => {
-    return {userId: ctx.userId};
-});
+export const getProfileResolver = resolverFor(getProfileRoute)(
+    async (input, ctx: Ctx) => ({userId: ctx.userId}),
+);
 ```
 
 ```typescript

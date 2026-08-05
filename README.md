@@ -46,19 +46,39 @@ Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
 Return domain failures from resolvers (`return productErr.PRODUCT_NOT_FOUND()`) — don't throw. Set `status` on the error when you want a specific HTTP code (defaults to 400). Builtins like `VALIDATION_ERROR` are automatic.
 
-Put catalog/DB logic in `server/domain/products.ts` — shared preds and errors in `server/schemas/catalog.ts` (see [guide](docs/guide.md)).
+Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` returns a product or `null`, `isDiscontinued(id)` for retired skus.
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRoute, resolverFor} from 'callspec';
+import {defineRoute, defineErrors, resolverFor} from 'callspec';
+import {predicates as p} from 'runtyp';
 import {isDiscontinued, lookupById} from '../domain/products';
-import {product, productErr, productIdInput} from '../schemas/catalog';
+
+const productErr = defineErrors({
+    PRODUCT_NOT_FOUND: {status: 404},
+    PRODUCT_DISCONTINUED: {},
+});
+
+const product = p.object({
+    id: p.string(),
+    name: p.string(),
+    priceCents: p.number(),
+});
 
 const getProductByIdRoute = {
-    input: productIdInput,
+    input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
 } as const;
+
+export const getProductByIdResolver = resolverFor(getProductByIdRoute)(
+    async (input, _ctx) => {
+        if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
+        const found = lookupById(input.id);
+        if (!found) return productErr.PRODUCT_NOT_FOUND();
+        return found;
+    },
+);
 
 export const getProductById = defineRoute({
     ...getProductByIdRoute,
@@ -69,12 +89,7 @@ export const getProductById = defineRoute({
     },
     auth: 'none',
     mcp: true,
-    resolver: resolverFor(getProductByIdRoute)(async (input, _ctx) => {
-        if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
-        const found = lookupById(input.id);
-        if (!found) return productErr.PRODUCT_NOT_FOUND();
-        return found;
-    }),
+    resolver: getProductByIdResolver,
 });
 ```
 

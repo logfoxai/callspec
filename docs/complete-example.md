@@ -32,6 +32,8 @@ const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _c
     return found;
 });
 
+export {getProductByIdResolver};
+
 export const meta = {
     title: 'My API',
     version: process.env.VERSION ?? '1.0.0',
