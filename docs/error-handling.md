@@ -126,6 +126,8 @@ HTTP status is **not** the semantic layer. It exists for:
 
 Generated clients and app code should branch on **`result.code`** when `!result.ok`, not `result.status`. The client maps wire `{ error, data? }` to `{ ok: false, status, code, data? }`.
 
+Codegen types each route's `{Route}Result` so **`result.code` is a fully exhaustive union** — declared domain errors, builtins (`VALIDATION_ERROR`, `UNAUTHORIZED`, …), and client-only codes (`NETWORK_ERROR`, `UNKNOWN_ERROR`). A `switch (result.code)` with a `never` default (or equivalent) gets compile-time exhaustiveness checking.
+
 **`data` on the client Result** mirrors the error spec's `data` pred:
 - **Required pred** — `data` always present on validated domain failures; builtins like `VALIDATION_ERROR` and `ROUTE_NOT_FOUND` require wire payloads when typed
 - **Optional pred** (`p.optional(...)`) — `{ code }` alone is valid; include `data` only when the wire payload validates (`TOO_MANY_REQUESTS`, `NOT_FOUND`, etc.)

@@ -231,7 +231,7 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Frontend usage
 
-Every generated method returns a **Result**. See [error-handling.md](error-handling.md) for the full contract.
+Every generated method returns a **Result**. When `!result.ok`, `result.code` is a **fully exhaustive** union of every error that route can return — handle them in a `switch` and TypeScript flags anything you miss. See [error-handling.md](error-handling.md) for the full contract.
 
 ```typescript
 // src/app/getProductById.ts
@@ -256,6 +256,10 @@ export async function fetchProduct(id: string) {
         }
         if (result.code === 'VALIDATION_ERROR') {
             toast.error('Invalid product id');
+            return null;
+        }
+        if (result.code === 'NETWORK_ERROR') {
+            toast.error('Check your connection and try again');
             return null;
         }
         toast.error('Something went wrong');

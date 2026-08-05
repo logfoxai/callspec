@@ -128,7 +128,7 @@ npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.t
 
 ### 3. Call from your app
 
-Each method returns a **Result** — check `result.ok`, then use `result.value` or switch on `result.code`. Types are inferred; import `GetProductByIdOutput` etc. only when you need them (props, shared helpers).
+Each method returns a **Result** — check `result.ok`, then branch on `result.code`. That union is **fully exhaustive** (every domain, builtin, and client error for the route); TypeScript catches a missing `switch` case. Types are inferred; import `GetProductByIdOutput` etc. only when you need them (props, shared helpers).
 
 ```typescript
 import {ApiClient} from './generated/api';
@@ -146,6 +146,10 @@ if (!result.ok) {
     }
     if (result.code === 'PRODUCT_DISCONTINUED') {
         toast.error(`Product ${id} is no longer available`);
+        return;
+    }
+    if (result.code === 'NETWORK_ERROR') {
+        toast.error('Check your connection and try again');
         return;
     }
     toast.error('Something went wrong');
