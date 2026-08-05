@@ -46,11 +46,21 @@ export type CallspecUnknownClientError = {
     }
 };
 
-/** Contract failure codes for a route — builtins, declared domain errors, and client-only unknown. */
+/** Client-only — fetch never got an HTTP response (DNS, offline, abort, etc.). `status` is `0`. */
+export type CallspecNetworkClientError = {
+    code: 'NETWORK_ERROR'
+    data: {
+        message: string
+        name?: string
+    }
+};
+
+/** Contract failure codes for a route — builtins, declared domain errors, and client-only codes. */
 export type CallspecClientErrors<E = never> =
     | CallspecBuiltinClientError
     | ([E] extends [never] ? never : E)
-    | CallspecUnknownClientError;
+    | CallspecUnknownClientError
+    | CallspecNetworkClientError;
 
 /** Failure branch — `code` is top-level, same as `value` on success. */
 export type CallspecFailure<E = never> = {

@@ -2,6 +2,8 @@ import type {DomainErrorContract} from '../clientErrorDataValidation';
 
 export const CLIENT_ERROR = {
     UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+    /** No HTTP response — DNS, offline, aborted fetch, etc. */
+    NETWORK_ERROR: 'NETWORK_ERROR',
 } as const;
 
 export type WireRecord = Record<string, unknown>;

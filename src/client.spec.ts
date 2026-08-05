@@ -301,6 +301,43 @@ test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (as
 
 });
 
+test('CallspecClient.callResult maps fetch network failures to NETWORK_ERROR', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => {
+        throw new TypeError('Failed to fetch');
+    }) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('healthcheck', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 0);
+            assert.equal(result.code, CLIENT_ERROR.NETWORK_ERROR);
+
+            if (result.code === CLIENT_ERROR.NETWORK_ERROR) {
+
+                assert.equal(result.data.message, 'Failed to fetch');
+                assert.equal(result.data.name, 'TypeError');
+
+            }
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
 test('CallspecClient.callResult maps unmapped 500 to UNKNOWN_ERROR with headers', async (assert) => {
 
     const originalFetch = globalThis.fetch;

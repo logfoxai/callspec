@@ -10,7 +10,7 @@ Design reference for the callspec error contract, mountSpec runtime, and client 
 - **Builtins on every route** — merged at `defineRoute` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
 - **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks handler return types against `errors:` at compile time (no runtime allowlist).
 - **`BUILTIN_ERROR`** — one constant namespace for all automatic codes (validation, auth, route-not-found, etc.).
-- Client Result — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`. Every failure union includes client-only **`UNKNOWN_ERROR`** when the response is outside the route contract.
+- Client Result — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`. Every failure union includes client-only **`UNKNOWN_ERROR`** (HTTP response outside the route contract) and **`NETWORK_ERROR`** (no HTTP response — DNS, offline, abort; `status: 0`).
 - **Codegen** — after changing routes or error specs, rerun `npx callspec …` and refresh generated client types.
 
 Framework validation and auth **throw** `CallspecValidationError` / `CallspecUnauthorizedError` — mountSpec maps those inline. Any other unhandled error becomes **`INTERNAL_ERROR`** (see [mountSpec runtime](#mountspec-runtime)).
@@ -139,9 +139,19 @@ Domain errors omit `status` to default to **400** (`DEFAULT_ROUTE_ERROR_STATUS`)
 
 ## Client error normalization
 
-`CallspecClient.callResult` maps failed HTTP responses to typed `{ ok: false, status, code, data? }` results. **`INTERNAL_ERROR` is only used when the server sends that code on the wire** — the client never invents it during normalization.
+`CallspecClient.callResult` maps failures to typed `{ ok: false, status, code, data? }` results. **`INTERNAL_ERROR` is only used when the server sends that code on the wire** — the client never invents it during HTTP normalization.
 
-### Pipeline (in order)
+### Transport failures
+
+If `fetch` throws (DNS failure, offline, abort, etc.) before any HTTP response, the client returns:
+
+```typescript
+{ ok: false, status: 0, code: 'NETWORK_ERROR', data: { message, name? } }
+```
+
+`status: 0` means no response. `data.message` / `data.name` come from the thrown `Error` when available. This is client-only (not in `callspec.json`).
+
+### HTTP failure pipeline (in order)
 
 1. **Exact callspec JSON** — `{ error: "CODE", data? }` (and `errors` on `VALIDATION_ERROR`). Builtin codes and route-declared domain codes map to typed failures when the wire shape validates. Domain payloads are checked against `callspec.json` schemas (codegen passes `domainErrors`). An `{ error }` field that fails validation or is undeclared becomes **`UNKNOWN_ERROR`** (preserves raw body).
 2. **Exact body phrases** — case-insensitive literals such as `Unauthorized`, `Forbidden`, `Bad Gateway`, `Service Unavailable`.
@@ -151,7 +161,7 @@ Domain errors omit `status` to default to **400** (`DEFAULT_ROUTE_ERROR_STATUS`)
 
 HTML tag stripping applies **only** while matching (steps 2–4). It is not applied to `UNKNOWN_ERROR.data.body`.
 
-For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same pipeline (optional `responseHeaders` in options).
+For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same HTTP pipeline (optional `responseHeaders` in options).
 
 ## Handler pattern
 
@@ -189,4 +199,4 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 - Return failures via `defineErrors()` handles (`err`, `defineErrors({ DOMAIN: … })`)
 - Builtins are always allowed — merged onto every route at definition time
 - Undeclared domain returns are a **compile error** on the route handler (routes without `errors:` allow builtins only)
-- **`CallspecClient.callResult`** — see [Client error normalization](#client-error-normalization). Mapped failures use builtins + route-declared codes; anything else is client-only **`UNKNOWN_ERROR`** with raw `body` / `headers` for debugging.
+- **`CallspecClient.callResult`** — see [Client error normalization](#client-error-normalization). Mapped HTTP failures use builtins + route-declared codes; unmapped responses are **`UNKNOWN_ERROR`**; transport failures are **`NETWORK_ERROR`**.

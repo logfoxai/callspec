@@ -154,7 +154,7 @@ Wire format is always `{ "error": "CODE", "data?": … }`. The **`error` code** 
 | `SERVICE_UNAVAILABLE` | Dependency unavailable |
 | `INTERNAL_ERROR` | Unhandled throw — `mountSpec` logs and responds |
 
-`mountSpec` owns the RPC catch path and default logging. Use `expressErrorHandler()` from `callspec/express` only for routes **outside** mountSpec. Network failures (DNS, offline) still throw from `fetch` — only HTTP responses become Results.
+`mountSpec` owns the RPC catch path and default logging. Use `expressErrorHandler()` from `callspec/express` only for routes **outside** mountSpec. Transport failures (DNS, offline, aborted `fetch`) become client-only **`NETWORK_ERROR`** (`status: 0`) — still a Result, not a thrown exception.
 
 ## API reference
 
@@ -346,7 +346,7 @@ if (isCallspecOk(result)) {
 }
 ```
 
-Failed responses are normalized in order: exact callspec JSON → known body phrases → HTTP status → fuzzy match → client-only **`UNKNOWN_ERROR`**. See [Client error normalization](docs/error-handling.md#client-error-normalization).
+Failed HTTP responses are normalized in order: exact callspec JSON → known body phrases → HTTP status → fuzzy match → client-only **`UNKNOWN_ERROR`**. Fetch that never gets a response → **`NETWORK_ERROR`**. See [Client error normalization](docs/error-handling.md#client-error-normalization).
 
 ## Built-in MCP server
 

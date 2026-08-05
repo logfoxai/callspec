@@ -15,6 +15,7 @@ export type {
     CallspecClientErrors,
     CallspecBuiltinClientError,
     CallspecUnknownClientError,
+    CallspecNetworkClientError,
     CallResultOptions,
     DomainErrorContract,
 } from './clientTypes';
@@ -28,11 +29,33 @@ export type {ResolveRouteClientErrorInput} from './clientErrorNormalization';
 
 import type {
     CallspecOk,
+    CallspecNetworkClientError,
     CallspecResult,
     CallspecRouteResult,
     CallResultOptions,
 } from './clientTypes';
-import {resolveRouteClientError} from './clientErrorNormalization';
+import {CLIENT_ERROR, resolveRouteClientError} from './clientErrorNormalization';
+
+function networkClientError(err: unknown): CallspecNetworkClientError {
+
+    if (err instanceof Error) {
+
+        return {
+            code: CLIENT_ERROR.NETWORK_ERROR,
+            data: {
+                message: err.message,
+                ...(err.name ? {name: err.name} : {}),
+            },
+        };
+
+    }
+
+    return {
+        code: CLIENT_ERROR.NETWORK_ERROR,
+        data: {message: String(err)},
+    };
+
+}
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
@@ -133,12 +156,26 @@ export class CallspecClient {
         const headers = await resolveHeaders(this.config.headers);
         const {fetchOptions} = this.config;
 
-        const resp = await this.fetchImpl(url, {
-            ...fetchOptions,
-            method: 'POST',
-            headers,
-            body: JSON.stringify(input ?? {}),
-        });
+        let resp: Response;
+
+        try {
+
+            resp = await this.fetchImpl(url, {
+                ...fetchOptions,
+                method: 'POST',
+                headers,
+                body: JSON.stringify(input ?? {}),
+            });
+
+        } catch (err) {
+
+            return {
+                ok: false as const,
+                status: 0,
+                ...networkClientError(err),
+            };
+
+        }
 
         const body = await parseResponseBody(resp);
 
