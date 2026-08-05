@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-dark.png?cb=1" media="(prefers-color-scheme: dark)" />
-    <source srcset="assets/callspec-lockup-light.png?cb=1" media="(prefers-color-scheme: light)" />
-    <img src="assets/callspec-lockup-light.png?cb=1" alt="callspec" />
+    <source srcset="assets/callspec-lockup-dark.svg?cb=3" media="(prefers-color-scheme: dark)" />
+    <source srcset="assets/callspec-lockup-light.svg?cb=3" media="(prefers-color-scheme: light)" />
+    <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
   <h3 align="center">Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.</h3>
@@ -46,10 +46,70 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Define runtyp preds once, wire handlers with `RouteHandler` + `defineRoute`, export a `defineSpec`, then `mountSpec` serves RPC, docs, `callspec.json`, OpenAPI, and MCP. Copy-paste server: **[docs/complete-example.md](docs/complete-example.md)**.
+Define runtyp preds once per route, wire handlers with `RouteHandler` + `defineRoute`, export a `defineSpec`, then `mountSpec` serves RPC, docs, `callspec.json`, OpenAPI, and MCP. Fuller copy-paste server: **[docs/complete-example.md](docs/complete-example.md)**.
 
 ```typescript
-// server/index.ts — after routes.ts exports `api`
+// server/routes/searchRecentPosts.ts
+import type {RouteHandler} from 'callspec';
+import {predicates as p, type Infer} from 'runtyp';
+
+type Ctx = {userId: string};
+
+export const searchRecentPostsInput = p.object({
+    query: p.string(),
+    max_results: p.optional(p.number({range: {min: 1, max: 100}})),
+});
+
+export const searchRecentPostsOutput = p.object({
+    results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
+    count: p.number(),
+});
+
+export const searchRecentPosts: RouteHandler<
+    Infer<typeof searchRecentPostsInput>,
+    Infer<typeof searchRecentPostsOutput>,
+    Ctx
+> = async (input, ctx) => ({
+    results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
+    count: 1,
+});
+```
+
+```typescript
+// server/routes.ts
+import {defineSpec, defineRoute} from 'callspec';
+import type {Authenticate} from 'callspec';
+import {
+    searchRecentPosts,
+    searchRecentPostsInput,
+    searchRecentPostsOutput,
+} from './routes/searchRecentPosts';
+
+type Ctx = {userId: string};
+
+const authenticate: Authenticate<Ctx> = async (token, _req) => {
+    if (!token) return undefined;
+    return {userId: 'user_123'};
+};
+
+export const api = defineSpec({
+    meta: {title: 'My API', version: '1.0.0', intro: 'Search posts from a typed RPC surface.'},
+    authenticate,
+    routes: {
+        searchRecentPosts: defineRoute({
+            input: searchRecentPostsInput,
+            output: searchRecentPostsOutput,
+            meta: {summary: 'Search recent posts', tags: ['posts']},
+            access: 'private',
+            mcp: true,
+            handler: searchRecentPosts,
+        }),
+    },
+});
+```
+
+```typescript
+// server/index.ts
 import express from 'express';
 import {mountSpec} from 'callspec';
 import {api} from './routes';
@@ -107,32 +167,26 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 ### Full backend example
 
-Separate preds, handlers, and route defs — same pattern as [complete-example.md](docs/complete-example.md):
+One file per route (preds + handler), then assemble the spec — same pattern as [complete-example.md](docs/complete-example.md):
 
 ```typescript
-// server/routes.ts
-import {defineSpec, defineRoute} from 'callspec';
-import type {Authenticate, RouteHandler} from 'callspec';
+// server/routes/searchRecentPosts.ts
+import type {RouteHandler} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 type Ctx = {userId: string};
 
-const searchRecentPostsInput = p.object({
+export const searchRecentPostsInput = p.object({
     query: p.string(),
     max_results: p.optional(p.number({range: {min: 1, max: 100}})),
 });
 
-const searchRecentPostsOutput = p.object({
+export const searchRecentPostsOutput = p.object({
     results: p.array(p.object({id: p.string(), text: p.string(), authorId: p.string()})),
     count: p.number(),
 });
 
-const authenticate: Authenticate<Ctx> = async (token, _req) => {
-    if (!token) return undefined;
-    return {userId: 'user_123'};
-};
-
-const searchRecentPosts: RouteHandler<
+export const searchRecentPosts: RouteHandler<
     Infer<typeof searchRecentPostsInput>,
     Infer<typeof searchRecentPostsOutput>,
     Ctx
@@ -140,6 +194,24 @@ const searchRecentPosts: RouteHandler<
     results: [{id: '1', text: `Match for "${input.query}"`, authorId: ctx.userId}],
     count: 1,
 });
+```
+
+```typescript
+// server/routes.ts
+import {defineSpec, defineRoute} from 'callspec';
+import type {Authenticate} from 'callspec';
+import {
+    searchRecentPosts,
+    searchRecentPostsInput,
+    searchRecentPostsOutput,
+} from './routes/searchRecentPosts';
+
+type Ctx = {userId: string};
+
+const authenticate: Authenticate<Ctx> = async (token, _req) => {
+    if (!token) return undefined;
+    return {userId: 'user_123'};
+};
 
 export const api = defineSpec({
     meta: {title: 'My API', version: '1.0.0', intro: 'Search posts from a typed RPC surface.'},
