@@ -1,0 +1,123 @@
+# API reference
+
+## `defineRoute`
+
+Define **runtyp preds once**, then type handlers with `Infer<typeof …>`:
+
+```typescript
+const echoInput = p.object({message: p.string()});
+const echoOutput = p.object({echo: p.string()});
+
+const echo: RouteHandler<
+    Infer<typeof echoInput>,
+    Infer<typeof echoOutput>
+> = async (input) => ({echo: input.message});
+
+defineRoute({
+    input: echoInput,
+    output: echoOutput,
+    meta: {summary, description, tags},
+    access?: 'public' | 'private',  // default 'private'
+    mcp?: true | {name?, annotations?},
+    errors?: defineErrors({…}),
+    handler: echo,
+})
+```
+
+`defineRoute` checks the handler against the preds at compile time (arity 2: `input`, `ctx`).
+
+Every route requires **`input`** and **`output`** preds. Use `p.any()` when you do not need a precise schema. Only **`errors`** is optional.
+
+## `defineSpec`
+
+```typescript
+defineSpec({
+    meta?: CallspecMeta,
+    routes: RoutesMap<Ctx>,          // required — your map of defineRoute entries
+    exports?: Record<string, Pred>,  // named schemas for consumer codegen
+    authenticate?: Authenticate<Ctx>,
+})
+```
+
+Throws at load time if any route is `private` and `authenticate` is missing.
+
+## `mountSpec`
+
+```typescript
+mountSpec(router, spec, options?: MountSpecOptions)
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `basePath` | `''` | Prefix for RPC paths and for paths baked into emitted documents |
+| `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json`; or pass `{ uiPath?, callspecPath?, openApiPath? }` to override individual paths |
+| `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
+| `logging` | `true` | jsout-express request log on this router + jsout error log on unhandled throws; pass `false` in tests |
+| `handleUnhandledError` | — | `(err, req) => RouteFailure \| undefined` — map infra throws before `INTERNAL_ERROR` |
+| `logUnhandledError` | jsout `logger.error` | Override unhandled-error logging only |
+
+When `docs` is enabled, the docs UI fetches **`callspec.json`** from the configured path (default `/callspec.json` relative to the router).
+
+See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime).
+
+## Auth
+
+- **`access: 'public'`** — no credentials required
+- **`access: 'private'`** (default) — 401 without valid Bearer token
+- **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it
+
+OpenAPI Bearer security is **auto-derived** from route `access`.
+
+## Errors
+
+Errors are **typed return possibilities**, not mystery exceptions. Full guide: [error-handling.md](error-handling.md).
+
+Builtin codes (automatic on every route — never declare): `VALIDATION_ERROR`, `UNAUTHORIZED`, `ROUTE_NOT_FOUND`, `NOT_FOUND`, `FORBIDDEN`, `CONFLICT`, `TOO_MANY_REQUESTS`, `SERVICE_UNAVAILABLE`, `INTERNAL_ERROR`. Client-only: `NETWORK_ERROR`, `UNKNOWN_ERROR`.
+
+## Native Callspec document & OpenAPI
+
+`callspec.json` is Callspec's native contract (`callspec: "1.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([Guide § Writing callspec.json](guide.md#writing-callspecjson)).
+
+**OpenAPI 3.1** (`/openapi.json`) is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors are grouped by HTTP status.
+
+`emitOpenApi` and `parseCallspecDocument` are in `callspec/document` for server tooling and tests.
+
+## Runtime client
+
+Low-level `CallspecClient` if you need it; prefer the generated client for app code.
+
+```typescript
+import {CallspecClient, isCallspecOk} from 'callspec/client';
+
+const runtime = new CallspecClient({baseUrl: 'https://api.example.com/v1'});
+const result = await runtime.callResult<{echo: string}>('echo', {message: 'hello'});
+
+if (isCallspecOk(result)) {
+    console.log(result.value);
+} else {
+    console.error(result.status, result.code);
+}
+```
+
+See [Client error normalization](error-handling.md#client-error-normalization).
+
+## Built-in MCP server
+
+Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
+
+Agents call the **same handlers** as HTTP RPC — same auth gate, same input validation, same error codes.
+
+## Docs UI
+
+Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read schemas, and **connect MCP clients** from the home page. Pass `{docs: false}` to keep the API private and use `/mcp` only.
+
+Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `authHint`, `mcpInstructions`).
+
+## Package exports
+
+| Import | Use |
+|--------|-----|
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteHandler`, `Authenticate` |
+| `callspec/express` | `expressErrorHandler` |
+| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
+| `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
