@@ -24,7 +24,7 @@ On the frontend you call `api.searchProducts({…})` and get a **Result** back �
 
 - ⚡ **RPC methods** — define `searchProducts`, not resource CRUD; Callspec mounts the server for you
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers; shared types end-to-end
-- 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
+- 🎯 **Result-typed errors** — end-to-end error codes from resolver → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
 - 🤖 **MCP** — same methods as your SDK, same auth and validation
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
@@ -44,11 +44,11 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return domain failures from handlers (`return searchErr.PRODUCT_NOT_FOUND({…})`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
+Return domain failures from resolvers (`return searchErr.PRODUCT_NOT_FOUND({…})`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
 
 ```typescript
 // server/routes/searchProducts.ts
-import {defineRoute, defineErrors, isRouteFailure, type RouteFailuresFrom} from 'callspec';
+import {defineRoute, defineErrors, isRouteFailure, resolverFor, type RouteFailuresFrom} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 const catalog = new Map([
@@ -61,16 +61,19 @@ const searchErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-const searchProductsInput = p.object({
-    id: p.optional(p.string()),
-    keywords: p.optional(p.string()),
-});
-const searchProductsOutput = p.object({
-    results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
-    count: p.number(),
-});
+const searchProductsRoute = {
+    input: p.object({
+        id: p.optional(p.string()),
+        keywords: p.optional(p.string()),
+    }),
+    output: p.object({
+        results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+        count: p.number(),
+    }),
+    errors: searchErr,
+} as const;
 
-type SearchProduct = Infer<typeof searchProductsOutput>['results'][number];
+type SearchProduct = Infer<typeof searchProductsRoute.output>['results'][number];
 
 function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
     const product = catalog.get(id);
@@ -78,10 +81,7 @@ function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof search
     return product;
 }
 
-async function searchProductsHandler(
-    input: Infer<typeof searchProductsInput>,
-    _ctx: unknown,
-) {
+const searchProductsResolver = resolverFor(searchProductsRoute)(async (input, _ctx) => {
     if (input.id) {
         const product = lookupById(input.id);
         if (isRouteFailure(product)) return product;
@@ -94,16 +94,14 @@ async function searchProductsHandler(
         return {results, count: results.length};
     }
     return searchErr.SEARCH_CRITERIA_REQUIRED();
-}
+});
 
 export const searchProducts = defineRoute({
-    input: searchProductsInput,
-    output: searchProductsOutput,
-    errors: searchErr,
+    ...searchProductsRoute,
     meta: {summary: 'Search products', description: 'Look up by product id or search by keywords.', tags: ['catalog']},
     access: 'public',
     mcp: true,
-    handler: searchProductsHandler,
+    handler: searchProductsResolver,
 });
 ```
 

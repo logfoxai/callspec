@@ -1,71 +1,92 @@
 # API reference
 
-## `defineRoute`
+## Resolvers
 
-Declare **runtyp preds once**, extract the handler, wire with `defineRoute`:
+Declare preds once, get full IDE support on the resolver body:
 
 ```typescript
-import {defineRoute, defineErrors, isRouteFailure, type RouteFailuresFrom} from 'callspec';
-import {predicates as p, type Infer} from 'runtyp';
+import {defineRoute, defineErrors, resolverFor, type RouteResolverFor} from 'callspec';
+import {predicates as p} from 'runtyp';
 
-const searchProductsInput = p.object({
-    id: p.optional(p.string()),
-    keywords: p.optional(p.string()),
-});
-const searchProductsOutput = p.object({
-    results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
-    count: p.number(),
-});
 const searchErr = defineErrors({
     SEARCH_CRITERIA_REQUIRED: {},
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-type SearchProduct = Infer<typeof searchProductsOutput>['results'][number];
-
-const catalog = new Map<string, SearchProduct>(); // your data source
-
-function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
-    if (!catalog.has(id)) return searchErr.PRODUCT_NOT_FOUND({id});
-    return catalog.get(id)!;
-}
-
-async function searchProductsHandler(
-    input: Infer<typeof searchProductsInput>,
-    _ctx: unknown,
-) {
-    if (input.id) {
-        const product = lookupById(input.id);
-        if (isRouteFailure(product)) return product;
-        return {results: [product], count: 1};
-    }
-    if (input.keywords?.trim()) { /* keyword search */ }
-    return searchErr.SEARCH_CRITERIA_REQUIRED();
-}
-
-defineRoute({
-    input: searchProductsInput,
-    output: searchProductsOutput,
+const searchProductsRoute = {
+    input: p.object({id: p.optional(p.string()), keywords: p.optional(p.string())}),
+    output: p.object({
+        results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+        count: p.number(),
+    }),
     errors: searchErr,
+} as const;
+
+// Option A — resolverFor (inline autocomplete, no manual type annotation)
+const searchProductsResolver = resolverFor(searchProductsRoute)(async (input, _ctx) => {
+    input.keywords; // typed
+    return searchErr.SEARCH_CRITERIA_REQUIRED();
+});
+
+// Option B — explicit type (same types, useful for exported/testable resolvers)
+const otherResolver: RouteResolverFor<typeof searchProductsRoute> = async (input, _ctx) => {
+    return {results: [], count: 0};
+};
+
+export const searchProducts = defineRoute({
+    ...searchProductsRoute,
     meta: {summary: '…', description: '…', tags: ['catalog']},
-    access: 'public',  // default 'private'
-    mcp: true,           // optional
-    handler: searchProductsHandler,
+    access: 'public',
+    handler: searchProductsResolver,
+});
+```
+
+| Export | Purpose |
+|--------|---------|
+| `resolverFor(routeDef)` | Returns `(fn) => fn` with full resolver typing from `routeDef` |
+| `RouteResolverFor<typeof routeDef, Ctx?>` | Explicit resolver type when you prefer a type declaration |
+| `RouteResolverDef` | Shape of `{ input, output, errors? }` — spread into `defineRoute` |
+
+Helpers that return domain failures: `RouteFailuresFrom<typeof searchErr>`.
+
+Private routes: annotate auth context on the param — `resolverFor(route)(async (input, ctx: Ctx) => …)`.
+
+### Testing resolvers
+
+`resolverFor` is a compile-time helper only — it returns your function unchanged. The resolver and any extracted helpers are **plain functions** you call directly in unit tests (no HTTP, no `defineRoute`, no Express):
+
+```typescript
+import {isRouteFailure} from 'callspec';
+
+const result = await searchProductsResolver({keywords: 'trail'}, {});
+
+if (isRouteFailure(result)) {
+    expect(result.code).toBe('SEARCH_CRITERIA_REQUIRED');
+} else {
+    expect(result.count).toBeGreaterThan(0);
+}
+
+// helpers too:
+const product = lookupById('sku-1');
+```
+
+Export the resolver (and helpers) from the route module when tests live in another file.
+
+## `defineRoute`
+
+```typescript
+defineRoute({
+    input: Pred,           // required
+    output: Pred,          // required
+    errors?: ErrorsHandle, // optional domain errors
+    meta: RouteMeta,       // summary, description, tags
+    access?: 'public' | 'private',  // default 'private'
+    mcp?: true | McpRouteConfig,
+    handler: RouteResolverFor<…>,  // your resolver (property name is `handler`)
 })
 ```
 
-**Typing rules (no duplicate schemas):**
-
-| Piece | Declare once as… | Extracted code uses… |
-|-------|------------------|----------------------|
-| Wire input | `searchProductsInput` pred | `Infer<typeof searchProductsInput>` on handler params |
-| Success output | `searchProductsOutput` pred | `Infer<typeof searchProductsOutput>` (or slices like `['results'][number]`) |
-| Domain failures | `searchErr = defineErrors({…})` | `RouteFailuresFrom<typeof searchErr>` on helpers |
-| Handler check | — | `defineRoute({ input, output, errors, handler })` validates the wiring |
-
-`defineRoute` checks the handler at compile time (arity 2: `input`, `ctx`). You do not need `RouteHandler<…>` in application code — preds + `Infer` + `RouteFailuresFrom` give IDE autocomplete without repeating shapes.
-
-Every route requires **`input`** and **`output`** preds. Use `p.any()` when you do not need a precise schema. Only **`errors`** is optional.
+`defineRoute` validates input, output, errors, and resolver arity (2: `input`, `ctx`). Use `p.any()` when you do not need a precise schema.
 
 ## `defineSpec`
 
@@ -144,7 +165,7 @@ See [Client error normalization](error-handling.md#client-error-normalization).
 
 Set `mcp: true` on any `defineRoute`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
 
-Agents call the **same handlers** as HTTP RPC — same auth gate, same input validation, same error codes.
+Agents call the **same resolvers** as HTTP RPC — same auth gate, same input validation, same error codes.
 
 ## Docs UI
 
@@ -156,7 +177,7 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `aut
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteHandler`, `Authenticate` |
+| `callspec` | `defineRoute`, `defineSpec`, `mountSpec`, `defineErrors`, `err`, `resolverFor`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteResolverFor`, `RouteResolverDef`, `RouteHandler`, `Authenticate` |
 | `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |

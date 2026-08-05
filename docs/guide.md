@@ -6,11 +6,11 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 Same `searchProducts` route — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
-**Route authoring:** declare preds and `defineErrors` once. Type extracted handlers with `Infer<typeof …>` so IDE autocomplete works. Type extracted helpers with `RouteFailuresFrom<typeof …>`. Pass the handler to `defineRoute` — it checks input, output, and allowed failures; you never repeat schemas as hand-written interfaces.
+**Route authoring:** declare preds once in a `searchProductsRoute` object, pass to `resolverFor(…)(async …)` for full IDE autocomplete on input, output, and errors, then spread into `defineRoute`. Helpers use `RouteFailuresFrom<typeof …>`. See [API reference § Resolvers](api-reference.md#resolvers).
 
 ```typescript
 // server/routes/searchProducts.ts
-import {defineRoute, defineErrors, isRouteFailure, type RouteFailuresFrom} from 'callspec';
+import {defineRoute, defineErrors, isRouteFailure, resolverFor, type RouteFailuresFrom} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
 
 const catalog = new Map([
@@ -23,16 +23,19 @@ const searchErr = defineErrors({
     PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
 });
 
-const searchProductsInput = p.object({
-    id: p.optional(p.string()),
-    keywords: p.optional(p.string()),
-});
-const searchProductsOutput = p.object({
-    results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
-    count: p.number(),
-});
+const searchProductsRoute = {
+    input: p.object({
+        id: p.optional(p.string()),
+        keywords: p.optional(p.string()),
+    }),
+    output: p.object({
+        results: p.array(p.object({id: p.string(), name: p.string(), priceCents: p.number()})),
+        count: p.number(),
+    }),
+    errors: searchErr,
+} as const;
 
-type SearchProduct = Infer<typeof searchProductsOutput>['results'][number];
+type SearchProduct = Infer<typeof searchProductsRoute.output>['results'][number];
 
 function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof searchErr> {
     const product = catalog.get(id);
@@ -40,15 +43,12 @@ function lookupById(id: string): SearchProduct | RouteFailuresFrom<typeof search
     return product;
 }
 
-function searchByKeywords(keywords: string): Infer<typeof searchProductsOutput>['results'] {
+function searchByKeywords(keywords: string): Infer<typeof searchProductsRoute.output>['results'] {
     const needle = keywords.toLowerCase();
     return [...catalog.values()].filter((item) => item.name.toLowerCase().includes(needle));
 }
 
-async function searchProductsHandler(
-    input: Infer<typeof searchProductsInput>,
-    _ctx: unknown,
-) {
+const searchProductsResolver = resolverFor(searchProductsRoute)(async (input, _ctx) => {
     if (input.id) {
         const product = lookupById(input.id);
         if (isRouteFailure(product)) return product;
@@ -60,12 +60,10 @@ async function searchProductsHandler(
         return {results, count: results.length};
     }
     return searchErr.SEARCH_CRITERIA_REQUIRED();
-}
+});
 
 export const searchProducts = defineRoute({
-    input: searchProductsInput,
-    output: searchProductsOutput,
-    errors: searchErr,
+    ...searchProductsRoute,
     meta: {
         summary: 'Search products',
         description: 'Look up by product id or search by keywords.',
@@ -73,7 +71,17 @@ export const searchProducts = defineRoute({
     },
     access: 'public',
     mcp: true,
-    handler: searchProductsHandler,
+    handler: searchProductsResolver,
+});
+```
+
+**Private routes:** share `type Ctx = { … }` with `authenticate`. Annotate the resolver param as `ctx: Ctx` inside `resolverFor(…)(async (input, ctx) => …)`:
+
+```typescript
+type Ctx = {userId: string};
+
+const getProfileResolver = resolverFor(getProfileRoute)(async (input, ctx: Ctx) => {
+    return {userId: ctx.userId};
 });
 ```
 
@@ -253,7 +261,7 @@ Routes declare wire validation once. Codegen gives the frontend the same **types
 
 | What | Where it lives | Who uses it |
 |------|----------------|-------------|
-| RPC methods | `defineSpec({ routes })` | Server handlers + generated `ApiClient` |
+| RPC methods | `defineSpec({ routes })` | Server resolvers + generated `ApiClient` |
 | Full request/response shapes | Route `input` / `output` | Server boundary + generated `{Route}Input` types |
 | Shared UI slices (filters, domain objects) | `defineSpec({ exports })` | Filter bars, modals — same pred as server ([plan](exports-and-codegen.plan.md)) |
 | UI-only fields | Consumer app local | Never in the spec |

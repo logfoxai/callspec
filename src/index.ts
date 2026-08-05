@@ -32,3 +32,5 @@ export {
 export type {RouteFailure, RouteHandler, Authenticate} from './types';
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 export type {RoutesMap} from './types';
+export {resolverFor} from './routeResolver';
+export type {RouteResolverDef, RouteResolverFor} from './routeResolver';

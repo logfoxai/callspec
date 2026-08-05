@@ -5,10 +5,10 @@ Design reference for the callspec error contract, mountSpec runtime, and client 
 ## Overview
 
 - **`defineErrors()`** — domain error maps; shorthand **`err`** is builtins-only.
-- **Return failures from handlers** — `return err.NOT_FOUND()` / `return registerErr.USER_EXISTS({ … })`; success is a plain route output object.
-- **`RouteFailure`** — `{ ok: false, code, status, data? }` from handlers and from `defineErrors` / `err` handles.
+- **Return failures from resolvers** — `return err.NOT_FOUND()` / `return registerErr.USER_EXISTS({ … })`; success is a plain route output object.
+- **`RouteFailure`** — `{ ok: false, code, status, data? }` from resolvers and from `defineErrors` / `err` handles.
 - **Builtins on every route** — merged at `defineRoute` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
-- **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks handler return types against `errors:` at compile time (no runtime allowlist).
+- **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks resolver return types against `errors:` at compile time (no runtime allowlist).
 - **`BUILTIN_ERROR`** — one constant namespace for all automatic codes (validation, auth, route-not-found, etc.).
 - Client Result — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`. Every failure union includes client-only **`UNKNOWN_ERROR`** (HTTP response outside the route contract) and **`NETWORK_ERROR`** (no HTTP response — DNS, offline, abort; `status: 0`).
 - **Codegen** — after changing routes or error specs, rerun `npx callspec …` and refresh generated client types.
@@ -29,8 +29,8 @@ After `executeRoute` returns or throws:
 
 | Step | Condition | HTTP response | Default error log |
 |------|-----------|---------------|-------------------|
-| 1 | Handler **returns** `RouteFailure` | Wire failure (`sendRouteFailureResponse`) | None |
-| 2 | Handler **throws** `RouteFailure` | Wire failure | None |
+| 1 | Resolver **returns** `RouteFailure` | Wire failure (`sendRouteFailureResponse`) | None |
+| 2 | Resolver **throws** `RouteFailure` | Wire failure | None |
 | 3 | `CallspecValidationError` (input validation) | 400 `VALIDATION_ERROR` + `errors` | None |
 | 4 | `CallspecUnauthorizedError` (private route, bad/missing token) | 401 `UNAUTHORIZED` | None |
 | 5 | `handleUnhandledError(err, req)` returns `RouteFailure` | Wire failure | **You** choose (mountSpec skips default error log) |
@@ -38,7 +38,7 @@ After `executeRoute` returns or throws:
 
 **Success** is step 0: HTTP **200** + route output JSON — no error log.
 
-Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures: synchronous `throw new Error('…')`, rejected async handlers, driver/library throws, etc.
+Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures: synchronous `throw new Error('…')`, rejected async resolvers, driver/library throws, etc.
 
 ### Logging
 
@@ -102,12 +102,12 @@ Malformed JSON on a router with `body-parser` may hit your app-level handler bef
 | `VALIDATION_ERROR` | 400 | mountSpec (input validation) |
 | `UNAUTHORIZED` | 401 | mountSpec (missing/invalid auth) |
 | `ROUTE_NOT_FOUND` | 404 | mountSpec (unknown RPC method) |
-| `NOT_FOUND` | 404 | handler (`return err.NOT_FOUND()`) |
-| `FORBIDDEN` | 403 | handler or middleware |
-| `CONFLICT` | 409 | handler |
+| `NOT_FOUND` | 404 | resolver (`return err.NOT_FOUND()`) |
+| `FORBIDDEN` | 403 | resolver or middleware |
+| `CONFLICT` | 409 | resolver |
 | `TOO_MANY_REQUESTS` | 429 | rate-limit middleware |
-| `SERVICE_UNAVAILABLE` | 503 | handler or middleware |
-| `INTERNAL_ERROR` | 500 | mountSpec (unhandled throw or rejected promise in handler) |
+| `SERVICE_UNAVAILABLE` | 503 | resolver or middleware |
+| `INTERNAL_ERROR` | 500 | mountSpec (unhandled throw or rejected promise in resolver) |
 
 `ROUTE_NOT_FOUND` and `NOT_FOUND` both use HTTP 404 but mean different things — the **`code`** is the contract; status is a transport hint.
 
@@ -163,42 +163,37 @@ HTML tag stripping applies **only** while matching (steps 2–4). It is not appl
 
 For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same HTTP pipeline (optional `responseHeaders` in options).
 
-## Handler pattern
+## Resolver pattern
 
-Preds and errors once; extracted handler + helpers; `defineRoute` wires and checks:
+Preds once in a route def; `resolverFor` for full IDE; helpers use `RouteFailuresFrom`:
 
 ```typescript
-import {defineRoute, defineErrors, err, isRouteFailure, type RouteFailuresFrom} from 'callspec';
-import {predicates as p, type Infer} from 'runtyp';
+import {defineRoute, defineErrors, err, isRouteFailure, resolverFor, type RouteFailuresFrom} from 'callspec';
+import {predicates as p} from 'runtyp';
 
-const registerInput = p.object({email: p.string()});
-const registerOutput = p.object({userId: p.string()});
-const registerErr = defineErrors({
-    USER_ALREADY_EXISTS: {},
-});
+const registerRoute = {
+    input: p.object({email: p.string()}),
+    output: p.object({userId: p.string()}),
+    errors: defineErrors({USER_ALREADY_EXISTS: {}}),
+} as const;
 
-function ensureAvailable(email: string): void | RouteFailuresFrom<typeof registerErr> {
-    if (taken) return registerErr.USER_ALREADY_EXISTS();
+function ensureAvailable(email: string): void | RouteFailuresFrom<typeof registerRoute.errors> {
+    if (taken) return registerRoute.errors.USER_ALREADY_EXISTS();
 }
 
-async function registerHandler(
-    input: Infer<typeof registerInput>,
-    _ctx: unknown,
-) {
+const registerResolver = resolverFor(registerRoute)(async (input, _ctx) => {
     const blocked = ensureAvailable(input.email);
     if (isRouteFailure(blocked)) return blocked;
     return {userId: '…'};
-}
-
-defineRoute({
-    input: registerInput,
-    output: registerOutput,
-    errors: registerErr,
-    meta: {summary: 'Register', description: 'Create a user account.', tags: ['auth']},
-    handler: registerHandler,
 });
 
-// anywhere in handler or helper:
+defineRoute({
+    ...registerRoute,
+    meta: {summary: 'Register', description: 'Create a user account.', tags: ['auth']},
+    handler: registerResolver,
+});
+
+// anywhere in resolver or helper:
 return err.NOT_FOUND({message: '…'});
 ```
 
@@ -212,5 +207,5 @@ Express middleware that cannot return through mountSpec may still **`throw`** a 
 
 - Return failures via `defineErrors()` handles (`err`, `defineErrors({ DOMAIN: … })`)
 - Builtins are always allowed — merged onto every route at definition time
-- Undeclared domain returns are a **compile error** on the route handler (routes without `errors:` allow builtins only)
+- Undeclared domain returns are a **compile error** on the route resolver (routes without `errors:` allow builtins only)
 - **`CallspecClient.callResult`** — see [Client error normalization](#client-error-normalization). Mapped HTTP failures use builtins + route-declared codes; unmapped responses are **`UNKNOWN_ERROR`**; transport failures are **`NETWORK_ERROR`**.
