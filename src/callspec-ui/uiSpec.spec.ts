@@ -18,7 +18,7 @@ test('callspecDocumentToUiSpec: extracts routes from native document', (assert) 
                 summary: 'Health check',
                 description: 'Liveness probe',
                 tags: ['health'],
-                access: 'public',
+                auth: 'none',
                 input: {type: 'object', properties: {}},
                 output: {type: 'string'},
                 mcp: {enabled: false},
@@ -30,7 +30,7 @@ test('callspecDocumentToUiSpec: extracts routes from native document', (assert) 
                 summary: 'Search logs',
                 description: 'Query log events',
                 tags: ['logs'],
-                access: 'private',
+                auth: 'bearer',
                 input: {
                     type: 'object',
                     properties: {teamId: {type: 'string'}},
@@ -50,13 +50,13 @@ test('callspecDocumentToUiSpec: extracts routes from native document', (assert) 
 
     const health = spec.routes.find((route) => route.name === 'healthcheck');
 
-    assert.equal(health?.access, 'public');
+    assert.equal(health?.auth, 'none');
     assert.equal(health?.mcp, false);
     assert.equal(health?.tags[0], 'health');
 
     const search = spec.routes.find((route) => route.name === 'searchLogs');
 
-    assert.equal(search?.access, 'private');
+    assert.equal(search?.auth, 'bearer');
     assert.equal(search?.mcp, true);
 
 });
@@ -68,7 +68,7 @@ test('emitCallspec to UI spec: native round trip', (assert) => {
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Health', description: 'Health', tags: ['health']},
-            access: 'public',
+            auth: 'none',
             handler: async (_input, _ctx) => 'ok',
         }),
     }, {

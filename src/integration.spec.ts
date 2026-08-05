@@ -19,7 +19,7 @@ const routes = {
             description: 'Returns OK when the service is up.',
             tags: ['health'],
         },
-        access: 'public',
+        auth: 'none',
         handler: (_input, _ctx) => 'OK',
     }),
 
@@ -31,7 +31,7 @@ const routes = {
             description: 'Returns the input message.',
             tags: ['demo'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {message: string}, _ctx) => ({echo: input.message}),
     }),
 
@@ -43,7 +43,7 @@ const routes = {
             description: 'Returns a hello payload.',
             tags: ['demo'],
         },
-        access: 'public',
+        auth: 'none',
         mcp: true,
         handler: (input: {name: string}, _ctx) => ({hello: input.name}),
     }),
@@ -142,7 +142,7 @@ test('integration: callspec.json lists all fixture routes', async (assert) => {
         const doc = await res.json() as Record<string, unknown>;
 
         assert.equal(res.status, 200);
-        assert.equal(doc.callspec, '1.0');
+        assert.equal(doc.callspec, '1.1');
         assert.equal((doc.info as {title: string}).title, 'Fixture API');
 
         const spec = callspecDocumentToUiSpec(parseCallspecDocument(doc));
@@ -151,12 +151,12 @@ test('integration: callspec.json lists all fixture routes', async (assert) => {
 
         const greet = spec.routes.find((route) => route.name === 'greet');
 
-        assert.equal(greet?.access, 'public');
+        assert.equal(greet?.auth, 'none');
         assert.equal(greet?.mcp, true);
 
         const echo = spec.routes.find((route) => route.name === 'echo');
 
-        assert.equal(echo?.access, 'private');
+        assert.equal(echo?.auth, 'bearer');
 
     });
 
@@ -194,7 +194,7 @@ test('integration: callspec UI at /docs', async (assert) => {
         const specFromDocs = await fetch(new URL('../callspec.json', `${base}/docs/`));
 
         assert.equal(specFromDocs.status, 200);
-        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '1.0');
+        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '1.1');
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
@@ -377,7 +377,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
-                access: 'public',
+                auth: 'none',
                 handler: async (_input, _ctx) => {
 
                     throw new Error('boom');
@@ -430,7 +430,7 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Reject', description: 'Reject', tags: ['x']},
-                access: 'public',
+                auth: 'none',
                 handler: async (_input, _ctx) => Promise.reject(new Error('reject')),
             }),
         },
@@ -479,7 +479,7 @@ test('integration: handleUnhandledError maps throw to wire failure', async (asse
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Timeout', description: 'Timeout', tags: ['x']},
-                access: 'public',
+                auth: 'none',
                 handler: async (_input, _ctx) => {
 
                     const err = new Error('canceling statement due to statement timeout') as Error & {code: string};
@@ -555,7 +555,7 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
-                access: 'public',
+                auth: 'none',
                 handler: async (_input, _ctx) => {
 
                     throw new Error('logged boom');
@@ -626,7 +626,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
                     description: 'Looks up a user by email',
                     tags: ['users'],
                 },
-                access: 'public',
+                auth: 'none',
                 handler: (input: {email: string}, _ctx: unknown) => {
 
                     if (input.email === 'missing@example.com') {
@@ -726,7 +726,7 @@ test('integration: declared domain failure is returned on the wire', async (asse
                     description: 'Returns declared domain error',
                     tags: ['test'],
                 },
-                access: 'public',
+                auth: 'none',
                 handler: (_input, _ctx) => domainErr.MYSTERY(),
             }),
         },
@@ -824,7 +824,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-                access: 'public',
+                auth: 'none',
                 handler: (_input, _ctx) => 'pong',
             }),
         },
@@ -912,7 +912,7 @@ test('integration: default meta title and version when omitted', async (assert) 
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-                access: 'public',
+                auth: 'none',
                 handler: (_input, _ctx) => 'pong',
             }),
         },

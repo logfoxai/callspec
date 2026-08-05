@@ -10,7 +10,7 @@ const routes = {
         input: p.object({value: p.string()}),
         output: p.object({value: p.string()}),
         meta: {summary: 'Z route', description: 'Sorted last', tags: ['alpha']},
-        access: 'public',
+        auth: 'none',
         handler: async (_input, _ctx) => ({value: 'z'}),
     }),
     aFirst: defineRoute({
@@ -22,7 +22,7 @@ const routes = {
             items: p.array(p.object({id: p.string()})),
         }),
         meta: {summary: 'A route', description: 'Sorted first', tags: ['beta', 'alpha']},
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
         handler: async (_input, _ctx) => ({items: []}),
     }),
@@ -72,9 +72,11 @@ test('emitOpenApi: routes, methods, operationIds, and extensions', (assert) => {
     assert.equal(aFirst?.summary, 'A route');
     assert.equal(aFirst?.description, 'Sorted first');
     assert.equal(JSON.stringify(aFirst?.tags), JSON.stringify(['beta', 'alpha']));
-    assert.equal(aFirst?.['x-callspec-access'], 'private');
+    assert.equal(aFirst?.['x-callspec-auth'], 'bearer');
+    assert.equal(aFirst?.['x-callspec-scope'], 'public');
     assert.equal(aFirst?.['x-callspec-mcp'], true);
-    assert.equal(zLast?.['x-callspec-access'], 'public');
+    assert.equal(zLast?.['x-callspec-auth'], 'none');
+    assert.equal(zLast?.['x-callspec-scope'], 'public');
     assert.equal(zLast?.['x-callspec-mcp'], undefined);
 
 });
@@ -138,7 +140,8 @@ test('emitOpenApi and emitCallspec represent the same registry without cross-der
         const openApiPath = (openApi.paths as Record<string, {post?: OpenApiOperation}>)[route.path]?.post;
 
         assert.equal(route.summary, openApiPath?.summary);
-        assert.equal(route.access, openApiPath?.['x-callspec-access']);
+        assert.equal(route.auth, openApiPath?.['x-callspec-auth']);
+        assert.equal(route.scope, openApiPath?.['x-callspec-scope']);
         assert.equal(route.mcp.enabled, openApiPath?.['x-callspec-mcp'] === true);
         assert.equal(
             JSON.stringify(route.input),
@@ -170,14 +173,14 @@ test('emitOpenApi: bearer security only on private routes', (assert) => {
             input: p.object({}),
             output: p.object({status: p.string()}),
             meta: {summary: 'Health check', description: 'Public health check', tags: ['system']},
-            access: 'public',
+            auth: 'none',
             handler: (_input, _ctx) => ({status: 'ok'}),
         }),
         getSecret: defineRoute({
             input: p.object({}),
             output: p.object({secret: p.boolean()}),
             meta: {summary: 'Private route', description: 'Requires auth', tags: ['system']},
-            access: 'private',
+            auth: 'bearer',
             handler: (_input, _ctx) => ({secret: true}),
         }),
     }, {

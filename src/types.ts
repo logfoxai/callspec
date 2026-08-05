@@ -14,7 +14,10 @@ export type McpRouteConfig =
         annotations?: Record<string, unknown>
     };
 
-export type RouteAccess = 'public' | 'private';
+export type RouteAuth = 'none' | 'bearer';
+
+/** Whether a route appears in callspec.json, OpenAPI, docs UI, SDK codegen, and MCP tools/list. */
+export type RouteScope = 'public' | 'private';
 
 /** Default HTTP status for domain route errors when `status` is omitted. */
 export const DEFAULT_ROUTE_ERROR_STATUS = 400;
@@ -52,7 +55,8 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     output: Pred<TOutput>
     errors?: Record<string, RouteErrorDef>
     meta: RouteMeta
-    access: RouteAccess
+    auth: RouteAuth
+    scope: RouteScope
     mcp?: McpRouteConfig
     handler: RouteHandler<TInput, TOutput, Ctx>
 };

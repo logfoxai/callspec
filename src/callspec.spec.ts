@@ -25,7 +25,7 @@ test('executeRoute validates and calls handler', async (assert) => {
         input: p.object({n: p.number()}),
         output: p.object({double: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
-        access: 'public',
+        auth: 'none',
         handler: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
     });
 
@@ -41,7 +41,7 @@ test('executeRoute 401 on private without ctx', async (assert) => {
         input: p.object({}),
         output: p.string(),
         meta: {summary: 'x', description: 'x', tags: ['t']},
-        access: 'private',
+        auth: 'bearer',
         handler: async (_input: unknown, _ctx: unknown) => 'secret',
     });
 
@@ -64,7 +64,7 @@ test('executeRoute validation error', async (assert) => {
         input: p.object({n: p.number()}),
         output: p.object({n: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
-        access: 'public',
+        auth: 'none',
         handler: async (input: {n: number}, _ctx: unknown) => input,
     });
 
@@ -89,7 +89,7 @@ test('defineSpec wires meta and routes', (assert) => {
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-                access: 'public',
+                auth: 'none',
                 handler: async (_input: unknown, _ctx: unknown) => 'pong',
             }),
         },
@@ -100,7 +100,7 @@ test('defineSpec wires meta and routes', (assert) => {
 
 });
 
-test('defineSpec requires authenticate for private routes', (assert) => {
+test('defineSpec requires authenticate for bearer routes', (assert) => {
 
     assert.throws(
         () => defineSpec({
@@ -109,7 +109,7 @@ test('defineSpec requires authenticate for private routes', (assert) => {
                     input: p.object({}),
                     output: p.string(),
                     meta: {summary: 'x', description: 'x', tags: ['t']},
-                    access: 'private',
+                    auth: 'bearer',
                     handler: async (_input: unknown, _ctx: unknown) => 'secret',
                 }),
             },

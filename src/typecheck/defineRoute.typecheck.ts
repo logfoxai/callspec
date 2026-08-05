@@ -27,7 +27,7 @@ defineRoute({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     // @ts-expect-error handler output must match output pred
     handler: async (_input, _ctx: Ctx) => ({hello: 123}),
 });
@@ -42,7 +42,7 @@ defineRoute({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     // @ts-expect-error handler input must match input pred
     handler: wrongInputResolver,
 });
@@ -51,7 +51,7 @@ defineRoute({
     input: searchInput,
     output: searchOutput,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     // @ts-expect-error handler input must match input pred
     handler: wrongSearchResolver,
 });
@@ -60,7 +60,7 @@ defineRoute({
     input: searchInput,
     output: searchOutput,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     handler: searchResolver,
 });
 
@@ -74,7 +74,7 @@ defineRoute({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     // @ts-expect-error handler output must match output pred
     handler: wrongOutputResolver,
 });
@@ -89,7 +89,7 @@ defineRoute({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     handler: correctResolver,
 });
 
@@ -97,7 +97,7 @@ defineRoute({
     input: p.object({name: p.string()}),
     output: p.any(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     handler: correctResolver,
 });
 
@@ -109,7 +109,7 @@ defineRoute({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     errors: domainErr,
     handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });
@@ -118,7 +118,7 @@ defineRoute({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     errors: domainErr,
     // @ts-expect-error undeclared domain failure on this route
     handler: (_input, _ctx: Ctx) => {
@@ -134,7 +134,7 @@ defineRoute({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     handler: (_input, _ctx: Ctx) => err.NOT_FOUND(),
 });
 
@@ -142,7 +142,7 @@ defineRoute({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     // @ts-expect-error route without errors: allows builtins only
     handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });

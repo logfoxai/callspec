@@ -31,7 +31,7 @@ test('chirp demo: emitOpenApi converts runtyp preds to JSON Schema', (assert) =>
 
     const searchRecent = spec.routes.find((route) => route.name === 'searchRecent');
 
-    assert.equal(searchRecent?.access, 'private', 'searchRecent access');
+    assert.equal(searchRecent?.auth, 'bearer', 'searchRecent auth');
     assert.equal(searchRecent?.mcp, true, 'searchRecent mcp');
 
     const paths = emitOpenApi(api.routes, {

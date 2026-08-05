@@ -58,7 +58,7 @@ test('emitOpenApi: private routes document UNAUTHORIZED JSON schema', (assert) =
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Secret', description: 'Secret', tags: ['x']},
-            access: 'private',
+            auth: 'bearer',
             handler: async (_input, _ctx) => 'ok',
         }),
     }, {title: 'API', version: '1.0.0'});

@@ -29,7 +29,7 @@ export {
     formatRouteErrorBody,
     sendRouteErrorResponse,
 } from './errors';
-export type {RouteFailure, RouteHandler, Authenticate} from './types';
+export type {RouteFailure, RouteHandler, Authenticate, RouteAuth, RouteScope} from './types';
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 export type {RoutesMap} from './types';
 export {resolverFor} from './routeResolver';

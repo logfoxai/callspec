@@ -1,10 +1,11 @@
-import type {CallspecMeta} from './types';
+import type {CallspecMeta, RouteAuth} from './types';
+import {hasBearerRoutes} from './routeVisibility';
 
 const DEFAULT_CALLSPEC_TITLE = 'Callspec API';
 const DEFAULT_CALLSPEC_VERSION = '0.0.0';
 
 const DEFAULT_AUTH_HINT =
-    'Private routes require Authorization: Bearer <token>.';
+    'Bearer routes require Authorization: Bearer <token>.';
 
 export function resolveCallspecMeta(meta: CallspecMeta): CallspecMeta & {
     title: string
@@ -82,20 +83,14 @@ export function siblingSpecPath(relativePath: string): string {
 
 }
 
-export function hasPrivateRoutes(routes: Record<string, {access: string}>): boolean {
-
-    return Object.values(routes).some((route) => route.access === 'private');
-
-}
-
 export function defaultAuthHint(
     meta: CallspecMeta,
-    routes: Record<string, {access: string}>,
+    routes: Record<string, {auth: RouteAuth}>,
 ): string | undefined {
 
     if (meta.authHint) return meta.authHint;
 
-    if (hasPrivateRoutes(routes)) return DEFAULT_AUTH_HINT;
+    if (hasBearerRoutes(routes)) return DEFAULT_AUTH_HINT;
 
     return undefined;
 

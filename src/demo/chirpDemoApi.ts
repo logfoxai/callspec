@@ -211,7 +211,7 @@ const routes = {
             description: 'Returns OK when the API is up. Does not require authentication.',
             tags: ['system'],
         },
-        access: 'public',
+        auth: 'none',
         handler: (_input, _ctx) => ({status: 'ok'}),
     }),
 
@@ -227,7 +227,7 @@ const routes = {
             description: 'Returns information about a User specified by ID.',
             tags: ['users'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
         handler: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockUser(input.id, 'janedoe'),
@@ -245,7 +245,7 @@ const routes = {
             description: 'Returns information about a User specified by username.',
             tags: ['users'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
         handler: (input: {username: string}, _ctx: ChirpCtx) => ({
             data: mockUser('2244994945', input.username),
@@ -265,7 +265,7 @@ const routes = {
             description: 'Returns a list of Users who follow the specified User ID.',
             tags: ['users'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('1001', 'alex_codes'),
             mockUser('1002', 'sam_reads'),
@@ -286,7 +286,7 @@ const routes = {
             description: 'Returns a list of Users the specified User ID is following.',
             tags: ['users'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('2001', 'vercel'),
             mockUser('2002', 'github'),
@@ -313,7 +313,7 @@ const routes = {
             description: 'Creates a Tweet on behalf of an authenticated user.',
             tags: ['tweets'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
         handler: (input: {text: string}, ctx: ChirpCtx) => ({
             data: mockTweet('1992312312312312321', input.text, ctx.userId),
@@ -330,7 +330,7 @@ const routes = {
             description: 'Allows an authenticated user ID to delete a Tweet.',
             tags: ['tweets'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: {deleted: true, id: input.id},
         }),
@@ -348,7 +348,7 @@ const routes = {
             description: 'Returns a Tweet specified by the requested ID.',
             tags: ['tweets'],
         },
-        access: 'public',
+        auth: 'none',
         handler: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockTweet(input.id, 'Just shipped a new API docs UI with callspec 🎉', '2244994945'),
         }),
@@ -368,7 +368,7 @@ const routes = {
             description: 'Returns Tweets from the last seven days matching a search query.',
             tags: ['tweets'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
         handler: (input: {query: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('3001', `Results for: ${input.query}`, '2244994945'),
@@ -391,7 +391,7 @@ const routes = {
             description: 'Returns the most recent Tweets from accounts the authenticated user follows.',
             tags: ['timelines'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (_input, ctx: ChirpCtx) => paginated([
             mockTweet('4001', 'Morning standup notes thread 🧵', ctx.userId),
             mockTweet('4002', 'TIL: JSON Schema from runtyp predicates', '2001'),
@@ -413,7 +413,7 @@ const routes = {
             description: 'Returns the most recent Tweets authored by the specified User.',
             tags: ['timelines'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {id: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('5001', 'Working on RPC + OpenAPI from one spec', input.id),
             mockTweet('5002', 'callspec UI looking clean', input.id),
@@ -432,7 +432,7 @@ const routes = {
             description: 'Creates a new List for the authenticated user.',
             tags: ['lists'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {name: string; description?: string; private?: boolean}, ctx: ChirpCtx) => ({
             data: {
                 id: '1313131313131311313',
@@ -460,7 +460,7 @@ const routes = {
             description: 'Returns a list of Users who are members of the specified List.',
             tags: ['lists'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (_input, _ctx) => paginated([
             mockUser('6001', 'designbot'),
             mockUser('6002', 'infra_daily'),
@@ -478,7 +478,7 @@ const routes = {
             description: 'Sends a Direct Message to a participant on behalf of the authenticated user.',
             tags: ['direct messages'],
         },
-        access: 'private',
+        auth: 'bearer',
         handler: (input: {text: string; participant_id: string}, ctx: ChirpCtx) => ({
             data: {
                 dm_conversation_id: '12345-67890',

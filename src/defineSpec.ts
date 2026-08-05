@@ -1,5 +1,5 @@
 import type {Pred} from 'runtyp';
-import {hasPrivateRoutes} from './metaDefaults';
+import {hasBearerRoutes} from './routeVisibility';
 import type {Authenticate, Callspec, CallspecMeta, RoutesMap} from './types';
 
 export function defineSpec<
@@ -15,9 +15,9 @@ export function defineSpec<
     const meta: CallspecMeta = input.meta ?? {};
     const {routes, exports, authenticate} = input;
 
-    if (hasPrivateRoutes(routes) && !authenticate) {
+    if (hasBearerRoutes(routes) && !authenticate) {
 
-        throw new Error('defineSpec: private routes require authenticate');
+        throw new Error('defineSpec: bearer routes require authenticate');
 
     }
 

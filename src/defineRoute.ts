@@ -6,13 +6,14 @@ import {
     type DefineErrorsInput,
     type RouteFailuresFor,
 } from './defineErrors';
-import type {RouteDef, RouteHandler, RouteMeta, RouteAccess, McpRouteConfig} from './types';
+import type {RouteDef, RouteHandler, RouteMeta, RouteAuth, RouteScope, McpRouteConfig} from './types';
 
 type DefineRouteBase<I extends Pred<any>, O extends Pred<any>> = {
     input: I
     output: O
     meta: RouteMeta
-    access?: RouteAccess
+    auth?: RouteAuth
+    scope?: RouteScope
     mcp?: McpRouteConfig
 };
 
@@ -66,7 +67,8 @@ export function defineRoute<
             ...domainErrors,
         },
         meta: def.meta,
-        access: def.access ?? 'private',
+        auth: def.auth ?? 'bearer',
+        scope: def.scope ?? 'public',
         mcp: def.mcp,
         handler: def.handler,
     };

@@ -8,7 +8,7 @@ export async function executeRoute<TInput, TOutput, Ctx>(
     ctx: Ctx | undefined,
 ): Promise<unknown> {
 
-    if (route.access === 'private' && (ctx === undefined || ctx === null)) {
+    if (route.auth === 'bearer' && (ctx === undefined || ctx === null)) {
 
         throw new CallspecUnauthorizedError();
 

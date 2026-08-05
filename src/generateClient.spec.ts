@@ -87,7 +87,7 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
             input: p.object({teamId: p.string(), query: p.optional(p.string())}),
             output: p.object({results: p.array(p.object({id: p.string()}))}),
             meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-            access: 'private',
+            auth: 'bearer',
             handler: async (_input, _ctx) => ({results: []}),
         }),
     };
@@ -125,7 +125,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-            access: 'public',
+            auth: 'none',
             handler: async (_input, _ctx) => 'pong',
         }),
     };
@@ -233,7 +233,7 @@ test('generated client makes a real request to an in-process server', async (ass
             input: p.object({message: p.string()}),
             output: p.object({echo: p.string()}),
             meta: {summary: 'Echo', description: 'Echo', tags: ['demo']},
-            access: 'public',
+            auth: 'none',
             handler: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
         }),
     };
@@ -330,7 +330,7 @@ test('generateClientSource: error response types omit data when wire schema has 
             output: p.object({email: p.string()}),
             errors: err,
             meta: {summary: 'Get user', description: 'Get user', tags: ['users']},
-            access: 'public',
+            auth: 'none',
             handler: async (input, _ctx) => ({email: input.email}),
         }),
     }, {title: 'Errors API', version: '1.0.0'});
@@ -355,7 +355,7 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Evil', description: 'Evil', tags: ['x']},
-            access: 'public',
+            auth: 'none',
             handler: async (_input, _ctx) => 'ok',
         }),
     }, {title: 'Evil API', version: '1.0.0'});

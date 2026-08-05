@@ -1,15 +1,16 @@
 # Complete example
 
-Copy-paste server with meta branding and all default surfaces. Assumes `lookupById(id)` in `domain/products.ts` returns a product shape or `null`.
+Copy-paste server with meta branding and all default surfaces. Assumes `domain/products.ts` exports `lookupById(id)` (product or `null`) and `isDiscontinued(id)`.
 
 ```typescript
 import express from 'express';
 import {defineSpec, defineRoute, defineErrors, mountSpec, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {lookupById} from './domain/products';
+import {isDiscontinued, lookupById} from './domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
+    PRODUCT_NOT_FOUND: {status: 404},
+    PRODUCT_DISCONTINUED: {status: 410},
 });
 
 const product = p.object({
@@ -25,8 +26,9 @@ const getProductByIdRoute = {
 } as const;
 
 const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    if (!found) return productErr.PRODUCT_NOT_FOUND();
     return found;
 });
 
@@ -42,10 +44,10 @@ export const routes = {
         ...getProductByIdRoute,
         meta: {
             summary: 'Get product by ID',
-            description: 'Returns a product or PRODUCT_NOT_FOUND.',
+            description: 'Returns a product, PRODUCT_NOT_FOUND, or PRODUCT_DISCONTINUED.',
             tags: ['catalog'],
         },
-        access: 'public',
+        auth: 'none',
         mcp: true,
         handler: getProductByIdResolver,
     }),

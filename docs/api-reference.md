@@ -7,10 +7,11 @@ Declare preds once, get full IDE support on the resolver body:
 ```typescript
 import {defineRoute, defineErrors, resolverFor, type RouteResolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {lookupById} from '../domain/products';
+import {isDiscontinued, lookupById} from '../domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
+    PRODUCT_NOT_FOUND: {status: 404},
+    PRODUCT_DISCONTINUED: {status: 410},
 });
 
 const product = p.object({id: p.string(), name: p.string(), priceCents: p.number()});
@@ -23,8 +24,9 @@ const getProductByIdRoute = {
 
 // Option A — resolverFor (inline autocomplete, no manual type annotation)
 const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    if (!found) return productErr.PRODUCT_NOT_FOUND();
     return found;
 });
 
@@ -36,7 +38,7 @@ const otherResolver: RouteResolverFor<typeof getProductByIdRoute> = async (input
 export const getProductById = defineRoute({
     ...getProductByIdRoute,
     meta: {summary: '…', description: '…', tags: ['catalog']},
-    access: 'public',
+    auth: 'none',
     handler: getProductByIdResolver,
 });
 ```
@@ -57,7 +59,10 @@ Private routes: annotate auth context on the param — `resolverFor(route)(async
 
 ```typescript
 import {isRouteFailure} from 'callspec';
-import {lookupById} from '../domain/products';
+import {isDiscontinued, lookupById} from '../domain/products';
+
+const discontinued = await getProductByIdResolver({id: 'sku-old'}, {});
+expect(isRouteFailure(discontinued) && discontinued.code).toBe('PRODUCT_DISCONTINUED');
 
 const missing = await getProductByIdResolver({id: 'missing'}, {});
 expect(isRouteFailure(missing) && missing.code).toBe('PRODUCT_NOT_FOUND');
@@ -78,7 +83,8 @@ defineRoute({
     output: Pred,          // required
     errors?: ErrorsHandle, // optional domain errors
     meta: RouteMeta,       // summary, description, tags
-    access?: 'public' | 'private',  // default 'private'
+    auth?: 'none' | 'bearer',  // default 'bearer'
+    scope?: 'public' | 'private',  // default 'public' — exported to callspec.json, OpenAPI, docs, SDK, MCP
     mcp?: true | McpRouteConfig,
     handler: RouteResolverFor<…>,  // your resolver (property name is `handler`)
 })
@@ -97,7 +103,7 @@ defineSpec({
 })
 ```
 
-Throws at load time if any route is `private` and `authenticate` is missing.
+Throws at load time if any route uses `auth: 'bearer'` and `authenticate` is missing.
 
 ## `mountSpec`
 
@@ -118,13 +124,18 @@ When `docs` is enabled, the docs UI fetches **`callspec.json`** from the configu
 
 See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime).
 
-## Auth
+## Auth and scope
 
-- **`access: 'public'`** — no credentials required
-- **`access: 'private'`** (default) — 401 without valid Bearer token
+- **`auth: 'none'`** — no credentials required
+- **`auth: 'bearer'`** (default) — 401 without valid Bearer token
 - **`authenticate(token, req)`** on the spec — your hook; callspec extracts Bearer and calls it
 
-OpenAPI Bearer security is **auto-derived** from route `access`.
+**Scope** controls export surfaces (not HTTP mounting — all routes stay callable on the server):
+
+- **`scope: 'public'`** (default) — included in `callspec.json`, OpenAPI, docs UI, SDK codegen, and MCP `tools/list`
+- **`scope: 'private'`** — server-only; omitted from those exports
+
+OpenAPI Bearer security is **auto-derived** from route `auth`.
 
 ## Errors
 

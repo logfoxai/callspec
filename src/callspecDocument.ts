@@ -29,11 +29,56 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 }
 
-function parseAccess(value: unknown, routeName: string): 'public' | 'private' {
+function parseAuth(value: unknown, routeName: string): 'none' | 'bearer' {
+
+    if (value === 'none' || value === 'bearer') return value;
+
+    throw new CallspecDocumentError(`Route "${routeName}" has invalid auth value`);
+
+}
+
+function parseScope(value: unknown, routeName: string): 'public' | 'private' {
 
     if (value === 'public' || value === 'private') return value;
 
+    throw new CallspecDocumentError(`Route "${routeName}" has invalid scope value`);
+
+}
+
+/** Legacy callspec 1.0 `access` → auth only; exported routes were always public scope. */
+function authScopeFromLegacyAccess(
+    access: unknown,
+    routeName: string,
+): {auth: 'none' | 'bearer'; scope: 'public'} {
+
+    if (access === 'public') return {auth: 'none', scope: 'public'};
+    if (access === 'private') return {auth: 'bearer', scope: 'public'};
+
     throw new CallspecDocumentError(`Route "${routeName}" has invalid access value`);
+
+}
+
+function parseAuthScope(
+    value: Record<string, unknown>,
+    routeName: string,
+): {auth: 'none' | 'bearer'; scope: 'public' | 'private'} {
+
+    if (value.auth !== undefined || value.scope !== undefined) {
+
+        return {
+            auth: parseAuth(value.auth, routeName),
+            scope: parseScope(value.scope ?? 'public', routeName),
+        };
+
+    }
+
+    if (value.access !== undefined) {
+
+        return authScopeFromLegacyAccess(value.access, routeName);
+
+    }
+
+    throw new CallspecDocumentError(`Route "${routeName}" must include auth (or legacy access)`);
 
 }
 
@@ -125,6 +170,8 @@ function parseRoute(name: string, value: unknown): CallspecDocumentRoute {
 
     }
 
+    const {auth, scope} = parseAuthScope(value, name);
+
     return {
         name: routeName,
         path: value.path,
@@ -132,7 +179,8 @@ function parseRoute(name: string, value: unknown): CallspecDocumentRoute {
         summary: typeof value.summary === 'string' ? value.summary : routeName,
         description: typeof value.description === 'string' ? value.description : '',
         tags: Array.isArray(value.tags) ? value.tags.map(String) : [],
-        access: parseAccess(value.access, name),
+        auth,
+        scope,
         input: parseJsonSchema(value.input, `Route "${name}" input`),
         output: parseJsonSchema(value.output, `Route "${name}" output`),
         errors: parseRouteErrors(value.errors, name),
@@ -150,19 +198,12 @@ export function parseCallspecDocument(raw: unknown): CallspecDocument {
     }
 
     const version = raw.callspec;
+    const expectedMajor = CALLSPEC_DOCUMENT_VERSION.split('.')[0];
 
-    if (version !== CALLSPEC_DOCUMENT_VERSION) {
-
-        if (typeof version === 'string' && version.split('.')[0] !== CALLSPEC_DOCUMENT_VERSION.split('.')[0]) {
-
-            throw new CallspecDocumentError(
-                `Unsupported Callspec document version "${version}" (expected ${CALLSPEC_DOCUMENT_VERSION})`,
-            );
-
-        }
+    if (typeof version !== 'string' || version.split('.')[0] !== expectedMajor) {
 
         throw new CallspecDocumentError(
-            `Unsupported Callspec document version "${String(version)}" (expected ${CALLSPEC_DOCUMENT_VERSION})`,
+            `Unsupported Callspec document version "${String(version)}" (expected ${expectedMajor}.x)`,
         );
 
     }

@@ -27,7 +27,7 @@ const api = defineSpec({
                 description: 'Find log events',
                 tags: ['logs'],
             },
-            access: 'private',
+            auth: 'bearer',
             mcp: true,
             handler: async (_input, _ctx) => ({results: []}),
         }),
@@ -39,7 +39,7 @@ const api = defineSpec({
                 description: 'Liveness probe',
                 tags: ['system'],
             },
-            access: 'public',
+            auth: 'none',
             handler: async (_input, _ctx) => ({status: 'ok'}),
         }),
     },
@@ -79,13 +79,15 @@ test('emitCallspec: includes route metadata, schemas, access, and MCP state', (a
     assert.equal(search.summary, 'Search logs');
     assert.equal(search.description, 'Find log events');
     assert.equal(search.tags[0], 'logs');
-    assert.equal(search.access, 'private');
+    assert.equal(search.auth, 'bearer');
+    assert.equal(search.scope, 'public');
     assert.equal(search.mcp.enabled, true);
     assert.equal((search.input as {required?: string[]}).required?.includes('teamId'), true);
 
     const health = doc.routes.healthcheck;
 
-    assert.equal(health.access, 'public');
+    assert.equal(health.auth, 'none');
+    assert.equal(health.scope, 'public');
     assert.equal(health.mcp.enabled, false);
 
 });
@@ -141,6 +143,75 @@ test('parseCallspecDocument: rejects malformed documents', (assert) => {
         () => parseCallspecDocument({callspec: '1.0'}),
         /must include info/,
     );
+
+});
+
+test('emitCallspec: omits scope private routes from the document', (assert) => {
+
+    const routes = {
+        publicRoute: defineRoute({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Public', description: 'Exported', tags: []},
+            scope: 'public',
+            auth: 'none',
+            handler: async (_input, _ctx) => ({ok: true}),
+        }),
+        internalRoute: defineRoute({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Internal', description: 'Not exported', tags: []},
+            scope: 'private',
+            auth: 'none',
+            handler: async (_input, _ctx) => ({ok: true}),
+        }),
+    };
+
+    const doc = emitCallspec(routes, {title: 'Scope API', version: '1.0.0'});
+
+    assert.equal(Object.keys(doc.routes).join(','), 'publicRoute');
+    assert.equal(doc.routes.publicRoute.scope, 'public');
+    assert.equal(doc.routes.internalRoute, undefined);
+
+});
+
+test('parseCallspecDocument: maps legacy access field from callspec 1.0', (assert) => {
+
+    const doc = parseCallspecDocument({
+        callspec: '1.0',
+        info: {title: 'Legacy', version: '1.0.0'},
+        routes: {
+            health: {
+                name: 'health',
+                path: '/health',
+                method: 'POST',
+                summary: 'Health',
+                description: '',
+                tags: [],
+                access: 'public',
+                input: {type: 'object'},
+                output: {type: 'object'},
+                mcp: {enabled: false},
+            },
+            secret: {
+                name: 'secret',
+                path: '/secret',
+                method: 'POST',
+                summary: 'Secret',
+                description: '',
+                tags: [],
+                access: 'private',
+                input: {type: 'object'},
+                output: {type: 'object'},
+                mcp: {enabled: false},
+            },
+        },
+    });
+
+    assert.equal(doc.routes.health.auth, 'none');
+    assert.equal(doc.routes.health.scope, 'public');
+    assert.equal(doc.routes.secret.auth, 'bearer');
+    assert.equal(doc.routes.secret.scope, 'public');
 
 });
 

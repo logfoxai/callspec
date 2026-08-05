@@ -13,12 +13,34 @@ function coerceSchema(value: unknown): JsonSchema {
 
 }
 
+function coerceAuthScope(route: Record<string, unknown>): {auth: 'none' | 'bearer'; scope: 'public' | 'private'} {
+
+    if (route.auth === 'none' || route.auth === 'bearer') {
+
+        return {
+            auth: route.auth,
+            scope: route.scope === 'private' ? 'private' : 'public',
+        };
+
+    }
+
+    if (route.access === 'private') {
+
+        return {auth: 'bearer', scope: 'public'};
+
+    }
+
+    return {auth: 'none', scope: 'public'};
+
+}
+
 function coerceRoute(name: string, value: unknown): CallspecDocumentRoute {
 
     const route = isRecord(value) ? value : {};
     const routeName = typeof route.name === 'string' && route.name.length
         ? route.name
         : name;
+    const {auth, scope} = coerceAuthScope(route);
 
     return {
         name: routeName,
@@ -27,7 +49,8 @@ function coerceRoute(name: string, value: unknown): CallspecDocumentRoute {
         summary: typeof route.summary === 'string' ? route.summary : routeName,
         description: typeof route.description === 'string' ? route.description : '',
         tags: Array.isArray(route.tags) ? route.tags.map(String) : [],
-        access: route.access === 'private' ? 'private' : 'public',
+        auth,
+        scope,
         input: coerceSchema(route.input),
         output: coerceSchema(route.output),
         mcp: {

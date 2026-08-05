@@ -30,7 +30,7 @@ const searchResolver = resolverFor(searchRoute)(async (input, _ctx: Ctx) => {
 defineRoute({
     ...searchRoute,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     handler: searchResolver,
 });
 
@@ -43,7 +43,7 @@ const typedResolver: RouteResolverFor<typeof searchRoute, Ctx> = async (input, _
 defineRoute({
     ...searchRoute,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
-    access: 'public',
+    auth: 'none',
     handler: typedResolver,
 });
 

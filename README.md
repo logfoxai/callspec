@@ -29,7 +29,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 🤖 **MCP** — same methods as your SDK, same auth and validation
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
 - ✅ **Shared validators** — optional `exports` + `--validators` for forms that reuse server preds
-- 🔐 **Auth** — `public` / `private` with Bearer; reflected in OpenAPI automatically
+- 🔐 **Auth & scope** — `auth: none | bearer` for credentials; `scope: public | private` for exports (SDK, docs, OpenAPI)
 
 ## Getting started
 
@@ -44,18 +44,19 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return domain failures from resolvers (`return productErr.PRODUCT_NOT_FOUND({…})`) — don't throw. Builtins like `VALIDATION_ERROR` are automatic.
+Return domain failures from resolvers (`return productErr.PRODUCT_NOT_FOUND()`) — don't throw. Set `status` on the error when you want a specific HTTP code (defaults to 400). Builtins like `VALIDATION_ERROR` are automatic.
 
-Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` returns a product or `null`.
+Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` returns a product or `null`, `isDiscontinued(id)` for retired skus.
 
 ```typescript
 // server/routes/getProductById.ts
 import {defineRoute, defineErrors, resolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {lookupById} from '../domain/products';
+import {isDiscontinued, lookupById} from '../domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
+    PRODUCT_NOT_FOUND: {status: 404},
+    PRODUCT_DISCONTINUED: {status: 410},
 });
 
 const product = p.object({
@@ -71,15 +72,20 @@ const getProductByIdRoute = {
 } as const;
 
 const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    if (!found) return productErr.PRODUCT_NOT_FOUND();
     return found;
 });
 
 export const getProductById = defineRoute({
     ...getProductByIdRoute,
-    meta: {summary: 'Get product by ID', description: 'Returns a product or PRODUCT_NOT_FOUND.', tags: ['catalog']},
-    access: 'public',
+    meta: {
+        summary: 'Get product by ID',
+        description: 'Returns a product, PRODUCT_NOT_FOUND, or PRODUCT_DISCONTINUED.',
+        tags: ['catalog'],
+    },
+    auth: 'none',
     mcp: true,
     handler: getProductByIdResolver,
 });
@@ -144,8 +150,10 @@ const result: GetProductByIdResult = await api.getProductById(input);
 
 if (!result.ok) {
     if (result.code === 'PRODUCT_NOT_FOUND') {
-        const missingId: string = result.data.id;
-        throw new Error(`Unknown sku ${missingId}`);
+        throw new Error(`Unknown sku ${input.id}`);
+    }
+    if (result.code === 'PRODUCT_DISCONTINUED') {
+        throw new Error(`Product ${input.id} is no longer available`);
     }
     throw new Error(result.code);
 }

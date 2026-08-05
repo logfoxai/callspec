@@ -11,7 +11,7 @@ export async function resolveRouteContext<Ctx>(
 
     const token = extractBearerToken(req);
 
-    if (route.access === 'private') {
+    if (route.auth === 'bearer') {
 
         if (!token) {
 

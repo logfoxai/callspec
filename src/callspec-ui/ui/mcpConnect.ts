@@ -4,7 +4,7 @@ import {codeBlock} from './highlight';
 
 type McpRoute = {
     name: string
-    access: 'public' | 'private'
+    auth: 'none' | 'bearer'
     mcp: boolean
 };
 
@@ -288,11 +288,11 @@ export function renderMcpConnect(
     }
 
     const mcpUrl = resolveMcpUrl(config);
-    const hasPrivateMcp = mcpRoutes.some((route) => route.access === 'private');
+    const hasBearerMcp = mcpRoutes.some((route) => route.auth === 'bearer');
     const authHint = config.mcp?.authHint
-        ?? (hasPrivateMcp ? 'Private tools require a Bearer token in the MCP client headers.' : '');
+        ?? (hasBearerMcp ? 'Bearer tools require a Bearer token in the MCP client headers.' : '');
     const serverSlug = serverSlugFromName(displayName);
-    const clients = buildConnectClients(mcpUrl, serverSlug, hasPrivateMcp);
+    const clients = buildConnectClients(mcpUrl, serverSlug, hasBearerMcp);
     const toolLabel = `${mcpRoutes.length} MCP tool${mcpRoutes.length === 1 ? '' : 's'}`;
 
     return `

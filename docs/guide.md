@@ -12,10 +12,11 @@ Same `getProductById` route — split across files. Single-file copy-paste: [com
 // server/routes/getProductById.ts
 import {defineRoute, defineErrors, resolverFor} from 'callspec';
 import {predicates as p, type Infer} from 'runtyp';
-import {lookupById} from '../domain/products';
+import {isDiscontinued, lookupById} from '../domain/products';
 
 const productErr = defineErrors({
-    PRODUCT_NOT_FOUND: {data: p.object({id: p.string()})},
+    PRODUCT_NOT_FOUND: {status: 404},
+    PRODUCT_DISCONTINUED: {status: 410},
 });
 
 const product = p.object({
@@ -33,8 +34,9 @@ const getProductByIdRoute = {
 export type Product = Infer<typeof product>;
 
 const getProductByIdResolver = resolverFor(getProductByIdRoute)(async (input, _ctx) => {
+    if (isDiscontinued(input.id)) return productErr.PRODUCT_DISCONTINUED();
     const found = lookupById(input.id);
-    if (!found) return productErr.PRODUCT_NOT_FOUND({id: input.id});
+    if (!found) return productErr.PRODUCT_NOT_FOUND();
     return found;
 });
 
@@ -42,10 +44,10 @@ export const getProductById = defineRoute({
     ...getProductByIdRoute,
     meta: {
         summary: 'Get product by ID',
-        description: 'Returns a product or PRODUCT_NOT_FOUND.',
+        description: 'Returns a product, PRODUCT_NOT_FOUND, or PRODUCT_DISCONTINUED.',
         tags: ['catalog'],
     },
-    access: 'public',
+    auth: 'none',
     mcp: true,
     handler: getProductByIdResolver,
 });
@@ -198,7 +200,10 @@ export async function fetchProduct(id: string): Promise<GetProductByIdOutput> {
 
     if (!result.ok) {
         if (result.code === 'PRODUCT_NOT_FOUND') {
-            throw new Error(`Unknown product ${result.data.id}`);
+            throw new Error(`Unknown product ${id}`);
+        }
+        if (result.code === 'PRODUCT_DISCONTINUED') {
+            throw new Error(`Product ${id} is no longer available`);
         }
         if (result.code === 'VALIDATION_ERROR') {
             throw new Error(`Invalid input: ${JSON.stringify(result.data)}`);
