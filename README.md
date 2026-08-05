@@ -84,7 +84,6 @@ export const getProductById = defineRoute({
     ...getProductByIdRoute,
     meta: {
         summary: 'Get product by ID',
-        description: 'Returns a product, PRODUCT_NOT_FOUND, or PRODUCT_DISCONTINUED.',
         tags: ['catalog'],
     },
     auth: 'none',

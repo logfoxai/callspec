@@ -20,7 +20,7 @@ const product = p.object({
 });
 
 const getProductByIdRoute = {
-    input: p.object({id: p.string({description: 'Product id (sku)'})}),
+    input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
 } as const;
@@ -46,7 +46,6 @@ export const routes = {
         ...getProductByIdRoute,
         meta: {
             summary: 'Get product by ID',
-            description: 'Returns a product, PRODUCT_NOT_FOUND, or PRODUCT_DISCONTINUED.',
             tags: ['catalog'],
         },
         auth: 'none',

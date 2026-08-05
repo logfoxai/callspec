@@ -37,7 +37,7 @@ const otherResolver: RouteResolverFor<typeof getProductByIdRoute> = async (input
 
 export const getProductById = defineRoute({
     ...getProductByIdRoute,
-    meta: {summary: '…', description: '…', tags: ['catalog']},
+    meta: {summary: '…', tags: ['catalog']},
     auth: 'none',
     resolver: getProductByIdResolver,
 });
@@ -82,7 +82,7 @@ defineRoute({
     input: Pred,           // required
     output: Pred,          // required
     errors?: ErrorsHandle, // optional domain errors
-    meta: RouteMeta,       // summary, description, tags
+    meta: RouteMeta,       // summary, tags; optional description when you want extra prose
     auth?: 'none' | 'bearer',  // default 'bearer'
     scope?: 'public' | 'private',  // default 'public' — exported to callspec.json, OpenAPI, docs, SDK, MCP
     mcp?: true | McpRouteConfig,

@@ -32,7 +32,7 @@ export function emitOpenApi(
             post: {
                 operationId: name,
                 summary: route.meta.summary,
-                description: route.meta.description,
+                ...(route.meta.description ? {description: route.meta.description} : {}),
                 tags: [...route.meta.tags],
                 requestBody: {
                     required: true,

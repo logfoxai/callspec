@@ -38,7 +38,7 @@ export function emitCallspec(
             path: joinRoutePath(basePath, name),
             method: 'POST',
             summary: route.meta.summary,
-            description: route.meta.description,
+            description: route.meta.description ?? '',
             tags: [...route.meta.tags],
             auth: route.auth,
             scope: route.scope,

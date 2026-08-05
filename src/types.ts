@@ -3,7 +3,8 @@ import type {Pred} from 'runtyp';
 
 export type RouteMeta = {
     summary: string
-    description: string
+    /** Optional prose — schemas, errors, and summary already surface in docs UI. */
+    description?: string
     tags: readonly string[]
 };
 

@@ -50,9 +50,14 @@ export function listMcpTools(routes: RoutesMap<any>): McpToolListEntry[] {
             const entry: McpToolListEntry = {
                 name: routeMcpName(key, route),
                 title: route.meta.summary,
-                description: route.meta.description,
                 inputSchema: toJsonSchema(route.input) as Record<string, unknown>,
             };
+
+            if (route.meta.description) {
+
+                entry.description = route.meta.description;
+
+            }
 
             if (route.output) {
 
