@@ -18,7 +18,7 @@
 
 Define your API once with simple TypeScript and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client with **shared types** (and optional shared validators for forms).
 
-Callspec is RPC: named methods (`searchRecent`), not REST resources. Every method has typed input, output, and errors. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
+You define **methods** — `searchRecent`, `createTweet` — each with typed input, output, and errors. Call them over HTTP as `POST /v1/<method>`. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
 
 ## Features
 
