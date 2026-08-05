@@ -16,7 +16,7 @@
   </p>
 </div>
 
-Define your API once with simple TypeScript and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client — including shared validators for forms.
+Define your API once with simple TypeScript and get an **HTTP RPC** server, white-label docs, **OpenAPI 3.1**, an MCP server, and a generated TypeScript client with **shared types** (and optional shared validators for forms).
 
 Callspec is RPC: named methods (`searchRecent`), not REST resources. Every method has typed input, output, and errors. Handlers `return err.NOT_FOUND()`; the client gets a **Result** (`ok` / `code`) instead of try/catch for HTTP failures. That error contract is end-to-end — server, OpenAPI, MCP, and the generated client.
 
@@ -27,8 +27,8 @@ Callspec is RPC: named methods (`searchRecent`), not REST resources. Every metho
 - 📄 **OpenAPI 3.1** — emitted from the same registry for tooling, gateways, and multi-language generators
 - 🤖 **MCP** — opt-in tools that call the same handlers as HTTP (same auth, same validation)
 - 📘 **Docs UI** — white-label explorer for trying RPCs and connecting MCP clients
-- 🧩 **TypeScript client** — generated from the contract; browser-safe, one Result per method
-- ✅ **Shared validators** — `exports` + codegen so React forms reuse the same runtyp preds
+- 🧩 **TypeScript client + shared types** — generated from the contract; browser-safe, one Result per method
+- ✅ **Shared validators** — optional `exports` + `--validators` so forms can reuse the same runtyp preds
 - 🔐 **Auth** — `public` / `private` routes with Bearer; OpenAPI security derived automatically
 
 Paths like `/docs`, `/openapi.json`, and `/mcp` are defaults — override via `mountSpec` options.
