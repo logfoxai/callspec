@@ -5,7 +5,7 @@
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
 
-  <h3 align="center">One TypeScript registry. HTTP, MCP, docs, OpenAPI, and a typed client.</h3>
+  <h3 align="center">TypeScript RPC — not REST. One registry for methods, errors, MCP, docs, and OpenAPI.</h3>
 
   <br>
 
@@ -16,37 +16,42 @@
   </p>
 </div>
 
-**Callspec** turns a `defineRoute` registry into a running Express RPC API — with the same handlers exposed as MCP tools, a white-label docs UI, a native **`callspec.json`** contract, a real **OpenAPI 3.1** spec, and a generated TypeScript client with Result-typed errors.
+**Callspec** is a full **RPC** stack for TypeScript — not a REST framework with types bolted on.
 
-Define once with [runtyp](https://github.com/logfoxai/runtyp). Ship the server, the agents surface, the docs, the OpenAPI document, and the frontend types from that one place.
+You define **methods** (`searchRecent`, `createTweet`), not resources and verbs. Each call is `POST /v1/<methodName>` with a typed input, typed output, and a **typed error contract**. Handlers `return err.NOT_FOUND()` (or a domain code); clients get a **Result** — `{ ok: true, value } | { ok: false, code, status, data? }` — so HTTP failures are data you switch on, not exceptions you try/catch.
+
+From that same registry: Express server, MCP tools on the **same handlers**, white-label docs, native **`callspec.json`**, and a real **OpenAPI 3.1** export for the rest of the ecosystem.
+
+Define once with [runtyp](https://github.com/logfoxai/runtyp). The error model is part of the product — not an afterthought.
 
 ## Who it’s for
 
-Full-stack **TypeScript** teams who want:
+Full-stack **TypeScript** teams who want RPC end-to-end:
 
-- An Express RPC API (`POST /v1/<method>`) with boundary validation
-- **MCP tools that call the same handlers** as HTTP (same auth, same validation)
+- **Methods, not REST resources** — `POST /v1/<method>` with input/output/error schemas
+- **Result-typed errors** — error **codes** are the contract; status is transport (HTTP/OpenAPI)
+- **MCP on the same handlers** — agents execute your API with the same auth and validation
 - A portable contract so the browser never imports the server package
-- An **OpenAPI 3.1** document from the live registry — for gateways, external docs, and any OpenAPI-based SDK generator
+- An **OpenAPI 3.1** document from the live registry — for gateways, external docs, and OpenAPI-based generators
 - Shared runtyp validators for React forms (via `exports`)
 
-Callspec’s first-class client is TypeScript. Multi-language SDKs are not generated here — that’s what the OpenAPI export is for.
+First-class surface is TypeScript RPC. Multi-language clients come from the OpenAPI export, not from Callspec itself.
 
 ## What you get
 
-| Surface | Where |
-|---------|-------|
-| HTTP RPC | `POST /v1/<methodName>` |
-| MCP tools (same handlers) | `/mcp` |
-| Docs UI | `/docs` |
-| Native contract | `/callspec.json` |
-| **OpenAPI 3.1** | `/openapi.json` |
-| Generated TS client | `npx callspec … --output …` |
-| Shared validators | `npx callspec … --validators` |
-| Server validation | runtyp at the route boundary |
-| Errors | Result unions — `{ ok, value } \| { ok: false, code, … }` |
+| Piece | What it is |
+|-------|------------|
+| **RPC API** | `POST /v1/<methodName>` — methods, not REST CRUD |
+| **Error contract** | Builtin + domain codes; Result unions on the client — no try/catch for HTTP errors |
+| **MCP tools** | Same handlers as HTTP |
+| **Docs UI** | `/docs` — explorer colocated with the API |
+| **Native contract** | `/callspec.json` — lossless IR (methods, errors, MCP, exports) |
+| **OpenAPI 3.1** | `/openapi.json` — first-class export for OpenAPI tooling |
+| **TS RPC client** | Generated methods returning `CallspecRouteResult` |
+| **Shared validators** | `exports` → runtyp preds for forms |
+| **Server validation** | runtyp at the boundary |
 
-`callspec.json` is the lossless IR for the docs UI and TypeScript client. OpenAPI is a first-class parallel projection from the same `routes` object — not a hand-maintained second spec.
+`callspec.json` carries the full RPC contract (including error codes). OpenAPI is a parallel projection for tools that speak REST/OpenAPI — useful, but not a substitute for the native Result/error model.
 
 ## Getting help
 
@@ -151,45 +156,56 @@ By default `mountSpec` serves `/docs`, `/callspec.json`, and `/openapi.json`. Pa
 
 ## Core ideas
 
+### RPC, not REST
+
+Routes are **named methods** with `input`, `output`, and `errors` — not `GET /users/:id` style resources. Transport happens to be HTTP (`POST` + JSON) so browsers, agents, and OpenAPI tooling can talk to it. The programming model is RPC: call a method, get a Result.
+
+### Error handling is the contract
+
+Failures are **typed return possibilities**, not mystery status codes:
+
+```typescript
+// server — return errors, don't throw for domain failures
+if (!user) return err.NOT_FOUND();
+if (taken) return userErr.USER_EXISTS({email: input.email});
+return user;
+
+// client — switch on code; no try/catch for HTTP errors
+const result = await api.getUser({email});
+if (!result.ok) {
+    switch (result.code) {
+        case 'NOT_FOUND': …
+        case 'USER_EXISTS': … // data narrowed
+        case 'VALIDATION_ERROR': …
+    }
+    return;
+}
+result.value; // success
+```
+
+Wire body is always `{ "error": "CODE", "data?": … }`. The **`error` code** is what clients and agents branch on; HTTP status exists for OpenAPI/proxies. Builtins (`NOT_FOUND`, `VALIDATION_ERROR`, …) are on every route; domain codes are declared per method. Full guide: [error-handling.md](docs/error-handling.md).
+
 ### One registry
 
-`defineRoute` / `defineSpec` in TypeScript is the source of truth. HTTP, MCP, docs, `callspec.json`, and OpenAPI all project from it — they are not kept in sync by hand.
-
-### OpenAPI from the live API
-
-`GET /openapi.json` is OpenAPI **3.1.0**, generated from your routes:
-
-- Each method → `POST {basePath}/{methodName}` with `operationId` = method name
-- `input` / `output` → JSON Schema via runtyp
-- Errors → status-keyed responses (`{ error: "CODE", data? }`)
-- Private routes → Bearer security (auto-derived from `access`)
-
-Hand that document to any OpenAPI toolchain. Keep `callspec.json` for Callspec’s TypeScript client and UI (MCP flags, exports, and the Result-oriented error model stay richest there).
+`defineRoute` / `defineSpec` is the source of truth. HTTP, MCP, docs, `callspec.json`, and OpenAPI all project from it.
 
 ### MCP that executes your API
 
-`mcp: true` on a route mounts tools at `/mcp`. Agents hit the **same handlers** as HTTP — same auth, same validation, same errors. This is a live tool surface, not a docs Q&A layer.
+`mcp: true` mounts tools at `/mcp`. Agents call the **same handlers** — same auth, validation, and error codes. Live execution, not docs search.
 
-### Result-typed errors
+### OpenAPI from the live API
 
-HTTP failures are data, not exceptions:
+`GET /openapi.json` is OpenAPI **3.1.0** from the same registry — so you still get a standard spec for gateways and OpenAPI generators:
 
-```typescript
-const result = await api.searchRecent({query: 'timeout'});
+- Each RPC method → `POST {basePath}/{methodName}`
+- Schemas from runtyp; errors as status-keyed `{ error, data? }` bodies
+- Bearer security from `access: 'private'`
 
-if (!result.ok) {
-    // result.code — VALIDATION_ERROR | NOT_FOUND | …
-    return;
-}
-
-result.value; // typed success
-```
-
-Wire format is always `{ "error": "CODE", "data?": … }`. The **code** is the contract; HTTP status is transport. Details: [error-handling.md](docs/error-handling.md).
+OpenAPI is a REST-shaped **view** of your RPC. The native Result/`code` client experience lives in `callspec.json` + the generated TS client.
 
 ### Shared validation (no server import)
 
-Frontend teams should not depend on the API package just for types. Emit `callspec.json`, generate types (and optional runtyp validators). Forms and RPC share the same preds — see [exports plan](docs/exports-and-codegen.plan.md).
+Don’t import the API package for types. Emit `callspec.json`, generate types and optional runtyp validators. Forms and RPC share preds — [exports plan](docs/exports-and-codegen.plan.md).
 
 ## API reference
 
@@ -288,9 +304,9 @@ export const routes = {
 
 Use `expressErrorHandler()` from `callspec/express` only for routes **outside** `mountSpec`.
 
-## TypeScript client
+## TypeScript RPC client
 
-You do **not** publish or import the backend package in the frontend.
+Generated methods are RPC calls returning Results — not a thin REST wrapper. You do **not** publish or import the backend package in the frontend.
 
 Generate from `callspec.json` (URL or file):
 
