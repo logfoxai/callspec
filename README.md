@@ -128,34 +128,32 @@ npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.t
 
 ### 3. Call from your app
 
-Codegen exports **`GetProductByIdInput`**, **`GetProductByIdOutput`**, and **`GetProductByIdResult`** — input, success value, and a discriminated error union.
+Each method returns a **Result** — check `result.ok`, then use `result.value` or switch on `result.code`. Types are inferred; import `GetProductByIdOutput` etc. only when you need them (props, shared helpers).
 
 ```typescript
-import {
-    ApiClient,
-    type GetProductByIdInput,
-    type GetProductByIdOutput,
-    type GetProductByIdResult,
-} from './generated/api';
+import {ApiClient} from './generated/api';
+import {toast} from './toast'; // sonner, react-hot-toast, whatever you use
 
 const api = new ApiClient({baseUrl: 'http://127.0.0.1:3000/v1'});
 
-const input: GetProductByIdInput = {id: 'sku-1'};
-const result: GetProductByIdResult = await api.getProductById(input);
+const id = 'sku-1';
+const result = await api.getProductById({id});
 
 if (!result.ok) {
     if (result.code === 'PRODUCT_NOT_FOUND') {
-        throw new Error(`Unknown sku ${input.id}`);
+        toast.error(`Unknown sku ${id}`);
+        return;
     }
     if (result.code === 'PRODUCT_DISCONTINUED') {
-        throw new Error(`Product ${input.id} is no longer available`);
+        toast.error(`Product ${id} is no longer available`);
+        return;
     }
-    throw new Error(result.code);
+    toast.error('Something went wrong');
+    return;
 }
 
-const product: GetProductByIdOutput = result.value;
-product.name; // string — fully typed from your server preds
-product.priceCents; // number
+result.value.name;       // string
+result.value.priceCents; // number
 ```
 
 ### Try the demo

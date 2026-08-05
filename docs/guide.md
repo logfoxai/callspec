@@ -231,36 +231,35 @@ callspec <source> --output <file> [--class-name ApiClient]
 
 ## Frontend usage
 
-Every generated method returns a **Result** with exported types per route. See [error-handling.md](error-handling.md) for the full contract.
+Every generated method returns a **Result**. See [error-handling.md](error-handling.md) for the full contract.
 
 ```typescript
 // src/app/getProductById.ts
-import {
-    ApiClient,
-    type GetProductByIdInput,
-    type GetProductByIdOutput,
-    type GetProductByIdResult,
-} from '../generated/api';
+import {ApiClient} from '../generated/api';
+import {toast} from '../toast';
 
 const api = new ApiClient({
     baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/v1',
 });
 
-export async function fetchProduct(id: string): Promise<GetProductByIdOutput> {
-    const input: GetProductByIdInput = {id};
-    const result: GetProductByIdResult = await api.getProductById(input);
+export async function fetchProduct(id: string) {
+    const result = await api.getProductById({id});
 
     if (!result.ok) {
         if (result.code === 'PRODUCT_NOT_FOUND') {
-            throw new Error(`Unknown product ${id}`);
+            toast.error(`Unknown product ${id}`);
+            return null;
         }
         if (result.code === 'PRODUCT_DISCONTINUED') {
-            throw new Error(`Product ${id} is no longer available`);
+            toast.error(`Product ${id} is no longer available`);
+            return null;
         }
         if (result.code === 'VALIDATION_ERROR') {
-            throw new Error(`Invalid input: ${JSON.stringify(result.data)}`);
+            toast.error('Invalid product id');
+            return null;
         }
-        throw new Error(result.code);
+        toast.error('Something went wrong');
+        return null;
     }
 
     return result.value;
@@ -270,12 +269,11 @@ export async function fetchProduct(id: string): Promise<GetProductByIdOutput> {
 ```tsx
 // src/components/ProductView.tsx
 import {useState} from 'react';
-import type {GetProductByIdOutput} from '../generated/api';
 import {fetchProduct} from '../app/getProductById';
 
 export function ProductView() {
     const [productId, setProductId] = useState('sku-1');
-    const [product, setProduct] = useState<GetProductByIdOutput | null>(null);
+    const [product, setProduct] = useState<Awaited<ReturnType<typeof fetchProduct>>>(null);
 
     async function onLoad() {
         setProduct(await fetchProduct(productId));
