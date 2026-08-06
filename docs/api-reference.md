@@ -5,27 +5,26 @@
 Pass preds, meta, and `resolver` in one `route()` call:
 
 ```typescript
-import {route, defineErrors, err, type ResolverFor} from 'callspec';
+import {route, err, type ResolverFor} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {lookupById} from '../domain/products';
-
-const productErr = defineErrors({
-    PRODUCT_DISCONTINUED: {},
-});
 
 const product = p.object({id: p.string(), name: p.string(), priceCents: p.number()});
+
+const products = [
+    {id: 'sku-1', name: 'Widget', priceCents: 999},
+    {id: 'sku-2', name: 'Gadget', priceCents: 1299},
+];
 
 export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,
-    errors: productErr,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
-        const found = lookupById(input.id);
+        const found = products.find((item) => item.id === input.id);
+        // input already validated against the route's input pred — use it directly
         if (!found) return err.NOT_FOUND();
-        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
         return found;
     },
 });
@@ -34,7 +33,7 @@ export const getProductById = route({
 Separate resolver binding (optional):
 
 ```typescript
-const preds = { input, output, errors, meta, auth: 'none' } as const;
+const preds = { input, output, meta, auth: 'none' } as const;
 
 const impl: ResolverFor<typeof preds, Ctx> = async (input, _ctx) => {
     return {id: input.id, name: '…', priceCents: 0};
@@ -48,7 +47,7 @@ export const getProductById = route({...preds, resolver: impl});
 | `route({ …, resolver })` | Wired route for `spec`; resolver also on `.resolver` for tests |
 | `ResolverFor<typeof preds, Ctx?>` | Explicit resolver type for a separate binding |
 
-Helpers that return domain failures: `RouteFailuresFrom<typeof productErr>`. Plain domain functions (e.g. `lookupById` returning `Product | null`) stay free of Callspec — map to route failures in the resolver.
+Domain-specific errors: `defineErrors()` + `errors:` on the route — see [error-handling.md](error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`.
 
 Private routes: annotate auth context on the resolver — `resolver: async (input, ctx: Ctx) => …`. See [Guide § Authentication](guide.md#authentication) and [Guide § Request context](guide.md#request-context).
 
@@ -59,19 +58,13 @@ The wired route keeps the resolver on `.resolver` — call it directly in unit t
 ```typescript
 import {isRouteFailure} from 'callspec';
 import {getProductById} from '../routes/getProductById';
-import {lookupById} from '../domain/products';
-
-const discontinued = await getProductById.resolver({id: 'sku-old'}, {});
-expect(isRouteFailure(discontinued) && discontinued.code).toBe('PRODUCT_DISCONTINUED');
 
 const missing = await getProductById.resolver({id: 'missing'}, {});
 expect(isRouteFailure(missing) && missing.code).toBe('NOT_FOUND');
 
 const found = await getProductById.resolver({id: 'sku-1'}, {});
 expect(isRouteFailure(found)).toBe(false);
-
-expect(lookupById('missing')).toBeNull();
-expect(lookupById('sku-old')?.discontinued).toBe(true);
+expect(found).toEqual({id: 'sku-1', name: 'Widget', priceCents: 999});
 ```
 
 Export the wired route from the route module when tests live in another file.

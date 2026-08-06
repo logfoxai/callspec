@@ -1,16 +1,11 @@
 # Complete example
 
-Copy-paste server with meta branding and all default surfaces. Assumes `domain/products.ts` exports `lookupById(id)` — product or `null`; retired skus have `discontinued: true`.
+Copy-paste server with meta branding and all default surfaces.
 
 ```typescript
 import express from 'express';
-import {spec, route, defineErrors, err, mountSpec} from 'callspec';
+import {spec, route, err, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {lookupById} from './domain/products';
-
-const productErr = defineErrors({
-    PRODUCT_DISCONTINUED: {},
-});
 
 const product = p.object({
     id: p.string(),
@@ -18,17 +13,21 @@ const product = p.object({
     priceCents: p.number(),
 });
 
+const products = [
+    {id: 'sku-1', name: 'Widget', priceCents: 999},
+    {id: 'sku-2', name: 'Gadget', priceCents: 1299},
+];
+
 export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,
-    errors: productErr,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
-        const found = lookupById(input.id);
+        const found = products.find((item) => item.id === input.id);
+        // input already validated against the route's input pred — use it directly
         if (!found) return err.NOT_FOUND();
-        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
         return found;
     },
 });

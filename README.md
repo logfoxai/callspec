@@ -44,19 +44,12 @@ npm i -D tsx typescript @types/express
 
 Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return domain failures from resolvers (`return err.NOT_FOUND()`, `return productErr.PRODUCT_DISCONTINUED()`) — don't throw. Builtins are automatic on every route; declare `defineErrors` only for domain-specific codes. Set `status` on domain errors when you want a specific HTTP code (defaults to 400).
-
-Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` returns a product or `null` (products may include `discontinued: true` for retired skus).
+Return failures from resolvers (`return err.NOT_FOUND()`) — don't throw. Builtins are automatic on every route; add `defineErrors` when you need domain-specific codes ([error-handling.md](docs/error-handling.md)).
 
 ```typescript
 // server/routes/getProductById.ts
-import {route, defineErrors, err} from 'callspec';
+import {route, err} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {lookupById} from '../domain/products';
-
-const productErr = defineErrors({
-    PRODUCT_DISCONTINUED: {},
-});
 
 const product = p.object({
     id: p.string(),
@@ -64,17 +57,21 @@ const product = p.object({
     priceCents: p.number(),
 });
 
+const products = [
+    {id: 'sku-1', name: 'Widget', priceCents: 999},
+    {id: 'sku-2', name: 'Gadget', priceCents: 1299},
+];
+
 export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,
-    errors: productErr,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
-        const found = lookupById(input.id);
+        const found = products.find((item) => item.id === input.id);
+        // input already validated against the route's input pred — use it directly
         if (!found) return err.NOT_FOUND();
-        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
         return found;
     },
 });
@@ -136,10 +133,6 @@ const result = await api.getProductById({id});
 if (!result.ok) {
     if (result.code === 'NOT_FOUND') {
         toast.error(`Unknown sku ${id}`);
-        return;
-    }
-    if (result.code === 'PRODUCT_DISCONTINUED') {
-        toast.error(`Product ${id} is no longer available`);
         return;
     }
     if (result.code === 'NETWORK_ERROR') {

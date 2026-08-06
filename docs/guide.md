@@ -6,7 +6,7 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 Same catalog routes — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
 
-**Per route:** `route({ preds, errors, meta, resolver })` — one export for `spec`. Unit-test via `getProductById.resolver(input, ctx)`; no HTTP.
+**Per route:** `route({ preds, meta, resolver })` — one export for `spec`. Unit-test via `getProductById.resolver(input, ctx)`; no HTTP.
 
 ### Shared schemas
 
@@ -14,12 +14,7 @@ Most routes reuse domain preds — you define them once, not per route file.
 
 ```typescript
 // server/schemas/catalog.ts
-import {defineErrors} from 'callspec';
 import {predicates as p} from 'runtyp';
-
-export const productErr = defineErrors({
-    PRODUCT_DISCONTINUED: {},
-});
 
 export const product = p.object({
     id: p.string(),
@@ -33,6 +28,11 @@ export const productList = p.object({
     items: p.array(product),
     count: p.number(),
 });
+
+export const products = [
+    {id: 'sku-1', name: 'Widget', priceCents: 999},
+    {id: 'sku-2', name: 'Gadget', priceCents: 1299},
+];
 ```
 
 Pass named preds to `spec({ exports: { product, productList, … } })` when you want them in codegen / `--validators`.
@@ -42,20 +42,18 @@ Pass named preds to `spec({ exports: { product, productList, … } })` when you 
 ```typescript
 // server/routes/getProductById.ts
 import {route, err} from 'callspec';
-import {lookupById} from '../domain/products';
-import {product, productErr, productIdInput} from '../schemas/catalog';
+import {product, productIdInput, products} from '../schemas/catalog';
 
 export const getProductById = route({
     input: productIdInput,
     output: product,
-    errors: productErr,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
-        const found = lookupById(input.id);
+        const found = products.find((item) => item.id === input.id);
+        // input already validated against the route's input pred — use it directly
         if (!found) return err.NOT_FOUND();
-        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
         return found;
     },
 });
@@ -65,19 +63,18 @@ export const getProductById = route({
 // server/routes/listProducts.ts — reuses product + productList preds, no new types
 import {route} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {listProducts as fetchProductList} from '../domain/products';
-import {productList} from '../schemas/catalog';
+import {productList, products} from '../schemas/catalog';
 
 export const listProducts = route({
     input: p.object({}),
     output: productList,
     meta: {summary: 'List products', tags: ['catalog']},
     auth: 'none',
-    resolver: async (_input, _ctx) => fetchProductList(),
+    resolver: async (_input, _ctx) => ({items: products, count: products.length}),
 });
 ```
 
-Domain logic stays in plain functions (`lookupById`, `fetchProductList`, …). Map to route failures only in resolvers that need them.
+Swap the in-memory `products` array for a DB query in production — the resolver shape stays the same.
 
 ```typescript
 // server/routes.ts
@@ -342,10 +339,6 @@ export async function fetchProduct(id: string) {
     if (!result.ok) {
         if (result.code === 'NOT_FOUND') {
             toast.error(`Unknown product ${id}`);
-            return null;
-        }
-        if (result.code === 'PRODUCT_DISCONTINUED') {
-            toast.error(`Product ${id} is no longer available`);
             return null;
         }
         if (result.code === 'VALIDATION_ERROR') {
