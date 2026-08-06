@@ -131,11 +131,3 @@ result.value.priceCents; // number
 ```
 
 See [Client usage](client-usage.md) for auth headers, app helpers, and React patterns.
-
-## Try the demo
-
-```bash
-npm run build && npm run dev:docs
-```
-
-Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sample API.

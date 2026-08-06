@@ -2,7 +2,7 @@
 
 ```bash
 npm run validate   # build, lint, knip, typecheck:routes, test + coverage
-npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
+npm run dev:docs   # Chirp demo — see README § Try the demo
 ```
 
 ## Help build the standard

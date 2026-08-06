@@ -25,6 +25,18 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
 - ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
 
+## Try the demo
+
+Explore the docs UI, MCP connect flow, and a sample API — **clone this repo** (not available via `npm i callspec` alone):
+
+```bash
+git clone https://github.com/logfoxai/callspec.git
+cd callspec && npm install
+npm run build && npm run dev:docs
+```
+
+Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
+
 ## Contents
 
 - [Getting started](docs/getting-started.md)
@@ -43,12 +55,3 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - [OpenAPI](docs/openapi.md)
 - [Callspec + Fern](docs/using-fern-with-callspec.md)
 - [Development](docs/development.md)
-
-## Development
-
-```bash
-npm run validate   # build, lint, knip, typecheck:routes, test + coverage
-npm run dev:docs   # Chirp demo API + callspec UI at :3456/v1/docs
-```
-
-Contributing and support: [Development](docs/development.md).
