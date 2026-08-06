@@ -64,11 +64,14 @@ Private routes: annotate auth context on the resolver — `resolver: async (inpu
 Call `.resolver(input, ctx)` on the wired route — no HTTP. Full guide: [Unit testing](unit-testing.md).
 
 ```typescript
+import {test} from 'kizu';
 import {isRouteFailure} from 'callspec';
 import {getProductById} from '../routes/getProductById';
 
-const missing = await getProductById.resolver({id: 'missing'}, undefined);
-expect(isRouteFailure(missing) && missing.code).toBe('NOT_FOUND');
+test('getProductById: NOT_FOUND', async (assert) => {
+    const missing = await getProductById.resolver({id: 'missing'}, undefined);
+    assert.equal(isRouteFailure(missing) && missing.code, 'NOT_FOUND');
+});
 ```
 
 Export the wired route from the route module when tests live in another file.
