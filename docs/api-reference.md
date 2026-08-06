@@ -162,13 +162,13 @@ Errors are **typed return possibilities**, not mystery exceptions. Full guide: [
 
 Builtin codes (automatic on every route — never declare): `VALIDATION_ERROR`, `UNAUTHORIZED`, `ROUTE_NOT_FOUND`, `NOT_FOUND`, `FORBIDDEN`, `CONFLICT`, `TOO_MANY_REQUESTS`, `SERVICE_UNAVAILABLE`, `INTERNAL_ERROR`. Client-only: `NETWORK_ERROR`, `UNKNOWN_ERROR`.
 
-## Native Callspec document & OpenAPI
+## Native Callspec document
 
-`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([OpenAPI § Native contract](openapi.md#native-contract-callspecjson)).
+`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json`. Pinning, codegen, and `emitCallspec`: [SDK generation](sdk-generation.md).
 
-**OpenAPI 3.1** (`/openapi.json`) is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors are grouped by HTTP status.
+## OpenAPI
 
-`emitOpenApi` and `parseCallspecDocument` are in `callspec/document` for server tooling and tests.
+**OpenAPI 3.1** at `/openapi.json` — parallel projection from the same `routes` object. Full guide: [OpenAPI](openapi.md).
 
 ## Runtime client
 

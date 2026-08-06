@@ -49,7 +49,28 @@ Solo dev or monorepo where backend CI always runs with the app built and codegen
 curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 ```
 
-Or from TypeScript without HTTP — [`emitCallspec`](openapi.md#native-contract-callspecjson) against your wired `spec()`.
+Or from TypeScript without HTTP:
+
+```typescript
+import {writeFileSync} from 'fs';
+import {emitCallspec} from 'callspec/document';
+import {api} from '../server/routes';
+
+writeFileSync(
+    'callspec.json',
+    JSON.stringify(
+        emitCallspec(api.routes, {
+            title: api.meta.title ?? 'My API',
+            version: api.meta.version ?? '1.0.0',
+            basePath: '/v1',
+            description: api.meta.intro,
+            exports: api.exports,
+        }),
+        null,
+        2,
+    ),
+);
+```
 
 **2. Commit** `callspec.json` (and often `src/generated/api.ts` too).
 
@@ -63,5 +84,3 @@ Or from TypeScript without HTTP — [`emitCallspec`](openapi.md#native-contract-
 ```
 
 Adjust `check:api` to match what you commit — some teams only pin `callspec.json` and regenerate `api.ts` every CI run; others commit both and fail on either diff.
-
-Document shape and `emitCallspec` details: [OpenAPI § Native contract](openapi.md#native-contract-callspecjson).
