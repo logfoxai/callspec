@@ -34,7 +34,7 @@ const indexTemplate = `<!DOCTYPE html>
 `;
 
 await build({
-    configFile: path.join(root, '..', 'vite.config.ts'),
+    configFile: path.join(root, '..', 'vite.config.mts'),
 });
 
 const assetDir = path.join(uiOut, 'assets');
