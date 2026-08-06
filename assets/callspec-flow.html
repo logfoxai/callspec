@@ -2,176 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      background: transparent;
+      background: #0a0a0a;
       font-family: Inter, system-ui, sans-serif;
-      color: #1f1f1f;
+      color: #fff;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Fern-style: inputs → center → output, dotted connectors, no page chrome */
     .diagram {
       width: 920px;
-      padding: 8px 12px;
+      padding: 48px 40px;
       display: flex;
-      align-items: stretch;
+      align-items: center;
       justify-content: center;
       gap: 0;
+      background: #0a0a0a;
     }
 
-    .node {
-      flex: 1;
-      max-width: 260px;
+    .step {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 10px;
+      gap: 14px;
+      flex-shrink: 0;
     }
 
-    .node img { display: block; }
+    .step img { display: block; }
 
-    .node-title {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    .node-sub {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.4;
-      max-width: 220px;
-    }
-
-    .code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      line-height: 1.5;
-      color: #444;
-      background: rgba(0,0,0,0.04);
-      border: 1px solid rgba(0,0,0,0.08);
-      border-radius: 8px;
-      padding: 8px 10px;
-      text-align: left;
-      width: 100%;
-    }
-
-    .outputs {
-      width: 100%;
-      font-size: 11px;
-      text-align: left;
-    }
-
-    .outputs div {
-      display: flex;
-      justify-content: space-between;
-      padding: 3px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-    .outputs div:last-child { border-bottom: none; }
-    .outputs strong { font-weight: 600; }
-    .outputs span {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px;
-      color: #888;
-    }
-
-    .langs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      justify-content: center;
-    }
-    .langs span {
-      font-size: 10px;
-      font-weight: 500;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: rgba(81,194,51,0.12);
-      color: #2d6b1f;
-    }
-
-    .connector {
-      flex: 0 0 72px;
+    .icon {
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+    }
+
+    .label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    .label-sub {
+      font-size: 13px;
+      font-weight: 500;
+      color: #888;
+      margin-top: -8px;
+    }
+
+    .arrow {
+      flex-shrink: 0;
+      margin: 0 8px;
       align-self: center;
     }
 
-    .connector svg { display: block; }
-
-    .connector-label {
-      position: absolute;
-      top: calc(50% - 22px);
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #3da828;
-      white-space: nowrap;
+    .outputs {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+      flex-shrink: 0;
     }
 
-    .optional .node-title { color: #1f1f1f; }
+    .chip-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      color: #ccc;
+    }
+
+    .chip.ts { color: #3178c6; }
   </style>
 </head>
 <body>
   <div class="diagram">
-    <div class="node">
-      <img src="mark-light.svg" height="28" alt="" />
-      <div class="node-title">route + spec</div>
-      <div class="node-sub">TypeScript + runtyp</div>
-      <div class="code">
-        route({ input, output, meta, resolver })<br/>
-        spec({ routes })
+    <!-- TypeScript -->
+    <div class="step">
+      <img src="mark-dark.svg" height="44" alt="" />
+      <div class="label">TypeScript</div>
+      <div class="label-sub">route + spec</div>
+    </div>
+
+    <svg class="arrow" width="64" height="24" viewBox="0 0 64 24" fill="none">
+      <path d="M0 12 H48" stroke="#51c233" stroke-width="2"/>
+      <path d="M48 12 L40 6 V18 Z" fill="#51c233"/>
+    </svg>
+
+    <!-- Callspec -->
+    <div class="step">
+      <img src="callspec-lockup-dark.svg" height="36" alt="callspec" />
+      <div class="label">Generate</div>
+      <div class="label-sub">mountSpec + CLI</div>
+    </div>
+
+    <!-- Split arrow -->
+    <svg class="arrow" width="72" height="120" viewBox="0 0 72 120" fill="none">
+      <path d="M0 60 H24" stroke="#51c233" stroke-width="2"/>
+      <path d="M24 60 V24 H48" stroke="#51c233" stroke-width="2"/>
+      <path d="M24 60 V96 H48" stroke="#51c233" stroke-width="2"/>
+      <path d="M48 24 L42 30 V18 Z" fill="#51c233"/>
+      <path d="M48 96 L42 102 V90 Z" fill="#51c233"/>
+    </svg>
+
+    <!-- Outputs -->
+    <div class="outputs">
+      <div class="step">
+        <div class="icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect x="4" y="4" width="28" height="28" rx="6" stroke="#fff" stroke-width="1.5"/>
+            <path d="M12 13 L16 18 L12 23" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 23 H24" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="label">SDKs</div>
+        <div class="chip-row">
+          <span class="chip ts">TypeScript</span>
+        </div>
       </div>
-    </div>
 
-    <div class="connector">
-      <svg width="56" height="12" viewBox="0 0 56 12" fill="none">
-        <line x1="0" y1="6" x2="48" y2="6" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3 3"/>
-        <path d="M48 6 L42 2.5 V9.5 Z" fill="#bbb"/>
-      </svg>
-    </div>
-
-    <div class="node">
-      <img src="callspec-lockup-light.svg" height="28" alt="callspec" />
-      <div class="node-title">mountSpec + CLI</div>
-      <div class="node-sub">Docs, OpenAPI, MCP, TS SDK</div>
-      <div class="outputs">
-        <div><strong>Docs</strong><span>/docs</span></div>
-        <div><strong>OpenAPI</strong><span>/openapi.json</span></div>
-        <div><strong>MCP</strong><span>/mcp</span></div>
-        <div><strong>TS SDK</strong><span>CLI</span></div>
-      </div>
-    </div>
-
-    <div class="connector">
-      <span class="connector-label">OpenAPI</span>
-      <svg width="56" height="12" viewBox="0 0 56 12" fill="none">
-        <line x1="0" y1="6" x2="48" y2="6" stroke="#51c233" stroke-width="1.5" stroke-dasharray="3 3"/>
-        <path d="M48 6 L42 2.5 V9.5 Z" fill="#51c233"/>
-      </svg>
-    </div>
-
-    <div class="node optional">
-      <img src="fern-logo.svg" height="28" alt="Fern" />
-      <div class="node-title">fern generate</div>
-      <div class="node-sub">Optional multi-lang SDKs</div>
-      <div class="langs">
-        <span>Python</span><span>Go</span><span>Java</span><span>Ruby</span><span>C#</span>
-      </div>
-      <div class="code">
-        fern init --openapi ./openapi.json<br/>
-        fern generate
+      <div class="step">
+        <div class="icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <path d="M6 8 C6 6 8 5 10 5 H16 L18 8 H28 C30 8 32 9 32 11 V28 C32 30 30 31 28 31 H10 C8 31 6 30 6 28 V8Z" stroke="#fff" stroke-width="1.5"/>
+            <path d="M6 12 H32" stroke="#fff" stroke-width="1.5"/>
+            <path d="M12 18 H24" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 23 H20" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="label">Documentation</div>
+        <div class="chip-row">
+          <span class="chip">/docs</span>
+          <span class="chip">OpenAPI</span>
+          <span class="chip">MCP</span>
+        </div>
       </div>
     </div>
   </div>

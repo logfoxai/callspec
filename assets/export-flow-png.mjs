@@ -16,6 +16,6 @@ const out = path.join(assets, 'callspec-flow.png');
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 920, height: 360 } });
 await page.goto(url, { waitUntil: 'networkidle' });
-await page.locator('.diagram').screenshot({ path: out, omitBackground: true });
+await page.locator('.diagram').screenshot({ path: out });
 await browser.close();
 console.log(`Wrote ${out}`);
