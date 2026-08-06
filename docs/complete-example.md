@@ -25,8 +25,8 @@ export const getProductById = route({
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
+        // input validated and fully typed — return and errors too! 🎉
         const found = products.find((item) => item.id === input.id);
-        // Already validated! 🎉
         if (!found) return err.NOT_FOUND();
         return found;
     },

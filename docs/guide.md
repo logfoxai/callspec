@@ -2,6 +2,18 @@
 
 Beyond the [Getting started](../README.md#getting-started) happy path — full server layout, committed contracts, CI codegen, and frontend usage.
 
+## How it fits together
+
+<p align="center">
+  <a href="../assets/callspec-flow.png">
+    <img src="../assets/callspec-flow.png" alt="Callspec flow diagram" width="920" />
+  </a>
+</p>
+
+1. **Define** — `route({ input, output, meta, resolver })` and `spec({ routes })` in TypeScript. Input, output, and errors are fully typed; Callspec validates at the boundary before your resolver runs.
+2. **Generate** — `mountSpec` serves the live RPC server plus `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp`. The CLI generates a TypeScript SDK with shared types; optional `exports` + `--validators` emit runtyp preds for forms.
+3. **Optional: other languages** — export OpenAPI and run [Fern](https://buildwithfern.com/) (`fern init --openapi`, `fern generate`) for idiomatic **Python, Go, Java, Ruby, C#**, and more. Callspec does not try to be Fern; it emits the spec Fern expects. Details: [Fern vs Callspec](fern-vs-callspec.md).
+
 ## Full backend example
 
 Same catalog routes — split across files. Single-file copy-paste: [complete-example.md](complete-example.md).
@@ -51,8 +63,8 @@ export const getProductById = route({
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
+        // input validated and fully typed — return and errors too! 🎉
         const found = products.find((item) => item.id === input.id);
-        // Already validated! 🎉
         if (!found) return err.NOT_FOUND();
         return found;
     },

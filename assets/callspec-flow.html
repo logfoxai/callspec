@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1100" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 1100px;
+      font-family: Inter, system-ui, sans-serif;
+      background: #fafafa;
+      color: #1f1f1f;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .canvas {
+      position: relative;
+      padding: 46px 52px 42px;
+      background-color: #fafafa;
+      background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.038) 1px, transparent 0);
+      background-size: 22px 22px;
+    }
+
+    .canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 55% at 50% -8%, rgba(81,194,51,0.065), transparent 58%);
+      pointer-events: none;
+    }
+
+    .inner { position: relative; z-index: 1; }
+
+    .headline { text-align: center; margin-bottom: 34px; }
+    .headline h2 {
+      font-size: 23px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+    }
+    .headline p { margin-top: 8px; font-size: 14px; color: #666; }
+
+    .flow {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin-bottom: 26px;
+    }
+
+    .flow-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .step-label.green { color: #3da828; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 15px;
+      background: #fff;
+      border: 1px solid #e3e3e3;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .pill img, .pill svg { display: block; flex-shrink: 0; }
+
+    .flow-connector {
+      width: 72px;
+      align-self: center;
+      margin-bottom: 18px;
+      position: relative;
+      height: 20px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='2' viewBox='0 0 72 2'%3E%3Cline x1='0' y1='1' x2='72' y2='1' stroke='%23ccc' stroke-width='1.5' stroke-dasharray='4 4'/%3E%3C/svg%3E") center no-repeat;
+    }
+
+    .flow-connector.green {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='2' viewBox='0 0 72 2'%3E%3Cline x1='0' y1='1' x2='72' y2='1' stroke='%2351c233' stroke-width='1.5' stroke-dasharray='4 4'/%3E%3C/svg%3E");
+    }
+
+    .flow-connector .tag {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #3da828;
+      white-space: nowrap;
+    }
+
+    .terminal {
+      width: 292px;
+      background: #121212;
+      border-radius: 11px;
+      border: 1px solid #2c2c2c;
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.16);
+    }
+
+    .terminal-bar {
+      display: flex;
+      gap: 6px;
+      padding: 10px 14px;
+      background: #1c1c1c;
+      border-bottom: 1px solid #2c2c2c;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .terminal-body {
+      padding: 14px 16px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #ccc;
+    }
+    .terminal-body .prompt { color: #666; }
+    .terminal-body .cmd { color: #f0f0f0; }
+    .terminal-body .dim { color: #555; display: block; margin-top: 3px; font-size: 10.5px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 13px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.035);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card.optional {
+      border-color: rgba(81,194,51,0.38);
+      box-shadow: 0 2px 14px rgba(81,194,51,0.07);
+    }
+
+    .card-content { padding: 20px 20px 14px; flex: 1; }
+
+    .card-step {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+    .card.optional .card-step { color: #3da828; }
+
+    .card-heading {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-heading .go { color: #ccc; font-weight: 400; margin-left: 1px; }
+    .card-heading .logo { height: 22px; width: auto; }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: #666;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .code-block {
+      background: #f3f3f3;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      color: #333;
+    }
+    .code-block .fn { color: #7c3aed; }
+
+    .outputs .output-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+    }
+    .outputs .output-row:last-child { border-bottom: none; }
+    .output-name { font-weight: 600; }
+    .output-path { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #999; }
+
+    .lang-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .lang-chip {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: 4px;
+      background: #eee;
+      color: #444;
+    }
+    .card.optional .lang-chip { background: rgba(81,194,51,0.13); color: #2a6018; }
+
+    .preview {
+      border-top: 1px solid #eee;
+      background: #f8f8f8;
+      padding: 10px;
+    }
+    .card.optional .preview {
+      border-top-color: rgba(81,194,51,0.2);
+      background: #f5fbf3;
+    }
+
+    .preview-docs {
+      background: #161616;
+      border-radius: 7px;
+      border: 1px solid #333;
+      height: 68px;
+      display: flex;
+      overflow: hidden;
+    }
+    .preview-sidebar {
+      width: 28%;
+      background: #1e1e1e;
+      border-right: 1px solid #333;
+      padding: 8px 6px;
+    }
+    .preview-sidebar div {
+      height: 4px;
+      background: #444;
+      border-radius: 2px;
+      margin-bottom: 5px;
+      width: 80%;
+    }
+    .preview-sidebar div:first-child { background: #51c233; width: 60%; opacity: 0.7; }
+    .preview-main { flex: 1; padding: 8px; }
+    .preview-main div {
+      height: 4px;
+      background: #444;
+      border-radius: 2px;
+      margin-bottom: 5px;
+    }
+    .preview-main div:first-child { width: 55%; background: #666; }
+    .preview-main div:nth-child(2) { width: 90%; }
+    .preview-main div:nth-child(3) { width: 75%; }
+
+    .preview-code {
+      background: #161616;
+      border-radius: 7px;
+      border: 1px solid #333;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      line-height: 1.55;
+      color: #888;
+      height: 68px;
+    }
+    .preview-code .hi { color: #51c233; }
+    .preview-code .cmd { color: #ddd; }
+    .preview-code .prompt { color: #666; }
+
+    .footer {
+      text-align: center;
+      margin-top: 26px;
+      font-size: 13px;
+      color: #888;
+    }
+    .footer strong { color: #444; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="inner">
+      <div class="headline">
+        <h2>Docs, SDKs, and MCP from one TypeScript contract</h2>
+        <p>Callspec owns your TS stack. Export OpenAPI when you need everything else.</p>
+      </div>
+
+      <div class="flow">
+        <div class="flow-col">
+          <span class="step-label">1 · Define</span>
+          <div class="pill">
+            <img src="mark-light.svg" width="20" height="19" alt="" />
+            TypeScript + runtyp
+          </div>
+        </div>
+
+        <div class="flow-connector"></div>
+
+        <div class="flow-col">
+          <span class="step-label">2 · Generate</span>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+            </div>
+            <div class="terminal-body">
+              <div><span class="prompt">~ % </span><span class="cmd">mountSpec(router, api)</span></div>
+              <span class="dim"># /docs · /openapi.json · /mcp · ts sdk</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-connector green"><span class="tag">OpenAPI</span></div>
+
+        <div class="flow-col">
+          <span class="step-label green">3 · Optional</span>
+          <div class="pill">
+            <img src="fern-logo.svg" height="20" alt="Fern" />
+          </div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-content">
+            <div class="card-step">Define</div>
+            <div class="card-heading">route + spec <span class="go">→</span></div>
+            <p class="card-desc">Typed input, output, and errors. Validation runs before your resolver.</p>
+            <div class="code-block">
+              <span class="fn">route</span>({ input, output, meta, resolver })<br/>
+              <span class="fn">spec</span>({ routes })
+            </div>
+          </div>
+          <div class="preview">
+            <div class="preview-code">
+              <span class="cmd">resolver: async (input) => {</span><br/>
+              <span class="hi">&nbsp;&nbsp;// already validated</span><br/>
+              <span class="cmd">&nbsp;&nbsp;return product;</span><br/>
+              <span class="cmd">}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-content">
+            <div class="card-step">Generate</div>
+            <div class="card-heading">
+              <img class="logo" src="callspec-lockup-light.svg" alt="callspec" />
+              <span class="go">→</span>
+            </div>
+            <p class="card-desc">Live server, docs UI, OpenAPI, MCP, and a generated TypeScript SDK.</p>
+            <div class="outputs">
+              <div class="output-row"><span class="output-name">Docs</span><span class="output-path">/docs</span></div>
+              <div class="output-row"><span class="output-name">OpenAPI</span><span class="output-path">/openapi.json</span></div>
+              <div class="output-row"><span class="output-name">MCP</span><span class="output-path">/mcp</span></div>
+              <div class="output-row"><span class="output-name">TS SDK</span><span class="output-path">shared types</span></div>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="preview-docs">
+              <div class="preview-sidebar"><div></div><div></div><div></div><div></div></div>
+              <div class="preview-main"><div></div><div></div><div></div><div style="width:40%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card optional">
+          <div class="card-content">
+            <div class="card-step">Optional</div>
+            <div class="card-heading">
+              <img class="logo" src="fern-logo.svg" alt="Fern" />
+              SDKs <span class="go">→</span>
+            </div>
+            <p class="card-desc">Point Fern at your OpenAPI spec for idiomatic client libraries.</p>
+            <div class="lang-row">
+              <span class="lang-chip">Python</span>
+              <span class="lang-chip">Go</span>
+              <span class="lang-chip">Java</span>
+              <span class="lang-chip">Ruby</span>
+              <span class="lang-chip">C#</span>
+            </div>
+          </div>
+          <div class="preview">
+            <div class="preview-code">
+              <span class="prompt">$ </span><span class="cmd">fern init --openapi ./openapi.json</span><br/>
+              <span class="prompt">$ </span><span class="cmd">fern generate</span><br/>
+              <span class="hi">Generated python, go, java SDKs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="footer"><strong>One source of truth.</strong> Callspec for TypeScript. Fern for everything else.</p>
+    </div>
+  </div>
+</body>
+</html>

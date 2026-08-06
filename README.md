@@ -28,8 +28,16 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
 - 🤖 **MCP** — same methods as your SDK, same auth and validation
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
-- ✅ **Shared validators** — optional `exports` + `--validators` for forms that reuse server preds
+- ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
 - 🔐 **Auth & scope** — `auth: none | bearer` for credentials; `scope: public | private` for exports (SDK, docs, OpenAPI)
+
+<p align="center">
+  <a href="assets/callspec-flow.png">
+    <img src="assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, generate docs and OpenAPI, optional Fern SDKs for other languages" width="920" />
+  </a>
+</p>
+
+**Define once** with `route()` + `spec()` → Callspec generates **docs**, **OpenAPI**, **MCP**, and a **TypeScript SDK**. Point [Fern](https://buildwithfern.com/) at `/openapi.json` when you need **Python, Go, Java**, and other client libraries — Callspec stays your TS runtime; Fern handles multi-lang DX. See [Fern vs Callspec](docs/fern-vs-callspec.md).
 
 ## Getting started
 
@@ -69,8 +77,8 @@ export const getProductById = route({
     auth: 'none',
     mcp: true,
     resolver: async (input, _ctx) => {
+        // input validated and fully typed — return and errors too! 🎉
         const found = products.find((item) => item.id === input.id);
-        // Already validated! 🎉
         if (!found) return err.NOT_FOUND();
         return found;
     },
@@ -159,7 +167,7 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 | Doc | What's in it |
 |-----|----------------|
-| [Guide](docs/guide.md) | Full server layout, authentication, request context, CI codegen, React client, shared validators |
+| [Guide](docs/guide.md) | Flow diagram, full server layout, authentication, request context, CI codegen, React client, shared types & validators |
 | [Complete example](docs/complete-example.md) | Single-file copy-paste server |
 | [API reference](docs/api-reference.md) | `route`, `spec`, `mountSpec`, auth, MCP, docs UI, package exports |
 | [Error handling](docs/error-handling.md) | Result contract, domain errors, builtins, client normalization |
