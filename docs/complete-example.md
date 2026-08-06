@@ -1,6 +1,6 @@
 # Complete example
 
-Copy-paste server with meta branding and all default surfaces. Split-file layout and auth: [Server layout](server-layout.md).
+Single-file server — routes, `spec()`, and `mountSpec()` in one copy-paste module. Equally valid; split-file layout when you outgrow it: [Server layout](server-layout.md). Auth: [Authentication](authentication.md).
 
 ```typescript
 import express from 'express';

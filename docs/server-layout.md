@@ -1,6 +1,6 @@
 # Server layout
 
-Typical split-file project — one `route()` export per file, input/output preds colocated with that route, a single `spec()` registry, optional auth and `exports`:
+Recommended split-file layout for a growing API — one `route()` export per file, input/output preds colocated with that route, a single `spec()` registry, optional auth and `exports`. **Or put it all in one file** — routes, `spec()`, and `mountSpec()` together work fine; see [Complete example](complete-example.md). Callspec doesn't care about folder names; organize however fits your repo.
 
 ```text
 my-api/
@@ -22,7 +22,7 @@ Unit-test resolvers directly — `getProductById.resolver(input, ctx)` — no HT
 
 ## Route files
 
-Keep each route's **input and output preds in the same file** as the route — not in a shared schemas folder.
+We recommend keeping each route's **input and output preds in the same file** as the route — easier to find and test. A shared `schemas/` folder works too if that's your team's convention; what matters is that `spec({ routes })` wires the final `route()` exports.
 
 ```typescript
 // server/routes/getProductById.ts
@@ -76,7 +76,7 @@ export const listProducts = route({
 });
 ```
 
-When two routes share the same entity shape, import the pred from the route that owns it (or extract a small module next to those routes). Do not centralize route I/O in a top-level `schemas/` file.
+When two routes share the same entity shape, import the pred from the route that owns it (or extract a small shared module). Up to you — just wire the routes into `spec()`.
 
 ## Exports (optional)
 
@@ -123,5 +123,3 @@ app.listen(3000);
 | MCP | `http://127.0.0.1:3000/v1/mcp` |
 
 Bearer routes and `authenticate`: [Authentication](authentication.md).
-
-Single-file alternative: [Complete example](complete-example.md).

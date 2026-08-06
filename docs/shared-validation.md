@@ -9,7 +9,7 @@ Routes declare wire validation once. Codegen gives the frontend the same **types
 | Shared UI slices | `spec({ exports })` | Filters, modals — same pred as server |
 | UI-only fields | Consumer app | Never in the spec |
 
-Route **input and output** preds belong in the route file, not a shared `schemas/` folder. Use **`exports`** only when the frontend needs a named pred beyond generated route types.
+Route **input and output** preds are usually colocated with the route; **`exports`** is optional — only when the frontend needs a named pred beyond generated route types.
 
 Register preds under **`exports`** when consumers should import them. Composition inside a route input does not auto-export the slice.
 
