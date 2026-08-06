@@ -5,8 +5,8 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 ## How it fits together
 
 <p align="center">
-  <a href="../assets/callspec-flow.png">
-    <img src="../assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
+  <a href="../assets/callspec-flow.svg">
+    <img src="../assets/callspec-flow.svg" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
   </a>
 </p>
 

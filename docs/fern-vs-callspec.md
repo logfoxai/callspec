@@ -51,7 +51,7 @@ Realistic framing:
 
 Those can compose: Callspec emits `/openapi.json` → Fern for Python/Go + public docs if needed. Callspec does not need to grow into Fern's product.
 
-![Callspec flow — OpenAPI export and Fern](../assets/callspec-flow.png)
+![Callspec flow — OpenAPI export and Fern](../assets/callspec-flow.svg)
 
 ```bash
 # After mountSpec is serving your API:
