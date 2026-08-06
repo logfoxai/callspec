@@ -31,7 +31,7 @@ if (isCallspecOk(result)) {
 }
 ```
 
-See [Client error normalization](../error-handling/client-normalization.md).
+See [Client error normalization](/error-handling#client-error-normalization).
 
 ## Built-in MCP server
 

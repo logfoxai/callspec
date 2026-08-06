@@ -25,8 +25,6 @@ export default defineConfig({
         sidebar: {
             '/api-reference': {base: '/api-reference/', items: sidebarApiReference()},
             '/api-reference/': {base: '/api-reference/', items: sidebarApiReference()},
-            '/error-handling': {base: '/error-handling/', items: sidebarErrorHandling()},
-            '/error-handling/': {base: '/error-handling/', items: sidebarErrorHandling()},
             '/': {base: '/', items: sidebarGuide()},
         },
         socialLinks: [
@@ -93,15 +91,5 @@ function sidebarApiReference() {
         {text: 'mountSpec', link: '/api-reference/mount-spec'},
         {text: 'Auth and scope', link: '/api-reference/auth-and-scope'},
         {text: 'Surfaces & exports', link: '/api-reference/surfaces-and-exports'},
-    ];
-}
-
-function sidebarErrorHandling() {
-    return [
-        {text: 'Overview', link: '/error-handling/'},
-        {text: 'mountSpec runtime', link: '/error-handling/mountspec-runtime'},
-        {text: 'Tiers & wire format', link: '/error-handling/tiers-and-wire'},
-        {text: 'Client normalization', link: '/error-handling/client-normalization'},
-        {text: 'Resolver patterns', link: '/error-handling/resolver-patterns'},
     ];
 }

@@ -21,7 +21,7 @@ mountSpec(router, spec, {docsPath: '/explorer'});
 // UI at /explorer — still loads ../callspec.json relative to that path
 ```
 
-See [Error handling § mountSpec runtime](../error-handling/mountspec-runtime.md).
+See [Error handling § mountSpec runtime](/error-handling#mountspec-runtime).
 
 With `app.use('/v1', router)` and defaults, a server on port 3000 exposes:
 
