@@ -37,25 +37,25 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
 
-**Guide site** (sidebar + search over these docs): `npm run docs:dev` → [http://127.0.0.1:5173](http://127.0.0.1:5173)
+**Guide site** (sidebar + search over these docs): `npm run docs:dev` → [http://127.0.0.1:4321](http://127.0.0.1:4321)
 
 ## Contents
 
 For coding agents: [AGENTS.md](AGENTS.md) → [skills/callspec/SKILL.md](skills/callspec/SKILL.md)
 
-- [Getting started](docs/getting-started.md)
-- [Server layout](docs/server-layout.md)
-- [Unit testing](docs/unit-testing.md)
-- [Complete example](docs/complete-example.md)
-- [Authentication](docs/authentication.md)
-- [Request context](docs/request-context.md)
-- [API reference](docs/api-reference.md)
-- [Error handling](docs/error-handling.md)
-- [SDK generation](docs/sdk-generation.md)
-- [Client usage](docs/client-usage.md)
-- [Shared validation](docs/shared-validation.md)
-- [Docs UI](docs/docs-ui.md)
-- [MCP](docs/mcp.md)
-- [OpenAPI](docs/openapi.md)
-- [Callspec + Fern](docs/using-fern-with-callspec.md)
-- [Development](docs/development.md)
+- [Getting started](src/content/docs/getting-started.md)
+- [Server layout](src/content/docs/server-layout.md)
+- [Unit testing](src/content/docs/unit-testing.md)
+- [Complete example](src/content/docs/complete-example.md)
+- [Authentication](src/content/docs/authentication.md)
+- [Request context](src/content/docs/request-context.md)
+- [API reference](src/content/docs/api-reference.md)
+- [Error handling](src/content/docs/error-handling.md)
+- [SDK generation](src/content/docs/sdk-generation.md)
+- [Client usage](src/content/docs/client-usage.md)
+- [Shared validation](src/content/docs/shared-validation.md)
+- [Docs UI](src/content/docs/docs-ui.md)
+- [MCP](src/content/docs/mcp.md)
+- [OpenAPI](src/content/docs/openapi.md)
+- [Callspec + Fern](src/content/docs/using-fern-with-callspec.md)
+- [Development](src/content/docs/development.md)

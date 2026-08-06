@@ -16,21 +16,21 @@ Human docs: [github.com/logfoxai/callspec/tree/main/docs](https://github.com/log
 
 | Task | Read first |
 |------|------------|
-| New project / first route | [getting-started.md](https://github.com/logfoxai/callspec/blob/main/docs/getting-started.md) |
-| File layout for routes & schemas | [server-layout.md](https://github.com/logfoxai/callspec/blob/main/docs/server-layout.md) |
-| Single-file copy-paste | [complete-example.md](https://github.com/logfoxai/callspec/blob/main/docs/complete-example.md) |
-| Test resolver logic (no HTTP) | [unit-testing.md](https://github.com/logfoxai/callspec/blob/main/docs/unit-testing.md) |
-| Bearer auth & `authenticate` | [authentication.md](https://github.com/logfoxai/callspec/blob/main/docs/authentication.md) |
-| Resolver context typing | [request-context.md](https://github.com/logfoxai/callspec/blob/main/docs/request-context.md) |
-| `route`, `spec`, `mountSpec` API | [api-reference.md](https://github.com/logfoxai/callspec/blob/main/docs/api-reference.md) |
-| Errors & Result contract | [error-handling.md](https://github.com/logfoxai/callspec/blob/main/docs/error-handling.md) |
-| Generate / pin TypeScript SDK | [sdk-generation.md](https://github.com/logfoxai/callspec/blob/main/docs/sdk-generation.md) |
-| Use generated client in app | [client-usage.md](https://github.com/logfoxai/callspec/blob/main/docs/client-usage.md) |
-| Shared preds & `--validators` | [shared-validation.md](https://github.com/logfoxai/callspec/blob/main/docs/shared-validation.md) |
-| Docs UI & branding | [docs-ui.md](https://github.com/logfoxai/callspec/blob/main/docs/docs-ui.md) |
-| MCP tools on your API | [mcp.md](https://github.com/logfoxai/callspec/blob/main/docs/mcp.md) |
-| OpenAPI export (not codegen input) | [openapi.md](https://github.com/logfoxai/callspec/blob/main/docs/openapi.md) |
-| Fern vs Callspec | [using-fern-with-callspec.md](https://github.com/logfoxai/callspec/blob/main/docs/using-fern-with-callspec.md) |
+| New project / first route | [getting-started.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/getting-started.md) |
+| File layout for routes & schemas | [server-layout.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) |
+| Single-file copy-paste | [complete-example.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/complete-example.md) |
+| Test resolver logic (no HTTP) | [unit-testing.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/unit-testing.md) |
+| Bearer auth & `authenticate` | [authentication.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/authentication.md) |
+| Resolver context typing | [request-context.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/request-context.md) |
+| `route`, `spec`, `mountSpec` API | [api-reference.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/api-reference.md) |
+| Errors & Result contract | [error-handling.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/error-handling.md) |
+| Generate / pin TypeScript SDK | [sdk-generation.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/sdk-generation.md) |
+| Use generated client in app | [client-usage.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/client-usage.md) |
+| Shared preds & `--validators` | [shared-validation.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/shared-validation.md) |
+| Docs UI & branding | [docs-ui.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/docs-ui.md) |
+| MCP tools on your API | [mcp.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/mcp.md) |
+| OpenAPI export (not codegen input) | [openapi.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/openapi.md) |
+| Fern vs Callspec | [using-fern-with-callspec.md](https://github.com/logfoxai/callspec/blob/main/src/content/docs/using-fern-with-callspec.md) |
 
 ## Invariants (do not get wrong)
 

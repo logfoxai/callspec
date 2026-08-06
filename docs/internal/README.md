@@ -8,4 +8,4 @@
 | `error-handling.nits.md` | Error-handling doc review checklist |
 | `client-error-fuzzy-matching.md` | Fuzzy HTTP body matching implementation notes |
 
-User-facing error docs: [../error-handling.md](../error-handling.md).
+User-facing error docs: [../../src/content/docs/error-handling.md](../../src/content/docs/error-handling.md).

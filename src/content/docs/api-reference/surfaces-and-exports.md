@@ -1,3 +1,7 @@
+---
+title: Surfaces & package exports
+---
+
 # Surfaces & package exports
 
 ## Errors

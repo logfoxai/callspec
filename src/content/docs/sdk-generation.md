@@ -1,3 +1,7 @@
+---
+title: SDK generation
+---
+
 # SDK generation
 
 The CLI reads **`{mount}/callspec.json`** — pass a mount-point URL or a path to the file. The document already contains routes, errors, `info`, and paths.

@@ -1,0 +1,54 @@
+---
+title: Callspec
+description: Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.
+template: splash
+hero:
+  tagline: Define your API once — get the whole stack with no drift.
+  image:
+    file: ../../assets/callspec-flow.svg
+    alt: Callspec flow — define in TypeScript, mountSpec, CLI SDK, OpenAPI export
+  actions:
+    - text: Get started
+      link: /getting-started/
+      icon: right-arrow
+    - text: API reference
+      link: /api-reference/
+      variant: minimal
+---
+
+import {Card, CardGrid} from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="RPC functions" icon="rocket">
+    Define simple functions like `getProductById` — not REST CRUD.
+  </Card>
+  <Card title="TypeScript SDK" icon="seti:typescript">
+    Use it in your frontend or publish it for API consumers.
+  </Card>
+  <Card title="Result-typed errors" icon="approve-check">
+    End-to-end error codes from resolver → SDK → OpenAPI → MCP.
+  </Card>
+  <Card title="OpenAPI 3.1" icon="document">
+    For gateways, contract tests, and multi-language generators.
+  </Card>
+  <Card title="MCP" icon="puzzle">
+    Same methods as your SDK — same auth and validation.
+  </Card>
+  <Card title="Docs UI" icon="open-book">
+    White-label explorer to try RPCs and connect MCP clients.
+  </Card>
+</CardGrid>
+
+## Try the live API demo
+
+Explore the **interactive** docs UI, MCP connect flow, and sample **Chirp API** — clone the repo (not available via `npm i callspec` alone):
+
+```bash
+git clone https://github.com/logfoxai/callspec.git
+cd callspec && npm install
+npm run build && npm run dev:docs
+```
+
+Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Bearer token `demo` for authenticated routes and MCP.
+
+This site is the **guide** (markdown). The demo above is Callspec's built-in API explorer on a running server.

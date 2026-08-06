@@ -1,3 +1,7 @@
+---
+title: Callspec error handling
+---
+
 # Callspec error handling
 
 Design reference for the callspec error contract, mountSpec runtime, and client Result shape.

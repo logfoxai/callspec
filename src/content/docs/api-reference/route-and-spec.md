@@ -1,3 +1,7 @@
+---
+title: route & spec
+---
+
 # `route` & `spec`
 
 ## `route`

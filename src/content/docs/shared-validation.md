@@ -1,3 +1,7 @@
+---
+title: Shared validation
+---
+
 # Shared validation
 
 Routes declare wire validation once. Codegen gives the frontend the same **types** (and, with `exports`, **named runtyp preds**) so forms and RPC stay in sync.

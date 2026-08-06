@@ -1,3 +1,7 @@
+---
+title: Server layout
+---
+
 # Server layout
 
 Recommended split-file layout for a growing API — one `route()` per file, shared domain preds in one place, a single `spec()` registry, optional auth and `exports`. **Or put it all in one file** — routes, `spec()`, and `mountSpec()` together work fine; see [Complete example](complete-example.md). Callspec doesn't care about folder names; organize however fits your repo.

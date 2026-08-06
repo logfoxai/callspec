@@ -1,8 +1,12 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignore": [
-    "docs/.vitepress/**",
-    "docs/internal/**"
+    "docs/internal/**",
+    "docs-site/**",
+    ".astro/**",
+    "src/content/**",
+    "public/**",
+    "astro.config.mjs"
   ],
   "ignoreBinaries": [
     "report"

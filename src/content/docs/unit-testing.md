@@ -1,3 +1,7 @@
+---
+title: Unit testing
+---
+
 # Unit testing
 
 Test route **business logic** without HTTP, Express, or `mountSpec`. Each wired route exposes the same handler production uses at **`.resolver(input, ctx)`** — typed input in, success value or `RouteFailure` out.

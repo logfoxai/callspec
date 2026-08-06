@@ -1,3 +1,7 @@
+---
+title: Resolvers
+---
+
 # Resolvers
 
 Pass preds, meta, and `resolver` in one `route()` call:

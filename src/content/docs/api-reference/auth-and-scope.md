@@ -1,3 +1,7 @@
+---
+title: Auth and scope
+---
+
 # Auth and scope
 
 See [Authentication](../authentication.md) and [Request context](../request-context.md) for full examples.

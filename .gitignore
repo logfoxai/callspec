@@ -5,5 +5,7 @@ node_modules
 dist
 coverage
 *.tgz
+docs-site
+.astro
 docs/.vitepress/cache
 docs/.vitepress/dist

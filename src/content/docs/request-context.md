@@ -1,3 +1,7 @@
+---
+title: Request context
+---
+
 # Request context
 
 Building on [Authentication](authentication.md): the resolver's second argument is **request context** — whatever `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.

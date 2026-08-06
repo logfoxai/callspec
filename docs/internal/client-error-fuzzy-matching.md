@@ -2,7 +2,7 @@
 
 How `resolveRouteClientError` guesses **builtin** error codes from messy non-callspec responses. Domain errors are never fuzzy-matched — they require validated `{ error, data? }` JSON (codegen passes `domainErrors` schemas).
 
-See also [error-handling.md](../error-handling.md) for the full pipeline.
+See also [error-handling.md](../../src/content/docs/error-handling.md) for the full pipeline.
 
 ---
 

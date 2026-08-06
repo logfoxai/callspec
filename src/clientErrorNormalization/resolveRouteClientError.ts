@@ -13,7 +13,7 @@ import {hasExplicitCallspecErrorField} from './wireBody';
  * Map an HTTP error response to a typed client failure.
  *
  * Pipeline: callspec JSON → undeclared `{ error }` → exact phrase → status → fuzzy → UNKNOWN.
- * See docs/error-handling.md and skills/callspec/SKILL.md.
+ * See src/content/docs/error-handling.md and skills/callspec/SKILL.md.
  */
 export function resolveRouteClientError<E>(
     input: ResolveRouteClientErrorInput,

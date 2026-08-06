@@ -1,3 +1,7 @@
+---
+title: mountSpec
+---
+
 # `mountSpec`
 
 ```typescript
