@@ -25,19 +25,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
 - ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
 
-## Documentation
-
-Topic guides live in **[`docs/`](docs/guide.md)** — one file per topic for easier reading (humans and agents).
-
-**Start here:** [Getting started](docs/getting-started.md) — install, define a route, mount, generate the SDK, call from your app.
-
-| | |
-|---|---|
-| [Guide index](docs/guide.md) | Full table of contents |
-| [Server layout](docs/server-layout.md) | Split-file project structure |
-| [API reference](docs/api-reference.md) | `route`, `spec`, `mountSpec`, scope, testing |
-| [Error handling](docs/error-handling.md) | Result contract, builtins, domain errors |
-| [Callspec + Fern](docs/using-fern-with-callspec.md) | Public multi-lang SDKs and docs alongside Callspec |
+Topic guides in `docs/` — start with [Getting started](docs/getting-started.md).
 
 ## Development
 
