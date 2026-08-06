@@ -9,7 +9,7 @@ This content lives in the [README](../README.md) — use these anchors:
 | Single-file server | [Complete example](complete-example.md) |
 | Bearer auth & client tokens | [Authentication](../README.md#authentication) |
 | `ctx` from `authenticate` | [Request context](../README.md#request-context) |
-| `route`, `spec`, `mountSpec` | [API reference](../README.md#api-reference) · [docs/api-reference.md](api-reference.md) |
+| `route`, `spec`, `mountSpec` | [API reference](../README.md#api-reference) · [api-reference.md](api-reference.md) |
 | Result contract & domain errors | [Error handling](../README.md#error-handling) · [error-handling.md](error-handling.md) |
 | CLI & CI codegen | [SDK generation](../README.md#sdk-generation) |
 | React / app helpers | [Client usage](../README.md#client-usage) |

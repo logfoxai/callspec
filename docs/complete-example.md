@@ -1,12 +1,6 @@
 # Complete example
 
-<p align="center">
-  <a href="../assets/callspec-flow.svg?cb=4">
-    <img src="../assets/callspec-flow.svg?cb=4" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
-  </a>
-</p>
-
-Copy-paste server with meta branding and all default surfaces — steps 1–2 in the diagram above.
+Copy-paste server with meta branding and all default surfaces. Split-file layout and auth: [README](../README.md#server-layout).
 
 ```typescript
 import express from 'express';
@@ -71,4 +65,4 @@ app.listen(port, () => {
 });
 ```
 
-With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). Use `docsPath` to mount the UI elsewhere; contract paths stay fixed — see [API reference](api-reference.md#mountspec).
+With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). Use `docsPath` to mount the UI elsewhere; contract paths stay fixed — see [API reference § mountSpec](api-reference.md#mountspec).

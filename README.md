@@ -29,7 +29,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 - [Getting started](#getting-started)
   - [Install backend dependencies](#1-install-backend-dependencies)
-  - [Define backend routes](#2-define-backend-routes)
+  - [Define a route](#2-define-a-route)
   - [Define and mount backend API](#3-define-and-mount-backend-api)
   - [Generate the SDK](#4-generate-the-sdk)
   - [Call from your app](#5-call-from-your-app)
@@ -53,7 +53,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 ## Getting started
 
-Walk through a minimal server and client below. For a [single-file copy-paste server](docs/complete-example.md) or deeper topics, see the sections below.
+Walk through a minimal server and client below. For a [single-file copy-paste server](docs/complete-example.md) or deeper topics — [server layout](#server-layout), [authentication](#authentication), [SDK generation](#sdk-generation), [client usage](#client-usage) — see the sections below.
 
 ### 1. Install backend dependencies
 
@@ -64,7 +64,7 @@ npm i -D tsx typescript @types/express
 
 Requirements: Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-### 2. Define backend routes
+### 2. Define a route
 
 ```typescript
 // server/routes/getProductById.ts
@@ -99,9 +99,9 @@ export const getProductById = route({
 
 **Quick notes:**
 
-- Return failures from resolvers (ie, `return err.NOT_FOUND()`) &mdash; **don't throw exceptions**.
+- Return failures from resolvers (ie, `return err.NOT_FOUND()`) &mdash; **don't throw exceptions**. See [Error handling](#error-handling).
 - Built-in error responses such as `NOT_FOUND` and `SERVICE_UNAVAILABLE` can be returned from any route without defining them.
-- Define custom domain errors with `errors:`.
+- Define custom domain errors with `errors:` on the route.
 
 ### 3. Define and mount backend API
 
@@ -149,6 +149,8 @@ npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
+See [SDK generation](#sdk-generation) for CI, validators, and committed contracts.
+
 ### 5. Call from your app
 
 Each method returns a **Result** — check `result.ok`, then branch on `result.code`. That union is **fully exhaustive** (every domain, builtin, and client error for the route); TypeScript catches a missing `switch` case. Types are inferred; import `GetProductByIdOutput` etc. only when you need them (props, shared helpers).
@@ -178,6 +180,8 @@ if (!result.ok) {
 result.value.name;       // string
 result.value.priceCents; // number
 ```
+
+See [Client usage](#client-usage) for auth headers, app helpers, and React patterns.
 
 ### Try the demo
 
@@ -247,9 +251,7 @@ Bearer routes and `authenticate`: [Authentication](#authentication).
 
 ## Complete example
 
-Single-file copy-paste server you can run locally — same catalog API, no split layout.
-
-**[docs/complete-example.md](docs/complete-example.md)**
+Single-file copy-paste server — same catalog API, no split layout: **[docs/complete-example.md](docs/complete-example.md)**
 
 ## Authentication
 
@@ -305,14 +307,17 @@ const api = new ApiClient({
 
 ## Request context
 
-The resolver's second argument is **request context** — whatever your `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.
+Building on [Authentication](#authentication): the resolver's second argument is **request context** — whatever `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.
 
 Use `req` when context depends on more than the token — tenant header, tracing ids, etc.
 
 ```typescript
+import type {Request} from 'express';
+import type {Authenticate} from 'callspec';
+
 export type Ctx = {userId: string; tenantId: string};
 
-export const authenticate: Authenticate<Ctx> = async (token, req) => {
+export const authenticate: Authenticate<Ctx> = async (token, req: Request) => {
     const user = await verifyJwt(token);
     if (!user) return undefined;
 
@@ -373,10 +378,8 @@ npx callspec ./callspec.json --output src/generated/api.ts
 
 # shared runtyp preds for forms (optional)
 npx callspec ./callspec.json --output src/generated/validators.ts --validators
-```
 
-```bash
-callspec <source> --output <file> [--class-name ApiClient]
+# usage: callspec <source> --output <file> [--class-name ApiClient]
 ```
 
 Commit `callspec.json` and/or generated `api.ts`; fail CI on drift.
@@ -389,19 +392,16 @@ Commit `callspec.json` and/or generated `api.ts`; fail CI on drift.
 
 The generated file imports only `callspec/client` (browser-safe) — one typed method per route.
 
-**Writing `callspec.json`** — not required; codegen can use the live URL. For CI:
-
-```bash
-curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
-```
-
-Or from TypeScript via `emitCallspec` from `callspec/document` (same projection `mountSpec` serves). See [OpenAPI](#openapi).
+To produce a committed contract for CI, curl the live mount or use `emitCallspec` — see [OpenAPI § Native contract](#native-contract-callspecjson).
 
 ## Client usage
 
 Wrap generated methods in app helpers — branch on `result.code` in a `switch`; TypeScript flags missing cases.
 
 ```typescript
+// src/app/getProductById.ts
+import {ApiClient} from '../generated/api';
+
 const api = new ApiClient({
     baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000/v1',
     headers: () => ({Authorization: `Bearer ${getSessionToken()}`}),
@@ -445,8 +445,6 @@ export function ProductView() {
 }
 ```
 
-Same methods, same types, same error codes as the server and MCP — no hand-rolled `fetch`.
-
 ## Shared validation
 
 Routes declare wire validation once. Codegen gives the frontend the same **types** (and, with `exports`, **named runtyp preds**) so forms and RPC stay in sync.
@@ -478,10 +476,37 @@ Set `meta.mcpInstructions` for agent-facing guidance in the docs UI connect flow
 
 **OpenAPI 3.1** at **`/openapi.json`** is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors grouped by HTTP status. Use for gateways, mocking, and multi-language generators (e.g. Fern).
 
-**Native contract:** **`callspec.json`** (`callspec: "2.0"`) at a fixed path on the mount — codegen source of truth.
+### Native contract (`callspec.json`)
+
+Codegen reads **`callspec.json`** (`callspec: "2.0"`) at a fixed path on the mount. You do not need a committed file — the CLI can fetch the live URL — but CI usually pins the contract:
+
+```bash
+curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
+```
+
+From TypeScript (same projection `mountSpec` serves):
 
 ```typescript
+import {writeFileSync} from 'fs';
 import {emitCallspec, emitOpenApi} from 'callspec/document';
+import {api} from '../server/routes';
+
+const basePath = '/v1'; // must match Express mount + mountSpec basePath if set
+
+writeFileSync(
+    'callspec.json',
+    JSON.stringify(
+        emitCallspec(api.routes, {
+            title: api.meta.title ?? 'My API',
+            version: api.meta.version ?? '1.0.0',
+            basePath,
+            description: api.meta.intro,
+            exports: api.exports,
+        }),
+        null,
+        2,
+    ),
+);
 ```
 
 `emitOpenApi` and `parseCallspecDocument` are in `callspec/document` for server tooling and tests.
