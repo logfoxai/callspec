@@ -6,7 +6,7 @@
   </a>
 </p>
 
-`defineErrors` → `route()` → `spec()` → `mountSpec()` + CLI codegen. Overview: [README § How it fits together](../README.md#how-it-fits-together).
+`defineErrors` → `route()` → `spec()` → `mountSpec()` + CLI codegen.
 
 ## Resolvers
 
@@ -57,7 +57,7 @@ export const getProductById = route({...preds, resolver: impl});
 
 Domain-specific errors: `defineErrors()` + `errors:` on the route — see [error-handling.md](error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`.
 
-Private routes: annotate auth context on the resolver — `resolver: async (input, ctx: Ctx) => …`. See [README § Authentication](../README.md#authentication) and [README § Request context](../README.md#request-context).
+Private routes: annotate auth context on the resolver — `resolver: async (input, ctx: Ctx) => …`. See [Authentication](authentication.md) and [Request context](request-context.md).
 
 ### Testing resolvers
 
@@ -134,7 +134,7 @@ See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime
 
 ## Auth and scope
 
-See [README § Authentication](../README.md#authentication) and [README § Request context](../README.md#request-context) for full examples.
+See [Authentication](authentication.md) and [Request context](request-context.md) for full examples.
 
 - **`auth: 'none'`** — no credentials required
 - **`auth: 'bearer'`** (default) — 401 without valid Bearer token
@@ -155,7 +155,7 @@ Builtin codes (automatic on every route — never declare): `VALIDATION_ERROR`, 
 
 ## Native Callspec document & OpenAPI
 
-`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([README § Native contract](../README.md#native-contract-callspecjson)).
+`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json` — or use `emitCallspec` to write the same document to disk ([OpenAPI § Native contract](openapi.md#native-contract-callspecjson)).
 
 **OpenAPI 3.1** (`/openapi.json`) is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors are grouped by HTTP status.
 

@@ -1,6 +1,6 @@
 # Complete example
 
-Copy-paste server with meta branding and all default surfaces. Split-file layout and auth: [README](../README.md#server-layout).
+Copy-paste server with meta branding and all default surfaces. Split-file layout and auth: [Server layout](server-layout.md).
 
 ```typescript
 import express from 'express';
