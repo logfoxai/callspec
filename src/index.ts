@@ -1,7 +1,6 @@
-export {defineRoute} from './defineRoute';
-export {defineRouteContract, resolveRoute} from './defineRouteContract';
-export type {RouteContractInput, RouteContract} from './defineRouteContract';
-export {defineSpec} from './defineSpec';
+export {route} from './defineRouteContract';
+export type {RouteContractInput} from './defineRouteContract';
+export {spec} from './defineSpec';
 export type {Callspec} from './defineSpec';
 export {mountSpec} from './mountSpec';
 export type {MountSpecOptions} from './mountSpec';
@@ -31,8 +30,7 @@ export {
     formatRouteErrorBody,
     sendRouteErrorResponse,
 } from './errors';
-export type {RouteFailure, RouteResolver, Authenticate, RouteAuth, RouteScope} from './types';
+export type {RouteFailure, RouteResolver, Authenticate, RouteAuth, RouteScope, RouteDef, WiredRoute} from './types';
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 export type {RoutesMap} from './types';
-export {resolverFor} from './routeResolver';
-export type {RouteResolverDef, RouteResolverFor} from './routeResolver';
+export type {RouteResolverDef, ResolverFor} from './routeResolver';

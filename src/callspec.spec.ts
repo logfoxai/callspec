@@ -1,13 +1,13 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineSpec, defineRoute} from '.';
+import {spec, route} from '.';
 import {executeRoute} from './executeRoute';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 
-test('defineRoute rejects non-2-arg resolvers', (assert) => {
+test('route rejects non-2-arg resolvers', (assert) => {
 
     assert.throws(
-        () => defineRoute({
+        () => route({
             input: p.object({}),
             output: p.any(),
             meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -21,7 +21,7 @@ test('defineRoute rejects non-2-arg resolvers', (assert) => {
 
 test('executeRoute validates and calls resolver', async (assert) => {
 
-    const route = defineRoute({
+    const r = route({
         input: p.object({n: p.number()}),
         output: p.object({double: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -29,7 +29,7 @@ test('executeRoute validates and calls resolver', async (assert) => {
         resolver: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
     });
 
-    const out = await executeRoute(route, {n: 3}, undefined);
+    const out = await executeRoute(r, {n: 3}, undefined);
 
     assert.equal(out, {double: 6}, 'resolver result');
 
@@ -37,7 +37,7 @@ test('executeRoute validates and calls resolver', async (assert) => {
 
 test('executeRoute 401 on private without ctx', async (assert) => {
 
-    const route = defineRoute({
+    const r = route({
         input: p.object({}),
         output: p.string(),
         meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -47,7 +47,7 @@ test('executeRoute 401 on private without ctx', async (assert) => {
 
     try {
 
-        await executeRoute(route, {}, undefined);
+        await executeRoute(r, {}, undefined);
         assert.fail('expected unauthorized');
 
     } catch (err) {
@@ -60,7 +60,7 @@ test('executeRoute 401 on private without ctx', async (assert) => {
 
 test('executeRoute validation error', async (assert) => {
 
-    const route = defineRoute({
+    const r = route({
         input: p.object({n: p.number()}),
         output: p.object({n: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -70,7 +70,7 @@ test('executeRoute validation error', async (assert) => {
 
     try {
 
-        await executeRoute(route, {n: 'bad'}, undefined);
+        await executeRoute(r, {n: 'bad'}, undefined);
         assert.fail('expected validation error');
 
     } catch (err) {
@@ -81,11 +81,11 @@ test('executeRoute validation error', async (assert) => {
 
 });
 
-test('defineSpec wires meta and routes', (assert) => {
+test('spec wires meta and routes', (assert) => {
 
-    const api = defineSpec({
+    const api = spec({
         routes: {
-            ping: defineRoute({
+            ping: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
@@ -100,12 +100,12 @@ test('defineSpec wires meta and routes', (assert) => {
 
 });
 
-test('defineSpec requires authenticate for bearer routes', (assert) => {
+test('spec requires authenticate for bearer routes', (assert) => {
 
     assert.throws(
-        () => defineSpec({
+        () => spec({
             routes: {
-                secret: defineRoute({
+                secret: route({
                     input: p.object({}),
                     output: p.string(),
                     meta: {summary: 'x', description: 'x', tags: ['t']},

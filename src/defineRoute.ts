@@ -6,7 +6,7 @@ import {
     type DefineErrorsInput,
     type RouteFailuresFor,
 } from './defineErrors';
-import type {RouteDef, RouteResolver, RouteMeta, RouteAuth, RouteScope, McpRouteConfig} from './types';
+import {type RouteResolver, type RouteMeta, type RouteAuth, type RouteScope, type McpRouteConfig, type WiredRoute} from './types';
 
 type DefineRouteBase<I extends Pred<any>, O extends Pred<any>> = {
     input: I
@@ -23,7 +23,7 @@ export function defineRoute<I extends Pred<any>, O extends Pred<any>, Ctx>(
         errors?: undefined
         resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
-): RouteDef<Infer<I>, Infer<O>, Ctx>;
+): WiredRoute<Infer<I>, Infer<O>, Ctx>;
 
 /** Route with domain errors declared on `errors:`. */
 export function defineRoute<
@@ -36,7 +36,7 @@ export function defineRoute<
         errors: E
         resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, RouteFailuresFor<E>>
     },
-): RouteDef<Infer<I>, Infer<O>, Ctx>;
+): WiredRoute<Infer<I>, Infer<O>, Ctx>;
 
 export function defineRoute<
     I extends Pred<any>,
@@ -47,7 +47,7 @@ export function defineRoute<
         errors?: DefineErrorsInput
         resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
-): RouteDef<Infer<I>, Infer<O>, Ctx> {
+): WiredRoute<Infer<I>, Infer<O>, Ctx> {
 
     if (def.resolver.length !== 2) {
 
@@ -71,6 +71,7 @@ export function defineRoute<
         scope: def.scope ?? 'public',
         mcp: def.mcp,
         resolver: def.resolver,
+        __callspecWired: true as const,
     };
 
 }

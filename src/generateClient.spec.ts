@@ -7,7 +7,7 @@ import http from 'http';
 import {predicates as p} from 'runtyp';
 import {CallspecClient, isCallspecOk} from './client';
 import {defineRoute} from './defineRoute';
-import {defineSpec} from './defineSpec';
+import {spec} from './defineSpec';
 import {emitCallspec} from './emitCallspec';
 import {mountSpec} from './mountSpec';
 import {generateClientFile} from './generateClient/generateClient';
@@ -130,7 +130,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
         }),
     };
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'HTTP Gen', version: '1.0.0'},
         routes,
     });
@@ -139,7 +139,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, api);
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -238,7 +238,7 @@ test('generated client makes a real request to an in-process server', async (ass
         }),
     };
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Runtime Gen', version: '1.0.0'},
         routes,
     });
@@ -247,7 +247,7 @@ test('generated client makes a real request to an in-process server', async (ass
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, api);
     app.use('/v1', router);
 
     const server = http.createServer(app);

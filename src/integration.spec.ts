@@ -2,7 +2,7 @@ import {test} from 'kizu';
 import express from 'express';
 import http from 'http';
 import {predicates as p} from 'runtyp';
-import {defineSpec} from './defineSpec';
+import {spec} from './defineSpec';
 import {defineRoute} from './defineRoute';
 import {mountSpec} from './mountSpec';
 import {defineErrors} from './defineErrors';
@@ -67,7 +67,7 @@ const authenticate = (token: string): {userId: string} | undefined => {
 
 };
 
-const fixtureSpec = defineSpec({
+const fixtureSpec = spec({
     meta,
     routes,
     authenticate,
@@ -370,7 +370,7 @@ test('integration: unknown RPC route returns ROUTE_NOT_FOUND', async (assert) =>
 
 test('integration: unhandled handler error returns INTERNAL_ERROR', async (assert) => {
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Boom API', version: '1.0.0'},
         routes: {
             boom: defineRoute({
@@ -391,7 +391,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec, {logging: false});
+    mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -423,7 +423,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
 
 test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (assert) => {
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Reject API', version: '1.0.0'},
         routes: {
             reject: defineRoute({
@@ -440,7 +440,7 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec, {logging: false});
+    mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -472,7 +472,7 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
 
 test('integration: handleUnhandledError maps throw to wire failure', async (assert) => {
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Hook API', version: '1.0.0'},
         routes: {
             timeout: defineRoute({
@@ -495,7 +495,7 @@ test('integration: handleUnhandledError maps throw to wire failure', async (asse
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec, {
+    mountSpec(router, api, {
         logging: false,
         handleUnhandledError: (err) => {
 
@@ -548,7 +548,7 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
 
     let logged: unknown;
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Log API', version: '1.0.0'},
         routes: {
             boom: defineRoute({
@@ -569,7 +569,7 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec, {
+    mountSpec(router, api, {
         logging: false,
         logUnhandledError: (err) => {
 
@@ -614,7 +614,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
         USER_EXISTS: {data: p.object({email: p.string()})},
     });
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Errors API', version: '1.0.0'},
         routes: {
             getUser: defineRoute({
@@ -652,7 +652,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec, {logging: false});
+    mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -714,7 +714,7 @@ test('integration: declared domain failure is returned on the wire', async (asse
         MYSTERY: {status: 418},
     });
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Strict API', version: '1.0.0'},
         routes: {
             boom: defineRoute({
@@ -736,7 +736,7 @@ test('integration: declared domain failure is returned on the wire', async (asse
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec, {logging: false});
+    mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -814,7 +814,7 @@ test('integration: MCP tools/call uses spec.authenticate', async (assert) => {
 
 test('integration: no MCP when routes do not opt in', async (assert) => {
 
-    const noMcpSpec = defineSpec({
+    const noMcpSpec = spec({
         meta: {
             title: 'No MCP',
             version: '0.0.1',
@@ -906,7 +906,7 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
 
 test('integration: default meta title and version when omitted', async (assert) => {
 
-    const sparseSpec = defineSpec({
+    const sparseSpec = spec({
         routes: {
             ping: defineRoute({
                 input: p.object({}),

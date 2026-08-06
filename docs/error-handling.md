@@ -167,30 +167,29 @@ For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)
 
 ## Resolver pattern
 
-Preds once in a route def; `resolverFor` for full IDE; helpers use `RouteFailuresFrom`:
+Preds once in a route def; helpers use `RouteFailuresFrom`:
 
 ```typescript
-import {defineRouteContract, defineErrors, err, isRouteFailure, type RouteFailuresFrom} from 'callspec';
+import {route, defineErrors, err, isRouteFailure, type RouteFailuresFrom} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const register = defineRouteContract({
-    input: p.object({email: p.string()}),
-    output: p.object({userId: p.string()}),
-    errors: defineErrors({USER_ALREADY_EXISTS: {}}),
-    meta: {summary: 'Register', tags: ['auth']},
-});
+const registerErr = defineErrors({USER_ALREADY_EXISTS: {}});
 
-function ensureAvailable(email: string): void | RouteFailuresFrom<typeof register.errors> {
-    if (taken) return register.errors.USER_ALREADY_EXISTS();
+function ensureAvailable(email: string): void | RouteFailuresFrom<typeof registerErr> {
+    if (taken) return registerErr.USER_ALREADY_EXISTS();
 }
 
-const registerResolver = register.resolverFor(async (input, _ctx) => {
-    const blocked = ensureAvailable(input.email);
-    if (isRouteFailure(blocked)) return blocked;
-    return {userId: '…'};
+export const register = route({
+    input: p.object({email: p.string()}),
+    output: p.object({userId: p.string()}),
+    errors: registerErr,
+    meta: {summary: 'Register', tags: ['auth']},
+    resolver: async (input, _ctx) => {
+        const blocked = ensureAvailable(input.email);
+        if (isRouteFailure(blocked)) return blocked;
+        return {userId: '…'};
+    },
 });
-
-register.withResolver(registerResolver);
 
 // anywhere in resolver or helper:
 return err.NOT_FOUND({message: '…'});

@@ -62,7 +62,16 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     resolver: RouteResolver<TInput, TOutput, Ctx>
 };
 
-export type RoutesMap<Ctx = unknown> = Record<string, RouteDef<any, any, Ctx>>;
+/** Wired route — returned from `route({ …, resolver })`; required by `spec`. */
+export type WiredRoute<TInput = unknown, TOutput = unknown, Ctx = unknown> = RouteDef<
+    TInput,
+    TOutput,
+    Ctx
+> & {
+    readonly __callspecWired: true
+};
+
+export type RoutesMap<Ctx = unknown> = Record<string, WiredRoute<any, any, Ctx>>;
 
 type CallspecLogo = {
     light?: string

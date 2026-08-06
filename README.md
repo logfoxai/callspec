@@ -50,7 +50,7 @@ Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` re
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRouteContract, defineErrors, err} from 'callspec';
+import {route, defineErrors, err} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {lookupById} from '../domain/products';
 
@@ -64,35 +64,32 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-export const getProductById = defineRouteContract({
+export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
+    resolver: async (input, _ctx) => {
+        const found = lookupById(input.id);
+        if (!found) return err.NOT_FOUND();
+        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
+        return found;
+    },
 });
-
-export const getProductByIdResolver = getProductById.resolverFor(async (input, _ctx) => {
-    const found = lookupById(input.id);
-    if (!found) return err.NOT_FOUND();
-    if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
-    return found;
-});
-
-export const getProductByIdRoute = getProductById.withResolver(getProductByIdResolver);
 ```
 
 ```typescript
 // server/routes.ts + server/index.ts — see docs/guide.md for full layout
-import {defineSpec} from 'callspec';
+import {spec} from 'callspec';
 import {mountSpec} from 'callspec';
 import express from 'express';
-import {getProductByIdRoute} from './routes/getProductById';
+import {getProductById} from './routes/getProductById';
 
-export const api = defineSpec({
+export const api = spec({
     meta: {title: 'My API', version: '1.0.0'},
-    routes: {getProductById: getProductByIdRoute},
+    routes: {getProductById},
 });
 
 const app = express();
@@ -171,7 +168,7 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 |-----|----------------|
 | [Guide](docs/guide.md) | Full server layout, authentication, request context, CI codegen, React client, shared validators |
 | [Complete example](docs/complete-example.md) | Single-file copy-paste server |
-| [API reference](docs/api-reference.md) | `defineRoute`, `defineSpec`, `mountSpec`, auth, MCP, docs UI, package exports |
+| [API reference](docs/api-reference.md) | `route`, `spec`, `mountSpec`, auth, MCP, docs UI, package exports |
 | [Error handling](docs/error-handling.md) | Result contract, domain errors, builtins, client normalization |
 
 ## Development

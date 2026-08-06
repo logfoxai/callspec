@@ -2,7 +2,7 @@
  * Fictional "Chirp API v2" — Twitter/X-shaped demo spec for callspec UI dev server.
  */
 import {predicates as p} from 'runtyp';
-import {defineSpec} from '../defineSpec';
+import {spec} from '../defineSpec';
 import {defineRoute} from '../defineRoute';
 
 const pagination = {
@@ -493,7 +493,7 @@ const routes = {
 
 };
 
-export const api = defineSpec({
+export const api = spec({
     meta,
     routes,
     authenticate,

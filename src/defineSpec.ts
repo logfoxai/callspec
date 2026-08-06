@@ -2,7 +2,7 @@ import type {Pred} from 'runtyp';
 import {hasBearerRoutes} from './routeVisibility';
 import type {Authenticate, Callspec, CallspecMeta, RoutesMap} from './types';
 
-export function defineSpec<
+export function spec<
     Ctx = unknown,
     const T extends RoutesMap<Ctx> = RoutesMap<Ctx>,
 >(input: {
@@ -17,7 +17,7 @@ export function defineSpec<
 
     if (hasBearerRoutes(routes) && !authenticate) {
 
-        throw new Error('defineSpec: bearer routes require authenticate');
+        throw new Error('spec: bearer routes require authenticate');
 
     }
 

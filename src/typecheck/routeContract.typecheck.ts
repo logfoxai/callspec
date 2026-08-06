@@ -4,7 +4,9 @@
  */
 import {predicates as p} from 'runtyp';
 import {defineErrors, err} from '../defineErrors';
-import {defineRouteContract, resolveRoute} from '../defineRouteContract';
+import {spec} from '../defineSpec';
+import {route} from '../defineRouteContract';
+import type {ResolverFor} from '../routeResolver';
 
 type Ctx = {userId: string};
 
@@ -12,23 +14,36 @@ const productErr = defineErrors({
     PRODUCT_DISCONTINUED: {},
 });
 
-const getProductById = defineRouteContract({
+const getProductByIdPreds = {
     input: p.object({id: p.string()}),
     output: p.object({id: p.string(), name: p.string()}),
     errors: productErr,
     meta: {summary: 'Get product', tags: ['catalog']},
     auth: 'none',
-});
+} as const;
 
-const getProductByIdResolver = getProductById.resolverFor(async (input, _ctx: Ctx) => {
+const getProductByIdResolver: ResolverFor<typeof getProductByIdPreds, Ctx> = async (input, _ctx) => {
 
     if (input.id === 'missing') return err.NOT_FOUND();
 
     return {id: input.id, name: 'Widget'};
 
+};
+
+const getProductById = route({
+    input: getProductByIdPreds.input,
+    output: getProductByIdPreds.output,
+    errors: getProductByIdPreds.errors,
+    meta: getProductByIdPreds.meta,
+    auth: getProductByIdPreds.auth,
+    resolver: getProductByIdResolver,
 });
 
-getProductById.withResolver(getProductByIdResolver);
+void getProductById.resolver;
+
+spec<Ctx>({
+    routes: {getProductById},
+});
 
 async function wrongInputResolver(input: {id: number}, _ctx: Ctx) {
 
@@ -36,10 +51,15 @@ async function wrongInputResolver(input: {id: number}, _ctx: Ctx) {
 
 }
 
-getProductById.withResolver(
-    // @ts-expect-error resolver input must match contract input pred
-    wrongInputResolver,
-);
+route({
+    input: getProductByIdPreds.input,
+    output: getProductByIdPreds.output,
+    errors: getProductByIdPreds.errors,
+    meta: getProductByIdPreds.meta,
+    auth: getProductByIdPreds.auth,
+    // @ts-expect-error resolver input must match route input pred
+    resolver: wrongInputResolver,
+});
 
 async function wrongOutputResolver(input: {id: string}, _ctx: Ctx) {
 
@@ -47,38 +67,59 @@ async function wrongOutputResolver(input: {id: string}, _ctx: Ctx) {
 
 }
 
-getProductById.withResolver(
-    // @ts-expect-error resolver output must match contract output pred
-    wrongOutputResolver,
-);
+route({
+    input: getProductByIdPreds.input,
+    output: getProductByIdPreds.output,
+    errors: getProductByIdPreds.errors,
+    meta: getProductByIdPreds.meta,
+    auth: getProductByIdPreds.auth,
+    // @ts-expect-error resolver output must match route output pred
+    resolver: wrongOutputResolver,
+});
 
-getProductById.withResolver(
+route({
+    input: getProductByIdPreds.input,
+    output: getProductByIdPreds.output,
+    errors: getProductByIdPreds.errors,
+    meta: getProductByIdPreds.meta,
+    auth: getProductByIdPreds.auth,
     // @ts-expect-error undeclared domain failure
-    async (_input, _ctx: Ctx) => {
+    resolver: async (_input, _ctx: Ctx) => {
 
         const other = defineErrors({OTHER: {}});
 
         return other.OTHER();
 
     },
-);
+});
 
-const noErrorsContract = defineRouteContract({
+const noErrorsPreds = {
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'Hello', tags: ['demo']},
     auth: 'none',
-});
+} as const;
 
-noErrorsContract.withResolver(
+route({
+    input: noErrorsPreds.input,
+    output: noErrorsPreds.output,
+    meta: noErrorsPreds.meta,
+    auth: noErrorsPreds.auth,
     // @ts-expect-error route without errors allows builtins only
-    async (_input, _ctx: Ctx) => {
+    resolver: async (_input, _ctx: Ctx) => {
 
         const domain = defineErrors({MY_CODE: {}});
 
         return domain.MY_CODE();
 
     },
-);
+});
 
-resolveRoute(getProductById, getProductByIdResolver);
+// @ts-expect-error resolver is required on route()
+route({
+    input: p.object({id: p.string()}),
+    output: p.object({id: p.string(), name: p.string()}),
+    errors: productErr,
+    meta: {summary: 'Get product', tags: ['catalog']},
+    auth: 'none',
+});

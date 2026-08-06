@@ -1,19 +1,19 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRoute, defineSpec} from '.';
+import {route, spec} from '.';
 import {emitCallspec} from './emitCallspec';
 import {emitOpenApi} from './openapi';
 import {parseCallspecDocument} from './callspecDocument';
 
 const routes = {
-    zLast: defineRoute({
+    zLast: route({
         input: p.object({value: p.string()}),
         output: p.object({value: p.string()}),
         meta: {summary: 'Z route', description: 'Sorted last', tags: ['alpha']},
         auth: 'none',
         resolver: async (_input, _ctx) => ({value: 'z'}),
     }),
-    aFirst: defineRoute({
+    aFirst: route({
         input: p.object({
             count: p.optional(p.number({range: {min: 1, max: 10}})),
             mode: p.optional(p.union([p.literal('fast'), p.literal('slow')], 'mode must be fast or slow')),
@@ -28,7 +28,7 @@ const routes = {
     }),
 };
 
-const api = defineSpec({
+const api = spec({
     meta: {
         title: 'Parity API',
         version: '1.2.3',
@@ -169,14 +169,14 @@ test('emitOpenApi: deterministic output', (assert) => {
 test('emitOpenApi: bearer security only on private routes', (assert) => {
 
     const doc = emitOpenApi({
-        healthcheck: defineRoute({
+        healthcheck: route({
             input: p.object({}),
             output: p.object({status: p.string()}),
             meta: {summary: 'Health check', description: 'Public health check', tags: ['system']},
             auth: 'none',
             resolver: (_input, _ctx) => ({status: 'ok'}),
         }),
-        getSecret: defineRoute({
+        getSecret: route({
             input: p.object({}),
             output: p.object({secret: p.boolean()}),
             meta: {summary: 'Private route', description: 'Requires auth', tags: ['system']},

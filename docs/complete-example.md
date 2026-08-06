@@ -4,7 +4,7 @@ Copy-paste server with meta branding and all default surfaces. Assumes `domain/p
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRouteContract, defineErrors, err, mountSpec} from 'callspec';
+import {spec, route, defineErrors, err, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {lookupById} from './domain/products';
 
@@ -18,23 +18,20 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-const getProductById = defineRouteContract({
+export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
+    resolver: async (input, _ctx) => {
+        const found = lookupById(input.id);
+        if (!found) return err.NOT_FOUND();
+        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
+        return found;
+    },
 });
-
-const getProductByIdResolver = getProductById.resolverFor(async (input, _ctx) => {
-    const found = lookupById(input.id);
-    if (!found) return err.NOT_FOUND();
-    if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
-    return found;
-});
-
-export {getProductByIdResolver};
 
 export const meta = {
     title: 'My API',
@@ -44,10 +41,10 @@ export const meta = {
 };
 
 export const routes = {
-    getProductById: getProductById.withResolver(getProductByIdResolver),
+    getProductById,
 };
 
-export const api = defineSpec({meta, routes});
+export const api = spec({meta, routes});
 
 const app = express();
 const router = express.Router();

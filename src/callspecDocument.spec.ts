@@ -1,20 +1,20 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRoute, defineSpec} from '.';
+import {route, spec} from '.';
 import {
     CALLSPEC_DOCUMENT_VERSION,
     parseCallspecDocument,
 } from './callspecDocument';
 import {emitCallspec} from './emitCallspec';
 
-const api = defineSpec({
+const api = spec({
     meta: {
         title: 'Test API',
         version: '2.0.0',
         intro: 'Test intro',
     },
     routes: {
-        searchLogs: defineRoute({
+        searchLogs: route({
             input: p.object({
                 teamId: p.string(),
                 query: p.optional(p.string()),
@@ -31,7 +31,7 @@ const api = defineSpec({
             mcp: true,
             resolver: async (_input, _ctx) => ({results: []}),
         }),
-        healthcheck: defineRoute({
+        healthcheck: route({
             input: p.object({}),
             output: p.object({status: p.string()}),
             meta: {
@@ -149,7 +149,7 @@ test('parseCallspecDocument: rejects malformed documents', (assert) => {
 test('emitCallspec: omits scope private routes from the document', (assert) => {
 
     const routes = {
-        publicRoute: defineRoute({
+        publicRoute: route({
             input: p.object({}),
             output: p.object({ok: p.boolean()}),
             meta: {summary: 'Public', description: 'Exported', tags: []},
@@ -157,7 +157,7 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
             auth: 'none',
             resolver: async (_input, _ctx) => ({ok: true}),
         }),
-        internalRoute: defineRoute({
+        internalRoute: route({
             input: p.object({}),
             output: p.object({ok: p.boolean()}),
             meta: {summary: 'Internal', description: 'Not exported', tags: []},
