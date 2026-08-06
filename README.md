@@ -25,7 +25,23 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
 - ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
 
-Topic guides in `docs/` — start with [Getting started](docs/getting-started.md).
+## Contents
+
+- [Getting started](docs/getting-started.md)
+- [Server layout](docs/server-layout.md)
+- [Complete example](docs/complete-example.md)
+- [Authentication](docs/authentication.md)
+- [Request context](docs/request-context.md)
+- [API reference](docs/api-reference.md)
+- [Error handling](docs/error-handling.md)
+- [SDK generation](docs/sdk-generation.md)
+- [Client usage](docs/client-usage.md)
+- [Shared validation](docs/shared-validation.md)
+- [Docs UI](docs/docs-ui.md)
+- [MCP](docs/mcp.md)
+- [OpenAPI](docs/openapi.md)
+- [Callspec + Fern](docs/using-fern-with-callspec.md)
+- [Development](docs/development.md)
 
 ## Development
 

@@ -1,17 +1,15 @@
 # Server layout
 
-Typical split-file project — one `route()` export per file, a single `spec()` registry, optional shared schemas and auth:
+Typical split-file project — one `route()` export per file, input/output preds colocated with that route, a single `spec()` registry, optional auth and `exports`:
 
 ```text
 my-api/
 ├── server/
 │   ├── index.ts              # Express app — mountSpec on /v1
-│   ├── routes.ts             # spec({ meta, routes, exports, authenticate? })
+│   ├── routes.ts             # spec({ meta, routes, exports?, authenticate? })
 │   ├── auth.ts               # optional — Authenticate<Ctx> (see Authentication)
-│   ├── schemas/
-│   │   └── catalog.ts        # shared runtyp preds → exports / --validators
 │   └── routes/
-│       ├── getProductById.ts # one route export per RPC method
+│       ├── getProductById.ts # route + its input/output preds
 │       └── listProducts.ts
 ├── src/
 │   └── generated/
@@ -22,43 +20,79 @@ my-api/
 
 Unit-test resolvers directly — `getProductById.resolver(input, ctx)` — no HTTP.
 
-## Shared schemas
+## Route files
 
-Reuse domain preds, not copy-paste per route:
+Keep each route's **input and output preds in the same file** as the route — not in a shared schemas folder.
 
 ```typescript
-// server/schemas/catalog.ts
+// server/routes/getProductById.ts
+import {route, err} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-export const product = p.object({
+const product = p.object({
     id: p.string(),
     name: p.string(),
     priceCents: p.number(),
 });
 
-export const productIdInput = p.object({id: p.string()});
+const products = [
+    {id: 'sku-1', name: 'Widget', priceCents: 999},
+    {id: 'sku-2', name: 'Gadget', priceCents: 1299},
+];
 
-export const productList = p.object({
-    items: p.array(product),
-    count: p.number(),
+export const getProductById = route({
+    input: p.object({id: p.string()}),
+    output: product,
+    meta: {summary: 'Get product by ID', tags: ['catalog']},
+    auth: 'none',
+    resolver: async (input, _ctx) => {
+        const found = products.find((item) => item.id === input.id);
+        if (!found) return err.NOT_FOUND();
+        return found;
+    },
 });
 ```
 
-Pass named preds to `spec({ exports: { product, productList, … } })` when you want them in codegen / `--validators`. See [Shared validation](shared-validation.md).
+```typescript
+// server/routes/listProducts.ts
+import {route} from 'callspec';
+import {predicates as p} from 'runtyp';
+
+const product = p.object({
+    id: p.string(),
+    name: p.string(),
+    priceCents: p.number(),
+});
+
+export const listProducts = route({
+    input: p.object({}),
+    output: p.object({items: p.array(product), count: p.number()}),
+    meta: {summary: 'List products', tags: ['catalog']},
+    auth: 'none',
+    resolver: async () => ({
+        items: [{id: 'sku-1', name: 'Widget', priceCents: 999}],
+        count: 1,
+    }),
+});
+```
+
+When two routes share the same entity shape, import the pred from the route that owns it (or extract a small module next to those routes). Do not centralize route I/O in a top-level `schemas/` file.
+
+## Exports (optional)
+
+`spec({ exports })` is for preds the **frontend** should import (forms, filters) — separate from wire `input` / `output`. Register them in `routes.ts`; the pred can live in a route file and be re-exported, or in a dedicated file only when several routes contribute to the same export surface. See [Shared validation](shared-validation.md).
 
 ## Registry and entrypoint
 
 ```typescript
 // server/routes.ts
 import {spec} from 'callspec';
-import {product, productList} from './schemas/catalog';
 import {getProductById} from './routes/getProductById';
 import {listProducts} from './routes/listProducts';
 
 export const api = spec({
     meta: {title: 'My API', version: '1.0.0', intro: 'Product catalog with typed RPC.'},
     routes: {getProductById, listProducts},
-    exports: {product, productList},
 });
 ```
 
