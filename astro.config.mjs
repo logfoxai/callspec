@@ -15,6 +15,7 @@ export default defineConfig({
                 replacesTitle: true,
             },
             favicon: '/callspec-lockup-light.svg',
+            customCss: ['./src/styles/starlight-custom.css'],
             social: [
                 {
                     icon: 'github',

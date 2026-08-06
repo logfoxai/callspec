@@ -1,0 +1,20 @@
+/* Splash home — flow diagram (wide asset; don't use Starlight hero image slot). */
+.flow-diagram {
+    margin-block: 2rem 0.5rem;
+    max-width: min(100%, 56rem);
+    margin-inline: auto;
+}
+
+.flow-diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 1rem;
+}
+
+/* Feature cards: 3 columns on wide splash (no stagger offset). */
+@media (min-width: 72rem) {
+    html[data-has-hero] .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

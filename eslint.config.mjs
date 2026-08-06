@@ -1,7 +1,7 @@
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-    {ignores: ['dist/**', 'docs-site/**', '.astro/**', 'node_modules/**', 'src/dist/**', 'eslint.config.mjs', 'vite.config.mts', 'astro.config.mjs', 'scripts/**', 'src/callspec-ui/ui/**', 'src/content/**', 'public/**']},
+    {ignores: ['dist/**', 'docs-site/**', '.astro/**', 'node_modules/**', 'src/dist/**', 'eslint.config.mjs', 'vite.config.mts', 'astro.config.mjs', 'scripts/**', 'src/callspec-ui/ui/**', 'src/content/**', 'src/styles/**', 'public/**']},
     ...tseslint.configs.recommended,
     {
         files: ['**/*.ts'],

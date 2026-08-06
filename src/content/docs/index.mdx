@@ -4,9 +4,6 @@ description: Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI 
 template: splash
 hero:
   tagline: Define your API once — get the whole stack with no drift.
-  image:
-    file: ../../assets/callspec-flow.svg
-    alt: Callspec flow — define in TypeScript, mountSpec, CLI SDK, OpenAPI export
   actions:
     - text: Get started
       link: /getting-started/
@@ -18,7 +15,17 @@ hero:
 
 import {Card, CardGrid} from '@astrojs/starlight/components';
 
-<CardGrid stagger>
+<div class="flow-diagram">
+  <img
+    src="/callspec-flow.svg"
+    alt="Callspec flow — define in TypeScript, mountSpec, CLI SDK, OpenAPI export"
+    width="1812"
+    height="785"
+    loading="eager"
+  />
+</div>
+
+<CardGrid>
   <Card title="RPC functions" icon="rocket">
     Define simple functions like `getProductById` — not REST CRUD.
   </Card>
