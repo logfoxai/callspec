@@ -23,7 +23,7 @@ export const getProductById = route({
     mcp: true,
     resolver: async (input, _ctx) => {
         const found = products.find((item) => item.id === input.id);
-        // input already validated against the route's input pred — use it directly
+        // Already validated! 🎉
         if (!found) return err.NOT_FOUND();
         return found;
     },
