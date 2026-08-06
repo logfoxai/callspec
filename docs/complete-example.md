@@ -65,4 +65,4 @@ app.listen(port, () => {
 });
 ```
 
-With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). See the [README](../README.md) for per-path overrides.
+With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). See [API reference](api-reference.md#mountspec) for per-path overrides.
