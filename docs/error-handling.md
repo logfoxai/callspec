@@ -170,27 +170,27 @@ For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)
 Preds once in a route def; `resolverFor` for full IDE; helpers use `RouteFailuresFrom`:
 
 ```typescript
-import {defineRouteContract, defineErrors, err, isRouteFailure, resolveRoute, resolverFor, type RouteFailuresFrom} from 'callspec';
+import {defineRouteContract, defineErrors, err, isRouteFailure, type RouteFailuresFrom} from 'callspec';
 import {predicates as p} from 'runtyp';
 
-const registerContract = defineRouteContract({
+const register = defineRouteContract({
     input: p.object({email: p.string()}),
     output: p.object({userId: p.string()}),
     errors: defineErrors({USER_ALREADY_EXISTS: {}}),
     meta: {summary: 'Register', tags: ['auth']},
 });
 
-function ensureAvailable(email: string): void | RouteFailuresFrom<typeof registerContract.errors> {
-    if (taken) return registerContract.errors.USER_ALREADY_EXISTS();
+function ensureAvailable(email: string): void | RouteFailuresFrom<typeof register.errors> {
+    if (taken) return register.errors.USER_ALREADY_EXISTS();
 }
 
-const registerResolver = resolverFor(registerContract)(async (input, _ctx) => {
+const registerResolver = register.resolverFor(async (input, _ctx) => {
     const blocked = ensureAvailable(input.email);
     if (isRouteFailure(blocked)) return blocked;
     return {userId: '…'};
 });
 
-resolveRoute(registerContract, registerResolver);
+register.withResolver(registerResolver);
 
 // anywhere in resolver or helper:
 return err.NOT_FOUND({message: '…'});

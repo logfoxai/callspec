@@ -4,7 +4,7 @@ Copy-paste server with meta branding and all default surfaces. Assumes `domain/p
 
 ```typescript
 import express from 'express';
-import {defineSpec, defineRouteContract, defineErrors, err, mountSpec, resolveRoute, resolverFor} from 'callspec';
+import {defineSpec, defineRouteContract, defineErrors, err, mountSpec} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {lookupById} from './domain/products';
 
@@ -18,7 +18,7 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-const getProductByIdContract = defineRouteContract({
+const getProductById = defineRouteContract({
     input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
@@ -27,7 +27,7 @@ const getProductByIdContract = defineRouteContract({
     mcp: true,
 });
 
-const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx) => {
+const getProductByIdResolver = getProductById.resolverFor(async (input, _ctx) => {
     const found = lookupById(input.id);
     if (!found) return err.NOT_FOUND();
     if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
@@ -44,7 +44,7 @@ export const meta = {
 };
 
 export const routes = {
-    getProductById: resolveRoute(getProductByIdContract, getProductByIdResolver),
+    getProductById: getProductById.withResolver(getProductByIdResolver),
 };
 
 export const api = defineSpec({meta, routes});

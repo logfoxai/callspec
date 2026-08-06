@@ -17,10 +17,32 @@ export type RouteContractInput = {
 
 type ResolverCtx<Fn> = Fn extends (input: any, ctx: infer C) => any ? C : unknown;
 
-/** Step 1 — declare preds, errors, and route meta once; share with `resolverFor` and tests. */
-export function defineRouteContract<const Def extends RouteContractInput>(def: Def): Def {
+/** Contract handle — preds, meta, and typed `resolverFor` / `withResolver` helpers. */
+export type RouteContract<Def extends RouteContractInput> = Def & {
+    resolverFor<Fn extends RouteResolverFor<Def, ResolverCtx<Fn>>>(fn: Fn): Fn
+    withResolver<Fn extends RouteResolverFor<Def, ResolverCtx<Fn>>>(
+        resolver: Fn,
+    ): RouteDef<Infer<Def['input']>, Infer<Def['output']>, ResolverCtx<Fn>>
+};
 
-    return def;
+/** Step 1 — declare preds, errors, and route meta; then `.resolverFor` / `.withResolver`. */
+export function defineRouteContract<const Def extends RouteContractInput>(def: Def): RouteContract<Def> {
+
+    return {
+        ...def,
+        resolverFor<Fn extends RouteResolverFor<Def, ResolverCtx<Fn>>>(fn: Fn): Fn {
+
+            return fn;
+
+        },
+        withResolver<Fn extends RouteResolverFor<Def, ResolverCtx<Fn>>>(
+            fn: Fn,
+        ): RouteDef<Infer<Def['input']>, Infer<Def['output']>, ResolverCtx<Fn>> {
+
+            return resolveRoute(def, fn);
+
+        },
+    };
 
 }
 

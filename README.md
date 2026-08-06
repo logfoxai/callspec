@@ -50,7 +50,7 @@ Put catalog/DB logic in `server/domain/products.ts` — e.g. `lookupById(id)` re
 
 ```typescript
 // server/routes/getProductById.ts
-import {defineRouteContract, defineErrors, err, resolveRoute, resolverFor} from 'callspec';
+import {defineRouteContract, defineErrors, err} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {lookupById} from '../domain/products';
 
@@ -64,7 +64,7 @@ const product = p.object({
     priceCents: p.number(),
 });
 
-export const getProductByIdContract = defineRouteContract({
+export const getProductById = defineRouteContract({
     input: p.object({id: p.string()}),
     output: product,
     errors: productErr,
@@ -73,16 +73,14 @@ export const getProductByIdContract = defineRouteContract({
     mcp: true,
 });
 
-export const getProductByIdResolver = resolverFor(getProductByIdContract)(
-    async (input, _ctx) => {
-        const found = lookupById(input.id);
-        if (!found) return err.NOT_FOUND();
-        if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
-        return found;
-    },
-);
+export const getProductByIdResolver = getProductById.resolverFor(async (input, _ctx) => {
+    const found = lookupById(input.id);
+    if (!found) return err.NOT_FOUND();
+    if (found.discontinued) return productErr.PRODUCT_DISCONTINUED();
+    return found;
+});
 
-export const getProductById = resolveRoute(getProductByIdContract, getProductByIdResolver);
+export const getProductByIdRoute = getProductById.withResolver(getProductByIdResolver);
 ```
 
 ```typescript
@@ -90,11 +88,11 @@ export const getProductById = resolveRoute(getProductByIdContract, getProductByI
 import {defineSpec} from 'callspec';
 import {mountSpec} from 'callspec';
 import express from 'express';
-import {getProductById} from './routes/getProductById';
+import {getProductByIdRoute} from './routes/getProductById';
 
 export const api = defineSpec({
     meta: {title: 'My API', version: '1.0.0'},
-    routes: {getProductById},
+    routes: {getProductById: getProductByIdRoute},
 });
 
 const app = express();

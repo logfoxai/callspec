@@ -5,7 +5,6 @@
 import {predicates as p} from 'runtyp';
 import {defineErrors, err} from '../defineErrors';
 import {defineRouteContract, resolveRoute} from '../defineRouteContract';
-import {resolverFor} from '../routeResolver';
 
 type Ctx = {userId: string};
 
@@ -13,7 +12,7 @@ const productErr = defineErrors({
     PRODUCT_DISCONTINUED: {},
 });
 
-const getProductByIdContract = defineRouteContract({
+const getProductById = defineRouteContract({
     input: p.object({id: p.string()}),
     output: p.object({id: p.string(), name: p.string()}),
     errors: productErr,
@@ -21,7 +20,7 @@ const getProductByIdContract = defineRouteContract({
     auth: 'none',
 });
 
-const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input, _ctx: Ctx) => {
+const getProductByIdResolver = getProductById.resolverFor(async (input, _ctx: Ctx) => {
 
     if (input.id === 'missing') return err.NOT_FOUND();
 
@@ -29,7 +28,7 @@ const getProductByIdResolver = resolverFor(getProductByIdContract)(async (input,
 
 });
 
-resolveRoute(getProductByIdContract, getProductByIdResolver);
+getProductById.withResolver(getProductByIdResolver);
 
 async function wrongInputResolver(input: {id: number}, _ctx: Ctx) {
 
@@ -37,8 +36,7 @@ async function wrongInputResolver(input: {id: number}, _ctx: Ctx) {
 
 }
 
-resolveRoute(
-    getProductByIdContract,
+getProductById.withResolver(
     // @ts-expect-error resolver input must match contract input pred
     wrongInputResolver,
 );
@@ -49,14 +47,12 @@ async function wrongOutputResolver(input: {id: string}, _ctx: Ctx) {
 
 }
 
-resolveRoute(
-    getProductByIdContract,
+getProductById.withResolver(
     // @ts-expect-error resolver output must match contract output pred
     wrongOutputResolver,
 );
 
-resolveRoute(
-    getProductByIdContract,
+getProductById.withResolver(
     // @ts-expect-error undeclared domain failure
     async (_input, _ctx: Ctx) => {
 
@@ -74,8 +70,7 @@ const noErrorsContract = defineRouteContract({
     auth: 'none',
 });
 
-resolveRoute(
-    noErrorsContract,
+noErrorsContract.withResolver(
     // @ts-expect-error route without errors allows builtins only
     async (_input, _ctx: Ctx) => {
 
@@ -85,3 +80,5 @@ resolveRoute(
 
     },
 );
+
+resolveRoute(getProductById, getProductByIdResolver);
