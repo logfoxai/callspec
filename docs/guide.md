@@ -12,7 +12,7 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 1. **Define** — `route()` + `spec()` in TypeScript. Typed inputs/outputs, Result errors, optional validators (`exports` + `--validators`).
 2. **mountSpec** — serve the HTTP API, docs UI (`/docs`), OpenAPI 3.1 (`/openapi.json`), and MCP (`/mcp`). Auth (public or Bearer) is reflected in OpenAPI and MCP.
-3. **CLI** — `npx callspec generate` → TypeScript SDK to use in your app or publish for consumers.
+3. **CLI** — `npx callspec http://127.0.0.1:3000/v1 --output …` (mount point; fetches `/callspec.json`) → TypeScript SDK to use in your app or publish for consumers.
 4. **OpenAPI** — point gateways, testing, mocking, and custom generators at `/openapi.json`.
 5. **Optional: Fern** — multi-language SDKs and docs (Python, Go, Java, C#, …). Callspec stays your TS runtime; Fern handles public multi-lang DX. Details: [Fern vs Callspec](fern-vs-callspec.md).
 
@@ -307,17 +307,17 @@ npx tsx scripts/write-callspec-json.ts
 
 ## Frontend codegen
 
-The CLI reads **`callspec.json`** (file or URL). The document already contains routes, errors, `info`, and paths — codegen does not take title, version, or basePath.
+The CLI reads the contract at **`{mount}/callspec.json`** — pass a mount point URL or a path to the file. The document already contains routes, errors, `info`, and paths — codegen does not take title, version, or basePath.
 
 ```bash
-# local dev (API running)
-npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
+# local dev (API running) — mount point only
+npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 
 # CI or offline (committed contract)
 npx callspec ./callspec.json --output src/generated/api.ts
 
 # shared runtyp preds for forms (optional)
-npx callspec ./callspec.json --output src/generated/validators.ts --validators
+npx callspec ./ --output src/generated/validators.ts --validators
 ```
 
 Commit `callspec.json` and/or generated `api.ts`; fail CI on drift if you regenerate in the pipeline.

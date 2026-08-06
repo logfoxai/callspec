@@ -10,9 +10,6 @@
   <a href="assets/callspec-flow.svg?cb=4">
     <img src="assets/callspec-flow.svg?cb=4" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
   </a>
-   <a href="assets/features.png?cb=4">
-    <img src="assets/features.png?cb=4" />
-  </a>
 </p>
 </div>
 
@@ -20,9 +17,7 @@ Define your API once with simple TypeScript — methods like `getProductById` wi
 
 On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
-## Features
-
-- ⚡ **RPC methods** — define `getProductById`, not resource CRUD; Callspec mounts the server for you
+- ⚡ **RPC methods** — define `getProductById`, not resource CRUD
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers; shared types end-to-end
 - 🎯 **Result-typed errors** — end-to-end error codes from resolver → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
@@ -33,18 +28,18 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 ## Getting started
 
-**Backend → generate SDK → call from your app.**
+Let's first walk through a simple example. If you're interested, [see a more detailed example](docs/complete-example.md).
 
-### 1. Backend
+### 1. Install backend dependencies
 
 ```bash
 npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
 
-Node.js 18+, TypeScript 5+, Express 4.x (peer).
+Requirements: Node.js 18+, TypeScript 5+, Express 4.x (peer).
 
-Return failures from resolvers (`return err.NOT_FOUND()`) — don't throw. Builtins are automatic on every route; add `defineErrors` when you need domain-specific codes ([error-handling.md](docs/error-handling.md)).
+### 2. Define backend routes
 
 ```typescript
 // server/routes/getProductById.ts
@@ -76,6 +71,14 @@ export const getProductById = route({
     },
 });
 ```
+
+**Quick notes:**
+
+- Return failures from resolvers (ie, `return err.NOT_FOUND()`) &mdash; **don't throw exceptions**.
+- Built-in error responses such as `NOT_FOUND` and `SERVICE_UNAVAILABLE` can be returned from any route without defining them.
+- Define [custom domain errors](docs/error-handling.md) with `errors:`.
+
+### 3. Define and mount backend API
 
 ```typescript
 // server/routes.ts + server/index.ts — see docs/guide.md for full layout
@@ -111,10 +114,14 @@ npx tsx server/index.ts
 
 Open [http://127.0.0.1:3000/v1/docs](http://127.0.0.1:3000/v1/docs).
 
-### 2. Generate the SDK
+### 4. Generate the SDK
 
 ```bash
-npx callspec http://127.0.0.1:3000/v1/callspec.json --output src/generated/api.ts
+# From URL (server running) — pass the mount point; callspec.json is appended
+npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
+
+# From file
+npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
 ### 3. Call from your app

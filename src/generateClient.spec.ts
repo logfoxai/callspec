@@ -156,7 +156,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
     try {
 
         await generateClientFile(
-            `http://127.0.0.1:${addr.port}/v1/callspec.json`,
+            `http://127.0.0.1:${addr.port}/v1`,
             outputPath,
         );
 
@@ -198,7 +198,7 @@ test('generateClientFile: rejects non-2xx HTTP responses', async (assert) => {
         try {
 
             await generateClientFile(
-                `http://127.0.0.1:${addr.port}/callspec.json`,
+                `http://127.0.0.1:${addr.port}/v1`,
                 outputPath,
             );
 
@@ -264,7 +264,7 @@ test('generated client makes a real request to an in-process server', async (ass
     try {
 
         await generateClientFile(
-            `http://127.0.0.1:${addr.port}/v1/callspec.json`,
+            `http://127.0.0.1:${addr.port}/v1`,
             outputPath,
         );
 

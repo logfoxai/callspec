@@ -116,13 +116,13 @@ mountSpec(router, spec, options?: MountSpecOptions)
 | Option | Default | Description |
 |--------|---------|-------------|
 | `basePath` | `''` | Prefix for RPC paths and for paths baked into emitted documents |
-| `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json`; or pass `{ uiPath?, callspecPath?, openApiPath? }` to override individual paths |
+| `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json` at the mount root |
 | `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
 | `logging` | `true` | jsout-express request log on this router + jsout error log on unhandled throws; pass `false` in tests |
 | `handleUnhandledError` | — | `(err, req) => RouteFailure \| undefined` — map infra throws before `INTERNAL_ERROR` |
 | `logUnhandledError` | jsout `logger.error` | Override unhandled-error logging only |
 
-When `docs` is enabled, the docs UI fetches **`callspec.json`** from the configured path (default `/callspec.json` relative to the router).
+When `docs` is enabled, the docs UI fetches **`callspec.json`** at `/callspec.json` on this router (fixed path).
 
 See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime).
 
