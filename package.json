@@ -15,7 +15,10 @@
     "type": "git",
     "url": "git+https://github.com/logfoxai/callspec.git"
   },
-  "homepage": "https://github.com/logfoxai/callspec",
+  "homepage": "https://github.com/logfoxai/callspec#readme",
+  "directories": {
+    "doc": "docs"
+  },
   "license": "MIT",
   "author": "Marc H. Weiner <mhweiner234@gmail.com>",
   "publishConfig": {
@@ -48,6 +51,8 @@
   "files": [
     "dist",
     "assets",
+    "AGENTS.md",
+    "llms.txt",
     "!dist/**/*.spec.*",
     "!dist/demo/**"
   ],

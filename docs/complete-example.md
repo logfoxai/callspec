@@ -65,4 +65,4 @@ app.listen(port, () => {
 });
 ```
 
-With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). Use `docsPath` to mount the UI elsewhere; contract paths stay fixed — see [API reference § mountSpec](api-reference.md#mountspec).
+With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). Use `docsPath` to mount the UI elsewhere; contract paths stay fixed — see [mountSpec](api-reference/mount-spec.md).

@@ -145,4 +145,4 @@ app.use('/v1', router);
 app.listen(3000);
 ```
 
-Bearer routes and `authenticate`: [Authentication](authentication.md). Default URLs after mount: [API reference § mountSpec](api-reference.md#mountspec).
+Bearer routes and `authenticate`: [Authentication](authentication.md). Default URLs after mount: [mountSpec](api-reference/mount-spec.md).

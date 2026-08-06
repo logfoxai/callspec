@@ -2,7 +2,7 @@
 
 How `resolveRouteClientError` guesses **builtin** error codes from messy non-callspec responses. Domain errors are never fuzzy-matched — they require validated `{ error, data? }` JSON (codegen passes `domainErrors` schemas).
 
-See also [error-handling.md](./error-handling.md) for the full pipeline.
+See also [error-handling.md](../error-handling.md) for the full pipeline.
 
 ---
 
@@ -93,7 +93,7 @@ Exact requires the whole body (after HTML strip + lowercase) to equal a table en
 
 ## Known gaps / follow-ups
 
-Documented in [error-handling.nits.md](./error-handling.nits.md):
+Documented in [error-handling.nits.md](./error-handling.nits.md) (internal):
 
 - **`502badgateway`** — HTML/error text with status prefix does not fuzzy-match; falls through to `UNKNOWN_ERROR`. Consider adding compound keys or running fuzzy before status for specific cases.
 - **Exact-before-status ordering** — body text can override HTTP status (403 + `"Unauthorized"`). Accept or reorder pipeline.

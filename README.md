@@ -39,6 +39,8 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictiona
 
 ## Contents
 
+For coding agents: [AGENTS.md](AGENTS.md) · [llms.txt](llms.txt)
+
 - [Getting started](docs/getting-started.md)
 - [Server layout](docs/server-layout.md)
 - [Unit testing](docs/unit-testing.md)

@@ -34,7 +34,7 @@ Walkthrough list from a callspec-only review. **Your call** = owner decision; **
 
 ## Fuzzy matching follow-ups
 
-See [client-error-fuzzy-matching.md](./client-error-fuzzy-matching.md) for how fuzzy works today.
+See [client-error-fuzzy-matching.md](./client-error-fuzzy-matching.md) (this folder) for how fuzzy works today.
 
 | # | Area | Issue | Options |
 |---|------|--------|---------|
@@ -48,7 +48,7 @@ See [client-error-fuzzy-matching.md](./client-error-fuzzy-matching.md) for how f
 
 | # | Gap | Recommendation | Status |
 |---|-----|----------------|--------|
-| 13 | No **MCP error** section in `error-handling.md` | Add § MCP errors. | Open |
+| 13 | No **MCP error** section in user `error-handling.md` | Add § MCP errors. | Open |
 | 14 | No **v2 migration** guide | README section or `docs/migration-v2-errors.md`. | Open |
 | 15 | `failRouteError` throw → 500 behavior undocumented (see Fix #3) | One line under Rules or handler patterns. | Open |
 | 16 | `expressErrorHandler` section omits `RouteError`, no logging, parity with mountSpec | Expand Non-RPC §. | Open |
