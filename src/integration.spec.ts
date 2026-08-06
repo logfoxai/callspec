@@ -162,6 +162,44 @@ test('integration: callspec.json lists all fixture routes', async (assert) => {
 
 });
 
+test('integration: docs UI loads callspec.json at custom docsPath', async (assert) => {
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, fixtureSpec, {docsPath: '/explorer', logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    const origin = `http://127.0.0.1:${addr.port}`;
+
+    try {
+
+        const html = await fetch(`${origin}/v1/explorer/`).then((res) => res.text());
+
+        assert.equal(html.includes('"specUrl":"../callspec.json"'), true);
+
+        const specFromDocs = await fetch(new URL('../callspec.json', `${origin}/v1/explorer/`));
+
+        assert.equal(specFromDocs.status, 200);
+        assert.equal((await specFromDocs.json() as {info?: {title?: string}}).info?.title, 'Fixture API');
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
 test('integration: openapi.json lists all fixture routes', async (assert) => {
 
     await withServer(async (base) => {

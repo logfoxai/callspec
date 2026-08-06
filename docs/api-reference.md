@@ -117,12 +117,18 @@ mountSpec(router, spec, options?: MountSpecOptions)
 |--------|---------|-------------|
 | `basePath` | `''` | Prefix for RPC paths and for paths baked into emitted documents |
 | `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json` at the mount root |
+| `docsPath` | `'/docs'` | Docs UI path on this router (`callspec.json` and `openapi.json` paths are fixed) |
 | `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
 | `logging` | `true` | jsout-express request log on this router + jsout error log on unhandled throws; pass `false` in tests |
 | `handleUnhandledError` | — | `(err, req) => RouteFailure \| undefined` — map infra throws before `INTERNAL_ERROR` |
 | `logUnhandledError` | jsout `logger.error` | Override unhandled-error logging only |
 
-When `docs` is enabled, the docs UI fetches **`callspec.json`** at `/callspec.json` on this router (fixed path).
+When `docs` is enabled, the docs UI fetches **`callspec.json`** at `/callspec.json` on this router (fixed path). Override only the UI mount:
+
+```typescript
+mountSpec(router, spec, {docsPath: '/explorer'});
+// UI at /explorer — still loads ../callspec.json relative to that path
+```
 
 See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime).
 

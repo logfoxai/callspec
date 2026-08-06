@@ -83,6 +83,36 @@ export function siblingSpecPath(relativePath: string): string {
 
 }
 
+function mountSubpathDepth(subpath: string): number {
+
+    return subpath.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean).length;
+
+}
+
+/** Relative URL from a mount subpath (e.g. docs UI) back to the mount root. */
+export function relativeToMountRoot(fromSubpath: string): string {
+
+    const depth = mountSubpathDepth(fromSubpath);
+
+    if (depth === 0) {
+
+        return '..';
+
+    }
+
+    return '../'.repeat(depth).replace(/\/$/, '') || '..';
+
+}
+
+/** Relative URL from one mount subpath to another at the same mount root. */
+export function relativeToMountPath(fromSubpath: string, toSubpath: string): string {
+
+    const target = toSubpath.replace(/^\//, '');
+
+    return `${relativeToMountRoot(fromSubpath)}/${target}`.replace(/\/{2,}/g, '/');
+
+}
+
 export function defaultAuthHint(
     meta: CallspecMeta,
     routes: Record<string, {auth: RouteAuth}>,

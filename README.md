@@ -7,8 +7,8 @@
   <h3 align="center">Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.</h3>
   <br>
   <p align="center">
-  <a href="assets/callspec-flow.svg?cb=4">
-    <img src="assets/callspec-flow.svg?cb=4" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
+  <a href="assets/callspec-flow.svg?cb=5">
+    <img src="assets/callspec-flow.svg?cb=5" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
   </a>
 </p>
 </div>

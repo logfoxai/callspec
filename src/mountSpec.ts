@@ -22,6 +22,8 @@ import {
     joinMountPath,
     joinRoutePath,
     metaBrandingFromCallspecMeta,
+    relativeToMountPath,
+    relativeToMountRoot,
     resolveCallspecMeta,
     slugServerName,
 } from './metaDefaults';
@@ -36,6 +38,8 @@ export type MountSpecOptions = {
      * Pass `false` to disable all docs/spec surfaces.
      */
     docs?: boolean
+    /** Docs UI mount path on this router. Default `/docs`. `callspec.json` and `openapi.json` stay fixed. */
+    docsPath?: string
     /** MCP HTTP path on this router. Default `/mcp`. */
     mcpPath?: string
     /**
@@ -66,6 +70,7 @@ export function mountSpec<Ctx>(
     const resolvedMeta = resolveCallspecMeta(spec.meta);
     const {routes, exports} = spec;
     const docsEnabled = options.docs !== false;
+    const docsPath = options.docsPath ?? DOCS_UI_PATH;
     const mcpSubPath = options.mcpPath ?? '/mcp';
     const loggingEnabled = options.logging !== false;
     const logUnhandledError = options.logUnhandledError
@@ -108,12 +113,12 @@ export function mountSpec<Ctx>(
         const authHint = defaultAuthHint(resolvedMeta, routes);
 
         mountCallspecUi(router, {
-            path: joinMountPath(basePath, DOCS_UI_PATH),
-            specPath: `..${CALLSPEC_JSON_PATH}`,
-            rpcBase: '..',
+            path: joinMountPath(basePath, docsPath),
+            specPath: relativeToMountPath(docsPath, CALLSPEC_JSON_PATH),
+            rpcBase: relativeToMountRoot(docsPath),
             title: resolvedMeta.title,
             branding: metaBrandingFromCallspecMeta(resolvedMeta, {authHint}),
-            mcpPath: `..${mcpSubPath}`,
+            mcpPath: relativeToMountPath(docsPath, mcpSubPath),
         });
 
     }
