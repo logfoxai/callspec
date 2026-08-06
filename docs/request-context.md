@@ -33,3 +33,5 @@ const orders = await listOrders.resolver({status: 'open'}, {
     tenantId: 'acme',
 });
 ```
+
+See [Unit testing](unit-testing.md).

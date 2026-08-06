@@ -49,6 +49,7 @@ export const getProductById = route({
 - Return failures from resolvers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. See [Error handling](error-handling.md).
 - Built-in error responses such as `NOT_FOUND` and `SERVICE_UNAVAILABLE` can be returned from any route without defining them.
 - Define custom domain errors with `errors:` on the route.
+- Test resolver logic with `.resolver(input, ctx)` — no HTTP. See [Unit testing](unit-testing.md).
 
 ## 3. Define and mount backend API
 
@@ -97,7 +98,7 @@ curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
-See [SDK generation](sdk-generation.md) for CI, validators, and committed contracts.
+See [SDK generation](sdk-generation.md) for CI and `--validators`. Pinning the contract: [SDK generation § Pinning callspec.json for CI](sdk-generation.md#pinning-callspecjson-for-ci).
 
 ## 5. Call from your app
 

@@ -61,18 +61,14 @@ Private routes: annotate auth context on the resolver — `resolver: async (inpu
 
 ### Testing resolvers
 
-The wired route keeps the resolver on `.resolver` — call it directly in unit tests (no HTTP, no Express):
+Call `.resolver(input, ctx)` on the wired route — no HTTP. Full guide: [Unit testing](unit-testing.md).
 
 ```typescript
 import {isRouteFailure} from 'callspec';
 import {getProductById} from '../routes/getProductById';
 
-const missing = await getProductById.resolver({id: 'missing'}, {});
+const missing = await getProductById.resolver({id: 'missing'}, undefined);
 expect(isRouteFailure(missing) && missing.code).toBe('NOT_FOUND');
-
-const found = await getProductById.resolver({id: 'sku-1'}, {});
-expect(isRouteFailure(found)).toBe(false);
-expect(found).toEqual({id: 'sku-1', name: 'Widget', priceCents: 999});
 ```
 
 Export the wired route from the route module when tests live in another file.
@@ -131,6 +127,16 @@ mountSpec(router, spec, {docsPath: '/explorer'});
 ```
 
 See [error-handling.md § mountSpec runtime](error-handling.md#mountspec-runtime).
+
+With `app.use('/v1', router)` and defaults, a server on port 3000 exposes:
+
+| Surface | URL |
+|---------|-----|
+| Docs UI | `http://127.0.0.1:3000/v1/docs` |
+| Contract | `http://127.0.0.1:3000/v1/callspec.json` |
+| OpenAPI | `http://127.0.0.1:3000/v1/openapi.json` |
+| RPC | `POST http://127.0.0.1:3000/v1/{methodName}` |
+| MCP | `http://127.0.0.1:3000/v1/mcp` (when any route has `mcp: true`) |
 
 ## Auth and scope
 

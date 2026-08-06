@@ -29,6 +29,7 @@ On the frontend you call `api.getProductById({â€¦})` and get a **Result** back â
 
 - [Getting started](docs/getting-started.md)
 - [Server layout](docs/server-layout.md)
+- [Unit testing](docs/unit-testing.md)
 - [Complete example](docs/complete-example.md)
 - [Authentication](docs/authentication.md)
 - [Request context](docs/request-context.md)

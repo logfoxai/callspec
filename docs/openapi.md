@@ -4,13 +4,15 @@
 
 ## Native contract (`callspec.json`)
 
-Codegen reads **`callspec.json`** (`callspec: "2.0"`) at a fixed path on the mount. You do not need a committed file — the CLI can fetch the live URL — but CI usually pins the contract:
+Codegen reads **`callspec.json`** (`callspec: "2.0"`) at a fixed path on the mount. `mountSpec` serves it at `/callspec.json`. You can fetch it with curl, or write the same document with `emitCallspec` — no server required.
+
+**Pinning for CI** (committed file, offline codegen, contract diffs): [SDK generation § Pinning callspec.json for CI](sdk-generation.md#pinning-callspecjson-for-ci).
+
+From TypeScript (same projection `mountSpec` serves):
 
 ```bash
 curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 ```
-
-From TypeScript (same projection `mountSpec` serves):
 
 ```typescript
 import {writeFileSync} from 'fs';
