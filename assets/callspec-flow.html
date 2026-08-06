@@ -2,153 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body {
-      background: #0a0a0a;
-      font-family: Inter, system-ui, sans-serif;
-      color: #fff;
+    body {
+      background: #fff;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     .diagram {
-      width: 920px;
-      padding: 48px 40px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0;
-      background: #0a0a0a;
+      padding: 28px 36px;
+      background: #fff;
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 32px;
     }
 
     .step {
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      gap: 14px;
-      flex-shrink: 0;
+      gap: 8px;
     }
 
     .step img { display: block; }
-
-    .icon {
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .step.define img { height: 34px; }
+    .step.generate img { height: 26px; }
 
     .label {
-      font-size: 15px;
-      font-weight: 500;
-      color: #fff;
-      letter-spacing: -0.01em;
+      font-size: 13px;
+      font-weight: 600;
+      color: #171717;
     }
 
-    .label-sub {
-      font-size: 13px;
-      font-weight: 500;
-      color: #888;
-      margin-top: -8px;
+    .hint {
+      font-size: 12px;
+      color: #737373;
     }
 
     .arrow {
-      flex-shrink: 0;
-      margin: 0 8px;
-      align-self: center;
+      color: #a3a3a3;
+      font-size: 16px;
+      line-height: 1;
+      user-select: none;
     }
 
-    .outputs {
-      display: flex;
-      flex-direction: column;
-      gap: 36px;
-      flex-shrink: 0;
+    .outputs .label {
+      font-weight: 500;
+      color: #525252;
+      white-space: nowrap;
     }
-
-    .chip-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .chip {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      color: #ccc;
-    }
-
-    .chip.ts { color: #3178c6; }
   </style>
 </head>
 <body>
   <div class="diagram">
-    <!-- TypeScript -->
-    <div class="step">
-      <img src="mark-dark.svg" height="44" alt="" />
-      <div class="label">TypeScript</div>
-      <div class="label-sub">route + spec</div>
-    </div>
-
-    <svg class="arrow" width="64" height="24" viewBox="0 0 64 24" fill="none">
-      <path d="M0 12 H48" stroke="#51c233" stroke-width="2"/>
-      <path d="M48 12 L40 6 V18 Z" fill="#51c233"/>
-    </svg>
-
-    <!-- Callspec -->
-    <div class="step">
-      <img src="callspec-lockup-dark.svg" height="36" alt="callspec" />
-      <div class="label">Generate</div>
-      <div class="label-sub">mountSpec + CLI</div>
-    </div>
-
-    <!-- Split arrow -->
-    <svg class="arrow" width="72" height="120" viewBox="0 0 72 120" fill="none">
-      <path d="M0 60 H24" stroke="#51c233" stroke-width="2"/>
-      <path d="M24 60 V24 H48" stroke="#51c233" stroke-width="2"/>
-      <path d="M24 60 V96 H48" stroke="#51c233" stroke-width="2"/>
-      <path d="M48 24 L42 30 V18 Z" fill="#51c233"/>
-      <path d="M48 96 L42 102 V90 Z" fill="#51c233"/>
-    </svg>
-
-    <!-- Outputs -->
-    <div class="outputs">
-      <div class="step">
-        <div class="icon">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <rect x="4" y="4" width="28" height="28" rx="6" stroke="#fff" stroke-width="1.5"/>
-            <path d="M12 13 L16 18 L12 23" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M18 23 H24" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="label">SDKs</div>
-        <div class="chip-row">
-          <span class="chip ts">TypeScript</span>
-        </div>
+    <div class="flow">
+      <div class="step define">
+        <img src="mark-light.svg" alt="" />
+        <div class="label">Define</div>
+        <div class="hint">route + spec</div>
       </div>
 
-      <div class="step">
-        <div class="icon">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <path d="M6 8 C6 6 8 5 10 5 H16 L18 8 H28 C30 8 32 9 32 11 V28 C32 30 30 31 28 31 H10 C8 31 6 30 6 28 V8Z" stroke="#fff" stroke-width="1.5"/>
-            <path d="M6 12 H32" stroke="#fff" stroke-width="1.5"/>
-            <path d="M12 18 H24" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M12 23 H20" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="label">Documentation</div>
-        <div class="chip-row">
-          <span class="chip">/docs</span>
-          <span class="chip">OpenAPI</span>
-          <span class="chip">MCP</span>
-        </div>
+      <div class="arrow" aria-hidden="true">→</div>
+
+      <div class="step generate">
+        <img src="callspec-lockup-light.svg" alt="callspec" />
+        <div class="hint">mountSpec + CLI</div>
+      </div>
+
+      <div class="arrow" aria-hidden="true">→</div>
+
+      <div class="step outputs">
+        <div class="label">API · TS SDK · MCP · Docs</div>
       </div>
     </div>
   </div>
