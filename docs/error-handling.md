@@ -10,4 +10,4 @@ Design reference for the callspec error contract, mountSpec runtime, and client 
 - [Client error normalization](error-handling/client-normalization.md)
 - [Resolver patterns & rules](error-handling/resolver-patterns.md)
 
-Agent invariants: [AGENTS.md](../AGENTS.md).
+Agent invariants: [Agents guide](/agents).

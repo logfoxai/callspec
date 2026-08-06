@@ -24,6 +24,6 @@ HTML tag stripping applies **only** while matching (steps 2–4). It is not appl
 
 For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same HTTP pipeline (optional `responseHeaders` in options).
 
-Implementation detail (fuzzy matching): [internal/client-error-fuzzy-matching.md](../internal/client-error-fuzzy-matching.md) — not required for API usage.
+For fuzzy-matching implementation notes, see `docs/internal/` in the repo (not published on this site).
 
 ← [Error handling](../error-handling.md)

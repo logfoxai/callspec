@@ -1,31 +1,31 @@
 # Callspec — agent guide
 
-Entry point for coding agents. Human-oriented overview: [README.md](README.md). Machine index: [llms.txt](llms.txt).
+Entry point for coding agents. Human-oriented overview: [README.md](https://github.com/logfoxai/callspec#readme). Machine index: [llms.txt](https://github.com/logfoxai/callspec/blob/main/llms.txt). Doc site: [/getting-started](/getting-started).
 
 ## Task → doc
 
 | Task | Read first |
 |------|------------|
-| New project / first route | [getting-started.md](docs/getting-started.md) |
-| File layout for routes & schemas | [server-layout.md](docs/server-layout.md) |
-| Single-file copy-paste | [complete-example.md](docs/complete-example.md) |
-| Test resolver logic (no HTTP) | [unit-testing.md](docs/unit-testing.md) |
-| Bearer auth & `authenticate` | [authentication.md](docs/authentication.md) |
-| Resolver context typing | [request-context.md](docs/request-context.md) |
-| `route`, `spec`, `mountSpec` API | [api-reference.md](docs/api-reference.md) → subpages |
-| Errors & Result contract | [error-handling.md](docs/error-handling.md) |
-| Generate / pin TypeScript SDK | [sdk-generation.md](docs/sdk-generation.md) |
-| Use generated client in app | [client-usage.md](docs/client-usage.md) |
-| Shared preds & `--validators` | [shared-validation.md](docs/shared-validation.md) |
-| Docs UI & branding | [docs-ui.md](docs/docs-ui.md) |
-| MCP tools on your API | [mcp.md](docs/mcp.md) |
-| OpenAPI export (not codegen input) | [openapi.md](docs/openapi.md) |
-| Fern vs Callspec | [using-fern-with-callspec.md](docs/using-fern-with-callspec.md) |
-| Clone repo & run demo | README § [Try the demo](README.md#try-the-demo) |
+| New project / first route | [Getting started](/getting-started) |
+| File layout for routes & schemas | [Server layout](/server-layout) |
+| Single-file copy-paste | [Complete example](/complete-example) |
+| Test resolver logic (no HTTP) | [Unit testing](/unit-testing) |
+| Bearer auth & `authenticate` | [Authentication](/authentication) |
+| Resolver context typing | [Request context](/request-context) |
+| `route`, `spec`, `mountSpec` API | [API reference](/api-reference) → subpages |
+| Errors & Result contract | [Error handling](/error-handling) |
+| Generate / pin TypeScript SDK | [SDK generation](/sdk-generation) |
+| Use generated client in app | [Client usage](/client-usage) |
+| Shared preds & `--validators` | [Shared validation](/shared-validation) |
+| Docs UI & branding | [Docs UI](/docs-ui) |
+| MCP tools on your API | [MCP](/mcp) |
+| OpenAPI export (not codegen input) | [OpenAPI](/openapi) |
+| Fern vs Callspec | [Callspec + Fern](/using-fern-with-callspec) |
+| Clone repo & run demo | [Try the demo](/#try-the-live-api-demo) |
 
 ## Invariants (do not get wrong)
 
-1. **Return failures from resolvers** — `return err.NOT_FOUND()` / domain handles. Do not `throw` for expected failures. See [error-handling.md](docs/error-handling.md).
+1. **Return failures from resolvers** — `return err.NOT_FOUND()` / domain handles. Do not `throw` for expected failures. See [Error handling](/error-handling).
 2. **Codegen reads `callspec.json`**, not OpenAPI. CLI: `npx callspec <mount-or-file> --output …`. OpenAPI is for gateways, Fern, contract tests.
 3. **Default SDK = `ApiClient`**. `--validators` is opt-in for `spec.exports` form preds.
 4. **`scope: 'private'`** — server-only; omitted from SDK, docs, OpenAPI, MCP list. Does not skip auth.
@@ -45,7 +45,7 @@ With `app.use('/v1', router)` and `mountSpec` defaults (`docs: true`, any route 
 | OpenAPI | `/v1/openapi.json` |
 | MCP | `/v1/mcp` |
 
-Details: [api-reference/mount-spec.md](docs/api-reference/mount-spec.md).
+Details: [mountSpec](/api-reference/mount-spec).
 
 ## Ignore (not product docs)
 
@@ -63,4 +63,4 @@ Do not treat these as API or user documentation:
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, codegen helpers |
 | `callspec/express` | `expressErrorHandler` for non-RPC routers |
 
-Full table: [api-reference/surfaces-and-exports.md](docs/api-reference/surfaces-and-exports.md).
+Full table: [Surfaces & exports](/api-reference/surfaces-and-exports).

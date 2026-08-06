@@ -103,7 +103,7 @@ No either/or. Most teams that add Fern for public DX still run Callspec MCP on t
 
 Callspec owns TypeScript end-to-end; Fern consumes the OpenAPI export for **public** multi-lang DX:
 
-![Callspec flow — OpenAPI export and Fern](../assets/callspec-flow.svg?cb=5)
+![Callspec flow — OpenAPI export and Fern](/callspec-flow.svg)
 
 ```bash
 # Callspec serves the API and contract

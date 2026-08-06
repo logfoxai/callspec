@@ -10,4 +10,4 @@
 - [Auth and scope](api-reference/auth-and-scope.md)
 - [Surfaces & package exports](api-reference/surfaces-and-exports.md)
 
-Agent routing: [AGENTS.md](../AGENTS.md).
+Agent routing: [Agents guide](/agents).

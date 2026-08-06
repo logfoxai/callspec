@@ -37,6 +37,8 @@ npm run build && npm run dev:docs
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
 
+**Guide site** (sidebar + search over these docs): `npm run docs:dev` → [http://127.0.0.1:5173](http://127.0.0.1:5173)
+
 ## Contents
 
 For coding agents: [AGENTS.md](AGENTS.md) · [llms.txt](llms.txt)

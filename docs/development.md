@@ -1,9 +1,18 @@
 # Development
 
 ```bash
-npm run validate   # build, lint, knip, typecheck:routes, test + coverage
-npm run dev:docs   # Chirp demo — see README § Try the demo
+npm run validate    # build, lint, knip, typecheck:routes, test + coverage
+npm run docs:dev    # this guide site (VitePress) — http://127.0.0.1:5173
+npm run docs:build  # static site → docs/.vitepress/dist
+npm run dev:docs    # Chirp API demo — see README § Try the demo
 ```
+
+## Guide site vs API demo
+
+| Command | What you get |
+|---------|----------------|
+| `npm run docs:dev` | **Markdown guides** (getting started, error handling, …) with sidebar and search |
+| `npm run dev:docs` | **Live Chirp API** with Callspec's built-in `/docs` explorer and MCP |
 
 ## Help build the standard
 
