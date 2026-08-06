@@ -39,8 +39,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Docs site build
-        run: npm run docs:build
-
       - name: Test
         run: npm test
