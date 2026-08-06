@@ -2,8 +2,6 @@
 
 Design reference for the callspec error contract, mountSpec runtime, and client Result shape.
 
-Agent invariants: [Agents guide](/agents).
-
 ## Overview
 
 - **`defineErrors()`** — domain error maps; shorthand **`err`** is builtins-only.

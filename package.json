@@ -52,7 +52,7 @@
     "dist",
     "assets",
     "AGENTS.md",
-    "llms.txt",
+    "skills",
     "!dist/**/*.spec.*",
     "!dist/demo/**"
   ],

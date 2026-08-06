@@ -19,7 +19,6 @@ export default defineConfig({
         nav: [
             {text: 'Guide', link: '/getting-started'},
             {text: 'API reference', link: '/api-reference'},
-            {text: 'Agents', link: '/agents'},
             {text: 'GitHub', link: 'https://github.com/logfoxai/callspec'},
         ],
         sidebar: {
@@ -76,7 +75,6 @@ function sidebarGuide() {
             text: 'Project',
             items: [
                 {text: 'API reference', link: '/api-reference'},
-                {text: 'For agents', link: '/agents'},
                 {text: 'Development', link: '/development'},
             ],
         },

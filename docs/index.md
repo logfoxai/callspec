@@ -15,9 +15,6 @@ hero:
     - theme: alt
       text: API reference
       link: /api-reference
-    - theme: alt
-      text: For agents
-      link: /agents
 
 features:
   - icon: ⚡
