@@ -7,8 +7,8 @@ title: Development
 ```bash
 npm install
 npm run validate    # build, lint, knip, typecheck:routes, test + coverage
-npm run docs:dev    # guide site (Starlight) — http://127.0.0.1:4321
-npm run docs:build  # static site → docs-site/
+npm run docs:dev    # guide site (Starlight) — http://127.0.0.1:4321 (Node ≥22.12)
+npm run docs:build  # static site → docs-site/ (Node ≥22.12)
 npm run dev:docs    # Chirp API demo — see README § Try the demo
 ```
 

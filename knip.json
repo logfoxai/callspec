@@ -1,13 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignore": [
-    "docs/internal/**",
-    "docs-site/**",
-    ".astro/**",
-    "src/content/**",
-    "public/**",
-    "astro.config.mjs"
-  ],
   "ignoreBinaries": [
     "report"
   ],
