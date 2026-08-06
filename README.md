@@ -1,17 +1,17 @@
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-dark.svg?cb=3" media="(prefers-color-scheme: dark)" />
-    <source srcset="assets/callspec-lockup-light.svg?cb=3" media="(prefers-color-scheme: light)" />
-    <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
+    <source srcset="assets/callspec-lockup-dark.svg?cb=4" media="(prefers-color-scheme: dark)" />
+    <source srcset="assets/callspec-lockup-light.svg?cb=4" media="(prefers-color-scheme: light)" />
+    <img src="assets/callspec-lockup-light.svg?cb=4" alt="callspec" />
   </picture>
   <h3 align="center">Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.</h3>
   <br>
   <p align="center">
-  <a href="assets/callspec-flow.svg">
-    <img src="assets/callspec-flow.svg" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
+  <a href="assets/callspec-flow.svg?cb=4">
+    <img src="assets/callspec-flow.svg?cb=4" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
   </a>
-   <a href="assets/features.png">
-    <img src="assets/features.png" />
+   <a href="assets/features.png?cb=4">
+    <img src="assets/features.png?cb=4" />
   </a>
 </p>
 </div>

@@ -1,8 +1,8 @@
 # API reference
 
 <p align="center">
-  <a href="../assets/callspec-flow.svg">
-    <img src="../assets/callspec-flow.svg" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
+  <a href="../assets/callspec-flow.svg?cb=4">
+    <img src="../assets/callspec-flow.svg?cb=4" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
   </a>
 </p>
 
