@@ -15,7 +15,8 @@ This content lives in the [README](../README.md) — use these anchors:
 | React / app helpers | [Client usage](../README.md#client-usage) |
 | `exports` & `--validators` | [Shared validation](../README.md#shared-validation) |
 | Docs UI & whitelabel | [Docs UI](../README.md#docs-ui) |
-| MCP tools | [MCP](../README.md#mcp) |
-| OpenAPI & `callspec.json` | [OpenAPI](../README.md#openapi) |
+| MCP tools | [MCP](../README.md#mcp) · [Callspec + Fern § MCP](using-fern-with-callspec.md#mcp) |
+| OpenAPI & Fern | [OpenAPI](../README.md#openapi) · [Callspec + Fern](using-fern-with-callspec.md) |
+| Licensing | [Callspec + Fern § Licensing & hosting](using-fern-with-callspec.md#licensing--hosting) |
 
 Start with [Getting started](../README.md#getting-started), then follow the sections you need.

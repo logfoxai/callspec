@@ -47,6 +47,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - [Docs UI](#docs-ui)
 - [MCP](#mcp)
 - [OpenAPI](#openapi)
+- [Callspec + Fern](docs/using-fern-with-callspec.md)
 - [Development](#development)
 - [Help build the standard](#help-build-the-standard)
 - [Support](#support)
@@ -195,9 +196,9 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Chirp sa
 
 1. **Define** — `route()` + `spec()` in TypeScript. Typed inputs/outputs, Result errors, optional validators (`exports` + `--validators`).
 2. **mountSpec** — serve the HTTP API, docs UI (`/docs`), OpenAPI 3.1 (`/openapi.json`), and MCP (`/mcp`). Auth is reflected in OpenAPI and MCP.
-3. **CLI** — `npx callspec http://127.0.0.1:3000/v1 --output …` (mount point; fetches `/callspec.json`) → TypeScript SDK.
-4. **OpenAPI** — gateways, testing, mocking, and multi-language generators at `/openapi.json`.
-5. **Optional: Fern** — multi-language SDKs and docs. Callspec stays your TS runtime; Fern handles public multi-lang DX. [Fern vs Callspec](docs/fern-vs-callspec.md).
+3. **CLI** — `npx callspec http://127.0.0.1:3000/v1` fetches `/callspec.json` → TypeScript SDK.
+4. **OpenAPI** — Served at `/openapi.json`. Leverage the full OpenAPI ecosystem.
+5. **Optional: Fern** — public multi-language SDKs and public docs from `/openapi.json` (hosted product, account required). Callspec stays MIT and self-hosted. [Callspec + Fern](docs/using-fern-with-callspec.md).
 
 ## Server layout
 
@@ -472,9 +473,11 @@ Set `mcp: true` on any route. When any route opts in, `mountSpec` mounts MCP at 
 
 Set `meta.mcpInstructions` for agent-facing guidance in the docs UI connect flow.
 
+This is **API-tool MCP** (live `tools/call` on your server). [Fern's MCP](docs/using-fern-with-callspec.md#mcp) is different — docs Q&A on a Fern-hosted site (Ask Fern), not a substitute for calling your API. You can run both.
+
 ## OpenAPI
 
-**OpenAPI 3.1** at **`/openapi.json`** is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors grouped by HTTP status. Use for gateways, mocking, and multi-language generators (e.g. Fern).
+**OpenAPI 3.1** at **`/openapi.json`** is a parallel projection from the same `routes` object (not derived from `callspec.json`). RPC methods appear as `POST` paths; errors grouped by HTTP status. Use for gateways, mocking, and **public DX tools** — e.g. [Fern](docs/using-fern-with-callspec.md) for multi-language SDKs and public docs while Callspec stays the runtime.
 
 ### Native contract (`callspec.json`)
 
