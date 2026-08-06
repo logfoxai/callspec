@@ -89,10 +89,11 @@ Open [http://127.0.0.1:3000/v1/docs](http://127.0.0.1:3000/v1/docs).
 ## 4. Generate the SDK
 
 ```bash
-# From URL (server running) — pass the mount point; callspec.json is appended
+# Live mount (server running) — pass the mount point; callspec.json is appended
 npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 
-# From file
+# From file — pin the contract from the server, then codegen offline
+curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
 

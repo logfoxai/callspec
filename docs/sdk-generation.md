@@ -2,17 +2,20 @@
 
 The CLI reads **`{mount}/callspec.json`** — pass a mount-point URL or a path to the file. The document already contains routes, errors, `info`, and paths.
 
+**Default:** generate a typed **`ApiClient`** (`callspec/client`). **`--validators`** is a separate opt-in mode — runtyp preds + `Infer` types from `spec({ exports })`, for forms and shared UI slices. See [Shared validation](shared-validation.md).
+
 ```bash
-# local dev (API running)
+# Live mount (server running) → ApiClient
 npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 
-# CI or offline (committed contract)
+# From file — pin the contract from the server, then codegen offline or in CI
+curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 npx callspec ./callspec.json --output src/generated/api.ts
 
-# shared runtyp preds for forms (optional)
+# Optional second pass — only if you use spec.exports
 npx callspec ./callspec.json --output src/generated/validators.ts --validators
 
-# usage: callspec <source> --output <file> [--class-name ApiClient]
+# usage: callspec <source> --output <file> [--class-name ApiClient] [--validators]
 ```
 
 Commit `callspec.json` and/or generated `api.ts`; fail CI on drift.
@@ -25,4 +28,4 @@ Commit `callspec.json` and/or generated `api.ts`; fail CI on drift.
 
 The generated file imports only `callspec/client` (browser-safe) — one typed method per route.
 
-To produce a committed contract for CI, curl the live mount or use `emitCallspec` — see [OpenAPI § Native contract](openapi.md#native-contract-callspecjson).
+To produce `callspec.json` without curl, use `emitCallspec` — see [OpenAPI § Native contract](openapi.md#native-contract-callspecjson).
