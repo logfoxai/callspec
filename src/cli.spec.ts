@@ -57,8 +57,8 @@ test('cli writes output from valid document', (assert) => {
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-            access: 'public',
-            handler: async (_input, _ctx) => 'pong',
+            auth: 'none',
+            resolver: async (_input, _ctx) => 'pong',
         }),
     }, {title: 'CLI API', version: '1.0.0'});
 

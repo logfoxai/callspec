@@ -1,4 +1,4 @@
-import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
+import {CallspecUnauthorizedError, CallspecValidationError, isRouteFailure} from './errors';
 import {serializeResponse} from './serializer';
 import type {RouteDef} from './types';
 
@@ -8,7 +8,7 @@ export async function executeRoute<TInput, TOutput, Ctx>(
     ctx: Ctx | undefined,
 ): Promise<unknown> {
 
-    if (route.access === 'private' && (ctx === undefined || ctx === null)) {
+    if (route.auth === 'bearer' && (ctx === undefined || ctx === null)) {
 
         throw new CallspecUnauthorizedError();
 
@@ -22,7 +22,13 @@ export async function executeRoute<TInput, TOutput, Ctx>(
 
     }
 
-    const result = await route.handler(inputResult.value, ctx as Ctx);
+    const result = await route.resolver(inputResult.value, ctx as Ctx);
+
+    if (isRouteFailure(result)) {
+
+        return result;
+
+    }
 
     return serializeResponse(result);
 

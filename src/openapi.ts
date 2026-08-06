@@ -1,6 +1,7 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
-import {joinRoutePath, hasPrivateRoutes} from './metaDefaults';
+import {joinRoutePath} from './metaDefaults';
+import {exportedRoutes, hasBearerRoutes} from './routeVisibility';
 import {openApiErrorResponses} from './routeErrorDocument';
 
 export type OpenApiOptions = {
@@ -17,21 +18,21 @@ export function emitOpenApi(
 
     const paths: Record<string, unknown> = {};
     const basePath = options.basePath ?? '';
-    const hasPrivate = hasPrivateRoutes(routes);
+    const hasBearer = hasBearerRoutes(routes);
 
-    for (const [name, route] of Object.entries(routes)) {
+    for (const [name, route] of Object.entries(exportedRoutes(routes))) {
 
         const outputSchema = toJsonSchema(route.output);
 
         const errorResponses = openApiErrorResponses(route.errors, {
-            includeUnauthorized: route.access === 'private',
+            includeUnauthorized: route.auth === 'bearer',
         });
 
         paths[joinRoutePath(basePath, name)] = {
             post: {
                 operationId: name,
                 summary: route.meta.summary,
-                description: route.meta.description,
+                ...(route.meta.description ? {description: route.meta.description} : {}),
                 tags: [...route.meta.tags],
                 requestBody: {
                     required: true,
@@ -52,8 +53,9 @@ export function emitOpenApi(
                         },
                     },
                 },
-                security: route.access === 'private' ? [{bearer: []}] : [],
-                'x-callspec-access': route.access,
+                security: route.auth === 'bearer' ? [{bearer: []}] : [],
+                'x-callspec-auth': route.auth,
+                'x-callspec-scope': route.scope,
                 ...(route.mcp ? {'x-callspec-mcp': true} : {}),
             },
         };
@@ -67,7 +69,7 @@ export function emitOpenApi(
             version: options.version,
             ...(options.description ? {description: options.description} : {}),
         },
-        ...(hasPrivate ? {
+        ...(hasBearer ? {
             components: {
                 securitySchemes: {
                     bearer: {

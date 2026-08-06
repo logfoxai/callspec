@@ -1,41 +1,106 @@
+import {predicates as p} from 'runtyp';
 import type {JsonSchema} from './callspecDocument';
+import type {RouteErrorDef, RouteErrorSpec} from './types';
+import {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 
-/** Framework-owned error codes — always JSON `{ error, data? }`, never declared per route. */
-export const FRAMEWORK_ERROR = {
+/** Builtin error codes — always on every route contract; never declared per route. */
+export const BUILTIN_ERROR = {
     VALIDATION_ERROR: 'VALIDATION_ERROR',
     UNAUTHORIZED: 'UNAUTHORIZED',
     INTERNAL_ERROR: 'INTERNAL_ERROR',
     ROUTE_NOT_FOUND: 'ROUTE_NOT_FOUND',
+    NOT_FOUND: 'NOT_FOUND',
+    FORBIDDEN: 'FORBIDDEN',
+    CONFLICT: 'CONFLICT',
+    TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
+    SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
 } as const;
 
-export type CallspecUnauthorizedErrorBody = {
-    error: typeof FRAMEWORK_ERROR.UNAUTHORIZED
+export type BuiltinErrorCode = typeof BUILTIN_ERROR[keyof typeof BUILTIN_ERROR];
+
+/** Builtin codes handlers throw via {@link errors} / {@link err} — subset of {@link BUILTIN_ERROR}. */
+export type ThrowableBuiltinCode =
+    | typeof BUILTIN_ERROR.NOT_FOUND
+    | typeof BUILTIN_ERROR.FORBIDDEN
+    | typeof BUILTIN_ERROR.CONFLICT
+    | typeof BUILTIN_ERROR.TOO_MANY_REQUESTS
+    | typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE;
+
+export type OptionalBuiltinContext = {
+    message?: string
+    description?: string
 };
 
-export type CallspecInternalErrorBody = {
-    error: typeof FRAMEWORK_ERROR.INTERNAL_ERROR
-};
+export const builtInErrors = {
+    NOT_FOUND: {
+        status: 404,
+        data: p.optional(p.object({
+            message: p.optional(p.string()),
+            description: p.optional(p.string()),
+        })),
+    },
+    FORBIDDEN: {
+        status: 403,
+        data: p.optional(p.object({
+            message: p.optional(p.string()),
+            description: p.optional(p.string()),
+        })),
+    },
+    CONFLICT: {
+        status: 409,
+        data: p.optional(p.object({
+            message: p.optional(p.string()),
+            description: p.optional(p.string()),
+        })),
+    },
+    TOO_MANY_REQUESTS: {
+        status: 429,
+        data: p.optional(p.object({
+            title: p.optional(p.string()),
+            message: p.optional(p.string()),
+        })),
+    },
+    SERVICE_UNAVAILABLE: {
+        status: 503,
+        data: p.optional(p.object({
+            message: p.optional(p.string()),
+            description: p.optional(p.string()),
+        })),
+    },
+} satisfies Record<ThrowableBuiltinCode, RouteErrorSpec>;
 
-export type CallspecRouteNotFoundErrorBody = {
-    error: typeof FRAMEWORK_ERROR.ROUTE_NOT_FOUND
-    data: {route: string}
-};
+function toBuiltInErrorDef(spec: RouteErrorSpec): RouteErrorDef {
 
-export type CallspecValidationErrorBody = {
-    error: typeof FRAMEWORK_ERROR.VALIDATION_ERROR
-    errors: Record<string, string>
-};
+    return {
+        status: spec.status ?? DEFAULT_ROUTE_ERROR_STATUS,
+        ...(spec.data ? {data: spec.data} : {}),
+    };
 
-export type CallspecFrameworkErrorBody =
-    | CallspecValidationErrorBody
-    | CallspecUnauthorizedErrorBody
-    | CallspecInternalErrorBody
-    | CallspecRouteNotFoundErrorBody;
+}
+
+/** Builtin error defs merged onto every route at defineRoute time. */
+export const builtInErrorDefs = Object.fromEntries(
+    (Object.entries(builtInErrors) as [ThrowableBuiltinCode, RouteErrorSpec][]).map(
+        ([code, spec]) => [code, toBuiltInErrorDef(spec)],
+    ),
+) as Record<ThrowableBuiltinCode, RouteErrorDef>;
+
+export function isThrowableBuiltinCode(code: string): code is ThrowableBuiltinCode {
+
+    return Object.prototype.hasOwnProperty.call(builtInErrors, code);
+
+}
+
+export function isBuiltinErrorCode(code: string): code is BuiltinErrorCode {
+
+    return (Object.values(BUILTIN_ERROR) as string[]).includes(code);
+
+}
 
 const VALIDATION_ERROR_SCHEMA: JsonSchema = {
     type: 'object',
     properties: {
-        error: {const: FRAMEWORK_ERROR.VALIDATION_ERROR},
+        error: {const: BUILTIN_ERROR.VALIDATION_ERROR},
         errors: {type: 'object', additionalProperties: {type: 'string'}},
     },
     required: ['error', 'errors'],
@@ -44,7 +109,7 @@ const VALIDATION_ERROR_SCHEMA: JsonSchema = {
 const UNAUTHORIZED_ERROR_SCHEMA: JsonSchema = {
     type: 'object',
     properties: {
-        error: {const: FRAMEWORK_ERROR.UNAUTHORIZED},
+        error: {const: BUILTIN_ERROR.UNAUTHORIZED},
     },
     required: ['error'],
 };
@@ -52,7 +117,7 @@ const UNAUTHORIZED_ERROR_SCHEMA: JsonSchema = {
 const INTERNAL_ERROR_SCHEMA: JsonSchema = {
     type: 'object',
     properties: {
-        error: {const: FRAMEWORK_ERROR.INTERNAL_ERROR},
+        error: {const: BUILTIN_ERROR.INTERNAL_ERROR},
     },
     required: ['error'],
 };
@@ -60,7 +125,7 @@ const INTERNAL_ERROR_SCHEMA: JsonSchema = {
 const ROUTE_NOT_FOUND_ERROR_SCHEMA: JsonSchema = {
     type: 'object',
     properties: {
-        error: {const: FRAMEWORK_ERROR.ROUTE_NOT_FOUND},
+        error: {const: BUILTIN_ERROR.ROUTE_NOT_FOUND},
         data: {
             type: 'object',
             properties: {route: {type: 'string'}},
@@ -70,25 +135,26 @@ const ROUTE_NOT_FOUND_ERROR_SCHEMA: JsonSchema = {
     required: ['error', 'data'],
 };
 
-export function openApiFrameworkErrorResponses(options: {
+/** OpenAPI responses for mount/router-owned builtin errors (not handler throwables). */
+export function openApiMountBuiltinErrorResponses(options: {
     includeUnauthorized?: boolean
 } = {}): Record<string, unknown> {
 
     const responses: Record<string, unknown> = {
         400: {
-            description: FRAMEWORK_ERROR.VALIDATION_ERROR,
+            description: BUILTIN_ERROR.VALIDATION_ERROR,
             content: {
                 'application/json': {schema: VALIDATION_ERROR_SCHEMA},
             },
         },
         404: {
-            description: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
+            description: BUILTIN_ERROR.ROUTE_NOT_FOUND,
             content: {
                 'application/json': {schema: ROUTE_NOT_FOUND_ERROR_SCHEMA},
             },
         },
         500: {
-            description: FRAMEWORK_ERROR.INTERNAL_ERROR,
+            description: BUILTIN_ERROR.INTERNAL_ERROR,
             content: {
                 'application/json': {schema: INTERNAL_ERROR_SCHEMA},
             },
@@ -98,7 +164,7 @@ export function openApiFrameworkErrorResponses(options: {
     if (options.includeUnauthorized) {
 
         responses['401'] = {
-            description: FRAMEWORK_ERROR.UNAUTHORIZED,
+            description: BUILTIN_ERROR.UNAUTHORIZED,
             content: {
                 'application/json': {schema: UNAUTHORIZED_ERROR_SCHEMA},
             },
@@ -176,13 +242,13 @@ function mergeJsonSchemas(left: JsonSchema, right: JsonSchema): JsonSchema {
 }
 
 export function mergeOpenApiErrorResponses(
-    framework: Record<string, unknown>,
-    domain: Record<string, unknown>,
+    mountBuiltin: Record<string, unknown>,
+    throwableAndDomain: Record<string, unknown>,
 ): Record<string, unknown> {
 
-    const merged = {...framework};
+    const merged = {...mountBuiltin};
 
-    for (const [status, response] of Object.entries(domain)) {
+    for (const [status, response] of Object.entries(throwableAndDomain)) {
 
         if (merged[status]) {
 

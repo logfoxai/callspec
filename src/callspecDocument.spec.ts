@@ -1,20 +1,20 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRoute, defineSpec} from '.';
+import {route, spec} from '.';
 import {
     CALLSPEC_DOCUMENT_VERSION,
     parseCallspecDocument,
 } from './callspecDocument';
 import {emitCallspec} from './emitCallspec';
 
-const api = defineSpec({
+const api = spec({
     meta: {
         title: 'Test API',
         version: '2.0.0',
         intro: 'Test intro',
     },
     routes: {
-        searchLogs: defineRoute({
+        searchLogs: route({
             input: p.object({
                 teamId: p.string(),
                 query: p.optional(p.string()),
@@ -27,11 +27,11 @@ const api = defineSpec({
                 description: 'Find log events',
                 tags: ['logs'],
             },
-            access: 'private',
+            auth: 'bearer',
             mcp: true,
-            handler: async (_input, _ctx) => ({results: []}),
+            resolver: async (_input, _ctx) => ({results: []}),
         }),
-        healthcheck: defineRoute({
+        healthcheck: route({
             input: p.object({}),
             output: p.object({status: p.string()}),
             meta: {
@@ -39,8 +39,8 @@ const api = defineSpec({
                 description: 'Liveness probe',
                 tags: ['system'],
             },
-            access: 'public',
-            handler: async (_input, _ctx) => ({status: 'ok'}),
+            auth: 'none',
+            resolver: async (_input, _ctx) => ({status: 'ok'}),
         }),
     },
     authenticate: () => ({userId: 'test'}),
@@ -79,13 +79,15 @@ test('emitCallspec: includes route metadata, schemas, access, and MCP state', (a
     assert.equal(search.summary, 'Search logs');
     assert.equal(search.description, 'Find log events');
     assert.equal(search.tags[0], 'logs');
-    assert.equal(search.access, 'private');
+    assert.equal(search.auth, 'bearer');
+    assert.equal(search.scope, 'public');
     assert.equal(search.mcp.enabled, true);
     assert.equal((search.input as {required?: string[]}).required?.includes('teamId'), true);
 
     const health = doc.routes.healthcheck;
 
-    assert.equal(health.access, 'public');
+    assert.equal(health.auth, 'none');
+    assert.equal(health.scope, 'public');
     assert.equal(health.mcp.enabled, false);
 
 });
@@ -138,8 +140,50 @@ test('parseCallspecDocument: rejects malformed documents', (assert) => {
     );
 
     assert.throws(
-        () => parseCallspecDocument({callspec: '1.0'}),
+        () => parseCallspecDocument({callspec: '2.0'}),
         /must include info/,
+    );
+
+});
+
+test('emitCallspec: omits scope private routes from the document', (assert) => {
+
+    const routes = {
+        publicRoute: route({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Public', description: 'Exported', tags: []},
+            scope: 'public',
+            auth: 'none',
+            resolver: async (_input, _ctx) => ({ok: true}),
+        }),
+        internalRoute: route({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Internal', description: 'Not exported', tags: []},
+            scope: 'private',
+            auth: 'none',
+            resolver: async (_input, _ctx) => ({ok: true}),
+        }),
+    };
+
+    const doc = emitCallspec(routes, {title: 'Scope API', version: '1.0.0'});
+
+    assert.equal(Object.keys(doc.routes).join(','), 'publicRoute');
+    assert.equal(doc.routes.publicRoute.scope, 'public');
+    assert.equal(doc.routes.internalRoute, undefined);
+
+});
+
+test('parseCallspecDocument: rejects callspec 1.x documents', (assert) => {
+
+    assert.throws(
+        () => parseCallspecDocument({
+            callspec: '1.0',
+            info: {title: 'Legacy', version: '1.0.0'},
+            routes: {},
+        }),
+        /Unsupported Callspec document version/,
     );
 
 });
@@ -148,7 +192,7 @@ test('parseCallspecDocument: rejects unsupported major versions', (assert) => {
 
     assert.throws(
         () => parseCallspecDocument({
-            callspec: '2.0',
+            callspec: '3.0',
             info: {title: 'X', version: '1.0.0'},
             routes: {},
         }),

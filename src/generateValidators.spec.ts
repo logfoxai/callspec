@@ -57,7 +57,7 @@ test('emitCallspec: includes exports when provided', (assert) => {
                 }),
                 output: p.object({results: p.array(p.object({id: p.string()}))}),
                 meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-                handler: async (_input, _ctx) => ({results: []}),
+                resolver: async (_input, _ctx) => ({results: []}),
             }),
         },
         {
@@ -97,7 +97,7 @@ test('generateValidatorsSource: rejects duplicate export and route pred names', 
                 input: p.object({teamId: p.string()}),
                 output: p.object({ok: p.boolean()}),
                 meta: {summary: 'Search', description: 'Search', tags: []},
-                handler: async (_input, _ctx) => ({ok: true}),
+                resolver: async (_input, _ctx) => ({ok: true}),
             }),
         },
         {
@@ -137,7 +137,7 @@ test('generateValidatorsFile: emits runtyp preds for exports and routes', async 
                 }),
                 output: p.object({results: p.array(p.object({id: p.string()}))}),
                 meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-                handler: async (_input, _ctx) => ({results: []}),
+                resolver: async (_input, _ctx) => ({results: []}),
             }),
         },
         {

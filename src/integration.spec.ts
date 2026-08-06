@@ -2,10 +2,10 @@ import {test} from 'kizu';
 import express from 'express';
 import http from 'http';
 import {predicates as p} from 'runtyp';
-import {defineSpec} from './defineSpec';
+import {spec} from './defineSpec';
 import {defineRoute} from './defineRoute';
 import {mountSpec} from './mountSpec';
-import {errors} from './routeErrors';
+import {defineErrors} from './defineErrors';
 import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
 import {parseCallspecDocument} from './callspecDocument';
 
@@ -19,8 +19,8 @@ const routes = {
             description: 'Returns OK when the service is up.',
             tags: ['health'],
         },
-        access: 'public',
-        handler: (_input, _ctx) => 'OK',
+        auth: 'none',
+        resolver: (_input, _ctx) => 'OK',
     }),
 
     echo: defineRoute({
@@ -31,8 +31,8 @@ const routes = {
             description: 'Returns the input message.',
             tags: ['demo'],
         },
-        access: 'private',
-        handler: (input: {message: string}, _ctx) => ({echo: input.message}),
+        auth: 'bearer',
+        resolver: (input: {message: string}, _ctx) => ({echo: input.message}),
     }),
 
     greet: defineRoute({
@@ -43,9 +43,9 @@ const routes = {
             description: 'Returns a hello payload.',
             tags: ['demo'],
         },
-        access: 'public',
+        auth: 'none',
         mcp: true,
-        handler: (input: {name: string}, _ctx) => ({hello: input.name}),
+        resolver: (input: {name: string}, _ctx) => ({hello: input.name}),
     }),
 
 };
@@ -67,7 +67,7 @@ const authenticate = (token: string): {userId: string} | undefined => {
 
 };
 
-const fixtureSpec = defineSpec({
+const fixtureSpec = spec({
     meta,
     routes,
     authenticate,
@@ -80,7 +80,7 @@ function createTestApp(): http.Server {
 
     router.use(express.json());
 
-    mountSpec(router, fixtureSpec);
+    mountSpec(router, fixtureSpec, {logging: false});
 
     app.use('/v1', router);
 
@@ -142,7 +142,7 @@ test('integration: callspec.json lists all fixture routes', async (assert) => {
         const doc = await res.json() as Record<string, unknown>;
 
         assert.equal(res.status, 200);
-        assert.equal(doc.callspec, '1.0');
+        assert.equal(doc.callspec, '2.0');
         assert.equal((doc.info as {title: string}).title, 'Fixture API');
 
         const spec = callspecDocumentToUiSpec(parseCallspecDocument(doc));
@@ -151,14 +151,52 @@ test('integration: callspec.json lists all fixture routes', async (assert) => {
 
         const greet = spec.routes.find((route) => route.name === 'greet');
 
-        assert.equal(greet?.access, 'public');
+        assert.equal(greet?.auth, 'none');
         assert.equal(greet?.mcp, true);
 
         const echo = spec.routes.find((route) => route.name === 'echo');
 
-        assert.equal(echo?.access, 'private');
+        assert.equal(echo?.auth, 'bearer');
 
     });
+
+});
+
+test('integration: docs UI loads callspec.json at custom docsPath', async (assert) => {
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, fixtureSpec, {docsPath: '/explorer', logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    const origin = `http://127.0.0.1:${addr.port}`;
+
+    try {
+
+        const html = await fetch(`${origin}/v1/explorer/`).then((res) => res.text());
+
+        assert.equal(html.includes('"specUrl":"../callspec.json"'), true);
+
+        const specFromDocs = await fetch(new URL('../callspec.json', `${origin}/v1/explorer/`));
+
+        assert.equal(specFromDocs.status, 200);
+        assert.equal((await specFromDocs.json() as {info?: {title?: string}}).info?.title, 'Fixture API');
+
+    } finally {
+
+        await closeServer(server);
+
+    }
 
 });
 
@@ -194,7 +232,7 @@ test('integration: callspec UI at /docs', async (assert) => {
         const specFromDocs = await fetch(new URL('../callspec.json', `${base}/docs/`));
 
         assert.equal(specFromDocs.status, 200);
-        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '1.0');
+        assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '2.0');
         assert.equal(html.includes('src="./assets/app.js"'), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
@@ -220,7 +258,7 @@ test('integration: docs UI loads callspec.json when mountSpec uses basePath', as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, fixtureSpec, {basePath: '/v1'});
+    mountSpec(router, fixtureSpec, {basePath: '/v1', logging: false});
     app.use(router);
 
     const server = http.createServer(app);
@@ -370,15 +408,15 @@ test('integration: unknown RPC route returns ROUTE_NOT_FOUND', async (assert) =>
 
 test('integration: unhandled handler error returns INTERNAL_ERROR', async (assert) => {
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Boom API', version: '1.0.0'},
         routes: {
             boom: defineRoute({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
-                access: 'public',
-                handler: async (_input, _ctx) => {
+                auth: 'none',
+                resolver: async (_input, _ctx) => {
 
                     throw new Error('boom');
 
@@ -391,7 +429,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -421,14 +459,200 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
 
 });
 
-test('integration: declared route errors map to HTTP status and body', async (assert) => {
+test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (assert) => {
 
-    const err = errors({
-        NOT_FOUND: {status: 404},
-        USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
+    const api = spec({
+        meta: {title: 'Reject API', version: '1.0.0'},
+        routes: {
+            reject: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Reject', description: 'Reject', tags: ['x']},
+                auth: 'none',
+                resolver: async (_input, _ctx) => Promise.reject(new Error('reject')),
+            }),
+        },
     });
 
-    const spec = defineSpec({
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/reject`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 500);
+        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: handleUnhandledError maps throw to wire failure', async (assert) => {
+
+    const api = spec({
+        meta: {title: 'Hook API', version: '1.0.0'},
+        routes: {
+            timeout: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Timeout', description: 'Timeout', tags: ['x']},
+                auth: 'none',
+                resolver: async (_input, _ctx) => {
+
+                    const err = new Error('canceling statement due to statement timeout') as Error & {code: string};
+                    err.code = '57014';
+                    throw err;
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {
+        logging: false,
+        handleUnhandledError: (err) => {
+
+            if (typeof err === 'object' && err !== null && (err as {code?: string}).code === '57014') {
+
+                return {
+                    ok: false,
+                    code: 'SERVICE_UNAVAILABLE',
+                    status: 503,
+                    data: {message: 'The request took too long to process. Please try again.'},
+                };
+
+            }
+
+        },
+    });
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/timeout`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 503);
+        assert.equal(await res.json(), {
+            error: 'SERVICE_UNAVAILABLE',
+            data: {message: 'The request took too long to process. Please try again.'},
+        });
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: logUnhandledError is called for unhandled handler errors', async (assert) => {
+
+    let logged: unknown;
+
+    const api = spec({
+        meta: {title: 'Log API', version: '1.0.0'},
+        routes: {
+            boom: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
+                auth: 'none',
+                resolver: async (_input, _ctx) => {
+
+                    throw new Error('logged boom');
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {
+        logging: false,
+        logUnhandledError: (err) => {
+
+            logged = err;
+
+        },
+    });
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/boom`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 500);
+        assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
+        assert.equal(logged instanceof Error, true);
+        assert.equal((logged as Error).message, 'logged boom');
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: declared route errors map to HTTP status and body', async (assert) => {
+
+    const err = defineErrors({
+        USER_EXISTS: {data: p.object({email: p.string()})},
+    });
+
+    const api = spec({
         meta: {title: 'Errors API', version: '1.0.0'},
         routes: {
             getUser: defineRoute({
@@ -440,18 +664,18 @@ test('integration: declared route errors map to HTTP status and body', async (as
                     description: 'Looks up a user by email',
                     tags: ['users'],
                 },
-                access: 'public',
-                handler: (input: {email: string}, _ctx: unknown) => {
+                auth: 'none',
+                resolver: (input: {email: string}, _ctx: unknown) => {
 
                     if (input.email === 'missing@example.com') {
 
-                        throw err.NOT_FOUND();
+                        return err.NOT_FOUND();
 
                     }
 
                     if (input.email === 'taken@example.com') {
 
-                        throw err.USER_EXISTS({email: input.email});
+                        return err.USER_EXISTS({email: input.email});
 
                     }
 
@@ -466,7 +690,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -496,7 +720,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
             body: JSON.stringify({email: 'taken@example.com'}),
         });
 
-        assert.equal(exists.status, 409);
+        assert.equal(exists.status, 400);
         assert.equal(await exists.json(), {error: 'USER_EXISTS', data: {email: 'taken@example.com'}});
 
         const ok = await fetch(`${base}/getUser`, {
@@ -512,7 +736,65 @@ test('integration: declared route errors map to HTTP status and body', async (as
         const parsed = await doc.json() as {routes: {getUser: {errors?: Record<string, {status: number}>}}};
 
         assert.equal(parsed.routes.getUser.errors?.NOT_FOUND?.status, 404);
-        assert.equal(parsed.routes.getUser.errors?.USER_EXISTS?.status, 409);
+        assert.equal(parsed.routes.getUser.errors?.USER_EXISTS?.status, 400);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: declared domain failure is returned on the wire', async (assert) => {
+
+    const domainErr = defineErrors({
+        MYSTERY: {status: 418},
+    });
+
+    const api = spec({
+        meta: {title: 'Strict API', version: '1.0.0'},
+        routes: {
+            boom: defineRoute({
+                input: p.object({}),
+                output: p.string(),
+                errors: domainErr,
+                meta: {
+                    summary: 'Boom',
+                    description: 'Returns declared domain error',
+                    tags: ['test'],
+                },
+                auth: 'none',
+                resolver: (_input, _ctx) => domainErr.MYSTERY(),
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/boom`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        });
+
+        assert.equal(res.status, 418);
+        assert.equal(await res.json(), {error: 'MYSTERY'});
 
     } finally {
 
@@ -570,7 +852,7 @@ test('integration: MCP tools/call uses spec.authenticate', async (assert) => {
 
 test('integration: no MCP when routes do not opt in', async (assert) => {
 
-    const noMcpSpec = defineSpec({
+    const noMcpSpec = spec({
         meta: {
             title: 'No MCP',
             version: '0.0.1',
@@ -580,8 +862,8 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-                access: 'public',
-                handler: (_input, _ctx) => 'pong',
+                auth: 'none',
+                resolver: (_input, _ctx) => 'pong',
             }),
         },
     });
@@ -591,7 +873,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
 
     router.use(express.json());
 
-    mountSpec(router, noMcpSpec);
+    mountSpec(router, noMcpSpec, {logging: false});
 
     app.use('/v1', router);
 
@@ -628,7 +910,7 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
 
     router.use(express.json());
 
-    mountSpec(router, fixtureSpec, {docs: false});
+    mountSpec(router, fixtureSpec, {docs: false, logging: false});
 
     app.use(router);
 
@@ -662,14 +944,14 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
 
 test('integration: default meta title and version when omitted', async (assert) => {
 
-    const sparseSpec = defineSpec({
+    const sparseSpec = spec({
         routes: {
             ping: defineRoute({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-                access: 'public',
-                handler: (_input, _ctx) => 'pong',
+                auth: 'none',
+                resolver: (_input, _ctx) => 'pong',
             }),
         },
     });
@@ -679,7 +961,7 @@ test('integration: default meta title and version when omitted', async (assert) 
 
     router.use(express.json());
 
-    mountSpec(router, sparseSpec);
+    mountSpec(router, sparseSpec, {logging: false});
 
     app.use(router);
 

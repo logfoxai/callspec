@@ -1,11 +1,11 @@
-import type {RouteAccess} from '../types';
+import type {RouteAuth} from '../types';
 
 export type CallspecUiRoute = {
     name: string
     summary: string
     description: string
     tags: string[]
-    access: RouteAccess
+    auth: RouteAuth
     mcp: boolean
     inputSchema: unknown
     outputSchema: unknown

@@ -1,5 +1,10 @@
 import type {RequestHandler, Router} from 'express';
-import {CallspecUnauthorizedError, CallspecValidationError, formatRouteErrorBody, isCallspecRouteError} from './errors';
+import {
+    CallspecUnauthorizedError,
+    CallspecValidationError,
+    formatRouteFailureBody,
+    isRouteFailure,
+} from './errors';
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
@@ -114,6 +119,13 @@ export function mountMcp<Ctx>(
                     const ctx = await resolveRouteContext(route, authenticate, req);
                     const result = await executeRoute(route, body.params?.arguments ?? {}, ctx);
 
+                    if (isRouteFailure(result)) {
+
+                        respond(toolError(JSON.stringify(formatRouteFailureBody(result))));
+                        return;
+
+                    }
+
                     respond({
                         content: [{type: 'text', text: JSON.stringify(result, null, 2)}],
                         structuredContent: result,
@@ -121,6 +133,13 @@ export function mountMcp<Ctx>(
                     return;
 
                 } catch (err) {
+
+                    if (isRouteFailure(err)) {
+
+                        respond(toolError(JSON.stringify(formatRouteFailureBody(err))));
+                        return;
+
+                    }
 
                     if (err instanceof CallspecUnauthorizedError) {
 
@@ -132,13 +151,6 @@ export function mountMcp<Ctx>(
                     if (err instanceof CallspecValidationError) {
 
                         respond(toolError(JSON.stringify(err.errors)));
-                        return;
-
-                    }
-
-                    if (isCallspecRouteError(err)) {
-
-                        respond(toolError(JSON.stringify(formatRouteErrorBody(err))));
                         return;
 
                     }

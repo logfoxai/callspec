@@ -9,7 +9,7 @@ export function callspecDocumentToUiSpec(doc: CallspecDocument): CallspecUiSpec 
             summary: route.summary,
             description: route.description,
             tags: [...route.tags],
-            access: route.access,
+            auth: route.auth,
             mcp: route.mcp.enabled,
             inputSchema: route.input,
             outputSchema: route.output,

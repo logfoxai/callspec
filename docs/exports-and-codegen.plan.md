@@ -19,7 +19,7 @@ Today:
 
 ## Goals
 
-- **`defineSpec({ exports })`** — named registry of runtyp preds emitted to `callspec.json`.
+- **`spec({ exports })`** — named registry of runtyp preds emitted to `callspec.json`.
 - **Validator codegen** — emit runtyp `Pred` objects + `Infer` types for routes and exports.
 - **Documentation** — README and docs prominently position callspec as **shared validation/types**, not "client generator only".
 - Browser-safe output: generated files import **`runtyp`** + **`callspec/client`** only.
@@ -32,10 +32,10 @@ Today:
 
 ---
 
-## `defineSpec` API
+## `spec` API
 
 ```typescript
-defineSpec({
+spec({
   meta: { … },
   routes: { searchLogs: defineRoute({ input: searchLogsInput, … }) },
   exports: {
@@ -155,7 +155,7 @@ Implementation options for pred reconstruction:
 ### PR 1 — `exports` in document + emit
 
 - [ ] Extend `CallspecDocument` with `exports?: Record<string, JsonSchema>`.
-- [ ] `defineSpec` accepts `exports: Record<string, Pred>`.
+- [ ] `spec` accepts `exports: Record<string, Pred>`.
 - [ ] `emitCallspec` merges `toJsonSchema(export)` into document.
 - [ ] Tests: round-trip parse, OpenAPI unaffected, integration `callspec.json` includes exports.
 - [ ] README section (design + "coming in this release" if partial).

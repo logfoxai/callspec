@@ -570,13 +570,13 @@ html, body {
     color: var(--text-secondary);
 }
 
-.badge.public {
+.badge.auth-none {
     border-color: var(--badge-public-border);
     color: var(--green);
     background: var(--badge-public-bg);
 }
 
-.badge.private {
+.badge.auth-bearer {
     border-color: var(--badge-private-border);
     color: var(--amber);
     background: var(--badge-private-bg);

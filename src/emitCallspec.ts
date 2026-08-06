@@ -1,5 +1,6 @@
 import {toJsonSchema, type Pred} from 'runtyp';
 import type {RoutesMap} from './types';
+import {exportedRoutes} from './routeVisibility';
 import {joinRoutePath} from './metaDefaults';
 import {
     CALLSPEC_DOCUMENT_VERSION,
@@ -25,7 +26,7 @@ export function emitCallspec(
 ): CallspecDocument {
 
     const basePath = options.basePath ?? '';
-    const sortedNames = Object.keys(routes).sort((a, b) => a.localeCompare(b));
+    const sortedNames = Object.keys(exportedRoutes(routes)).sort((a, b) => a.localeCompare(b));
     const documentRoutes: Record<string, CallspecDocumentRoute> = {};
 
     for (const name of sortedNames) {
@@ -37,9 +38,10 @@ export function emitCallspec(
             path: joinRoutePath(basePath, name),
             method: 'POST',
             summary: route.meta.summary,
-            description: route.meta.description,
+            description: route.meta.description ?? '',
             tags: [...route.meta.tags],
-            access: route.access,
+            auth: route.auth,
+            scope: route.scope,
             input: toJsonSchema(route.input) as JsonSchema,
             output: toJsonSchema(route.output) as JsonSchema,
             errors: documentRouteErrors(route.errors),

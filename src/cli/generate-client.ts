@@ -10,7 +10,7 @@ function printHelp(): void {
   callspec <source> --output <file> [--validators] [--class-name <name>]
 
 Arguments:
-  <source>    Path to callspec.json or HTTP(S) URL
+  <source>    Mount point (URL or directory) or path to callspec.json
 
 Options:
   --output      Output TypeScript file (required)
@@ -18,9 +18,13 @@ Options:
   --class-name  Generated client class name (default: ApiClient; client mode only)
   --help        Show this help
 
+Document paths are fixed: <mount>/callspec.json (and <mount>/openapi.json for OpenAPI tools).
+
 Examples:
   callspec ./callspec.json --output ./src/generated/api.ts
+  callspec ./ --output ./src/generated/api.ts
   callspec ./callspec.json --output ./src/generated/validators.ts --validators
+  callspec http://127.0.0.1:3000/v1 --output ./src/generated/api.ts
   callspec https://api.example.com/v1/callspec.json --output ./src/generated/api.ts
 `);
 
