@@ -1,5 +1,22 @@
 # Development
 
+## Install (contributors)
+
+```bash
+npm ci    # always — uses package-lock.json exactly; do not npm install after clone
+```
+
+If install fails with a missing `esbuild/install.js` or similar, the local `node_modules` is corrupted (interrupted install or bad npm cache). Recover with:
+
+```bash
+rm -rf node_modules
+npm ci
+```
+
+**npm package consumers** (`npm install callspec` in another project) never install `devDependencies` — no esbuild, Vite, or VitePress. This install path is **clone/CI/contributors only**. CI runs `npm ci` on every PR (Node 20, 22, 24).
+
+## Commands
+
 ```bash
 npm run validate    # build, lint, knip, typecheck:routes, test + coverage
 npm run docs:dev    # this guide site (VitePress) — http://127.0.0.1:5173
