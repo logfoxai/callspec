@@ -4,16 +4,13 @@
     <source srcset="assets/callspec-lockup-light.svg?cb=3" media="(prefers-color-scheme: light)" />
     <img src="assets/callspec-lockup-light.svg?cb=3" alt="callspec" />
   </picture>
-
   <h3 align="center">Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.</h3>
-
   <br>
-
-  <p>
-    <a href="assets/callspec-ui-chirp-demo-home.png">
-      <img src="assets/callspec-ui-chirp-demo-home.png" alt="callspec UI" width="920" />
-    </a>
-  </p>
+  <p align="center">
+  <a href="assets/callspec-flow.png">
+    <img src="assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
+  </a>
+</p>
 </div>
 
 Define your API once with simple TypeScript — methods like `getProductById` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
@@ -30,14 +27,6 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
 - ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
 - 🔐 **Auth & scope** — `auth: none | bearer` for credentials; `scope: public | private` for exports (SDK, docs, OpenAPI)
-
-<p align="center">
-  <a href="assets/callspec-flow.png">
-    <img src="assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
-  </a>
-</p>
-
-**Define once** with `route()` + `spec()` → **mountSpec** serves API, docs, OpenAPI, and MCP → **CLI** generates your TypeScript SDK → export **OpenAPI** for the ecosystem (optional [Fern](https://buildwithfern.com/) for Python, Go, Java, and more). See [Fern vs Callspec](docs/fern-vs-callspec.md).
 
 ## Getting started
 
