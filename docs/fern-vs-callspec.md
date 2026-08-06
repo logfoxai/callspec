@@ -49,7 +49,9 @@ Realistic framing:
 1. **Callspec = code-first server contract for TypeScript**
 2. **Fern / Stainless = consume OpenAPI for public multi-lang DX**
 
-Those can compose: Callspec emits `/openapi.json` → Fern for Python/Go + public docs if needed. Callspec does not need to grow into Fern's product. The core flow is in the [Guide](guide.md#how-it-fits-together) diagram; Fern sits on the OpenAPI export from step 2.
+Those can compose: Callspec emits `/openapi.json` → Fern for Python/Go + public docs if needed. Callspec does not need to grow into Fern's product.
+
+![Callspec flow — OpenAPI export and Fern](../assets/callspec-flow.png)
 
 ```bash
 # After mountSpec is serving your API:

@@ -6,15 +6,15 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 <p align="center">
   <a href="../assets/callspec-flow.png">
-    <img src="../assets/callspec-flow.png" alt="Callspec flow: Define route and spec, generate with mountSpec and CLI, ship API TS SDK MCP and docs" width="800" />
+    <img src="../assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
   </a>
 </p>
 
-1. **Define** — `route()` + `spec()` in TypeScript (`route + spec`). Input, output, and errors are fully typed; Callspec validates at the boundary before your resolver runs.
-2. **Generate** — `mountSpec` + CLI. `mountSpec` serves the live RPC server plus `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp`. The CLI generates a TypeScript SDK with shared types; optional `exports` + `--validators` emit runtyp preds for forms.
-3. **Ship** — **API**, **TS SDK**, **MCP**, and **Docs** from one contract — no drift between server, client, explorer, and agents.
-
-**Optional: other languages** — point [Fern](https://buildwithfern.com/) at `/openapi.json` (`fern init --openapi`, `fern generate`) for **Python, Go, Java, Ruby, C#**, and more. Callspec stays your TS runtime; Fern handles multi-lang DX. Details: [Fern vs Callspec](fern-vs-callspec.md).
+1. **Define** — `route()` + `spec()` in TypeScript. Typed inputs/outputs, Result errors, optional validators (`exports` + `--validators`).
+2. **mountSpec** — serve the HTTP API, docs UI (`/docs`), OpenAPI 3.1 (`/openapi.json`), and MCP (`/mcp`). Auth (public or Bearer) is reflected in OpenAPI and MCP.
+3. **CLI** — `npx callspec generate` → TypeScript SDK to use in your app or publish for consumers.
+4. **OpenAPI** — point gateways, testing, mocking, and custom generators at `/openapi.json`.
+5. **Optional: Fern** — multi-language SDKs and docs (Python, Go, Java, C#, …). Callspec stays your TS runtime; Fern handles public multi-lang DX. Details: [Fern vs Callspec](fern-vs-callspec.md).
 
 ## Full backend example
 

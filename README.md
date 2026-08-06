@@ -33,11 +33,11 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 <p align="center">
   <a href="assets/callspec-flow.png">
-    <img src="assets/callspec-flow.png" alt="Callspec flow: Define route and spec, generate with mountSpec and CLI, ship API TS SDK MCP and docs" width="800" />
+    <img src="assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
   </a>
 </p>
 
-**Define** with `route()` + `spec()` → **generate** with `mountSpec` + CLI → **ship** **API**, **TS SDK**, **MCP**, and **Docs**. Point [Fern](https://buildwithfern.com/) at `/openapi.json` when you need **Python, Go, Java**, and other client libraries. See [Fern vs Callspec](docs/fern-vs-callspec.md).
+**Define once** with `route()` + `spec()` → **mountSpec** serves API, docs, OpenAPI, and MCP → **CLI** generates your TypeScript SDK → export **OpenAPI** for the ecosystem (optional [Fern](https://buildwithfern.com/) for Python, Go, Java, and more). See [Fern vs Callspec](docs/fern-vs-callspec.md).
 
 ## Getting started
 

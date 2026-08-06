@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="../assets/callspec-flow.png">
-    <img src="../assets/callspec-flow.png" alt="Callspec flow: Define route and spec, generate with mountSpec and CLI, ship API TS SDK MCP and docs" width="800" />
+    <img src="../assets/callspec-flow.png" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" width="920" />
   </a>
 </p>
 
