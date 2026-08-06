@@ -6,13 +6,15 @@ Beyond the [Getting started](../README.md#getting-started) happy path — full s
 
 <p align="center">
   <a href="../assets/callspec-flow.png">
-    <img src="../assets/callspec-flow.png" alt="Callspec flow diagram" width="920" />
+    <img src="../assets/callspec-flow.png" alt="Callspec flow: Define route and spec, generate with mountSpec and CLI, ship API TS SDK MCP and docs" width="800" />
   </a>
 </p>
 
-1. **Define** — `route({ input, output, meta, resolver })` and `spec({ routes })` in TypeScript. Input, output, and errors are fully typed; Callspec validates at the boundary before your resolver runs.
-2. **Generate** — `mountSpec` serves the live RPC server plus `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp`. The CLI generates a TypeScript SDK with shared types; optional `exports` + `--validators` emit runtyp preds for forms.
-3. **Optional: other languages** — export OpenAPI and run [Fern](https://buildwithfern.com/) (`fern init --openapi`, `fern generate`) for idiomatic **Python, Go, Java, Ruby, C#**, and more. Callspec does not try to be Fern; it emits the spec Fern expects. Details: [Fern vs Callspec](fern-vs-callspec.md).
+1. **Define** — `route()` + `spec()` in TypeScript (`route + spec`). Input, output, and errors are fully typed; Callspec validates at the boundary before your resolver runs.
+2. **Generate** — `mountSpec` + CLI. `mountSpec` serves the live RPC server plus `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp`. The CLI generates a TypeScript SDK with shared types; optional `exports` + `--validators` emit runtyp preds for forms.
+3. **Ship** — **API**, **TS SDK**, **MCP**, and **Docs** from one contract — no drift between server, client, explorer, and agents.
+
+**Optional: other languages** — point [Fern](https://buildwithfern.com/) at `/openapi.json` (`fern init --openapi`, `fern generate`) for **Python, Go, Java, Ruby, C#**, and more. Callspec stays your TS runtime; Fern handles multi-lang DX. Details: [Fern vs Callspec](fern-vs-callspec.md).
 
 ## Full backend example
 

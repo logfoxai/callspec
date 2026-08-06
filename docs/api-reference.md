@@ -1,5 +1,13 @@
 # API reference
 
+<p align="center">
+  <a href="../assets/callspec-flow.png">
+    <img src="../assets/callspec-flow.png" alt="Callspec flow: Define route and spec, generate with mountSpec and CLI, ship API TS SDK MCP and docs" width="800" />
+  </a>
+</p>
+
+`defineErrors` → `route()` → `spec()` → `mountSpec()` + CLI codegen. Full walkthrough: [Guide § How it fits together](guide.md#how-it-fits-together).
+
 ## Resolvers
 
 Pass preds, meta, and `resolver` in one `route()` call:

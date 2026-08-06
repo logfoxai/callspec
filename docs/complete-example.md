@@ -1,6 +1,12 @@
 # Complete example
 
-Copy-paste server with meta branding and all default surfaces.
+<p align="center">
+  <a href="../assets/callspec-flow.png">
+    <img src="../assets/callspec-flow.png" alt="Callspec flow: Define route and spec, generate with mountSpec and CLI, ship API TS SDK MCP and docs" width="800" />
+  </a>
+</p>
+
+Copy-paste server with meta branding and all default surfaces — **Define** routes below, **generate** with `mountSpec`, **ship** docs, OpenAPI, MCP, and SDK via CLI.
 
 ```typescript
 import express from 'express';
