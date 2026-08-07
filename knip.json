@@ -4,8 +4,8 @@
     "report"
   ],
   "ignoreDependencies": [
-    "@fontsource/ibm-plex-sans",
-    "@fontsource/ibm-plex-mono",
+    "@fontsource-variable/inter",
+    "@fontsource-variable/ibm-plex-sans",
     "astro-expressive-code"
   ],
   "ignoreIssues": {

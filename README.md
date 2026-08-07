@@ -7,8 +7,8 @@
   <h4 align="center">Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.</h4>
   <br>
   <p align="center">
-  <a href="assets/callspec-flow.svg?cb=5">
-    <img src="assets/callspec-flow.svg?cb=5" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
+  <a href="assets/callspec-flow.svg?cb=7">
+    <img src="assets/callspec-flow.svg?cb=7" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
   </a>
 </p>
 </div>

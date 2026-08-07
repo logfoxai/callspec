@@ -1,6 +1,4 @@
----
-title: Callspec error handling
----
+# Callspec error handling
 
 Design reference for the callspec error contract, mountSpec runtime, and client Result shape.
 
@@ -198,3 +196,4 @@ Helpers return `RouteFailuresFrom<typeof registerErr>` (or `void` / domain data)
 - Builtins are always allowed — merged onto every route at definition time
 - Undeclared domain returns are a **compile error** on the route resolver (routes without `errors:` allow builtins only)
 - **`CallspecClient.callResult`** — see [Client error normalization](#client-error-normalization). Mapped HTTP failures use builtins + route-declared codes; unmapped responses are **`UNKNOWN_ERROR`**; transport failures are **`NETWORK_ERROR`**.
+

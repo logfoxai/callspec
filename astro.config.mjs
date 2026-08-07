@@ -1,7 +1,16 @@
 import {defineConfig} from 'astro/config';
 import starlight from '@astrojs/starlight';
+import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
+
+const isDev = process.env.NODE_ENV !== 'production';
 
 export default defineConfig({
+    // Hover-prefetching every sidebar link hammers Vite in dev and freezes tabs.
+    prefetch: isDev ? false : {prefetchAll: true, defaultStrategy: 'hover'},
+    devToolbar: {enabled: false},
+    markdown: {
+        remarkPlugins: [remarkStarlightMdLinks],
+    },
     site: 'https://logfoxai.github.io/callspec',
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)
@@ -29,18 +38,14 @@ export default defineConfig({
             // Code block chrome lives in ec.config.mjs (ui-components Code look)
             expressiveCode: true,
             customCss: [
-                '@fontsource/ibm-plex-sans/400.css',
-                '@fontsource/ibm-plex-sans/500.css',
-                '@fontsource/ibm-plex-sans/600.css',
-                '@fontsource/ibm-plex-sans/700.css',
-                '@fontsource/ibm-plex-mono/400.css',
-                '@fontsource/ibm-plex-mono/500.css',
+                './src/styles/fonts.css',
                 './src/styles/starlight-custom.css',
-                './src/styles/splash.css',
             ],
             components: {
+                Head: './src/overrides/Head.astro',
                 Hero: './src/overrides/Hero.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
+                PageTitle: './src/overrides/PageTitle.astro',
             },
             social: [
                 {

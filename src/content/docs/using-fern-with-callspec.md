@@ -1,6 +1,4 @@
----
-title: Callspec + Fern
----
+# Callspec + Fern
 
 Callspec is your **TypeScript runtime** — server, integrated TS SDK, in-process MCP, docs, and `/openapi.json` from one `route()` registry. [Fern](https://buildwithfern.com/) is an optional **public DX layer** — multi-language SDKs and hosted docs for external developers.
 
@@ -105,7 +103,7 @@ No either/or. Most teams that add Fern for public DX still run Callspec MCP on t
 
 Callspec owns TypeScript end-to-end; Fern consumes the OpenAPI export for **public** multi-lang DX:
 
-![Callspec flow — OpenAPI export and Fern](/callspec-flow.svg)
+![Callspec flow — OpenAPI export and Fern](../../../assets/callspec-flow.svg)
 
 ```bash
 # Callspec serves the API and contract
@@ -136,3 +134,4 @@ Skip Fern when TypeScript + Callspec docs + `/openapi.json` for gateways and too
 - **Together** — `mountSpec` → `/openapi.json` → Fern; keep or disable Callspec docs as you prefer.
 
 Not competitors. Composable layers.
+

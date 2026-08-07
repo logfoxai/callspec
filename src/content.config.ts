@@ -1,7 +1,7 @@
 import {defineCollection} from 'astro:content';
-import {docsLoader} from '@astrojs/starlight/loaders';
 import {docsSchema} from '@astrojs/starlight/schema';
+import {githubFriendlyDocsLoader} from './content/github-friendly-docs-loader';
 
 export const collections = {
-    docs: defineCollection({loader: docsLoader(), schema: docsSchema()}),
+    docs: defineCollection({loader: githubFriendlyDocsLoader(), schema: docsSchema()}),
 };

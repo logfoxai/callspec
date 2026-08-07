@@ -169,8 +169,8 @@ html[data-has-hero]:not([data-has-sidebar]) {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1.5rem;
-    padding-block: clamp(2.25rem, 4.5vw, 3.25rem) clamp(2rem, 4vw, 3rem);
+    gap: 1.75rem;
+    padding-block: clamp(2.5rem, 5vw, 3.75rem) clamp(2.5rem, 4.5vw, 3.5rem);
     position: relative;
     z-index: 1;
 
@@ -178,7 +178,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         margin: 0;
         max-width: min(56rem, 92vw);
         font-family: var(--sl-font);
-        font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+        font-size: clamp(1.45rem, 2.85vw, 2.05rem);
         font-weight: 600;
         letter-spacing: -0.03em;
         line-height: 1.3;
@@ -187,7 +187,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
         @media (max-width: 49.99rem) {
             max-width: 28rem;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
         }
     }
 
@@ -261,12 +261,12 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 .splash-page {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.5rem, 3vw, 2.25rem);
+    gap: clamp(2rem, 4vw, 3rem);
     position: relative;
     z-index: 1;
 }
 
-/* ─── Flow diagram — dark stage in both themes ───────────────────────────── */
+/* ─── Flow diagram ───────────────────────────────────────────────────────── */
 
 .splash-flow {
     --flow-ink: #f0f2f8;
@@ -277,7 +277,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     margin: 0;
     width: 100%;
     max-width: none;
-    padding: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.25rem, 3vw, 2.25rem);
+    padding: clamp(1.75rem, 3.25vw, 2.5rem) clamp(1.25rem, 2.75vw, 2rem);
     border: 0;
     border-radius: calc(var(--cs-radius) + 0.25rem);
     background:
@@ -293,6 +293,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
     .splash-flow__grid {
         list-style: none;
+        counter-reset: splash-flow;
         display: grid;
         grid-template-columns: 1fr;
         gap: 2rem;
@@ -303,25 +304,26 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
         @media (min-width: 52rem) {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 1.75rem 1.25rem;
+            gap: 2rem 1.5rem;
             align-items: stretch;
         }
 
         @media (min-width: 72rem) {
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 1rem;
+            gap: 1.5rem;
             align-items: stretch;
         }
     }
 
     .splash-flow__step {
+        counter-increment: splash-flow;
         margin: 0;
         padding: 0;
         min-width: 0;
         height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 1rem;
         opacity: 0;
         transform: translateY(0.55rem);
         animation: splash-flow-in 0.55s ease forwards;
@@ -335,36 +337,21 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 
     .splash-flow__head {
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-        min-height: 2.25rem;
-    }
-
-    .splash-flow__num {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.75rem;
-        height: 1.75rem;
-        border-radius: 999px;
-        background: #7c3aed;
-        color: #fff;
-        font-size: 0.85rem;
-        font-weight: 700;
-        line-height: 1;
+        margin: 0;
     }
 
     .splash-flow__title {
         margin: 0;
-        flex: 1 1 auto;
-        min-width: 0;
         font-size: 1.2rem;
         font-weight: 700;
         letter-spacing: -0.035em;
         line-height: 1.2;
         color: var(--flow-ink);
+
+        &::before {
+            content: counter(splash-flow) '. ';
+            font-weight: inherit;
+        }
     }
 
     /* Equal-height panels so later steps aren’t visually light */
@@ -372,22 +359,23 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex: 1 1 auto;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        min-height: 13.5rem;
-        padding: 0.7rem;
+        gap: 0.85rem;
+        min-height: 11rem;
+        padding: 0.8rem;
         border-radius: 0.55rem;
         background: var(--flow-soft);
 
         &.splash-flow__body--stack {
             justify-content: center;
+            align-items: center;
             gap: 0;
-            padding: 0.95rem;
+            padding: 1rem;
         }
 
         &.splash-flow__body--fern {
-            justify-content: space-between;
-            gap: 1rem;
-            padding: 0.95rem;
+            justify-content: center;
+            gap: 1.15rem;
+            padding: 1.15rem 1rem;
             container-type: inline-size;
             container-name: fern;
         }
@@ -399,13 +387,12 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         border: 0;
         border-radius: 0;
         background: transparent;
-        color: #e8e9ef;
+        color: #c4c9d4;
         font-family: var(--sl-font-mono);
         /* Sized to fit equal 4-col panels without clipping longest lines */
-        font-size: 0.72rem;
-        line-height: 1.4;
+        font-size: 0.8rem;
+        line-height: 1.45;
         overflow-x: auto;
-        filter: saturate(0.85) brightness(0.98);
         tab-size: 2;
         flex: 1;
 
@@ -418,8 +405,8 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         }
     }
 
-    .tok-kw { color: #c084fc; }
-    .tok-fn { color: #67e8f9; }
+    .tok-kw { color: #b8a0d8; }
+    .tok-fn { color: #8ecfd9; }
     .tok-cm { color: #6b7280; }
     .tok-muted { color: var(--flow-muted); }
 
@@ -467,12 +454,16 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 
     .splash-flow__path {
+        display: inline-block;
         font-family: var(--sl-font-mono);
         font-size: 0.72rem;
-        color: var(--flow-muted);
-        background: none;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        color: #aeb4c2;
+        background: hsl(228 10% 18%);
         border: 0;
-        padding: 0;
+        border-radius: 0.3rem;
+        padding: 0.12em 0.38em;
     }
 
     .splash-flow__note {
@@ -496,25 +487,29 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     .splash-flow__cli {
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
-        padding: 0.7rem 0.8rem 0.8rem;
-        border-radius: 0.55rem;
+        gap: 0.5rem;
+        width: fit-content;
+        max-width: 100%;
+        align-self: center;
+        padding: 0.6rem 0.9rem 0.7rem;
+        border-radius: 0.45rem;
         background:
             linear-gradient(180deg, hsl(228 22% 18%) 0%, hsl(228 24% 14%) 100%);
         box-shadow:
             inset 0 1px 0 hsl(0 0% 100% / 0.08),
             inset 0 0 0 1px hsl(0 0% 100% / 0.05);
         font-family: var(--sl-font-mono);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        line-height: 1.3;
     }
 
     .splash-flow__chrome {
         display: flex;
-        gap: 0.35rem;
+        gap: 0.3rem;
 
         span {
-            width: 0.45rem;
-            height: 0.45rem;
+            width: 0.4rem;
+            height: 0.4rem;
             border-radius: 999px;
             background: hsl(228 12% 38%);
 
@@ -527,8 +522,9 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     .splash-flow__cli-line {
         display: flex;
         align-items: center;
-        gap: 0.45rem;
+        gap: 0.35rem;
         min-width: 0;
+        white-space: nowrap;
 
         code {
             font: inherit;
@@ -547,25 +543,22 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0.35rem 0;
+        margin: 0.65rem 0;
         color: var(--flow-muted);
-        font-size: 0.85rem;
+        font-size: 1.35rem;
         line-height: 1;
-        opacity: 0.65;
+        opacity: 0.7;
     }
 
     .splash-flow__sdk {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.8rem;
-        border-radius: 0.55rem;
-        background:
-            radial-gradient(ellipse 80% 120% at 0% 50%, hsl(211 60% 45% / 0.18), transparent 55%),
-            hsl(228 24% 14%);
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.07),
-            inset 0 0 0 1px hsl(211 70% 60% / 0.18);
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
     .splash-flow__ts {
@@ -615,18 +608,22 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.65rem;
-        flex: 1 1 auto;
-        padding: 0.35rem 0.25rem 0.15rem;
+        gap: 0.55rem;
+        flex: 0 1 auto;
+        padding: 0.25rem 0.35rem 0;
         text-align: center;
     }
 
     .splash-flow__fern-logo {
         display: block;
-        height: 1.85rem;
+        height: 1.35rem;
         width: auto;
-        max-width: 7.5rem;
+        max-width: 5.25rem;
         object-fit: contain;
+    }
+
+    .splash-flow__fern-logo--light {
+        display: none;
     }
 
     .splash-flow__fern-copy {
@@ -640,30 +637,25 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
     .splash-flow__langs {
         list-style: none;
-        display: grid;
-        /* Default 2×2 — mobile + narrow flow columns */
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 0.5rem 0.85rem;
         margin: 0;
         padding: 0.35rem 0 0.15rem;
-
-        /* Room for a single row of four (based on panel width, not viewport) */
-        @container fern (min-width: 20rem) {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.65rem 0.5rem;
-        }
 
         li {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             margin: 0;
             min-width: 0;
-            padding: 0.15rem;
+            padding: 0.1rem;
             color: var(--flow-muted);
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 500;
             letter-spacing: 0.01em;
             line-height: 1;
@@ -671,8 +663,8 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
         img {
             display: block;
-            width: 2.75rem;
-            height: 2.75rem;
+            width: 2.2rem;
+            height: 2.2rem;
             object-fit: contain;
         }
 
@@ -686,9 +678,65 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 }
 
 html[data-theme='light'] .splash-flow {
+    --flow-ink: #12141a;
+    --flow-muted: #5c6170;
+    --flow-soft: #f6f8fc;
+    color-scheme: light;
+    background:
+        radial-gradient(ellipse 80% 55% at 50% -15%, hsl(270 60% 55% / 0.07), transparent 58%),
+        #ffffff;
     box-shadow:
-        inset 0 1px 0 hsl(0 0% 100% / 0.06),
-        0 20px 48px hsl(228 30% 20% / 0.14);
+        inset 0 1px 0 hsl(0 0% 100% / 0.95),
+        0 0 0 1px hsl(228 16% 84%),
+        0 22px 52px hsl(228 25% 40% / 0.11);
+
+    .splash-flow__body {
+        background: var(--flow-soft);
+        box-shadow: inset 0 0 0 1px hsl(228 14% 90%);
+    }
+
+    .splash-flow__fern-logo--dark {
+        display: none;
+    }
+
+    .splash-flow__fern-logo--light {
+        display: block;
+    }
+
+    .splash-flow__code {
+        color: #3a3f4d;
+    }
+
+    .tok-kw { color: #7c3aed; }
+    .tok-fn { color: #0891b2; }
+    .tok-cm { color: #8b90a0; }
+
+    .splash-flow__path {
+        color: #5c6170;
+        background: #e8eaf0;
+    }
+
+    .splash-flow__cli {
+        background: linear-gradient(180deg, #f8f9fc 0%, #eef0f5 100%);
+        box-shadow:
+            inset 0 1px 0 hsl(0 0% 100% / 0.95),
+            inset 0 0 0 1px hsl(228 16% 84%);
+    }
+
+    .splash-flow__sdk-call {
+        color: #0e7490;
+    }
+
+    .splash-flow__ts {
+        box-shadow: 0 4px 12px hsl(211 70% 40% / 0.22);
+    }
+
+    .splash-flow__icon {
+        &[data-tone='teal'] { color: #0891b2; }
+        &[data-tone='orange'] { color: #ea580c; }
+        &[data-tone='green'] { color: #65a30d; }
+        &[data-tone='violet'] { color: #9333ea; }
+    }
 }
 
 @keyframes splash-flow-in {
@@ -701,7 +749,12 @@ html[data-theme='light'] .splash-flow {
 /* ─── Features ───────────────────────────────────────────────────────────── */
 
 .splash-features {
-    margin: 0;
+    --feature-media: 4.5rem;
+    --feature-title-lines: 2;
+    --feature-title-lh: 1.25;
+    --feature-gap: 0.55rem;
+
+    margin: 0 0 1.75rem;
     padding: 0.25rem 0;
 
     .splash-features__list {
@@ -712,9 +765,12 @@ html[data-theme='light'] .splash-flow {
         /* Stack until wide enough for all five — avoids a 2-col orphan */
         grid-template-columns: 1fr;
         gap: 1.75rem;
+        align-items: stretch;
 
         @media (min-width: 64rem) {
             grid-template-columns: repeat(5, minmax(0, 1fr));
+            /* media | title | copy — subgrid keeps rows aligned across cards */
+            grid-template-rows: var(--feature-media) auto auto;
             gap: 0;
         }
     }
@@ -724,22 +780,48 @@ html[data-theme='light'] .splash-flow {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 0.55rem;
+        gap: var(--feature-gap);
         padding: 0.15rem 1rem;
         margin: 0;
+        min-width: 0;
+
+        @media (min-width: 64rem) {
+            display: grid;
+            grid-template-rows: subgrid;
+            grid-row: span 3;
+            row-gap: var(--feature-gap);
+            align-items: center;
+            justify-items: center;
+        }
+    }
+
+    .splash-features__media {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--feature-media);
+        height: var(--feature-media);
+        flex: 0 0 var(--feature-media);
     }
 
     .splash-features__icon {
-        display: grid;
-        place-items: center;
-        width: 3.75rem;
-        height: 3.75rem;
-        margin-bottom: 0.15rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
         color: var(--feature-tone);
 
         svg {
-            width: 3.35rem;
-            height: 3.35rem;
+            display: block;
+            width: 4rem;
+            height: 4rem;
+        }
+
+        /* Filled brand marks read larger than stroke icons — nudge down */
+        &[data-tone='green'] svg {
+            width: 3.55rem;
+            height: 3.55rem;
         }
 
         &[data-tone='violet'] { --feature-tone: #c084fc; }
@@ -750,12 +832,18 @@ html[data-theme='light'] .splash-flow {
     }
 
     .splash-features__title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin: 0;
+        width: 100%;
+        min-height: calc(1em * var(--feature-title-lh) * var(--feature-title-lines));
         font-size: 1.125rem;
         font-weight: 600;
         letter-spacing: -0.025em;
-        line-height: 1.25;
+        line-height: var(--feature-title-lh);
         color: var(--cs-ink);
+        text-wrap: balance;
     }
 
     .splash-features__copy {
@@ -876,16 +964,18 @@ html[data-theme='light'] .splash-features__icon {
 
 html[data-theme='light'] .splash-demo {
     background:
-        radial-gradient(ellipse 90% 80% at 0% 0%, hsl(270 70% 55% / 0.12), transparent 55%),
-        #eef0f5;
+        radial-gradient(ellipse 85% 70% at 0% 0%, hsl(270 60% 55% / 0.08), transparent 55%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, hsl(188 60% 45% / 0.05), transparent 50%),
+        #ffffff;
     box-shadow:
-        inset 0 1px 0 hsl(0 0% 100% / 0.8),
-        0 16px 40px hsl(228 30% 40% / 0.1);
+        inset 0 1px 0 hsl(0 0% 100% / 0.95),
+        0 0 0 1px hsl(228 16% 82%),
+        0 22px 52px hsl(228 25% 40% / 0.12);
 
     .splash-demo__shot {
         box-shadow:
-            0 0 0 1px hsl(228 20% 80%),
-            0 16px 40px hsl(228 30% 40% / 0.12);
+            0 0 0 1px hsl(228 16% 84%),
+            0 18px 44px hsl(228 25% 40% / 0.14);
     }
 
     .splash-demo__cta,

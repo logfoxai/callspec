@@ -1,6 +1,4 @@
----
-title: Resolvers
----
+# Resolvers
 
 Pass preds, meta, and `resolver` in one `route()` call:
 
@@ -46,13 +44,13 @@ export const getProductById = route({...preds, resolver: impl});
 | `route({ …, resolver })` | Wired route for `spec`; resolver also on `.resolver` for tests |
 | `ResolverFor<typeof preds, Ctx?>` | Explicit resolver type for a separate binding |
 
-Domain-specific errors: `defineErrors()` + `errors:` on the route — see [Error handling](/error-handling/). Builtins like `err.NOT_FOUND()` work without declaring `errors`.
+Domain-specific errors: `defineErrors()` + `errors:` on the route — see [Error handling](../error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`.
 
-Private routes: annotate auth context on the resolver — `resolver: async (input, ctx: Ctx) => …`. See [Authentication](/authentication/) and [Request context](/request-context/).
+Private routes: annotate auth context on the resolver — `resolver: async (input, ctx: Ctx) => …`. See [Authentication](../authentication.md) and [Request context](../request-context.md).
 
 ## Testing resolvers
 
-Call `.resolver(input, ctx)` on the wired route — no HTTP. Full guide: [Unit testing](/unit-testing/).
+Call `.resolver(input, ctx)` on the wired route — no HTTP. Full guide: [Unit testing](../unit-testing.md).
 
 ```typescript
 import {test} from 'kizu';
@@ -67,4 +65,5 @@ test('getProductById: NOT_FOUND', async (assert) => {
 
 Export the wired route from the route module when tests live in another file.
 
-← [API reference](/api-reference/)
+← [API reference](../api-reference.md)
+

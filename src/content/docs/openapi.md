@@ -1,6 +1,4 @@
----
-title: OpenAPI
----
+# OpenAPI
 
 **Quick facts**
 
@@ -15,9 +13,9 @@ title: OpenAPI
 
 **OpenAPI 3.1** at **`/openapi.json`** — a projection from the same `routes` object as your RPC server. RPC methods appear as `POST` paths; errors grouped by HTTP status.
 
-Use for gateways, mocking, contract tests, and **public DX tools** — e.g. [Fern](/using-fern-with-callspec/) for multi-language SDKs and public docs while Callspec stays the runtime.
+Use for gateways, mocking, contract tests, and **public DX tools** — e.g. [Fern](./using-fern-with-callspec.md) for multi-language SDKs and public docs while Callspec stays the runtime.
 
-See [Auth and scope](/api-reference/auth-and-scope/) for `scope` and Bearer behavior.
+See [Auth and scope](./api-reference/auth-and-scope.md) for `scope` and Bearer behavior.
 
 ## Fetch from a running server
 
@@ -52,3 +50,4 @@ writeFileSync(
 ```
 
 `emitOpenApi` lives in `callspec/document` alongside other document helpers for server tooling and tests.
+

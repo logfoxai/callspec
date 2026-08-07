@@ -1,5 +1,7 @@
 /** @type {import('astro-expressive-code').AstroExpressiveCodeOptions} */
 export default {
+    // Inline theme CSS in the first block — avoids a body <link> that FOUCs on navigation.
+    emitExternalStylesheet: false,
     // Flat panels (no terminal/editor chrome) — keep copy + other frame features
     defaultProps: {
         frame: 'none',
@@ -7,8 +9,9 @@ export default {
     frames: {
         showCopyToClipboardButton: true,
     },
-    // Monokai ≈ Prism okaidia (ui-components always uses okaidia, even in light)
-    themes: ['monokai'],
+    // Monokai (dark) + github-light — Starlight toggles via html[data-theme]
+    themes: ['monokai', 'github-light'],
+    useDarkModeMediaQuery: false,
     styleOverrides: {
         borderRadius: '0.5rem',
         borderWidth: '0px',
