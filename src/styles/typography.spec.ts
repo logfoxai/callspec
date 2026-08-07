@@ -50,9 +50,9 @@ test('headers and CTAs use Google Sans Flex; UI/body stay Inter', (assert) => {
 		'splash CTA buttons use Google Sans Flex',
 	);
 	assert.equal(
-		/\.sl-link-button\s*\{[^}]*font-weight:\s*700/s.test(splashCss),
+		/\.sl-link-button\s*\{[^}]*font-weight:\s*500/s.test(splashCss),
 		true,
-		'splash CTA buttons are bold',
+		'splash CTA buttons use medium weight',
 	);
 	assert.equal(
 		starlightCss.includes('.splash-hero__headline') &&
