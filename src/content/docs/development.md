@@ -18,6 +18,7 @@ Guide sources in `src/content/docs/` are **plain markdown for GitHub** and the A
 - Start with `# Page title` — no YAML frontmatter (GitHub renders frontmatter as an ugly widget).
 - Link with relative paths: `[Authentication](./authentication.md)` — works on GitHub; Astro rewrites `.md` links to guide-site slugs at build time.
 - At build time, the docs loader reads the `# heading` for Starlight metadata; PageTitle renders it in the chrome (the body `# heading` is hidden on the guide site).
+- Splash-only CSS (`splash.css`) loads on the homepage only — not on guide pages.
 
 Sidebar order: `astro.config.mjs`. Splash homepage stays `index.mdx` (MDX + frontmatter).
 

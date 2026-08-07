@@ -6,7 +6,7 @@
 const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn">searchPosts</span> = <span class="tok-fn">route</span>({
   input: query,
   output: results,
-  handler: <span class="tok-kw">async</span> (q, ctx) => {
+  handler: <span class="tok-kw">async</span> (input, ctx) => {
     <span class="tok-cm">// your logic</span>
   },
 })
@@ -119,8 +119,8 @@ const langs = [
 						class="splash-flow__fern-logo"
 						src="/logos/fern.png"
 						alt="Fern"
-						width="140"
-						height="38"
+						width="102"
+						height="28"
 					/>
 					<p class="splash-flow__fern-copy">
 						Multi-language SDKs &amp; docs from your OpenAPI
@@ -130,7 +130,7 @@ const langs = [
 					{
 						langs.map(({name, src}) => (
 							<li>
-								<img src={src} alt="" width="40" height="40" />
+								<img src={src} alt="" width="32" height="32" />
 								<span>{name}</span>
 							</li>
 						))

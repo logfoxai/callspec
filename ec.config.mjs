@@ -1,5 +1,7 @@
 /** @type {import('astro-expressive-code').AstroExpressiveCodeOptions} */
 export default {
+    // Inline theme CSS in the first block — avoids a body <link> that FOUCs on navigation.
+    emitExternalStylesheet: false,
     // Flat panels (no terminal/editor chrome) — keep copy + other frame features
     defaultProps: {
         frame: 'none',

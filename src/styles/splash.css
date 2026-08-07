@@ -169,8 +169,8 @@ html[data-has-hero]:not([data-has-sidebar]) {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1.5rem;
-    padding-block: clamp(2.25rem, 4.5vw, 3.25rem) clamp(2rem, 4vw, 3rem);
+    gap: 1.75rem;
+    padding-block: clamp(2.5rem, 5vw, 3.75rem) clamp(2.5rem, 4.5vw, 3.5rem);
     position: relative;
     z-index: 1;
 
@@ -178,7 +178,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         margin: 0;
         max-width: min(56rem, 92vw);
         font-family: var(--sl-font);
-        font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+        font-size: clamp(1.45rem, 2.85vw, 2.05rem);
         font-weight: 600;
         letter-spacing: -0.03em;
         line-height: 1.3;
@@ -187,7 +187,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
         @media (max-width: 49.99rem) {
             max-width: 28rem;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
         }
     }
 
@@ -261,7 +261,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 .splash-page {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.5rem, 3vw, 2.25rem);
+    gap: clamp(2rem, 4vw, 3rem);
     position: relative;
     z-index: 1;
 }
@@ -277,7 +277,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     margin: 0;
     width: 100%;
     max-width: none;
-    padding: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.25rem, 3vw, 2.25rem);
+    padding: clamp(1.75rem, 3.25vw, 2.5rem) clamp(1.25rem, 2.75vw, 2rem);
     border: 0;
     border-radius: calc(var(--cs-radius) + 0.25rem);
     background:
@@ -303,13 +303,13 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
         @media (min-width: 52rem) {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 1.75rem 1.25rem;
+            gap: 2rem 1.5rem;
             align-items: stretch;
         }
 
         @media (min-width: 72rem) {
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 1rem;
+            gap: 1.5rem;
             align-items: stretch;
         }
     }
@@ -321,7 +321,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 1rem;
         opacity: 0;
         transform: translateY(0.55rem);
         animation: splash-flow-in 0.55s ease forwards;
@@ -372,22 +372,22 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex: 1 1 auto;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        min-height: 13.5rem;
-        padding: 0.7rem;
+        gap: 0.85rem;
+        min-height: 11rem;
+        padding: 0.8rem;
         border-radius: 0.55rem;
         background: var(--flow-soft);
 
         &.splash-flow__body--stack {
             justify-content: center;
             gap: 0;
-            padding: 0.95rem;
+            padding: 0.8rem;
         }
 
         &.splash-flow__body--fern {
             justify-content: space-between;
-            gap: 1rem;
-            padding: 0.95rem;
+            gap: 0.65rem;
+            padding: 0.8rem;
             container-type: inline-size;
             container-name: fern;
         }
@@ -399,13 +399,12 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         border: 0;
         border-radius: 0;
         background: transparent;
-        color: #e8e9ef;
+        color: #c4c9d4;
         font-family: var(--sl-font-mono);
         /* Sized to fit equal 4-col panels without clipping longest lines */
         font-size: 0.8rem;
-        line-height: 1.4;
+        line-height: 1.45;
         overflow-x: auto;
-        filter: saturate(0.85) brightness(0.98);
         tab-size: 2;
         flex: 1;
 
@@ -418,8 +417,8 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         }
     }
 
-    .tok-kw { color: #c084fc; }
-    .tok-fn { color: #67e8f9; }
+    .tok-kw { color: #b8a0d8; }
+    .tok-fn { color: #8ecfd9; }
     .tok-cm { color: #6b7280; }
     .tok-muted { color: var(--flow-muted); }
 
@@ -467,12 +466,16 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 
     .splash-flow__path {
+        display: inline-block;
         font-family: var(--sl-font-mono);
         font-size: 0.72rem;
-        color: var(--flow-muted);
-        background: none;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        color: #aeb4c2;
+        background: hsl(228 10% 18%);
         border: 0;
-        padding: 0;
+        border-radius: 0.3rem;
+        padding: 0.12em 0.38em;
     }
 
     .splash-flow__note {
@@ -615,17 +618,17 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.65rem;
-        flex: 1 1 auto;
-        padding: 0.35rem 0.25rem 0.15rem;
+        gap: 0.45rem;
+        flex: 0 1 auto;
+        padding: 0.15rem 0.25rem 0;
         text-align: center;
     }
 
     .splash-flow__fern-logo {
         display: block;
-        height: 1.85rem;
+        height: 1.35rem;
         width: auto;
-        max-width: 7.5rem;
+        max-width: 5.5rem;
         object-fit: contain;
     }
 
@@ -643,14 +646,14 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         display: grid;
         /* Default 2×2 — mobile + narrow flow columns */
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem 0.75rem;
+        gap: 0.65rem 0.5rem;
         margin: 0;
-        padding: 0.35rem 0 0.15rem;
+        padding: 0.15rem 0 0;
 
         /* Room for a single row of four (based on panel width, not viewport) */
         @container fern (min-width: 20rem) {
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.65rem 0.5rem;
+            gap: 0.5rem 0.35rem;
         }
 
         li {
@@ -658,12 +661,12 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.35rem;
             margin: 0;
             min-width: 0;
-            padding: 0.15rem;
+            padding: 0.1rem;
             color: var(--flow-muted);
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 500;
             letter-spacing: 0.01em;
             line-height: 1;
@@ -671,8 +674,8 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
         img {
             display: block;
-            width: 2.75rem;
-            height: 2.75rem;
+            width: 2rem;
+            height: 2rem;
             object-fit: contain;
         }
 
@@ -701,7 +704,7 @@ html[data-theme='light'] .splash-flow {
 /* ─── Features ───────────────────────────────────────────────────────────── */
 
 .splash-features {
-    margin: 0;
+    margin: 0 0 1.75rem;
     padding: 0.25rem 0;
 
     .splash-features__list {
