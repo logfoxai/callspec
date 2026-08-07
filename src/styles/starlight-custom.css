@@ -145,7 +145,6 @@ html[data-theme='light'][data-has-sidebar] .sl-markdown-content code:not(:where(
 
 @media (min-width: 50rem) {
     :root {
-        --sl-nav-height: 3.5rem;
         --sl-nav-pad-x: 1.5rem;
     }
 }

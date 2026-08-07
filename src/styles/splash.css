@@ -29,7 +29,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #f5f6fa;
         --cs-muted: #a8acb8;
         --cs-line: #2a2d38;
-        --cs-surface: #0e1016;
         --cs-cyan: hsl(188, 90%, 58%);
         color-scheme: dark;
 
@@ -66,7 +65,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #12141a;
         --cs-muted: #5c6170;
         --cs-line: #e2e5ee;
-        --cs-surface: #ffffff;
         --cs-cyan: hsl(188, 70%, 36%);
         color-scheme: light;
 
@@ -274,8 +272,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     --flow-ink: #f0f2f8;
     --flow-muted: #9aa1b2;
     --flow-soft: #12151e;
-    --flow-line: hsl(228 18% 28%);
-    --flow-accent: #c084fc;
     display: block;
     box-sizing: border-box;
     margin: 0;
@@ -304,7 +300,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         min-width: 0;
         margin: 0;
         padding: 0;
-        counter-reset: none;
 
         @media (min-width: 52rem) {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -341,32 +336,34 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
     .splash-flow__head {
         display: flex;
-        align-items: flex-start;
-        gap: 0.65rem;
+        align-items: center;
+        gap: 0.7rem;
+        min-height: 2.25rem;
     }
 
     .splash-flow__num {
         flex: 0 0 auto;
-        display: grid;
-        place-items: center;
-        width: 1.55rem;
-        height: 1.55rem;
-        margin-top: 0.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
         border-radius: 999px;
         background: #7c3aed;
         color: #fff;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 700;
         line-height: 1;
     }
 
     .splash-flow__title {
         margin: 0;
-        min-height: 2.6em;
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        line-height: 1.3;
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.2;
         color: var(--flow-ink);
     }
 
@@ -423,7 +420,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
     .tok-kw { color: #c084fc; }
     .tok-fn { color: #67e8f9; }
-    .tok-str { color: #f9a8d4; }
     .tok-cm { color: #6b7280; }
     .tok-muted { color: var(--flow-muted); }
 
@@ -623,9 +619,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex: 1 1 auto;
         padding: 0.35rem 0.25rem 0.15rem;
         text-align: center;
-        background: transparent;
-        box-shadow: none;
-        border-radius: 0;
     }
 
     .splash-flow__fern-logo {
@@ -653,8 +646,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         gap: 1rem 0.75rem;
         margin: 0;
         padding: 0.35rem 0 0.15rem;
-        background: transparent;
-        box-shadow: none;
 
         /* Room for a single row of four (based on panel width, not viewport) */
         @container fern (min-width: 20rem) {
@@ -671,10 +662,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
             margin: 0;
             min-width: 0;
             padding: 0.15rem;
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
             color: var(--flow-muted);
             font-size: 0.72rem;
             font-weight: 500;
@@ -716,9 +703,6 @@ html[data-theme='light'] .splash-flow {
 .splash-features {
     margin: 0;
     padding: 0.25rem 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
 
     .splash-features__list {
         list-style: none;
@@ -743,12 +727,6 @@ html[data-theme='light'] .splash-flow {
         gap: 0.55rem;
         padding: 0.15rem 1rem;
         margin: 0;
-
-        @media (min-width: 64rem) {
-            &:not(:last-child) {
-                border-inline-end: 0;
-            }
-        }
     }
 
     .splash-features__icon {
@@ -757,11 +735,18 @@ html[data-theme='light'] .splash-flow {
         width: 3.75rem;
         height: 3.75rem;
         margin-bottom: 0.15rem;
+        color: var(--feature-tone);
 
         svg {
             width: 3.35rem;
             height: 3.35rem;
         }
+
+        &[data-tone='violet'] { --feature-tone: #c084fc; }
+        &[data-tone='blue'] { --feature-tone: #60a5fa; }
+        &[data-tone='cyan'] { --feature-tone: #22d3ee; }
+        &[data-tone='pink'] { --feature-tone: #f472b6; }
+        &[data-tone='green'] { --feature-tone: #a3e635; }
     }
 
     .splash-features__title {
@@ -782,20 +767,12 @@ html[data-theme='light'] .splash-flow {
     }
 }
 
-html[data-theme='dark'] .splash-features__icon {
-    &[data-tone='violet'] { color: #c084fc; }
-    &[data-tone='blue'] { color: #60a5fa; }
-    &[data-tone='cyan'] { color: #22d3ee; }
-    &[data-tone='pink'] { color: #f472b6; }
-    &[data-tone='green'] { color: #a3e635; }
-}
-
 html[data-theme='light'] .splash-features__icon {
-    &[data-tone='violet'] { color: #9333ea; }
-    &[data-tone='blue'] { color: #2563eb; }
-    &[data-tone='cyan'] { color: #0891b2; }
-    &[data-tone='pink'] { color: #db2777; }
-    &[data-tone='green'] { color: #65a30d; }
+    &[data-tone='violet'] { --feature-tone: #9333ea; }
+    &[data-tone='blue'] { --feature-tone: #2563eb; }
+    &[data-tone='cyan'] { --feature-tone: #0891b2; }
+    &[data-tone='pink'] { --feature-tone: #db2777; }
+    &[data-tone='green'] { --feature-tone: #65a30d; }
 }
 
 /* ─── Demo ───────────────────────────────────────────────────────────────── */
