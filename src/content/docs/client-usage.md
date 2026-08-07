@@ -1,6 +1,4 @@
----
-title: Client usage
----
+# Client usage
 
 Wrap generated methods in app helpers — branch on `result.code` in a `switch`; TypeScript flags missing cases.
 
@@ -51,4 +49,5 @@ export function ProductView() {
 }
 ```
 
-See [Authentication](/authentication/) for Bearer headers and [Error handling](/error-handling/) for the Result contract.
+See [Authentication](./authentication.md) for Bearer headers and [Error handling](./error-handling.md) for the Result contract.
+

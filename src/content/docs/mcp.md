@@ -1,6 +1,4 @@
----
-title: MCP
----
+# MCP
 
 **Quick facts**
 
@@ -16,6 +14,7 @@ Set `mcp: true` on any route. When any route opts in, `mountSpec` mounts MCP aut
 
 Set `meta.mcpInstructions` for agent-facing guidance in the docs UI connect flow.
 
-This is **API-tool MCP** (live `tools/call` on your server). [Fern's MCP](/using-fern-with-callspec/#mcp) is different — docs Q&A on a Fern-hosted site (Ask Fern), not a substitute for calling your API. You can run both.
+This is **API-tool MCP** (live `tools/call` on your server). [Fern's MCP](./using-fern-with-callspec.md#mcp) is different — docs Q&A on a Fern-hosted site (Ask Fern), not a substitute for calling your API. You can run both.
 
-See also: [`mountSpec` options](/api-reference/mount-spec/) · [Docs UI](/docs-ui/)
+See also: [`mountSpec` options](./api-reference/mount-spec.md) · [Docs UI](./docs-ui.md)
+

@@ -1,6 +1,4 @@
----
-title: Docs UI
----
+# Docs UI
 
 **Quick facts**
 
@@ -16,4 +14,5 @@ title: Docs UI
 
 Whitelabel via `meta` (`title`, `intro`, `website`, `logo`, `authHint`, `mcpInstructions`).
 
-See [`mountSpec` options](/api-reference/mount-spec/) · [MCP](/mcp/)
+See [`mountSpec` options](./api-reference/mount-spec.md) · [MCP](./mcp.md)
+

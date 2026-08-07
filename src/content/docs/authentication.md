@@ -1,6 +1,4 @@
----
-title: Authentication
----
+# Authentication
 
 Credentials are per-route, not in the input pred.
 
@@ -54,6 +52,7 @@ const api = new ApiClient({
 
 Set `meta.authHint`. OpenAPI Bearer security is derived from route `auth` automatically.
 
-`scope: 'private'` hides a route from exports (SDK, docs, OpenAPI) but does not change the auth gate. See [API reference](/api-reference/).
+`scope: 'private'` hides a route from exports (SDK, docs, OpenAPI) but does not change the auth gate. See [API reference](./api-reference.md).
 
-For richer context from headers and JWT claims, see [Request context](/request-context/).
+For richer context from headers and JWT claims, see [Request context](./request-context.md).
+

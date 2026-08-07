@@ -41,6 +41,7 @@ export default defineConfig({
             components: {
                 Hero: './src/overrides/Hero.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
+                PageTitle: './src/overrides/PageTitle.astro',
             },
             social: [
                 {

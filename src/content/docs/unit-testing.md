@@ -1,10 +1,8 @@
----
-title: Unit testing
----
+# Unit testing
 
 Test route **business logic** without HTTP, Express, or `mountSpec`. Each wired route exposes the same handler production uses at **`.resolver(input, ctx)`** — typed input in, success value or `RouteFailure` out.
 
-Split-file layout makes this natural: one route module, one test file. See [Server layout](/server-layout/).
+Split-file layout makes this natural: one route module, one test file. See [Server layout](./server-layout.md).
 
 Examples use [kizu](https://github.com/mhweiner/kizu) — same runner callspec uses (`test(name, async (assert) => …)`).
 
@@ -56,7 +54,7 @@ test('createUser: USER_EXISTS when email taken', async (assert) => {
 });
 ```
 
-See [Error handling](/error-handling/) for the full contract.
+See [Error handling](./error-handling.md) for the full contract.
 
 ## Testing with context
 
@@ -80,7 +78,7 @@ test('listOrders: scopes to tenant', async (assert) => {
 });
 ```
 
-Details: [Request context](/request-context/).
+Details: [Request context](./request-context.md).
 
 Input validation, Bearer auth, and response serialization live outside the resolver — `mountSpec` and MCP handle those. Your resolver focuses on domain logic; tests call `.resolver` with typed input and optional `ctx`. Use HTTP tests when you need the full stack.
 
@@ -103,3 +101,4 @@ npx kizu -f 'server/**/*.spec.ts'
 ```
 
 Add kizu to devDependencies and wire a `"test"` script in your app — callspec itself uses `c8 kizu -f 'src/**/*.spec.ts'` for coverage.
+

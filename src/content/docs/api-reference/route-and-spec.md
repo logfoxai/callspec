@@ -1,6 +1,4 @@
----
-title: route & spec
----
+# route & spec
 
 ## `route`
 
@@ -32,4 +30,5 @@ spec({
 
 Throws at load time if any route uses `auth: 'bearer'` and `authenticate` is missing.
 
-← [API reference](/api-reference/) · Next: [`mountSpec`](/api-reference/mount-spec/)
+← [API reference](../api-reference.md) · Next: [`mountSpec`](./mount-spec.md)
+
