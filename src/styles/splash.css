@@ -548,7 +548,14 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 
     .splash-flow__connector {
-        height: 0.65rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0.35rem 0;
+        color: var(--flow-muted);
+        font-size: 0.85rem;
+        line-height: 1;
+        opacity: 0.65;
     }
 
     .splash-flow__sdk {
