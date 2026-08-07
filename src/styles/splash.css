@@ -1,0 +1,910 @@
+/*
+ * Splash homepage
+ * Shell uses Starlight’s data-has-hero (no sidebar). Page blocks are .splash-* only.
+ */
+
+html[data-has-hero]:not([data-has-sidebar]) {
+    --sl-content-width: min(80rem, calc(100vw - 2rem));
+    --sl-content-pad-x: clamp(1.25rem, 3.5vw, 2.75rem);
+
+    /* Dark splash chrome */
+    &[data-theme='dark'] {
+        --sl-color-bg: #07080c;
+        --sl-color-black: #07080c;
+        --sl-color-bg-nav: #0a0b10;
+        --sl-color-bg-sidebar: #07080c;
+        --sl-color-white: #f5f6fa;
+        --sl-color-gray-1: #e8e9ef;
+        --sl-color-gray-2: #a8acb8;
+        --sl-color-gray-3: #7a7f8c;
+        --sl-color-gray-4: #5c6170;
+        --sl-color-gray-5: #2a2d38;
+        --sl-color-gray-6: #1a1d26;
+        --sl-color-gray-7: #12141a;
+        --sl-color-hairline: #1e212b;
+        --sl-color-hairline-light: #1e212b;
+        --sl-color-hairline-shade: #1a1d26;
+        --sl-color-text: var(--sl-color-gray-2);
+        --sl-color-text-accent: #c084fc;
+        --cs-ink: #f5f6fa;
+        --cs-muted: #a8acb8;
+        --cs-line: #2a2d38;
+        --cs-surface: #0e1016;
+        --cs-cyan: hsl(188, 90%, 58%);
+        color-scheme: dark;
+
+        /* Glow on html/body — fixed nav sees viewport bg, not .page */
+        &,
+        & body {
+            background:
+                radial-gradient(ellipse 90% 55% at 50% 0%, hsl(270 80% 42% / 0.42), transparent 60%),
+                radial-gradient(ellipse 50% 36% at 100% 8%, hsl(188 70% 40% / 0.12), transparent 52%),
+                #07080c;
+            background-attachment: fixed;
+        }
+    }
+
+    /* Light splash chrome */
+    &[data-theme='light'] {
+        --sl-color-bg: #f4f5f8;
+        --sl-color-black: #f4f5f8;
+        --sl-color-bg-nav: #ffffff;
+        --sl-color-bg-sidebar: #f4f5f8;
+        --sl-color-white: #12141a;
+        --sl-color-gray-1: #1e212b;
+        --sl-color-gray-2: #3a3f4d;
+        --sl-color-gray-3: #5c6170;
+        --sl-color-gray-4: #8b90a0;
+        --sl-color-gray-5: #d5d8e2;
+        --sl-color-gray-6: #e8eaf0;
+        --sl-color-gray-7: #f4f5f8;
+        --sl-color-hairline: #e2e5ee;
+        --sl-color-hairline-light: #e8eaf0;
+        --sl-color-hairline-shade: #e8eaf0;
+        --sl-color-text: var(--sl-color-gray-2);
+        --sl-color-text-accent: hsl(270, 80%, 42%);
+        --cs-ink: #12141a;
+        --cs-muted: #5c6170;
+        --cs-line: #e2e5ee;
+        --cs-surface: #ffffff;
+        --cs-cyan: hsl(188, 70%, 36%);
+        color-scheme: light;
+
+        &,
+        & body {
+            background:
+                radial-gradient(ellipse 90% 55% at 50% 0%, hsl(270 80% 55% / 0.2), transparent 60%),
+                radial-gradient(ellipse 50% 36% at 100% 6%, hsl(188 70% 45% / 0.12), transparent 52%),
+                #f4f5f8;
+            background-attachment: fixed;
+        }
+    }
+
+    /* Transparent at rest; frosted when .splash-nav-scrolled (toggled from Hero.astro).
+       Keep border width at 1px always — flipping 0→1px while border-color transitions
+       flashes the light computed color (looks like a bright white hairline). */
+    header.header {
+        background-color: transparent;
+        border-bottom: 1px solid transparent;
+        backdrop-filter: blur(0);
+        -webkit-backdrop-filter: blur(0);
+        box-shadow: none;
+        transition:
+            background-color 200ms ease,
+            border-color 200ms ease,
+            backdrop-filter 200ms ease,
+            -webkit-backdrop-filter 200ms ease,
+            box-shadow 200ms ease;
+    }
+
+    site-search > button {
+        border-color: color-mix(in srgb, var(--cs-ink) 14%, transparent);
+        background-color: color-mix(in srgb, var(--cs-ink) 6%, transparent);
+        backdrop-filter: blur(10px) saturate(1.2);
+        -webkit-backdrop-filter: blur(10px) saturate(1.2);
+        box-shadow: none;
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--cs-ink) 28%, transparent);
+            background-color: color-mix(in srgb, var(--cs-ink) 10%, transparent);
+            color: var(--cs-ink);
+        }
+
+        > kbd {
+            background-color: color-mix(in srgb, var(--cs-ink) 10%, transparent);
+            border: 0;
+            color: var(--cs-muted);
+        }
+    }
+
+    &.splash-nav-scrolled {
+        header.header {
+            background-color: color-mix(in srgb, var(--sl-color-bg-nav) 58%, transparent);
+            border-bottom-color: color-mix(in srgb, var(--cs-line) 75%, transparent);
+            backdrop-filter: blur(16px) saturate(1.35);
+            -webkit-backdrop-filter: blur(16px) saturate(1.35);
+            box-shadow: 0 8px 24px color-mix(in srgb, #000 18%, transparent);
+        }
+
+        site-search > button {
+            border-color: var(--sl-color-hairline);
+            background-color: color-mix(in srgb, var(--sl-color-black) 40%, var(--sl-color-gray-6));
+        }
+
+        &[data-theme='light'] header.header {
+            background-color: color-mix(in srgb, var(--sl-color-bg-nav) 72%, transparent);
+            box-shadow: 0 8px 24px color-mix(in srgb, #12141a 6%, transparent);
+        }
+    }
+
+    .content-panel .sl-container {
+        width: min(100%, var(--sl-content-width));
+        max-width: var(--sl-content-width);
+        margin-inline: auto;
+    }
+
+    .page,
+    .content-panel:first-of-type {
+        background: transparent;
+    }
+
+    .content-panel:first-of-type {
+        position: relative;
+        overflow-x: clip;
+        overflow-y: visible;
+        padding-block: 0 4rem;
+        padding-inline: var(--sl-content-pad-x);
+    }
+
+    .sl-container > .sl-markdown-content {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+}
+
+/* ─── Hero ───────────────────────────────────────────────────────────────── */
+
+.splash-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    padding-block: clamp(2.25rem, 4.5vw, 3.25rem) clamp(2rem, 4vw, 3rem);
+    position: relative;
+    z-index: 1;
+
+    .splash-hero__tagline {
+        margin: 0;
+        max-width: min(56rem, 92vw);
+        font-family: var(--sl-font);
+        font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 1.3;
+        color: var(--cs-ink);
+        text-wrap: balance;
+
+        @media (max-width: 49.99rem) {
+            max-width: 28rem;
+            font-size: 1.3rem;
+        }
+    }
+
+    .splash-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+
+        .sl-link-button {
+            font-family: var(--sl-font);
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.55rem;
+            min-height: 2.75rem;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+            &.primary {
+                background: #a855f7;
+                border-color: #a855f7;
+                color: #0a0b10;
+                box-shadow: none;
+
+                &:hover {
+                    background: #c084fc;
+                    border-color: #c084fc;
+                    color: #0a0b10;
+                    transform: none;
+                }
+            }
+        }
+    }
+}
+
+html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
+    background: hsl(228 16% 14%);
+    border-color: var(--cs-line);
+    color: var(--cs-ink);
+
+    &:hover {
+        background: hsl(228 16% 18%);
+        border-color: hsl(228 12% 32%);
+        color: var(--cs-ink);
+    }
+}
+
+html[data-theme='light'] .splash-hero__actions .sl-link-button {
+    &.secondary {
+        background: #ffffff;
+        border-color: var(--cs-line);
+        color: var(--cs-ink);
+
+        &:hover {
+            background: #f0f1f5;
+            border-color: #c8ccd8;
+            color: var(--cs-ink);
+        }
+    }
+
+    &.primary,
+    &.primary:hover {
+        color: #ffffff;
+    }
+}
+
+/* ─── Page stack ─────────────────────────────────────────────────────────── */
+
+.splash-page {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── Flow diagram — dark stage in both themes ───────────────────────────── */
+
+.splash-flow {
+    --flow-ink: #f0f2f8;
+    --flow-muted: #9aa1b2;
+    --flow-soft: #12151e;
+    --flow-line: hsl(228 18% 28%);
+    --flow-accent: #c084fc;
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    padding: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.25rem, 3vw, 2.25rem);
+    border: 0;
+    border-radius: calc(var(--cs-radius) + 0.25rem);
+    background:
+        radial-gradient(ellipse 70% 55% at 50% -10%, hsl(270 70% 48% / 0.22), transparent 58%),
+        radial-gradient(ellipse 50% 40% at 100% 100%, hsl(188 60% 40% / 0.08), transparent 50%),
+        #1a1f2e;
+    color: var(--flow-ink);
+    color-scheme: dark;
+    box-shadow:
+        inset 0 1px 0 hsl(0 0% 100% / 0.06),
+        0 24px 64px hsl(228 50% 2% / 0.45);
+    overflow: hidden;
+
+    .splash-flow__grid {
+        list-style: none;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        counter-reset: none;
+
+        @media (min-width: 52rem) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.75rem 1.25rem;
+            align-items: stretch;
+        }
+
+        @media (min-width: 72rem) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            align-items: stretch;
+        }
+    }
+
+    .splash-flow__step {
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        opacity: 0;
+        transform: translateY(0.55rem);
+        animation: splash-flow-in 0.55s ease forwards;
+        animation-delay: calc(var(--step, 0) * 90ms);
+
+        @media (prefers-reduced-motion: reduce) {
+            opacity: 1;
+            transform: none;
+            animation: none;
+        }
+    }
+
+    .splash-flow__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+    }
+
+    .splash-flow__num {
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 1.55rem;
+        height: 1.55rem;
+        margin-top: 0.1rem;
+        border-radius: 999px;
+        background: #7c3aed;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .splash-flow__title {
+        margin: 0;
+        min-height: 2.6em;
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.3;
+        color: var(--flow-ink);
+    }
+
+    /* Equal-height panels so later steps aren’t visually light */
+    .splash-flow__body {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-height: 13.5rem;
+        padding: 0.7rem;
+        border-radius: 0.55rem;
+        background: var(--flow-soft);
+
+        &.splash-flow__body--stack {
+            justify-content: center;
+            gap: 0;
+            padding: 0.95rem;
+        }
+
+        &.splash-flow__body--fern {
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.95rem;
+            container-type: inline-size;
+            container-name: fern;
+        }
+    }
+
+    .splash-flow__code {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: #e8e9ef;
+        font-family: var(--sl-font-mono);
+        /* Sized to fit equal 4-col panels without clipping longest lines */
+        font-size: 0.72rem;
+        line-height: 1.4;
+        overflow-x: auto;
+        filter: saturate(0.85) brightness(0.98);
+        tab-size: 2;
+        flex: 1;
+
+        code {
+            font: inherit;
+            background: none;
+            padding: 0;
+            border: 0;
+            color: inherit;
+        }
+    }
+
+    .tok-kw { color: #c084fc; }
+    .tok-fn { color: #67e8f9; }
+    .tok-str { color: #f9a8d4; }
+    .tok-cm { color: #6b7280; }
+    .tok-muted { color: var(--flow-muted); }
+
+    .splash-flow__surfaces {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        flex: 1;
+
+        > li {
+            display: grid;
+            grid-template-columns: 1.25rem 1fr auto;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.45rem 0.2rem;
+        }
+    }
+
+    .splash-flow__icon {
+        display: grid;
+        place-items: center;
+        width: 1.25rem;
+        height: 1.25rem;
+
+        svg {
+            width: 1.15rem;
+            height: 1.15rem;
+        }
+
+        &[data-tone='teal'] { color: #22d3ee; }
+        &[data-tone='orange'] { color: #fb923c; }
+        &[data-tone='green'] { color: #a3e635; }
+        &[data-tone='violet'] { color: #c084fc; }
+    }
+
+    .splash-flow__surface-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--flow-ink);
+    }
+
+    .splash-flow__path {
+        font-family: var(--sl-font-mono);
+        font-size: 0.72rem;
+        color: var(--flow-muted);
+        background: none;
+        border: 0;
+        padding: 0;
+    }
+
+    .splash-flow__note {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.45rem;
+        margin: 0;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        color: var(--flow-muted);
+
+        svg {
+            flex: 0 0 auto;
+            width: 1rem;
+            height: 1rem;
+            margin-top: 0.1rem;
+            color: var(--flow-ink);
+        }
+    }
+
+    .splash-flow__cli {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        padding: 0.7rem 0.8rem 0.8rem;
+        border-radius: 0.55rem;
+        background:
+            linear-gradient(180deg, hsl(228 22% 18%) 0%, hsl(228 24% 14%) 100%);
+        box-shadow:
+            inset 0 1px 0 hsl(0 0% 100% / 0.08),
+            inset 0 0 0 1px hsl(0 0% 100% / 0.05);
+        font-family: var(--sl-font-mono);
+        font-size: 0.85rem;
+    }
+
+    .splash-flow__chrome {
+        display: flex;
+        gap: 0.35rem;
+
+        span {
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 999px;
+            background: hsl(228 12% 38%);
+
+            &:nth-child(1) { background: #ff5f57; }
+            &:nth-child(2) { background: #febc2e; }
+            &:nth-child(3) { background: #28c840; }
+        }
+    }
+
+    .splash-flow__cli-line {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-width: 0;
+
+        code {
+            font: inherit;
+            background: none;
+            border: 0;
+            padding: 0;
+            color: inherit;
+        }
+    }
+
+    .splash-flow__prompt {
+        color: var(--flow-muted);
+    }
+
+    .splash-flow__connector {
+        height: 0.65rem;
+    }
+
+    .splash-flow__sdk {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.8rem;
+        border-radius: 0.55rem;
+        background:
+            radial-gradient(ellipse 80% 120% at 0% 50%, hsl(211 60% 45% / 0.18), transparent 55%),
+            hsl(228 24% 14%);
+        box-shadow:
+            inset 0 1px 0 hsl(0 0% 100% / 0.07),
+            inset 0 0 0 1px hsl(211 70% 60% / 0.18);
+    }
+
+    .splash-flow__ts {
+        display: grid;
+        place-items: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.4rem;
+        background: linear-gradient(145deg, #3b82d6, #3178c6);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        box-shadow: 0 4px 12px hsl(211 70% 30% / 0.35);
+    }
+
+    .splash-flow__sdk-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        min-width: 0;
+        line-height: 1.25;
+    }
+
+    .splash-flow__sdk-call {
+        display: block;
+        font-family: var(--sl-font-mono);
+        font-size: 0.82rem;
+        color: #67e8f9;
+        background: none;
+        border: 0;
+        padding: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .splash-flow__sdk-file {
+        display: block;
+        font-family: var(--sl-font-mono);
+        font-size: 0.7rem;
+        color: var(--flow-muted);
+    }
+
+    .splash-flow__fern-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        flex: 1 1 auto;
+        padding: 0.35rem 0.25rem 0.15rem;
+        text-align: center;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .splash-flow__fern-logo {
+        display: block;
+        height: 1.85rem;
+        width: auto;
+        max-width: 7.5rem;
+        object-fit: contain;
+    }
+
+    .splash-flow__fern-copy {
+        margin: 0;
+        max-width: 16rem;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--flow-muted);
+        text-wrap: balance;
+    }
+
+    .splash-flow__langs {
+        list-style: none;
+        display: grid;
+        /* Default 2×2 — mobile + narrow flow columns */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 0.75rem;
+        margin: 0;
+        padding: 0.35rem 0 0.15rem;
+        background: transparent;
+        box-shadow: none;
+
+        /* Room for a single row of four (based on panel width, not viewport) */
+        @container fern (min-width: 20rem) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.65rem 0.5rem;
+        }
+
+        li {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0;
+            min-width: 0;
+            padding: 0.15rem;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            color: var(--flow-muted);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1;
+        }
+
+        img {
+            display: block;
+            width: 2.75rem;
+            height: 2.75rem;
+            object-fit: contain;
+        }
+
+        span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+    }
+}
+
+html[data-theme='light'] .splash-flow {
+    box-shadow:
+        inset 0 1px 0 hsl(0 0% 100% / 0.06),
+        0 20px 48px hsl(228 30% 20% / 0.14);
+}
+
+@keyframes splash-flow-in {
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ─── Features ───────────────────────────────────────────────────────────── */
+
+.splash-features {
+    margin: 0;
+    padding: 0.25rem 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+
+    .splash-features__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        /* Stack until wide enough for all five — avoids a 2-col orphan */
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+
+        @media (min-width: 64rem) {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0;
+        }
+    }
+
+    .splash-features__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.55rem;
+        padding: 0.15rem 1rem;
+        margin: 0;
+
+        @media (min-width: 64rem) {
+            &:not(:last-child) {
+                border-inline-end: 0;
+            }
+        }
+    }
+
+    .splash-features__icon {
+        display: grid;
+        place-items: center;
+        width: 3.75rem;
+        height: 3.75rem;
+        margin-bottom: 0.15rem;
+
+        svg {
+            width: 3.35rem;
+            height: 3.35rem;
+        }
+    }
+
+    .splash-features__title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        line-height: 1.25;
+        color: var(--cs-ink);
+    }
+
+    .splash-features__copy {
+        margin: 0;
+        max-width: 15.5rem;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        color: var(--cs-muted);
+    }
+}
+
+html[data-theme='dark'] .splash-features__icon {
+    &[data-tone='violet'] { color: #c084fc; }
+    &[data-tone='blue'] { color: #60a5fa; }
+    &[data-tone='cyan'] { color: #22d3ee; }
+    &[data-tone='pink'] { color: #f472b6; }
+    &[data-tone='green'] { color: #a3e635; }
+}
+
+html[data-theme='light'] .splash-features__icon {
+    &[data-tone='violet'] { color: #9333ea; }
+    &[data-tone='blue'] { color: #2563eb; }
+    &[data-tone='cyan'] { color: #0891b2; }
+    &[data-tone='pink'] { color: #db2777; }
+    &[data-tone='green'] { color: #65a30d; }
+}
+
+/* ─── Demo ───────────────────────────────────────────────────────────────── */
+
+.splash-demo {
+    display: block;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border: 0;
+    border-radius: calc(var(--cs-radius) + 0.15rem);
+    /* Lifted above page #07080c — same family as the flow stage */
+    background:
+        radial-gradient(ellipse 90% 80% at 0% 0%, hsl(270 60% 40% / 0.22), transparent 55%),
+        #151925;
+    box-shadow:
+        inset 0 1px 0 hsl(0 0% 100% / 0.06),
+        0 20px 48px hsl(228 50% 2% / 0.35);
+
+    .splash-demo__grid {
+        display: grid;
+        gap: 1.75rem;
+        align-items: center;
+
+        @media (min-width: 64rem) {
+            grid-template-columns: 1.35fr 1fr;
+            gap: 2.5rem;
+        }
+    }
+
+    .splash-demo__shot {
+        margin: 0;
+        border-radius: var(--cs-radius);
+        overflow: hidden;
+        border: 0;
+        box-shadow:
+            0 0 0 1px hsl(0 0% 100% / 0.08),
+            0 16px 48px hsl(228 40% 2% / 0.5);
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    .splash-demo__copy {
+        text-align: left;
+        max-width: 28rem;
+        margin: 0;
+        min-width: 0;
+    }
+
+    .splash-demo__kicker {
+        margin: 0 0 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--cs-cyan);
+    }
+
+    .splash-demo__title {
+        margin: 0;
+        font-size: clamp(1.6rem, 3vw, 2.25rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        color: var(--cs-ink);
+        text-wrap: balance;
+    }
+
+    .splash-demo__lede {
+        margin: 0.85rem 0 0;
+        font-size: 1.05rem;
+        line-height: 1.55;
+        color: var(--cs-muted);
+    }
+
+    .splash-demo__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-top: 1.35rem;
+        padding: 0.8rem 1.15rem;
+        border-radius: 0.55rem;
+        background: #a855f7;
+        border: 1px solid #a855f7;
+        color: #0a0b10;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+            background: #c084fc;
+            border-color: #c084fc;
+            color: #0a0b10;
+        }
+    }
+}
+
+html[data-theme='light'] .splash-demo {
+    background:
+        radial-gradient(ellipse 90% 80% at 0% 0%, hsl(270 70% 55% / 0.12), transparent 55%),
+        #eef0f5;
+    box-shadow:
+        inset 0 1px 0 hsl(0 0% 100% / 0.8),
+        0 16px 40px hsl(228 30% 40% / 0.1);
+
+    .splash-demo__shot {
+        box-shadow:
+            0 0 0 1px hsl(228 20% 80%),
+            0 16px 40px hsl(228 30% 40% / 0.12);
+    }
+
+    .splash-demo__cta,
+    .splash-demo__cta:hover {
+        color: #ffffff;
+    }
+}

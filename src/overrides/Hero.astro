@@ -1,7 +1,7 @@
 ---
 /**
- * Splash hero — brand is the nav lockup; no duplicate title.
- * Guide pages use PageTitle, not this component.
+ * Splash hero — brand lives in the nav lockup; no duplicate visible title.
+ * Guide pages use Starlight’s PageTitle, not this override.
  */
 import {LinkButton} from '@astrojs/starlight/components';
 
@@ -35,3 +35,20 @@ const {title = data.title, tagline, actions = []} = data.hero || {};
 		)
 	}
 </section>
+
+<script>
+	/** Frost the splash nav after a short scroll (class toggled for CSS). */
+	function syncSplashNav() {
+		const onSplash = document.documentElement.matches(
+			'[data-has-hero]:not([data-has-sidebar])',
+		);
+		document.documentElement.classList.toggle(
+			'splash-nav-scrolled',
+			onSplash && window.scrollY > 10,
+		);
+	}
+
+	syncSplashNav();
+	window.addEventListener('scroll', syncSplashNav, {passive: true});
+	document.addEventListener('astro:page-load', syncSplashNav);
+</script>

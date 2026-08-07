@@ -1,11 +1,12 @@
 ---
 /**
- * Homepage product flow — native HTML (not the GitHub README SVG).
+ * Homepage product flow — four equal steps (not the README SVG).
  */
+
 const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn">searchPosts</span> = <span class="tok-fn">route</span>({
-  input: searchQuery,
-  output: searchResults,
-  handler: <span class="tok-kw">async</span> (input, ctx) => {
+  input: query,
+  output: results,
+  handler: <span class="tok-kw">async</span> (q, ctx) => {
     <span class="tok-cm">// your logic</span>
   },
 })
@@ -13,6 +14,28 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 <span class="tok-kw">export const</span> <span class="tok-fn">api</span> = <span class="tok-fn">spec</span>({
   routes: {searchPosts},
 })`;
+
+const surfaceIcons = {
+	globe: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9S14.5 18.2 12 21c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3Z" stroke="currentColor" stroke-width="1.75"/></svg>`,
+	doc: `<svg viewBox="0 0 24 24" fill="none"><path d="M7 3.75h7.5L19 8.25V20.25a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.75a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.75"/><path d="M14.25 3.75V8.5H19" stroke="currentColor" stroke-width="1.75"/></svg>`,
+	api: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.75"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.75"/><path d="M12 3.75v2.5M12 17.75v2.5M3.75 12h2.5M17.75 12h2.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
+	star: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5 13.6 8.4 18.75 9.2 15 12.7l1.1 5.1L12 15.3l-4.1 2.5 1.1-5.1L5.25 9.2l5.15-.8L12 3.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg>`,
+	lock: `<svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.75"/></svg>`,
+} as const;
+
+const surfaces = [
+	{tone: 'teal', label: 'HTTP RPC', path: '/v1/*', icon: 'globe'},
+	{tone: 'orange', label: 'Docs UI', path: '/docs', icon: 'doc'},
+	{tone: 'green', label: 'OpenAPI', path: '/openapi.json', icon: 'api'},
+	{tone: 'violet', label: 'MCP', path: '/mcp', icon: 'star'},
+] as const;
+
+const langs = [
+	{name: 'Python', src: '/logos/python.svg'},
+	{name: 'Go', src: '/logos/go.svg'},
+	{name: 'Java', src: '/logos/java.svg'},
+	{name: 'C#', src: '/logos/csharp.svg'},
+] as const;
 ---
 
 <figure class="splash-flow" aria-label="Callspec flow">
@@ -34,70 +57,23 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 			</header>
 			<div class="splash-flow__body">
 				<ul class="splash-flow__surfaces">
-					<li>
-						<span class="splash-flow__icon" data-tone="teal" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none"
-								><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75"></circle><path
-									d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9S14.5 18.2 12 21c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3Z"
-									stroke="currentColor"
-									stroke-width="1.75"></path></svg
-							>
-						</span>
-						<span class="splash-flow__surface-label">HTTP RPC</span>
-						<code class="splash-flow__path">/v1/*</code>
-					</li>
-					<li>
-						<span class="splash-flow__icon" data-tone="orange" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none"
-								><path
-									d="M7 3.75h7.5L19 8.25V20.25a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.75a1 1 0 0 1 1-1Z"
-									stroke="currentColor"
-									stroke-width="1.75"></path><path
-									d="M14.25 3.75V8.5H19"
-									stroke="currentColor"
-									stroke-width="1.75"></path></svg
-							>
-						</span>
-						<span class="splash-flow__surface-label">Docs UI</span>
-						<code class="splash-flow__path">/docs</code>
-					</li>
-					<li>
-						<span class="splash-flow__icon" data-tone="green" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none"
-								><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.75"></circle><circle
-									cx="12"
-									cy="12"
-									r="2.5"
-									stroke="currentColor"
-									stroke-width="1.75"></circle><path
-									d="M12 3.75v2.5M12 17.75v2.5M3.75 12h2.5M17.75 12h2.5"
-									stroke="currentColor"
-									stroke-width="1.75"
-									stroke-linecap="round"></path></svg
-							>
-						</span>
-						<span class="splash-flow__surface-label">OpenAPI</span>
-						<code class="splash-flow__path">/openapi.json</code>
-					</li>
-					<li>
-						<span class="splash-flow__icon" data-tone="violet" aria-hidden="true">
-							<svg viewBox="0 0 24 24" fill="none"
-								><path
-									d="M12 3.5 13.6 8.4 18.75 9.2 15 12.7l1.1 5.1L12 15.3l-4.1 2.5 1.1-5.1L5.25 9.2l5.15-.8L12 3.5Z"
-									stroke="currentColor"
-									stroke-width="1.75"
-									stroke-linejoin="round"></path></svg
-							>
-						</span>
-						<span class="splash-flow__surface-label">MCP</span>
-						<code class="splash-flow__path">/mcp</code>
-					</li>
+					{
+						surfaces.map(({tone, label, path, icon}) => (
+							<li>
+								<span
+									class="splash-flow__icon"
+									data-tone={tone}
+									aria-hidden="true"
+									set:html={surfaceIcons[icon]}
+								/>
+								<span class="splash-flow__surface-label">{label}</span>
+								<code class="splash-flow__path">{path}</code>
+							</li>
+						))
+					}
 				</ul>
 				<p class="splash-flow__note">
-					<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"
-						><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75"
-						></rect><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.75"></path></svg
-					>
+					<span aria-hidden="true" set:html={surfaceIcons.lock} />
 					Auth, typed errors, and logging built in
 				</p>
 			</div>
@@ -110,13 +86,21 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 			</header>
 			<div class="splash-flow__body splash-flow__body--stack">
 				<div class="splash-flow__cli" aria-label="Terminal">
-					<span class="splash-flow__prompt" aria-hidden="true">$</span>
-					<code><span class="tok-muted">npx</span> <span class="tok-fn">callspec</span></code>
+					<span class="splash-flow__chrome" aria-hidden="true">
+						<span></span><span></span><span></span>
+					</span>
+					<div class="splash-flow__cli-line">
+						<span class="splash-flow__prompt" aria-hidden="true">$</span>
+						<code>
+							<span class="tok-muted">npx</span>{' '}
+							<span class="tok-fn">callspec</span>
+						</code>
+					</div>
 				</div>
-				<div class="splash-flow__arrow" aria-hidden="true">↓</div>
+				<div class="splash-flow__connector" aria-hidden="true"></div>
 				<div class="splash-flow__sdk">
 					<span class="splash-flow__ts" aria-hidden="true">TS</span>
-					<div>
+					<div class="splash-flow__sdk-meta">
 						<code class="splash-flow__sdk-call">api.searchPosts(&#123;…&#125;)</code>
 						<span class="splash-flow__sdk-file">generated/api.ts</span>
 					</div>
@@ -130,23 +114,27 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 				<h2 class="splash-flow__title">Or use OpenAPI anywhere</h2>
 			</header>
 			<div class="splash-flow__body splash-flow__body--fern">
-				<div class="splash-flow__fern-badge">
-					<img class="splash-flow__fern-logo" src="/logos/fern.png" alt="Fern" width="160" height="44" />
+				<div class="splash-flow__fern-hero">
+					<img
+						class="splash-flow__fern-logo"
+						src="/logos/fern.png"
+						alt="Fern"
+						width="140"
+						height="38"
+					/>
+					<p class="splash-flow__fern-copy">
+						Multi-language SDKs &amp; docs from your OpenAPI
+					</p>
 				</div>
-				<p class="splash-flow__fern-copy">Multi-language SDKs &amp; docs from your OpenAPI</p>
 				<ul class="splash-flow__langs" aria-label="Languages">
-					<li title="Python">
-						<img src="/logos/python.svg" alt="Python" width="40" height="40" />
-					</li>
-					<li title="Go">
-						<img src="/logos/go.svg" alt="Go" width="40" height="40" />
-					</li>
-					<li title="Java">
-						<img src="/logos/java.svg" alt="Java" width="40" height="40" />
-					</li>
-					<li title="C#">
-						<img src="/logos/csharp.svg" alt="C#" width="40" height="40" />
-					</li>
+					{
+						langs.map(({name, src}) => (
+							<li>
+								<img src={src} alt="" width="40" height="40" />
+								<span>{name}</span>
+							</li>
+						))
+					}
 				</ul>
 			</div>
 		</li>

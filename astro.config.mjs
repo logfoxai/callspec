@@ -36,6 +36,7 @@ export default defineConfig({
                 '@fontsource/ibm-plex-mono/400.css',
                 '@fontsource/ibm-plex-mono/500.css',
                 './src/styles/starlight-custom.css',
+                './src/styles/splash.css',
             ],
             components: {
                 Hero: './src/overrides/Hero.astro',
