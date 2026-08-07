@@ -1,10 +1,12 @@
-export const CALLSPEC_DOCUMENT_VERSION = '1.0' as const;
+export const CALLSPEC_DOCUMENT_VERSION = '2.0' as const;
 
 export type JsonSchema = Record<string, unknown>;
 
 type CallspecDocumentRouteError = {
     status: number
     data?: JsonSchema
+    /** When `data` is present, false means wire payload may omit `data` (from `p.optional` pred). */
+    dataRequired?: boolean
 };
 
 export type CallspecDocumentRoute = {
@@ -14,7 +16,8 @@ export type CallspecDocumentRoute = {
     summary: string
     description: string
     tags: string[]
-    access: 'public' | 'private'
+    auth: 'none' | 'bearer'
+    scope: 'public' | 'private'
     input: JsonSchema
     output: JsonSchema
     errors?: Record<string, CallspecDocumentRouteError>

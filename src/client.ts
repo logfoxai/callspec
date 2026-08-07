@@ -1,49 +1,81 @@
 import {deserializeResponse} from './serializer';
-import type {
-    CallspecFrameworkErrorBody,
-    CallspecValidationErrorBody,
-} from './frameworkErrors';
-import {FRAMEWORK_ERROR} from './frameworkErrors';
 
 export type {
-    CallspecFrameworkErrorBody,
-    CallspecInternalErrorBody,
-    CallspecRouteNotFoundErrorBody,
-    CallspecUnauthorizedErrorBody,
-    CallspecValidationErrorBody,
-} from './frameworkErrors';
-export {FRAMEWORK_ERROR} from './frameworkErrors';
+    BuiltinErrorCode,
+    OptionalBuiltinContext,
+    ThrowableBuiltinCode,
+} from './builtinErrors';
+export {BUILTIN_ERROR} from './builtinErrors';
 
-export type CallspecOk<T> = {
-    ok: true
-    value: T
-};
+export type {
+    CallspecOk,
+    CallspecFailure,
+    CallspecResult,
+    CallspecRouteResult,
+    CallspecClientErrors,
+    CallspecBuiltinClientError,
+    CallspecUnknownClientError,
+    CallspecNetworkClientError,
+    CallResultOptions,
+    DomainErrorContract,
+} from './clientTypes';
 
-export type CallspecErr<E> = {
-    ok: false
-    status: number
-    error: E
-};
+export {
+    CLIENT_ERROR,
+    normalizeClientErrorBody,
+    resolveRouteClientError,
+} from './clientErrorNormalization';
+export type {ResolveRouteClientErrorInput} from './clientErrorNormalization';
 
-export type CallspecResult<T, E> = CallspecOk<T> | CallspecErr<E>;
+import type {
+    CallspecOk,
+    CallspecNetworkClientError,
+    CallspecResult,
+    CallspecRouteResult,
+    CallResultOptions,
+} from './clientTypes';
+import {CLIENT_ERROR, resolveRouteClientError} from './clientErrorNormalization';
 
-/** Fallback when the response body is not a known framework or declared route error. */
-export type CallspecUnexpectedErrorBody = {
-    error: string
-    data?: unknown
-    errors?: Record<string, string>
-};
+function networkClientError(err: unknown): CallspecNetworkClientError {
 
-export type CallspecClientErrors<E = never> =
-    | CallspecFrameworkErrorBody
-    | CallspecUnexpectedErrorBody
-    | ([E] extends [never] ? never : E);
+    if (err instanceof Error) {
 
-export type CallspecRouteResult<T, E = never> = CallspecResult<T, CallspecClientErrors<E>>;
+        return {
+            code: CLIENT_ERROR.NETWORK_ERROR,
+            data: {
+                message: err.message,
+                ...(err.name ? {name: err.name} : {}),
+            },
+        };
+
+    }
+
+    return {
+        code: CLIENT_ERROR.NETWORK_ERROR,
+        data: {message: String(err)},
+    };
+
+}
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
     return result.ok;
+
+}
+
+export function isCallspecFailure<T, E>(result: CallspecResult<T, E>): result is Extract<CallspecResult<T, E>, {ok: false}> {
+
+    return !result.ok;
+
+}
+
+export function callspecClientErrorCode(error: unknown): string | undefined {
+
+    if (typeof error !== 'object' || error === null) return undefined;
+
+    const code = (error as {code?: unknown}).code;
+
+    return typeof code === 'string' ? code : undefined;
 
 }
 
@@ -104,73 +136,6 @@ async function parseResponseBody(resp: Response): Promise<unknown> {
 
 }
 
-function normalizeClientErrorBody(body: unknown): CallspecClientErrors<never> {
-
-    if (typeof body === 'object' && body !== null && !Array.isArray(body)) {
-
-        const record = body as Record<string, unknown>;
-
-        if (record.error === FRAMEWORK_ERROR.VALIDATION_ERROR && typeof record.errors === 'object' && record.errors !== null) {
-
-            return {
-                error: FRAMEWORK_ERROR.VALIDATION_ERROR,
-                errors: record.errors as Record<string, string>,
-            } satisfies CallspecValidationErrorBody;
-
-        }
-
-        if (record.error === FRAMEWORK_ERROR.UNAUTHORIZED) {
-
-            return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
-
-        }
-
-        if (record.error === FRAMEWORK_ERROR.INTERNAL_ERROR) {
-
-            return {error: FRAMEWORK_ERROR.INTERNAL_ERROR};
-
-        }
-
-        if (
-            record.error === FRAMEWORK_ERROR.ROUTE_NOT_FOUND
-            && typeof record.data === 'object'
-            && record.data !== null
-            && typeof (record.data as {route?: unknown}).route === 'string'
-        ) {
-
-            return {
-                error: FRAMEWORK_ERROR.ROUTE_NOT_FOUND,
-                data: {route: (record.data as {route: string}).route},
-            };
-
-        }
-
-        if (typeof record.error === 'string') {
-
-            return body as CallspecUnexpectedErrorBody;
-
-        }
-
-    }
-
-    if (body === 'Unauthorized') {
-
-        return {error: FRAMEWORK_ERROR.UNAUTHORIZED};
-
-    }
-
-    if (typeof body === 'string' && body.length) {
-
-        return {error: body};
-
-    }
-
-    return body === undefined
-        ? {error: 'HTTP_ERROR'}
-        : {error: 'HTTP_ERROR', data: body};
-
-}
-
 export class CallspecClient {
 
     private readonly fetchImpl: typeof globalThis.fetch;
@@ -184,18 +149,33 @@ export class CallspecClient {
     async callResult<TOutput, TError = never>(
         routeName: string,
         input: unknown,
+        options?: CallResultOptions,
     ): Promise<CallspecRouteResult<TOutput, TError>> {
 
         const url = joinCallspecUrl(this.config.baseUrl, routeName);
         const headers = await resolveHeaders(this.config.headers);
         const {fetchOptions} = this.config;
 
-        const resp = await this.fetchImpl(url, {
-            ...fetchOptions,
-            method: 'POST',
-            headers,
-            body: JSON.stringify(input ?? {}),
-        });
+        let resp: Response;
+
+        try {
+
+            resp = await this.fetchImpl(url, {
+                ...fetchOptions,
+                method: 'POST',
+                headers,
+                body: JSON.stringify(input ?? {}),
+            });
+
+        } catch (err) {
+
+            return {
+                ok: false as const,
+                status: 0,
+                ...networkClientError(err),
+            };
+
+        }
 
         const body = await parseResponseBody(resp);
 
@@ -205,10 +185,18 @@ export class CallspecClient {
 
         }
 
-        return {
-            ok: false,
+        const resolved = resolveRouteClientError<TError>({
             status: resp.status,
-            error: normalizeClientErrorBody(body) as CallspecClientErrors<TError>,
+            body,
+            allowedErrorCodes: options?.allowedErrorCodes,
+            domainErrors: options?.domainErrors,
+            responseHeaders: resp.headers,
+        });
+
+        return {
+            ok: false as const,
+            status: resp.status,
+            ...resolved,
         };
 
     }

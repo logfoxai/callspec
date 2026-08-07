@@ -1,0 +1,11 @@
+---
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import plexLatin from '@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2?url';
+
+const {head} = Astro.locals.starlightRoute;
+---
+
+{head.map(({tag: Tag, attrs, content}) => <Tag {...attrs} set:html={content} />)}
+
+<link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href={plexLatin} as="font" type="font/woff2" crossorigin="anonymous" />

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {test} from 'kizu';
-import {CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
+import {BUILTIN_ERROR, CLIENT_ERROR, CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
 
 test('client bundle is fetch-only (no node server imports)', (assert) => {
 
@@ -105,7 +105,37 @@ test('CallspecClient.callResult returns typed error bodies', async (assert) => {
         if (!result.ok) {
 
             assert.equal(result.status, 401);
-            assert.equal(result.error.error, 'UNAUTHORIZED');
+            assert.equal(result.code, 'UNAUTHORIZED');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps 401 plain message via status', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response('Bearer token required', {
+        status: 401,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('secret', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 401);
+            assert.equal(result.code, BUILTIN_ERROR.UNAUTHORIZED);
 
         }
 
@@ -158,25 +188,256 @@ test('CallspecClient merges fetchOptions headers without dropping Content-Type',
 
 });
 
-test('CallspecClient.callResult preserves JSON error bodies', async (assert) => {
+test('CallspecClient.callResult maps undeclared domain errors to UNKNOWN_ERROR', async (assert) => {
 
     const originalFetch = globalThis.fetch;
+    const body = {error: 'USER_EXISTS', data: {email: 'taken@example.com'}};
 
-    globalThis.fetch = (async () => new Response(JSON.stringify({error: 'nope'}), {
-        status: 401,
+    globalThis.fetch = (async () => new Response(JSON.stringify(body), {
+        status: 409,
     })) as typeof fetch;
 
     try {
 
         const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult('secret', {});
+        const result = await runtime.callResult('register', {});
 
         assert.equal(result.ok, false);
 
         if (!result.ok) {
 
-            assert.equal(result.status, 401);
-            assert.equal(result.error.error, 'nope');
+            assert.equal(result.status, 409);
+            assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+            if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+                assert.equal(result.data.body, body);
+
+            }
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult preserves declared domain error bodies', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'USER_EXISTS',
+        data: {email: 'taken@example.com'},
+    }), {
+        status: 409,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {}, {
+            allowedErrorCodes: ['USER_EXISTS'],
+            domainErrors: {
+                USER_EXISTS: {
+                    dataRequired: true,
+                    data: {
+                        type: 'object',
+                        properties: {email: {type: 'string'}},
+                        required: ['email'],
+                    },
+                },
+            },
+        });
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 409);
+            assert.equal(result.code, 'USER_EXISTS');
+            assert.equal((result as {data?: {email: string}}).data?.email, 'taken@example.com');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response('<html>502 Bad Gateway</html>', {
+        status: 502,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 502);
+            assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps fetch network failures to NETWORK_ERROR', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => {
+        throw new TypeError('Failed to fetch');
+    }) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('healthcheck', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 0);
+            assert.equal(result.code, CLIENT_ERROR.NETWORK_ERROR);
+
+            if (result.code === CLIENT_ERROR.NETWORK_ERROR) {
+
+                assert.equal(result.data.message, 'Failed to fetch');
+                assert.equal(result.data.name, 'TypeError');
+
+            }
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps unmapped 500 to UNKNOWN_ERROR with headers', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+    const body = '<html>something weird</html>';
+
+    globalThis.fetch = (async () => new Response(body, {
+        status: 500,
+        headers: {'Server': 'nginx', 'Content-Type': 'text/html'},
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.status, 500);
+            assert.equal(result.code, CLIENT_ERROR.UNKNOWN_ERROR);
+
+            if (result.code === CLIENT_ERROR.UNKNOWN_ERROR) {
+
+                assert.equal(result.data.body, body);
+                assert.equal(result.data.headers?.server, 'nginx');
+
+            }
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult normalizes legacy 429 bodies', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        title: 'Slow down',
+        message: 'Try again later',
+    }), {
+        status: 429,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('createUserSession', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.code, 'TOO_MANY_REQUESTS');
+
+            if (result.code === 'TOO_MANY_REQUESTS') {
+
+                assert.equal(result.data?.title, 'Slow down');
+                assert.equal(result.data?.message, 'Try again later');
+
+            }
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient.callResult maps VALIDATION_ERROR wire errors to data', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'VALIDATION_ERROR',
+        errors: {email: 'required'},
+    }), {
+        status: 400,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('register', {});
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.code, 'VALIDATION_ERROR');
+            assert.equal(result.data, {email: 'required'});
 
         }
 

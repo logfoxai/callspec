@@ -6,13 +6,13 @@ import express from 'express';
 import http from 'http';
 import {predicates as p} from 'runtyp';
 import {CallspecClient, isCallspecOk} from './client';
-import {defineRoute} from './defineRoute';
-import {defineSpec} from './defineSpec';
+import {route} from './route';
+import {spec} from './defineSpec';
 import {emitCallspec} from './emitCallspec';
 import {mountSpec} from './mountSpec';
 import {generateClientFile} from './generateClient/generateClient';
 import {generateClientSource} from './generateClient/generateClientSource';
-import {errors} from './routeErrors';
+import {defineErrors} from './defineErrors';
 import {
     sanitizeMethodName,
     schemaToTypes,
@@ -83,12 +83,12 @@ test('typeNameForRoute: produces stable type names', (assert) => {
 test('generateClientFile: generates deterministic TypeScript from local file', async (assert) => {
 
     const routes = {
-        searchLogs: defineRoute({
+        searchLogs: route({
             input: p.object({teamId: p.string(), query: p.optional(p.string())}),
             output: p.object({results: p.array(p.object({id: p.string()}))}),
             meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-            access: 'private',
-            handler: async (_input, _ctx) => ({results: []}),
+            auth: 'bearer',
+            resolver: async (_input, _ctx) => ({results: []}),
         }),
     };
 
@@ -121,16 +121,16 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
 test('generateClientFile: generates from HTTP URL', async (assert) => {
 
     const routes = {
-        ping: defineRoute({
+        ping: route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
-            access: 'public',
-            handler: async (_input, _ctx) => 'pong',
+            auth: 'none',
+            resolver: async (_input, _ctx) => 'pong',
         }),
     };
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'HTTP Gen', version: '1.0.0'},
         routes,
     });
@@ -139,7 +139,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, api);
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -156,7 +156,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
     try {
 
         await generateClientFile(
-            `http://127.0.0.1:${addr.port}/v1/callspec.json`,
+            `http://127.0.0.1:${addr.port}/v1`,
             outputPath,
         );
 
@@ -198,7 +198,7 @@ test('generateClientFile: rejects non-2xx HTTP responses', async (assert) => {
         try {
 
             await generateClientFile(
-                `http://127.0.0.1:${addr.port}/callspec.json`,
+                `http://127.0.0.1:${addr.port}/v1`,
                 outputPath,
             );
 
@@ -229,16 +229,16 @@ test('generated client makes a real request to an in-process server', async (ass
 
     const {execSync} = await import('node:child_process');
     const routes = {
-        echo: defineRoute({
+        echo: route({
             input: p.object({message: p.string()}),
             output: p.object({echo: p.string()}),
             meta: {summary: 'Echo', description: 'Echo', tags: ['demo']},
-            access: 'public',
-            handler: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
+            auth: 'none',
+            resolver: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
         }),
     };
 
-    const spec = defineSpec({
+    const api = spec({
         meta: {title: 'Runtime Gen', version: '1.0.0'},
         routes,
     });
@@ -247,7 +247,7 @@ test('generated client makes a real request to an in-process server', async (ass
     const router = express.Router();
 
     router.use(express.json());
-    mountSpec(router, spec);
+    mountSpec(router, api);
     app.use('/v1', router);
 
     const server = http.createServer(app);
@@ -264,7 +264,7 @@ test('generated client makes a real request to an in-process server', async (ass
     try {
 
         await generateClientFile(
-            `http://127.0.0.1:${addr.port}/v1/callspec.json`,
+            `http://127.0.0.1:${addr.port}/v1`,
             outputPath,
         );
 
@@ -320,45 +320,51 @@ test('generated client makes a real request to an in-process server', async (ass
 
 test('generateClientSource: error response types omit data when wire schema has no data field', (assert) => {
 
-    const err = errors({
-        NOT_FOUND: {status: 404},
-        USER_EXISTS: {status: 409, data: p.object({email: p.string()})},
+    const err = defineErrors({
+        USER_EXISTS: {data: p.object({email: p.string()})},
     });
 
     const doc = emitCallspec({
-        getUser: defineRoute({
+        getUser: route({
             input: p.object({email: p.string()}),
             output: p.object({email: p.string()}),
             errors: err,
             meta: {summary: 'Get user', description: 'Get user', tags: ['users']},
-            access: 'public',
-            handler: async (input, _ctx) => ({email: input.email}),
+            auth: 'none',
+            resolver: async (input, _ctx) => ({email: input.email}),
         }),
     }, {title: 'Errors API', version: '1.0.0'});
 
     const generated = generateClientSource(doc);
 
-    assert.equal(generated.includes("{ error: \"NOT_FOUND\" }"), true);
+    assert.equal(generated.includes('{ code: "NOT_FOUND"; data?: GetUserNotFoundData }'), true);
     assert.equal(generated.includes('data: GetUserUserExistsData'), true);
     assert.equal(generated.includes('GetUserError'), true);
     assert.equal(generated.includes('GetUserResult = CallspecRouteResult<GetUserOutput, GetUserError>'), true);
+    assert.equal(generated.includes('allowedErrorCodes: ["CONFLICT","FORBIDDEN","NOT_FOUND","SERVICE_UNAVAILABLE","TOO_MANY_REQUESTS","USER_EXISTS"]'), true);
+    assert.equal(generated.includes('"USER_EXISTS": { data:'), true);
+    assert.equal(generated.includes('"TOO_MANY_REQUESTS": { data:'), true);
+    assert.equal(/"TOO_MANY_REQUESTS": \{ data: .*, dataRequired: false \}/.test(generated), true);
 
 });
 
 test('generateClientSource: escapes malicious route names in runtime.call', (assert) => {
 
     const doc = emitCallspec({
-        "evil'); throw new Error('pwn": defineRoute({
+        "evil'); throw new Error('pwn": route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Evil', description: 'Evil', tags: ['x']},
-            access: 'public',
-            handler: async (_input, _ctx) => 'ok',
+            auth: 'none',
+            resolver: async (_input, _ctx) => 'ok',
         }),
     }, {title: 'Evil API', version: '1.0.0'});
 
     const generated = generateClientSource(doc);
 
-    assert.equal(generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput>(\"evil'); throw new Error('pwn\", input)"), true);
+    assert.equal(
+        generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput, EvilThrowNewErrorPwnError>(\"evil'); throw new Error('pwn\", input, { allowedErrorCodes:"),
+        true,
+    );
 
 });

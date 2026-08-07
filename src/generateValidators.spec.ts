@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRoute} from './defineRoute';
+import {route} from './route';
 import {emitCallspec} from './emitCallspec';
 import {parseCallspecDocument} from './callspecDocument';
 import {generateValidatorsFile} from './generateValidators/generateValidators';
@@ -50,14 +50,14 @@ test('emitCallspec: includes exports when provided', (assert) => {
 
     const doc = emitCallspec(
         {
-            searchLogs: defineRoute({
+            searchLogs: route({
                 input: p.object({
                     teamId: p.string(),
                     env: p.string(),
                 }),
                 output: p.object({results: p.array(p.object({id: p.string()}))}),
                 meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-                handler: async (_input, _ctx) => ({results: []}),
+                resolver: async (_input, _ctx) => ({results: []}),
             }),
         },
         {
@@ -93,11 +93,11 @@ test('generateValidatorsSource: rejects duplicate export and route pred names', 
 
     const doc = emitCallspec(
         {
-            searchLogs: defineRoute({
+            searchLogs: route({
                 input: p.object({teamId: p.string()}),
                 output: p.object({ok: p.boolean()}),
                 meta: {summary: 'Search', description: 'Search', tags: []},
-                handler: async (_input, _ctx) => ({ok: true}),
+                resolver: async (_input, _ctx) => ({ok: true}),
             }),
         },
         {
@@ -130,14 +130,14 @@ test('generateValidatorsFile: emits runtyp preds for exports and routes', async 
 
     const doc = emitCallspec(
         {
-            searchLogs: defineRoute({
+            searchLogs: route({
                 input: p.object({
                     teamId: p.string(),
                     env: p.string(),
                 }),
                 output: p.object({results: p.array(p.object({id: p.string()}))}),
                 meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-                handler: async (_input, _ctx) => ({results: []}),
+                resolver: async (_input, _ctx) => ({results: []}),
             }),
         },
         {

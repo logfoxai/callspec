@@ -1,23 +1,40 @@
 name: Release
+
+# Triggered by CI completing successfully on main/next. CI is the gate; release
+# never runs unless CI passed. This catches admin force-pushes that bypass checks.
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main, next]
+
 permissions:
-  id-token: write   # Required for npm trusted publishing (OIDC)
+  id-token: write   # npm trusted publishing + AWS OIDC
   contents: write   # Required for autorel to push release tag (and changelog)
+
 jobs:
   release:
     name: Release
+    if: >-
+      github.event.workflow_run.event == 'push'
+      && github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
-      group: deploy-${{github.ref}}
+      group: deploy-${{ github.event.workflow_run.head_branch }}
       cancel-in-progress: true
+    env:
+      # prod CloudFront (main only) — stack: infra/prod/us-east-2/static/callspec
+      PROD_ACCOUNT: ${{ secrets.AWS_ACCOUNT_PROD }}
+      PROD_AWS_REGION: us-east-2
+      PROD_DEPLOY_ROLE: gh-deploy-callspec
+      PROD_SSM_BUCKET_PARAM: /logfox/prod/callspec/assetsBucket
+      PROD_SSM_DISTRIBUTION_PARAM: /logfox/prod/callspec/cloudfrontDistributionId
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           fetch-tags: true
       - uses: actions/setup-node@v6
@@ -26,7 +43,48 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
       - run: npm ci
-      - run: npm run validate
-      - run: npx autorel@^2 --publish
+
+      - name: Resolve npm release channel
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          case "$BRANCH" in
+            main)
+              echo "PRERELEASE=" >> "$GITHUB_ENV"
+              ;;
+            next)
+              echo "PRERELEASE=--pre-release next" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "ERROR: unexpected branch '$BRANCH'" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Publish npm package
+        run: |
+          # shellcheck disable=SC2086
+          npx autorel@^2 $PRERELEASE --publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS credentials
+        if: github.event.workflow_run.head_branch == 'main'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.PROD_AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ env.PROD_ACCOUNT }}:role/${{ env.PROD_DEPLOY_ROLE }}
+
+      - name: Load publish targets from SSM
+        if: github.event.workflow_run.head_branch == 'main'
+        run: |
+          set -eux
+          echo "S3_BUCKET=$(aws ssm get-parameter --name "$PROD_SSM_BUCKET_PARAM" --query Parameter.Value --output text)" >> "$GITHUB_ENV"
+          echo "DISTRIBUTION_ID=$(aws ssm get-parameter --name "$PROD_SSM_DISTRIBUTION_PARAM" --query Parameter.Value --output text)" >> "$GITHUB_ENV"
+
+      - name: Deploy docs site
+        if: github.event.workflow_run.head_branch == 'main'
+        run: ./deploy-docs.sh
+        env:
+          S3_BUCKET: ${{ env.S3_BUCKET }}
+          DISTRIBUTION_ID: ${{ env.DISTRIBUTION_ID }}

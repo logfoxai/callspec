@@ -1,0 +1,32 @@
+---
+title: Home
+description: Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.
+template: splash
+hero:
+  title: Callspec
+  tagline: Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/logfoxai/callspec
+      icon: github
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
+---
+
+import SplashStyles from '../../components/SplashStyles.astro';
+import SplashFlow from '../../components/SplashFlow.astro';
+import SplashFeatures from '../../components/SplashFeatures.astro';
+import SplashDemo from '../../components/SplashDemo.astro';
+
+<SplashStyles />
+
+<div class="splash-page not-content">
+  <SplashFlow />
+  <SplashFeatures />
+  <SplashDemo />
+</div>

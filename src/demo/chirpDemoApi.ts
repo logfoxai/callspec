@@ -2,8 +2,8 @@
  * Fictional "Chirp API v2" — Twitter/X-shaped demo spec for callspec UI dev server.
  */
 import {predicates as p} from 'runtyp';
-import {defineSpec} from '../defineSpec';
-import {defineRoute} from '../defineRoute';
+import {spec} from '../defineSpec';
+import {route} from '../route';
 
 const pagination = {
     maxResults: p.optional(p.number({
@@ -203,7 +203,7 @@ const meta = {
 
 const routes = {
 
-    healthcheck: defineRoute({
+    healthcheck: route({
         input: p.object({}),
         output: healthOut,
         meta: {
@@ -211,11 +211,11 @@ const routes = {
             description: 'Returns OK when the API is up. Does not require authentication.',
             tags: ['system'],
         },
-        access: 'public',
-        handler: (_input, _ctx) => ({status: 'ok'}),
+        auth: 'none',
+        resolver: (_input, _ctx) => ({status: 'ok'}),
     }),
 
-    getUserById: defineRoute({
+    getUserById: route({
         input: p.object({
             id: p.string({description: 'Unique identifier of the User (numeric string)'}),
             'user.fields': userFields,
@@ -227,14 +227,14 @@ const routes = {
             description: 'Returns information about a User specified by ID.',
             tags: ['users'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockUser(input.id, 'janedoe'),
         }),
     }),
 
-    getUserByUsername: defineRoute({
+    getUserByUsername: route({
         input: p.object({
             username: p.string({description: 'Twitter handle without the @ prefix'}),
             'user.fields': userFields,
@@ -245,14 +245,14 @@ const routes = {
             description: 'Returns information about a User specified by username.',
             tags: ['users'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
-        handler: (input: {username: string}, _ctx: ChirpCtx) => ({
+        resolver: (input: {username: string}, _ctx: ChirpCtx) => ({
             data: mockUser('2244994945', input.username),
         }),
     }),
 
-    getFollowers: defineRoute({
+    getFollowers: route({
         input: p.object({
             id: p.string({description: 'User ID whose followers you want to retrieve'}),
             max_results: pagination.maxResults,
@@ -265,15 +265,15 @@ const routes = {
             description: 'Returns a list of Users who follow the specified User ID.',
             tags: ['users'],
         },
-        access: 'private',
-        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
+        auth: 'bearer',
+        resolver: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('1001', 'alex_codes'),
             mockUser('1002', 'sam_reads'),
             mockUser('1003', 'taylor_ops'),
         ], {previous_token: input.pagination_token ?? null}),
     }),
 
-    getFollowing: defineRoute({
+    getFollowing: route({
         input: p.object({
             id: p.string({description: 'User ID whose following list you want to retrieve'}),
             max_results: pagination.maxResults,
@@ -286,14 +286,14 @@ const routes = {
             description: 'Returns a list of Users the specified User ID is following.',
             tags: ['users'],
         },
-        access: 'private',
-        handler: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
+        auth: 'bearer',
+        resolver: (input: {pagination_token?: string | null}, _ctx: ChirpCtx) => paginated([
             mockUser('2001', 'vercel'),
             mockUser('2002', 'github'),
         ], {previous_token: input.pagination_token ?? null}),
     }),
 
-    createTweet: defineRoute({
+    createTweet: route({
         input: p.object({
             text: p.string({description: 'Body of the Tweet (max 280 characters)'}),
             reply: p.optional(p.object({
@@ -313,14 +313,14 @@ const routes = {
             description: 'Creates a Tweet on behalf of an authenticated user.',
             tags: ['tweets'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
-        handler: (input: {text: string}, ctx: ChirpCtx) => ({
+        resolver: (input: {text: string}, ctx: ChirpCtx) => ({
             data: mockTweet('1992312312312312321', input.text, ctx.userId),
         }),
     }),
 
-    deleteTweet: defineRoute({
+    deleteTweet: route({
         input: p.object({
             id: p.string({description: 'Tweet ID to delete'}),
         }),
@@ -330,13 +330,13 @@ const routes = {
             description: 'Allows an authenticated user ID to delete a Tweet.',
             tags: ['tweets'],
         },
-        access: 'private',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
+        auth: 'bearer',
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: {deleted: true, id: input.id},
         }),
     }),
 
-    getTweet: defineRoute({
+    getTweet: route({
         input: p.object({
             id: p.string({description: 'Unique identifier of the Tweet'}),
             'tweet.fields': tweetFields,
@@ -348,13 +348,13 @@ const routes = {
             description: 'Returns a Tweet specified by the requested ID.',
             tags: ['tweets'],
         },
-        access: 'public',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
+        auth: 'none',
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => ({
             data: mockTweet(input.id, 'Just shipped a new API docs UI with callspec 🎉', '2244994945'),
         }),
     }),
 
-    searchRecent: defineRoute({
+    searchRecent: route({
         input: p.object({
             query: p.string({description: 'Search query (supports operators like from:, #hashtag, -filter:retweets)'}),
             max_results: pagination.maxResults,
@@ -368,15 +368,15 @@ const routes = {
             description: 'Returns Tweets from the last seven days matching a search query.',
             tags: ['tweets'],
         },
-        access: 'private',
+        auth: 'bearer',
         mcp: true,
-        handler: (input: {query: string}, _ctx: ChirpCtx) => paginated([
+        resolver: (input: {query: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('3001', `Results for: ${input.query}`, '2244994945'),
             mockTweet('3002', 'Another match from the last 7 days', '1001'),
         ]),
     }),
 
-    getHomeTimeline: defineRoute({
+    getHomeTimeline: route({
         input: p.object({
             max_results: pagination.maxResults,
             pagination_token: pagination.paginationToken,
@@ -391,15 +391,15 @@ const routes = {
             description: 'Returns the most recent Tweets from accounts the authenticated user follows.',
             tags: ['timelines'],
         },
-        access: 'private',
-        handler: (_input, ctx: ChirpCtx) => paginated([
+        auth: 'bearer',
+        resolver: (_input, ctx: ChirpCtx) => paginated([
             mockTweet('4001', 'Morning standup notes thread 🧵', ctx.userId),
             mockTweet('4002', 'TIL: JSON Schema from runtyp predicates', '2001'),
             mockTweet('4003', 'Shipping docs today', '2002'),
         ]),
     }),
 
-    getUserTimeline: defineRoute({
+    getUserTimeline: route({
         input: p.object({
             id: p.string({description: 'User ID whose Tweets you want to retrieve'}),
             max_results: pagination.maxResults,
@@ -413,14 +413,14 @@ const routes = {
             description: 'Returns the most recent Tweets authored by the specified User.',
             tags: ['timelines'],
         },
-        access: 'private',
-        handler: (input: {id: string}, _ctx: ChirpCtx) => paginated([
+        auth: 'bearer',
+        resolver: (input: {id: string}, _ctx: ChirpCtx) => paginated([
             mockTweet('5001', 'Working on RPC + OpenAPI from one spec', input.id),
             mockTweet('5002', 'callspec UI looking clean', input.id),
         ]),
     }),
 
-    createList: defineRoute({
+    createList: route({
         input: p.object({
             name: p.string({description: 'Name of the List (25 char max recommended)'}),
             description: p.optional(p.string({description: 'Description of the List'})),
@@ -432,8 +432,8 @@ const routes = {
             description: 'Creates a new List for the authenticated user.',
             tags: ['lists'],
         },
-        access: 'private',
-        handler: (input: {name: string; description?: string; private?: boolean}, ctx: ChirpCtx) => ({
+        auth: 'bearer',
+        resolver: (input: {name: string; description?: string; private?: boolean}, ctx: ChirpCtx) => ({
             data: {
                 id: '1313131313131311313',
                 name: input.name,
@@ -447,7 +447,7 @@ const routes = {
         }),
     }),
 
-    getListMembers: defineRoute({
+    getListMembers: route({
         input: p.object({
             id: p.string({description: 'List ID'}),
             max_results: pagination.maxResults,
@@ -460,14 +460,14 @@ const routes = {
             description: 'Returns a list of Users who are members of the specified List.',
             tags: ['lists'],
         },
-        access: 'private',
-        handler: (_input, _ctx) => paginated([
+        auth: 'bearer',
+        resolver: (_input, _ctx) => paginated([
             mockUser('6001', 'designbot'),
             mockUser('6002', 'infra_daily'),
         ]),
     }),
 
-    sendDirectMessage: defineRoute({
+    sendDirectMessage: route({
         input: p.object({
             participant_id: p.string({description: 'User ID of the conversation participant'}),
             text: p.string({description: 'Message body (max 10,000 characters)'}),
@@ -478,8 +478,8 @@ const routes = {
             description: 'Sends a Direct Message to a participant on behalf of the authenticated user.',
             tags: ['direct messages'],
         },
-        access: 'private',
-        handler: (input: {text: string; participant_id: string}, ctx: ChirpCtx) => ({
+        auth: 'bearer',
+        resolver: (input: {text: string; participant_id: string}, ctx: ChirpCtx) => ({
             data: {
                 dm_conversation_id: '12345-67890',
                 dm_event_id: '9876543210',
@@ -493,7 +493,7 @@ const routes = {
 
 };
 
-export const api = defineSpec({
+export const api = spec({
     meta,
     routes,
     authenticate,

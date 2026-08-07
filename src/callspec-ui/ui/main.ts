@@ -198,11 +198,11 @@ function groupByTag(routes: CallspecUiRoute[]): Map<string, CallspecUiRoute[]> {
 
 }
 
-type AccessFilter = 'all' | 'public' | 'private';
+type AuthFilter = 'all' | 'none' | 'bearer';
 
 type RouteFilters = {
     text: string
-    access: AccessFilter
+    auth: AuthFilter
     tag: string | null
     mcpOnly: boolean
 };
@@ -231,7 +231,7 @@ function applyFilters(routes: CallspecUiRoute[], filters: RouteFilters): Callspe
 
     return routes.filter((route) => {
 
-        if (filters.access !== 'all' && route.access !== filters.access) {
+        if (filters.auth !== 'all' && route.auth !== filters.auth) {
 
             return false;
 
@@ -269,7 +269,7 @@ function applyFilters(routes: CallspecUiRoute[], filters: RouteFilters): Callspe
 function renderBadges(route: CallspecUiRoute): string {
 
     return [
-        `<span class="badge ${route.access}">${route.access}</span>`,
+        `<span class="badge auth-${route.auth}">${route.auth}</span>`,
         route.mcp ? '<span class="badge mcp">MCP</span>' : '',
     ].filter(Boolean).join('');
 
@@ -452,11 +452,11 @@ function renderOverview(
             <div class="filters">
                 <input class="search overview-search" type="search" placeholder="Search routes" value="${escapeHtml(filters.text)}" aria-label="Search routes">
                 <div class="filter-row">
-                    <span class="filter-label">Access</span>
+                    <span class="filter-label">Auth</span>
                     <div class="filter-pills">
-                        <button type="button" class="filter-pill${filters.access === 'all' ? ' active' : ''}" data-access="all">All</button>
-                        <button type="button" class="filter-pill${filters.access === 'public' ? ' active' : ''}" data-access="public">Public</button>
-                        <button type="button" class="filter-pill${filters.access === 'private' ? ' active' : ''}" data-access="private">Private</button>
+                        <button type="button" class="filter-pill${filters.auth === 'all' ? ' active' : ''}" data-auth="all">All</button>
+                        <button type="button" class="filter-pill${filters.auth === 'none' ? ' active' : ''}" data-auth="none">none</button>
+                        <button type="button" class="filter-pill${filters.auth === 'bearer' ? ' active' : ''}" data-auth="bearer">bearer</button>
                     </div>
                 </div>
                 <div class="filter-row">
@@ -503,7 +503,7 @@ function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean
         <div class="section">
             <h3 class="section-title">Try it</h3>
             <div class="try-block">
-                ${route.access === 'private' ? `
+                ${route.auth === 'bearer' ? `
                 <div class="field">
                     <label for="auth">Authorization</label>
                     <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false">
@@ -634,7 +634,7 @@ async function boot(): Promise<void> {
         let view: View = viewFromHash(routes, showHome);
         let filters: RouteFilters = {
             text: '',
-            access: 'all',
+            auth: 'all',
             tag: null,
             mcpOnly: false,
         };
@@ -778,13 +778,13 @@ async function boot(): Promise<void> {
 
             });
 
-            main.querySelectorAll('[data-access]').forEach((btn) => {
+            main.querySelectorAll('[data-auth]').forEach((btn) => {
 
                 btn.addEventListener('click', () => {
 
                     filters = {
                         ...filters,
-                        access: (btn as HTMLElement).dataset.access as AccessFilter,
+                        auth: (btn as HTMLElement).dataset.auth as AuthFilter,
                     };
                     render();
 

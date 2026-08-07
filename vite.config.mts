@@ -1,12 +1,15 @@
 import path from 'path';
+import {fileURLToPath} from 'url';
 import {defineConfig} from 'vite';
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     build: {
         outDir: 'dist/callspec-ui/ui',
         emptyOutDir: true,
         lib: {
-            entry: path.resolve(__dirname, 'src/callspec-ui/ui/main.ts'),
+            entry: path.resolve(rootDir, 'src/callspec-ui/ui/main.ts'),
             formats: ['iife'],
             name: 'CallspecUi',
             fileName: () => 'assets/app.js',
@@ -15,7 +18,6 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 assetFileNames: 'assets/[name][extname]',
-                inlineDynamicImports: true,
             },
         },
     },

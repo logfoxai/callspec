@@ -3,8 +3,13 @@
   "ignoreBinaries": [
     "report"
   ],
+  "ignoreDependencies": [
+    "@fontsource-variable/inter",
+    "@fontsource-variable/ibm-plex-sans",
+    "astro-expressive-code"
+  ],
   "ignoreIssues": {
-    "src/routeErrors.ts": ["types"]
+    "src/defineErrors.ts": ["types"]
   },
   "entry": [
     "src/callspec-ui/ui/main.ts",
