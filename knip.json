@@ -5,7 +5,7 @@
   ],
   "ignoreDependencies": [
     "@fontsource-variable/inter",
-    "@fontsource-variable/ibm-plex-sans",
+    "@fontsource-variable/manrope",
     "astro-expressive-code"
   ],
   "ignoreIssues": {

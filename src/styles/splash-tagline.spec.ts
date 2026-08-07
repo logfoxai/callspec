@@ -39,3 +39,29 @@ test('splash hero is typewriter headline + lead, no eyebrow', (assert) => {
 		'reduced-motion skips the typewriter',
 	);
 });
+
+test('typewriter headline leaves room for descenders under overflow clip', (assert) => {
+	const headlineBlock = splashCss.match(
+		/\.splash-hero__headline\s*\{[^}]+\}/s,
+	)?.[0];
+	assert.equal(Boolean(headlineBlock), true, 'headline rule exists');
+	assert.equal(
+		/overflow:\s*hidden/.test(headlineBlock ?? ''),
+		true,
+		'typewriter still clips horizontally via overflow',
+	);
+	const lineHeight = Number(
+		headlineBlock?.match(/line-height:\s*([\d.]+)/)?.[1],
+	);
+	assert.equal(
+		Number.isFinite(lineHeight) && lineHeight >= 1.3,
+		true,
+		'line-height tall enough for g/p/y descenders',
+	);
+	assert.equal(
+		/padding-block:\s*[^;]*0\.\d+em/.test(headlineBlock ?? '') ||
+			/padding-bottom:\s*0\.\d+em/.test(headlineBlock ?? ''),
+		true,
+		'extra block padding keeps descenders inside the clip box',
+	);
+});
