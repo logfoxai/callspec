@@ -42,7 +42,6 @@ const langs = [
 	<ol class="splash-flow__grid">
 		<li class="splash-flow__step" style="--step: 0">
 			<header class="splash-flow__head">
-				<span class="splash-flow__num" aria-hidden="true">1</span>
 				<h2 class="splash-flow__title">Define once</h2>
 			</header>
 			<div class="splash-flow__body">
@@ -52,7 +51,6 @@ const langs = [
 
 		<li class="splash-flow__step" style="--step: 1">
 			<header class="splash-flow__head">
-				<span class="splash-flow__num" aria-hidden="true">2</span>
 				<h2 class="splash-flow__title">Serve it all</h2>
 			</header>
 			<div class="splash-flow__body">
@@ -74,14 +72,13 @@ const langs = [
 				</ul>
 				<p class="splash-flow__note">
 					<span aria-hidden="true" set:html={surfaceIcons.lock} />
-					Auth, typed errors, and logging built in
+					Auth, typed errors &amp; logging
 				</p>
 			</div>
 		</li>
 
 		<li class="splash-flow__step" style="--step: 2">
 			<header class="splash-flow__head">
-				<span class="splash-flow__num" aria-hidden="true">3</span>
 				<h2 class="splash-flow__title">TypeScript SDK</h2>
 			</header>
 			<div class="splash-flow__body splash-flow__body--stack">
@@ -110,14 +107,20 @@ const langs = [
 
 		<li class="splash-flow__step" style="--step: 3">
 			<header class="splash-flow__head">
-				<span class="splash-flow__num" aria-hidden="true">4</span>
 				<h2 class="splash-flow__title">OpenAPI anywhere</h2>
 			</header>
 			<div class="splash-flow__body splash-flow__body--fern">
 				<div class="splash-flow__fern-hero">
 					<img
-						class="splash-flow__fern-logo"
-						src="/logos/fern.png"
+						class="splash-flow__fern-logo splash-flow__fern-logo--dark"
+						src="/logos/fern-dark.png"
+						alt="Fern"
+						width="102"
+						height="28"
+					/>
+					<img
+						class="splash-flow__fern-logo splash-flow__fern-logo--light"
+						src="/logos/fern-light.png"
 						alt="Fern"
 						width="102"
 						height="28"
@@ -130,7 +133,7 @@ const langs = [
 					{
 						langs.map(({name, src}) => (
 							<li>
-								<img src={src} alt="" width="32" height="32" />
+								<img src={src} alt="" width="28" height="28" />
 								<span>{name}</span>
 							</li>
 						))

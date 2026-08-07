@@ -30,6 +30,50 @@
     --cs-line: hsl(228, 12%, 22%);
     --cs-surface: hsl(228, 18%, 9%);
     --cs-cyan: hsl(188, 90%, 58%);
+
+    --cs-table-bg: hsl(228, 16%, 10%);
+    --cs-table-head-bg: hsl(228, 14%, 14%);
+    --cs-table-row-alt: hsl(228, 14%, 11.5%);
+    --cs-table-row-hover: hsl(228, 14%, 13%);
+    --cs-table-code-bg: hsl(228, 12%, 16%);
+}
+
+/*
+ * Body scale — mobile-first html font-size only.
+ * Everything in rem inherits these breakpoints; do not clamp individual text sizes.
+ */
+html {
+    font-size: 0.875rem;
+}
+
+@media (min-width: 40em) {
+    html {
+        font-size: 0.9375rem;
+    }
+}
+
+@media (min-width: 50em) {
+    html {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 72rem) {
+    html {
+        font-size: 1.03125rem;
+    }
+}
+
+@media (min-width: 90rem) {
+    html {
+        font-size: 1.0625rem;
+    }
+}
+
+@media (min-width: 120rem) {
+    html {
+        font-size: 1.075rem;
+    }
 }
 
 :root[data-theme='light'],
@@ -49,6 +93,12 @@
     --cs-muted: hsl(228, 10%, 40%);
     --cs-line: hsl(228, 16%, 88%);
     --cs-surface: hsl(228, 30%, 98%);
+
+    --cs-table-bg: hsl(0, 0%, 100%);
+    --cs-table-head-bg: hsl(228, 22%, 96%);
+    --cs-table-row-alt: hsl(228, 24%, 98.5%);
+    --cs-table-row-hover: hsl(228, 28%, 97%);
+    --cs-table-code-bg: hsl(228, 16%, 94%);
 }
 
 /* ─── Guide pages: readable type + real breathing room ────────────────────── */
@@ -56,7 +106,8 @@
 html[data-has-sidebar] {
     /* Keep Starlight pad/width math intact — oversized content pad-x collapses article gutters */
     --sl-sidebar-pad-x: 1.5rem;
-    --sl-content-width: 45rem;
+    --sl-content-width: 52rem;
+    --sl-content-pad-x: 1.25rem;
     --sl-content-gap-y: 1.75rem;
 
     /* Starlight’s default h2 jumps to 35px — too loud for numbered steps */
@@ -72,6 +123,12 @@ html[data-has-sidebar] {
         --sl-text-h1: 1.875rem;
         --sl-text-h2: 1.35rem;
         --sl-text-h3: 1.15rem;
+    }
+}
+
+@media (min-width: 72rem) {
+    html[data-has-sidebar] {
+        --sl-content-pad-x: 1.75rem;
     }
 }
 
@@ -96,7 +153,6 @@ html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper.level-h3 {
 /* Headings — IBM Plex Sans; body/UI stays Inter via --sl-font */
 html[data-has-sidebar] .content-panel:first-of-type h1,
 html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, h4),
-html[data-has-sidebar] starlight-toc h2,
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__title,
 html[data-has-hero]:not([data-has-sidebar]) .splash-features__title,
 html[data-has-hero]:not([data-has-sidebar]) .splash-demo__title {
@@ -169,6 +225,106 @@ html[data-has-sidebar] .sl-markdown-content .starlight-aside
 html[data-has-sidebar] .sl-markdown-content :is(h1, h2, h3, h4, h5, h6)
     code:not(:where(pre *, .expressive-code *, .frame *)) {
     font-size: 0.88em;
+}
+
+/* Tables — card layout, readable API reference grids */
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) {
+    display: block;
+    width: 100%;
+    margin-block: 1.25rem 1.5rem;
+    overflow-x: auto;
+    border: 1px solid var(--cs-line);
+    border-radius: calc(var(--cs-radius) - 0.1rem);
+    border-spacing: 0;
+    background: var(--cs-table-bg);
+    -webkit-overflow-scrolling: touch;
+}
+
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) thead {
+    background: var(--cs-table-head-bg);
+}
+
+html[data-has-sidebar] .sl-markdown-content :is(th, td):not(:where(.not-content *)) {
+    border-bottom: 1px solid var(--cs-line);
+    padding: 0.7rem 1rem;
+    vertical-align: top;
+    line-height: 1.55;
+}
+
+html[data-has-sidebar] .sl-markdown-content tbody tr:last-child :is(th, td):not(:where(.not-content *)) {
+    border-bottom: 0;
+}
+
+html[data-has-sidebar] .sl-markdown-content :is(th:first-child, td:first-child):not(:where(.not-content *)) {
+    padding-inline-start: 1rem;
+}
+
+html[data-has-sidebar] .sl-markdown-content :is(th:last-child, td:last-child):not(:where(.not-content *)) {
+    padding-inline-end: 1rem;
+}
+
+html[data-has-sidebar] .sl-markdown-content th:not(:where(.not-content *)) {
+    color: var(--cs-muted);
+    font-family: var(--sl-font);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+html[data-has-sidebar] .sl-markdown-content tbody tr:nth-child(even):not(:where(.not-content *)) {
+    background: var(--cs-table-row-alt);
+}
+
+html[data-has-sidebar] .sl-markdown-content tbody tr:hover:not(:where(.not-content *)) {
+    background: var(--cs-table-row-hover);
+}
+
+/* 3-column option tables — mono name + default columns */
+html[data-has-sidebar]
+    .sl-markdown-content
+    table:has(thead th:nth-child(3))
+    :is(td:first-child, th:first-child):not(:where(.not-content *)) {
+    font-family: var(--sl-font-mono);
+    font-size: 0.875em;
+    color: var(--cs-ink);
+    white-space: nowrap;
+}
+
+html[data-has-sidebar]
+    .sl-markdown-content
+    table:has(thead th:nth-child(3))
+    td:nth-child(2):not(:where(.not-content *)) {
+    color: var(--cs-muted);
+    font-family: var(--sl-font-mono);
+    font-size: 0.875em;
+    white-space: nowrap;
+}
+
+/* 2-column tables — mono only when the cell is code-like */
+html[data-has-sidebar]
+    .sl-markdown-content
+    td:first-child:not(:where(.not-content *)):has(code) {
+    font-family: var(--sl-font-mono);
+    font-size: 0.875em;
+    white-space: nowrap;
+}
+
+html[data-has-sidebar]
+    .sl-markdown-content
+    table:not(:has(thead th:nth-child(3)))
+    td:first-child:not(:has(code)):not(:where(.not-content *)) {
+    font-weight: 500;
+    color: var(--cs-ink);
+    white-space: nowrap;
+}
+
+html[data-has-sidebar] .sl-markdown-content table
+    code:not(:where(pre *, .expressive-code *, .frame *)) {
+    font-size: 0.9em;
+    padding: 0.12em 0.38em;
+    background-color: var(--cs-table-code-bg);
 }
 
 @layer starlight.core {
@@ -263,12 +419,26 @@ header.header {
     site-search > button > kbd {
         margin-inline-start: auto;
     }
+}
 
-    /* Theme is an icon button now — drop the heavy social/theme divider */
-    header.header .social-icons::after {
-        height: 1.25rem;
-        opacity: 0.55;
-    }
+/* Header right icons — GitHub, theme toggle */
+header.header .social-icons::after {
+    display: none;
+    content: none;
+}
+
+header.header .social-icons a {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    margin: 0;
+}
+
+header.header .social-icons a svg {
+    width: 1.35rem;
+    height: 1.35rem;
 }
 
 /*
@@ -299,15 +469,61 @@ header.header {
         color: var(--sl-color-gray-1);
         font-weight: 600;
     }
+}
 
-    /* TOC contrast */
-    html[data-has-sidebar] starlight-toc a {
-        color: var(--sl-color-gray-2);
-    }
+/*
+ * TOC — aligned links, calm spacing (unlayered; beats Starlight PageSidebar layers).
+ */
+html[data-has-sidebar] .right-sidebar-panel {
+    padding-block: 1.35rem 2rem;
+}
 
-    html[data-has-sidebar] starlight-toc a[aria-current='true'] {
-        color: var(--sl-color-white);
-    }
+html[data-has-sidebar] starlight-toc h2 {
+    margin: 0 0 0.9rem;
+    padding-inline: 0.65rem;
+    font-family: var(--sl-font);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--sl-color-gray-3);
+}
+
+html[data-has-sidebar] starlight-toc :is(ul, li) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+html[data-has-sidebar] starlight-toc a {
+    display: block;
+    padding: 0.4rem 0.5rem 0.4rem 0.65rem;
+    border-left: 2px solid transparent;
+    border-radius: 0 0.3rem 0.3rem 0;
+    font-family: var(--sl-font);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+html[data-has-sidebar] starlight-toc ul ul a {
+    padding-left: 1.15rem;
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
+}
+
+html[data-has-sidebar] starlight-toc a:hover {
+    color: var(--sl-color-gray-1);
+}
+
+html[data-has-sidebar] starlight-toc a[aria-current='true'] {
+    color: var(--sl-color-text-accent);
+    border-left-color: var(--sl-color-accent);
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
 }
 
 /*
@@ -331,6 +547,15 @@ html[data-theme='light'] {
     max-width: 100%;
     font-size: 0.9rem;
     contain: layout style;
+    --ec-codeFontFml: var(--sl-font-mono);
+    --ec-codeFontSize: 0.9rem;
+    --ec-codeLineHt: var(--sl-line-height);
+    --ec-codePadBlk: 0.6rem;
+    --ec-codePadInl: 0.75rem;
+    --ec-codeBg: var(--cs-code-bg);
+    --ec-brdRad: 0.5rem;
+    /* Length token — unitless 0 breaks EC copy-button calc(var(--ec-brdWd) + …) */
+    --ec-brdWd: 0px;
 }
 
 .expressive-code .frame {
@@ -369,21 +594,15 @@ html[data-theme='light'] {
 .expressive-code pre code {
     display: block;
     min-width: min-content;
-    color: var(--ec-codeFg, #d4d8e4);
+    color: var(--ec-codeFg);
 }
 
-/* Expressive Code theme tokens in head — stable before first inline block style parses. */
-:root .expressive-code,
-:root:not([data-theme='monokai']) .expressive-code[data-theme='monokai'] {
+html[data-theme='dark'] .expressive-code {
     --ec-codeFg: #d4d8e4;
-    --ec-codeFontFml: var(--sl-font-mono);
-    --ec-codeFontSize: 0.9rem;
-    --ec-codeLineHt: var(--sl-line-height);
-    --ec-codePadBlk: 0.6rem;
-    --ec-codePadInl: 0.75rem;
-    --ec-codeBg: var(--cs-code-bg);
-    --ec-brdRad: 0.5rem;
-    --ec-brdWd: 0;
+}
+
+html[data-theme='light'] .expressive-code {
+    --ec-codeFg: #24292e;
 }
 
 .expressive-code .ec-line {
@@ -396,19 +615,107 @@ html[data-theme='light'] {
     white-space: pre;
 }
 
-.expressive-code .ec-line .code span[style*='--0:'] {
-    color: var(--0, var(--ec-codeFg, #d4d8e4));
-}
-
 /*
- * Guide gutters — unlayered on purpose.
- * Starlight sets margin-inline via @layer + :where(), which loses to the
- * layered reset in practice for this layout; restore auto 0 explicitly.
+ * Guide layout — full-width main column, TOC flush right, article centered.
+ * Starlight's `--sl-content-margin-inline: auto` does not work through var() (computes as 0).
  */
 @media (min-width: 72rem) {
-    html[data-has-sidebar][data-has-toc] .main-pane .content-panel .sl-container {
-        margin-inline: auto 0;
+    html[data-has-sidebar][data-has-toc] .lg\:sl-flex {
+        width: 100%;
     }
+
+    html[data-has-sidebar][data-has-toc] .main-pane {
+        flex: 1 1 auto;
+        width: auto !important;
+        min-width: 0;
+        max-width: none;
+    }
+
+    html[data-has-sidebar][data-has-toc] .right-sidebar-container {
+        flex: 0 0 var(--sl-sidebar-width);
+        width: var(--sl-sidebar-width) !important;
+    }
+
+    html[data-has-sidebar][data-has-toc] .right-sidebar {
+        inset-inline: auto 0;
+        width: var(--sl-sidebar-width);
+    }
+
+    html[data-has-sidebar] .main-pane .content-panel .sl-container {
+        margin-inline: auto;
+    }
+
+    html[data-has-sidebar] .right-sidebar-panel .sl-container {
+        max-width: none;
+        width: 100%;
+    }
+}
+
+/* Prev/next page navigation */
+html[data-has-sidebar] .pagination-links {
+    margin-top: 3.25rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--cs-line);
+    gap: 0.85rem;
+}
+
+html[data-has-sidebar] .pagination-links a {
+    align-items: center;
+    gap: 0.85rem;
+    border: 1px solid var(--cs-line);
+    border-radius: calc(var(--cs-radius) - 0.15rem);
+    background: var(--cs-table-bg);
+    padding: 1rem 1.15rem;
+    box-shadow: none;
+    color: var(--cs-muted);
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+html[data-has-sidebar] .pagination-links a:hover {
+    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
+    background: var(--cs-table-row-hover);
+}
+
+html[data-has-sidebar] .pagination-links a > span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    transition: color 0.15s ease;
+}
+
+html[data-has-sidebar] .pagination-links .link-title {
+    color: var(--cs-ink);
+    font-family: var(--cs-font-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    text-transform: none;
+    transition: color 0.15s ease;
+}
+
+html[data-has-sidebar] .pagination-links a:hover .link-title {
+    color: var(--sl-color-text-accent);
+}
+
+html[data-has-sidebar] .pagination-links svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--cs-muted);
+    opacity: 0.9;
+    transition:
+        color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+html[data-has-sidebar] .pagination-links a:hover svg {
+    color: var(--sl-color-accent);
+    opacity: 1;
 }
 
 /* Sidebar breathing room — Starlight defaults pad-bottom: 0 and a tight top */

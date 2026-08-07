@@ -9,8 +9,9 @@ export default {
     frames: {
         showCopyToClipboardButton: true,
     },
-    // Monokai ≈ Prism okaidia (ui-components always uses okaidia, even in light)
-    themes: ['monokai'],
+    // Monokai (dark) + github-light — Starlight toggles via html[data-theme]
+    themes: ['monokai', 'github-light'],
+    useDarkModeMediaQuery: false,
     styleOverrides: {
         borderRadius: '0.5rem',
         borderWidth: '0px',
