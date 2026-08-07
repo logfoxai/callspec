@@ -50,5 +50,6 @@ const {title = data.title, tagline, actions = []} = data.hero || {};
 
 	syncSplashNav();
 	window.addEventListener('scroll', syncSplashNav, {passive: true});
+	window.addEventListener('pageshow', syncSplashNav);
 	document.addEventListener('astro:page-load', syncSplashNav);
 </script>
