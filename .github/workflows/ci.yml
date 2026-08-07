@@ -1,8 +1,19 @@
+# Keep `name: CI` — release.yml triggers on it via workflow_run.
 name: CI
 
 on:
   pull_request:
     branches: [main, next]
+  push:
+    branches: [main, next]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
