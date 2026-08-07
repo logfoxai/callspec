@@ -15,9 +15,14 @@ test('splash hero tagline typewriter keyframes and reduced-motion fallback exist
 		'visible brand h1/title typewriter was reverted — brand stays in the nav',
 	);
 	assert.equal(
-		/@keyframes\s+splash-typewriter\s*\{[^}]*width:\s*0/.test(splashCss.replace(/\s+/g, ' ')),
+		/@keyframes\s+splash-typewriter[\s\S]*?max-width:\s*0/.test(splashCss),
 		true,
-		'typewriter animation should start at width 0',
+		'typewriter should reveal via max-width (not ch×steps — that clips proportional text)',
+	);
+	assert.equal(
+		splashCss.includes('width: calc(var(--type-steps) * 1ch'),
+		false,
+		'ch-based final width under-measures and clips mid-word (e.g. “and O”)',
 	);
 	assert.equal(
 		splashCss.includes('@keyframes splash-caret'),

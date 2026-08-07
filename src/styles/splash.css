@@ -176,7 +176,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
     .splash-hero__tagline {
         margin: 0;
-        max-width: min(56rem, 92vw);
         font-family: var(--sl-font);
         font-size: clamp(1.45rem, 2.85vw, 2.05rem);
         font-weight: 600;
@@ -184,19 +183,21 @@ html[data-has-hero]:not([data-has-sidebar]) {
         line-height: 1.3;
         color: var(--cs-ink);
         display: inline-block;
+        width: max-content;
+        max-width: 0;
         overflow: hidden;
         white-space: nowrap;
         border-right: 0.08em solid currentColor;
-        width: 0;
+        /* max-width (not width×ch) — ch under-measures proportional glyphs and clips mid-word */
         animation:
-            splash-typewriter 2s steps(var(--type-steps), end) forwards,
+            splash-typewriter 2.4s steps(var(--type-steps), end) forwards,
             splash-caret 0.8s step-end infinite;
 
         /* nowrap typewriter needs horizontal room — skip on narrow viewports */
         @media (max-width: 49.99rem) {
             max-width: 28rem;
-            font-size: 1.35rem;
             width: auto;
+            font-size: 1.35rem;
             white-space: normal;
             text-wrap: balance;
             border-right-color: transparent;
@@ -241,12 +242,12 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
 @keyframes splash-typewriter {
     from {
-        width: 0;
+        max-width: 0;
     }
 
     to {
-        /* ch ≈ “0” width; pad slightly so proportional glyphs aren’t clipped */
-        width: calc(var(--type-steps) * 1ch + 0.15em);
+        /* Larger than the line — reveals full text without ch-based under-measure */
+        max-width: min(56rem, 92vw);
     }
 }
 
@@ -259,6 +260,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
 @media (prefers-reduced-motion: reduce) {
     .splash-hero .splash-hero__tagline {
         width: auto;
+        max-width: min(56rem, 92vw);
         white-space: normal;
         text-wrap: balance;
         border-right-color: transparent;
@@ -269,6 +271,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
 @media print {
     .splash-hero .splash-hero__tagline {
         width: auto;
+        max-width: min(56rem, 92vw);
         white-space: normal;
         border-right-color: transparent;
         animation: none;
