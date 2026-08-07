@@ -1,27 +1,26 @@
 ---
 /**
- * Splash hero — visible brand title with CSS typewriter; guide pages use PageTitle.
+ * Splash hero — brand in nav lockup; tagline is the visible h2 with typewriter.
+ * Guide pages use Starlight’s PageTitle, not this override.
  */
 import {LinkButton} from '@astrojs/starlight/components';
 
 const PAGE_TITLE_ID = '_top';
 const {data} = Astro.locals.starlightRoute.entry;
 const {title = data.title, tagline, actions = []} = data.hero || {};
-const titlePlain = String(title).replace(/<[^>]*>/g, '');
-const typeSteps = Math.max([...titlePlain].length, 1);
+const taglinePlain = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
+const typeSteps = Math.max([...taglinePlain].length, 1);
 ---
 
 <section class="splash-hero">
-	{/* Plain text — typewriter width/steps assume a single glyph run, not HTML. */}
-	<h1
-		id={PAGE_TITLE_ID}
-		class="splash-hero__title"
-		data-page-title
-		style={`--type-steps: ${typeSteps}`}
-	>
-		{titlePlain}
-	</h1>
-	{tagline && <p class="splash-hero__tagline" set:html={tagline} />}
+	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
+	{
+		taglinePlain && (
+			<h2 class="splash-hero__tagline" style={`--type-steps: ${typeSteps}`}>
+				{taglinePlain}
+			</h2>
+		)
+	}
 	{
 		actions.length > 0 && (
 			<div class="splash-hero__actions">

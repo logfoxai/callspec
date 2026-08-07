@@ -8,7 +8,12 @@ const splashCss = readFileSync(
 	'utf8',
 );
 
-test('splash hero title typewriter keyframes and reduced-motion fallback exist', (assert) => {
+test('splash hero tagline typewriter keyframes and reduced-motion fallback exist', (assert) => {
+	assert.equal(
+		splashCss.includes('.splash-hero__title'),
+		false,
+		'visible brand h1/title typewriter was reverted — brand stays in the nav',
+	);
 	assert.equal(
 		/@keyframes\s+splash-typewriter\s*\{[^}]*width:\s*0/.test(splashCss.replace(/\s+/g, ' ')),
 		true,
@@ -20,15 +25,20 @@ test('splash hero title typewriter keyframes and reduced-motion fallback exist',
 		'caret blink keyframes required for the border-right cursor',
 	);
 	assert.equal(
-		/prefers-reduced-motion:\s*reduce[\s\S]*?\.splash-hero__title[\s\S]*?animation:\s*none/.test(
+		/prefers-reduced-motion:\s*reduce[\s\S]*?\.splash-hero__tagline[\s\S]*?animation:\s*none/.test(
 			splashCss,
 		),
 		true,
 		'reduced-motion visitors must skip the typewriter',
 	);
 	assert.equal(
-		/@media\s+print[\s\S]*?\.splash-hero__title[\s\S]*?animation:\s*none/.test(splashCss),
+		/@media\s+print[\s\S]*?\.splash-hero__tagline[\s\S]*?animation:\s*none/.test(splashCss),
 		true,
-		'print must show the full title (animations do not run when printing)',
+		'print must show the full tagline (animations do not run when printing)',
+	);
+	assert.equal(
+		splashCss.includes('drop-shadow'),
+		false,
+		'no glow / drop-shadow on the typewriter headline',
 	);
 });
