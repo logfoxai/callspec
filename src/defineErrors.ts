@@ -23,7 +23,7 @@ type BuiltinFailers = {
 /** Internal marker — domain defs only (builtin failers are implicit). */
 const ERROR_DEFS = Symbol.for('callspec.errors.defs');
 
-/** Pass the whole handle to `defineRoute({ errors: e })` — domain codes only. */
+/** Pass the whole handle to `route({ errors: e })` — domain codes only. */
 type ErrorsHandle = {
     [ERROR_DEFS]: Readonly<Record<string, RouteErrorDef>>
 };

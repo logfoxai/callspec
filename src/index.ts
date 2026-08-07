@@ -1,5 +1,5 @@
-export {route} from './defineRouteContract';
-export type {RouteContractInput} from './defineRouteContract';
+export {route} from './route';
+export type {RouteContractInput} from './route';
 export {spec} from './defineSpec';
 export type {Callspec} from './defineSpec';
 export {mountSpec} from './mountSpec';
@@ -19,16 +19,12 @@ export {
     builtInErrorDefs,
 } from './builtinErrors';
 export type {BuiltinErrorCode, ThrowableBuiltinCode} from './builtinErrors';
-export {expressErrorHandler} from './expressErrorHandler';
 export {
     CallspecValidationError,
     CallspecUnauthorizedError,
     isRouteFailure,
     formatRouteFailureBody,
     sendRouteFailureResponse,
-    isRouteError,
-    formatRouteErrorBody,
-    sendRouteErrorResponse,
 } from './errors';
 export type {RouteFailure, RouteResolver, Authenticate, RouteAuth, RouteScope, RouteDef, WiredRoute} from './types';
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';

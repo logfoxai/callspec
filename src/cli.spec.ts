@@ -3,7 +3,7 @@ import {execSync} from 'node:child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {defineRoute} from './defineRoute';
+import {route} from './route';
 import {emitCallspec} from './emitCallspec';
 import {predicates as p} from 'runtyp';
 
@@ -53,7 +53,7 @@ test('cli writes output from valid document', (assert) => {
     const outputPath = path.join(dir, 'api.ts');
 
     const doc = emitCallspec({
-        ping: defineRoute({
+        ping: route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},

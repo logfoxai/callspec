@@ -1,12 +1,12 @@
 import {test} from 'kizu';
 import {exportedRoutes, hasBearerRoutes} from './routeVisibility';
 import {predicates as p} from 'runtyp';
-import {defineRoute} from './defineRoute';
+import {route} from './route';
 
 test('exportedRoutes: includes only scope public routes', (assert) => {
 
     const routes = {
-        exported: defineRoute({
+        exported: route({
             input: p.object({}),
             output: p.object({}),
             meta: {summary: 'x', description: 'x', tags: []},
@@ -14,7 +14,7 @@ test('exportedRoutes: includes only scope public routes', (assert) => {
             auth: 'none',
             resolver: async (_input, _ctx) => ({}),
         }),
-        internal: defineRoute({
+        internal: route({
             input: p.object({}),
             output: p.object({}),
             meta: {summary: 'x', description: 'x', tags: []},
@@ -31,14 +31,14 @@ test('exportedRoutes: includes only scope public routes', (assert) => {
 test('hasBearerRoutes: true when any route requires bearer auth', (assert) => {
 
     const routes = {
-        open: defineRoute({
+        open: route({
             input: p.object({}),
             output: p.object({}),
             meta: {summary: 'x', description: 'x', tags: []},
             auth: 'none',
             resolver: async (_input, _ctx) => ({}),
         }),
-        secured: defineRoute({
+        secured: route({
             input: p.object({}),
             output: p.object({}),
             meta: {summary: 'x', description: 'x', tags: []},

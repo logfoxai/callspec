@@ -9,7 +9,7 @@ Design reference for the callspec error contract, mountSpec runtime, and client 
 - **`defineErrors()`** — domain error maps; shorthand **`err`** is builtins-only.
 - **Return failures from resolvers** — `return err.NOT_FOUND()` / `return registerErr.USER_EXISTS({ … })`; success is a plain route output object.
 - **`RouteFailure`** — `{ ok: false, code, status, data? }` from resolvers and from `defineErrors` / `err` handles.
-- **Builtins on every route** — merged at `defineRoute` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
+- **Builtins on every route** — merged at `route` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
 - **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks resolver return types against `errors:` at compile time (no runtime allowlist).
 - **`BUILTIN_ERROR`** — one constant namespace for all automatic codes (validation, auth, route-not-found, etc.).
 - Client Result — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`. Every failure union includes client-only **`UNKNOWN_ERROR`** (HTTP response outside the route contract) and **`NETWORK_ERROR`** (no HTTP response — DNS, offline, abort; `status: 0`).
@@ -19,7 +19,7 @@ Framework validation and auth **throw** `CallspecValidationError` / `CallspecUna
 
 ## mountSpec runtime
 
-For RPC routes mounted with `mountSpec`, **errors and logging are owned by callspec** — you do not wire `expressErrorHandler`, jsout, or jsout-express on that router for normal operation.
+For RPC routes mounted with `mountSpec`, **errors and logging are owned by callspec** — you do not wire jsout or jsout-express on that router for normal operation.
 
 ```typescript
 mountSpec(router, spec); // request log + catch path + INTERNAL_ERROR — zero extra middleware
@@ -81,20 +81,11 @@ mountSpec(router, spec, {
 
 Import **`err`** (builtins-only handle) or your domain handle — do not confuse the caught value with the callspec handle.
 
-### Non-RPC Express routes
-
-Routes **outside** `mountSpec` (multipart upload, custom middleware) still use Express `next(err)`:
-
-- **`expressErrorHandler()`** from `callspec/express` — maps `RouteFailure` throws and framework errors to callspec JSON
-- **`logRequest`** from `callspec` — optional request logging on those routers
-
-Malformed JSON on a router with `body-parser` may hit your app-level handler before RPC runs.
-
 ## Two tiers
 
 | Tier | Declared on route? | In every `*Result`? | Production |
 |------|-------------------|---------------------|------------|
-| Builtin | No (merged at `defineRoute`) | Yes | `return err.NOT_FOUND()` etc. |
+| Builtin | No (merged at `route`) | Yes | `return err.NOT_FOUND()` etc. |
 | Domain | Yes (`errors: defineErrors({ … })`) | Only that route | `return registerErr.USER_EXISTS(…)` |
 
 ### Builtin codes
@@ -200,10 +191,6 @@ return err.NOT_FOUND({message: '…'});
 ```
 
 Helpers return `RouteFailuresFrom<typeof registerErr>` (or `void` / domain data); callers propagate with `if (isRouteFailure(x)) return x`.
-
-Express middleware that cannot return through mountSpec may still **`throw`** a `RouteFailure` object; use `isRouteFailure` + `sendRouteFailureResponse` in the error handler.
-
-**Legacy `RouteError` (Error subclass):** still supported for throws via `isRouteError` / `expressErrorHandler`. Prefer `RouteFailure` returns; new code should not introduce `RouteError`.
 
 ## Rules
 

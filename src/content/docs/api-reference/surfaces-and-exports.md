@@ -52,7 +52,6 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `aut
 | Import | Use |
 |--------|-----|
 | `callspec` | `route`, `spec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteContractInput`, `ResolverFor`, `RouteResolver`, `Authenticate`, `WiredRoute` |
-| `callspec/express` | `expressErrorHandler` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile`, `generateValidatorsFile` |
 

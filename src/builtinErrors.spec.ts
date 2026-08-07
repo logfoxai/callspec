@@ -1,6 +1,6 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
-import {defineRoute} from './defineRoute';
+import {route} from './route';
 import {emitOpenApi} from './openapi';
 import {BUILTIN_ERROR, mergeOpenApiErrorResponses, openApiMountBuiltinErrorResponses} from './builtinErrors';
 import {defineErrors} from './defineErrors';
@@ -54,7 +54,7 @@ test('mergeOpenApiErrorResponses: combines mount and domain 404 schemas', (asser
 test('emitOpenApi: private routes document UNAUTHORIZED JSON schema', (assert) => {
 
     const doc = emitOpenApi({
-        secret: defineRoute({
+        secret: route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Secret', description: 'Secret', tags: ['x']},

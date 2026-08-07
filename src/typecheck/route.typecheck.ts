@@ -3,7 +3,7 @@
  * Compile-only assertions — checked via `npm run typecheck:routes`.
  */
 import {predicates as p} from 'runtyp';
-import {defineRoute} from '../defineRoute';
+import {route} from '../route';
 import {defineErrors, err} from '../defineErrors';
 
 type Ctx = {userId: string};
@@ -23,7 +23,7 @@ async function wrongSearchResolver(_input: {query: number}, _ctx: Ctx) {
 
 }
 
-defineRoute({
+route({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -38,7 +38,7 @@ async function wrongInputResolver(input: {name: number}, _ctx: Ctx) {
 
 }
 
-defineRoute({
+route({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -47,7 +47,7 @@ defineRoute({
     resolver: wrongInputResolver,
 });
 
-defineRoute({
+route({
     input: searchInput,
     output: searchOutput,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
@@ -56,7 +56,7 @@ defineRoute({
     resolver: wrongSearchResolver,
 });
 
-defineRoute({
+route({
     input: searchInput,
     output: searchOutput,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
@@ -70,7 +70,7 @@ async function wrongOutputResolver(_input: {name: string}, _ctx: Ctx) {
 
 }
 
-defineRoute({
+route({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -85,7 +85,7 @@ async function correctResolver(input: {name: string}, _ctx: Ctx) {
 
 }
 
-defineRoute({
+route({
     input: p.object({name: p.string()}),
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -93,7 +93,7 @@ defineRoute({
     resolver: correctResolver,
 });
 
-defineRoute({
+route({
     input: p.object({name: p.string()}),
     output: p.any(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -105,7 +105,7 @@ const domainErr = defineErrors({
     MY_CODE: {},
 });
 
-defineRoute({
+route({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -114,7 +114,7 @@ defineRoute({
     resolver: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });
 
-defineRoute({
+route({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -130,7 +130,7 @@ defineRoute({
     },
 });
 
-defineRoute({
+route({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
@@ -138,7 +138,7 @@ defineRoute({
     resolver: (_input, _ctx: Ctx) => err.NOT_FOUND(),
 });
 
-defineRoute({
+route({
     input: p.object({}),
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},

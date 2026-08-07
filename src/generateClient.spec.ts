@@ -6,7 +6,7 @@ import express from 'express';
 import http from 'http';
 import {predicates as p} from 'runtyp';
 import {CallspecClient, isCallspecOk} from './client';
-import {defineRoute} from './defineRoute';
+import {route} from './route';
 import {spec} from './defineSpec';
 import {emitCallspec} from './emitCallspec';
 import {mountSpec} from './mountSpec';
@@ -83,7 +83,7 @@ test('typeNameForRoute: produces stable type names', (assert) => {
 test('generateClientFile: generates deterministic TypeScript from local file', async (assert) => {
 
     const routes = {
-        searchLogs: defineRoute({
+        searchLogs: route({
             input: p.object({teamId: p.string(), query: p.optional(p.string())}),
             output: p.object({results: p.array(p.object({id: p.string()}))}),
             meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
@@ -121,7 +121,7 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
 test('generateClientFile: generates from HTTP URL', async (assert) => {
 
     const routes = {
-        ping: defineRoute({
+        ping: route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
@@ -229,7 +229,7 @@ test('generated client makes a real request to an in-process server', async (ass
 
     const {execSync} = await import('node:child_process');
     const routes = {
-        echo: defineRoute({
+        echo: route({
             input: p.object({message: p.string()}),
             output: p.object({echo: p.string()}),
             meta: {summary: 'Echo', description: 'Echo', tags: ['demo']},
@@ -325,7 +325,7 @@ test('generateClientSource: error response types omit data when wire schema has 
     });
 
     const doc = emitCallspec({
-        getUser: defineRoute({
+        getUser: route({
             input: p.object({email: p.string()}),
             output: p.object({email: p.string()}),
             errors: err,
@@ -351,7 +351,7 @@ test('generateClientSource: error response types omit data when wire schema has 
 test('generateClientSource: escapes malicious route names in runtime.call', (assert) => {
 
     const doc = emitCallspec({
-        "evil'); throw new Error('pwn": defineRoute({
+        "evil'); throw new Error('pwn": route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Evil', description: 'Evil', tags: ['x']},

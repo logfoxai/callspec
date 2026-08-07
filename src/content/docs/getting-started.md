@@ -11,7 +11,7 @@ npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
 
-Requirements: Node.js 18+, TypeScript 5+, Express 4.x (peer).
+Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer). Contributing to this repo (`npm run validate`, docs site) needs Node **≥22.12** — see [Development](/development/).
 
 ## 2. Define a route
 

@@ -1,7 +1,7 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
 import {defineErrors, err} from './defineErrors';
-import {route} from './defineRouteContract';
+import {route} from './route';
 import {executeRoute} from './executeRoute';
 
 test('route wires resolver for spec', async (assert) => {

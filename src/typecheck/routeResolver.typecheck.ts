@@ -4,7 +4,7 @@
  */
 import {predicates as p} from 'runtyp';
 import {defineErrors} from '../defineErrors';
-import {route} from '../defineRouteContract';
+import {route} from '../route';
 import type {ResolverFor} from '../routeResolver';
 
 type Ctx = {userId: string};

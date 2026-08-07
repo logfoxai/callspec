@@ -3,7 +3,7 @@
  */
 import {predicates as p} from 'runtyp';
 import {spec} from '../defineSpec';
-import {defineRoute} from '../defineRoute';
+import {route} from '../route';
 
 const pagination = {
     maxResults: p.optional(p.number({
@@ -203,7 +203,7 @@ const meta = {
 
 const routes = {
 
-    healthcheck: defineRoute({
+    healthcheck: route({
         input: p.object({}),
         output: healthOut,
         meta: {
@@ -215,7 +215,7 @@ const routes = {
         resolver: (_input, _ctx) => ({status: 'ok'}),
     }),
 
-    getUserById: defineRoute({
+    getUserById: route({
         input: p.object({
             id: p.string({description: 'Unique identifier of the User (numeric string)'}),
             'user.fields': userFields,
@@ -234,7 +234,7 @@ const routes = {
         }),
     }),
 
-    getUserByUsername: defineRoute({
+    getUserByUsername: route({
         input: p.object({
             username: p.string({description: 'Twitter handle without the @ prefix'}),
             'user.fields': userFields,
@@ -252,7 +252,7 @@ const routes = {
         }),
     }),
 
-    getFollowers: defineRoute({
+    getFollowers: route({
         input: p.object({
             id: p.string({description: 'User ID whose followers you want to retrieve'}),
             max_results: pagination.maxResults,
@@ -273,7 +273,7 @@ const routes = {
         ], {previous_token: input.pagination_token ?? null}),
     }),
 
-    getFollowing: defineRoute({
+    getFollowing: route({
         input: p.object({
             id: p.string({description: 'User ID whose following list you want to retrieve'}),
             max_results: pagination.maxResults,
@@ -293,7 +293,7 @@ const routes = {
         ], {previous_token: input.pagination_token ?? null}),
     }),
 
-    createTweet: defineRoute({
+    createTweet: route({
         input: p.object({
             text: p.string({description: 'Body of the Tweet (max 280 characters)'}),
             reply: p.optional(p.object({
@@ -320,7 +320,7 @@ const routes = {
         }),
     }),
 
-    deleteTweet: defineRoute({
+    deleteTweet: route({
         input: p.object({
             id: p.string({description: 'Tweet ID to delete'}),
         }),
@@ -336,7 +336,7 @@ const routes = {
         }),
     }),
 
-    getTweet: defineRoute({
+    getTweet: route({
         input: p.object({
             id: p.string({description: 'Unique identifier of the Tweet'}),
             'tweet.fields': tweetFields,
@@ -354,7 +354,7 @@ const routes = {
         }),
     }),
 
-    searchRecent: defineRoute({
+    searchRecent: route({
         input: p.object({
             query: p.string({description: 'Search query (supports operators like from:, #hashtag, -filter:retweets)'}),
             max_results: pagination.maxResults,
@@ -376,7 +376,7 @@ const routes = {
         ]),
     }),
 
-    getHomeTimeline: defineRoute({
+    getHomeTimeline: route({
         input: p.object({
             max_results: pagination.maxResults,
             pagination_token: pagination.paginationToken,
@@ -399,7 +399,7 @@ const routes = {
         ]),
     }),
 
-    getUserTimeline: defineRoute({
+    getUserTimeline: route({
         input: p.object({
             id: p.string({description: 'User ID whose Tweets you want to retrieve'}),
             max_results: pagination.maxResults,
@@ -420,7 +420,7 @@ const routes = {
         ]),
     }),
 
-    createList: defineRoute({
+    createList: route({
         input: p.object({
             name: p.string({description: 'Name of the List (25 char max recommended)'}),
             description: p.optional(p.string({description: 'Description of the List'})),
@@ -447,7 +447,7 @@ const routes = {
         }),
     }),
 
-    getListMembers: defineRoute({
+    getListMembers: route({
         input: p.object({
             id: p.string({description: 'List ID'}),
             max_results: pagination.maxResults,
@@ -467,7 +467,7 @@ const routes = {
         ]),
     }),
 
-    sendDirectMessage: defineRoute({
+    sendDirectMessage: route({
         input: p.object({
             participant_id: p.string({description: 'User ID of the conversation participant'}),
             text: p.string({description: 'Message body (max 10,000 characters)'}),

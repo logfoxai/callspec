@@ -3,7 +3,7 @@ import express from 'express';
 import http from 'http';
 import {predicates as p} from 'runtyp';
 import {spec} from './defineSpec';
-import {defineRoute} from './defineRoute';
+import {route} from './route';
 import {mountSpec} from './mountSpec';
 import {defineErrors} from './defineErrors';
 import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
@@ -11,7 +11,7 @@ import {parseCallspecDocument} from './callspecDocument';
 
 const routes = {
 
-    healthcheck: defineRoute({
+    healthcheck: route({
         input: p.object({}),
         output: p.string(),
         meta: {
@@ -23,7 +23,7 @@ const routes = {
         resolver: (_input, _ctx) => 'OK',
     }),
 
-    echo: defineRoute({
+    echo: route({
         input: p.object({message: p.string()}),
         output: p.object({echo: p.string()}),
         meta: {
@@ -35,7 +35,7 @@ const routes = {
         resolver: (input: {message: string}, _ctx) => ({echo: input.message}),
     }),
 
-    greet: defineRoute({
+    greet: route({
         input: p.object({name: p.string()}),
         output: p.object({hello: p.string()}),
         meta: {
@@ -411,7 +411,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const api = spec({
         meta: {title: 'Boom API', version: '1.0.0'},
         routes: {
-            boom: defineRoute({
+            boom: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
@@ -464,7 +464,7 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
     const api = spec({
         meta: {title: 'Reject API', version: '1.0.0'},
         routes: {
-            reject: defineRoute({
+            reject: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Reject', description: 'Reject', tags: ['x']},
@@ -508,12 +508,77 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
 
 });
 
+test('integration: MCP unhandled throw does not leak Error.message', async (assert) => {
+
+    const api = spec({
+        meta: {title: 'MCP Boom', version: '1.0.0'},
+        routes: {
+            mcpBoom: route({
+                input: p.object({}),
+                output: p.string(),
+                meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
+                auth: 'none',
+                mcp: true,
+                resolver: async (_input, _ctx) => {
+
+                    throw new Error('secret db connection string leaked');
+
+                },
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 9,
+                method: 'tools/call',
+                params: {name: 'mcpBoom', arguments: {}},
+            }),
+        });
+
+        assert.equal(res.status, 500);
+
+        const body = await res.json() as {error?: {message?: string}};
+        const message = body.error?.message ?? '';
+
+        assert.equal(message.includes('secret'), false);
+        assert.equal(message.includes('db connection'), false);
+        assert.equal(message, 'Internal error');
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
 test('integration: handleUnhandledError maps throw to wire failure', async (assert) => {
 
     const api = spec({
         meta: {title: 'Hook API', version: '1.0.0'},
         routes: {
-            timeout: defineRoute({
+            timeout: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Timeout', description: 'Timeout', tags: ['x']},
@@ -589,7 +654,7 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
     const api = spec({
         meta: {title: 'Log API', version: '1.0.0'},
         routes: {
-            boom: defineRoute({
+            boom: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
@@ -655,7 +720,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const api = spec({
         meta: {title: 'Errors API', version: '1.0.0'},
         routes: {
-            getUser: defineRoute({
+            getUser: route({
                 input: p.object({email: p.string()}),
                 output: p.object({email: p.string()}),
                 errors: err,
@@ -755,7 +820,7 @@ test('integration: declared domain failure is returned on the wire', async (asse
     const api = spec({
         meta: {title: 'Strict API', version: '1.0.0'},
         routes: {
-            boom: defineRoute({
+            boom: route({
                 input: p.object({}),
                 output: p.string(),
                 errors: domainErr,
@@ -858,7 +923,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
             version: '0.0.1',
         },
         routes: {
-            ping: defineRoute({
+            ping: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
@@ -946,7 +1011,7 @@ test('integration: default meta title and version when omitted', async (assert) 
 
     const sparseSpec = spec({
         routes: {
-            ping: defineRoute({
+            ping: route({
                 input: p.object({}),
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},

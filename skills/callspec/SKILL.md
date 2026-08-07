@@ -62,7 +62,6 @@ With `app.use('/v1', router)` and `mountSpec` defaults (`docs: true`, any route 
 | `callspec` | `route`, `spec`, `mountSpec`, `defineErrors`, `err` |
 | `callspec/client` | `CallspecClient`, generated `ApiClient` base |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, codegen helpers |
-| `callspec/express` | `expressErrorHandler` for non-RPC routers |
 
 ## Ignore (not product docs)
 

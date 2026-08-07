@@ -170,9 +170,10 @@ export function mountMcp<Ctx>(
 
             respondError(400, `Unsupported method: ${body?.method ?? 'unknown'}`);
 
-        } catch (err) {
+        } catch {
 
-            respondError(500, err instanceof Error ? err.message : 'Internal error');
+            // Match HTTP RPC: never leak Error.message to clients.
+            respondError(500, 'Internal error');
 
         }
 

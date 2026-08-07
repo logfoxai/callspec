@@ -1,7 +1,7 @@
 import {test} from 'kizu';
 import {callspecDocumentToUiSpec} from './toUiSpec';
 import {predicates as p} from 'runtyp';
-import {defineRoute} from '../defineRoute';
+import {route} from '../route';
 import {emitCallspec} from '../emitCallspec';
 import {parseCallspecDocument} from '../callspecDocument';
 
@@ -64,7 +64,7 @@ test('callspecDocumentToUiSpec: extracts routes from native document', (assert) 
 test('emitCallspec to UI spec: native round trip', (assert) => {
 
     const doc = emitCallspec({
-        healthcheck: defineRoute({
+        healthcheck: route({
             input: p.object({}),
             output: p.string(),
             meta: {summary: 'Health', description: 'Health', tags: ['health']},
