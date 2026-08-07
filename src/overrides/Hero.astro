@@ -1,6 +1,6 @@
 ---
 /**
- * Splash hero — brand in nav lockup; typewriter h2 + lead h3.
+ * Splash hero — brand in nav lockup; typewriter h2 + supporting lead.
  * Guide pages use Starlight’s PageTitle, not this override.
  */
 import {LinkButton} from '@astrojs/starlight/components';
@@ -23,7 +23,7 @@ const lead =
 				<h2 class="splash-hero__headline" style={`--type-steps: ${typeSteps}`}>
 					{headline}
 				</h2>
-				<h3 class="splash-hero__lead">{lead}</h3>
+				<p class="splash-hero__lead">{lead}</p>
 			</>
 		)
 	}
