@@ -222,9 +222,24 @@ html[data-has-sidebar] .sl-markdown-content .starlight-aside
     box-decoration-break: clone;
 }
 
-html[data-has-sidebar] .sl-markdown-content :is(h1, h2, h3, h4, h5, h6)
+/* Headings with backtick names — mono title, not inline pill chips */
+html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, h4, h5, h6)
     code:not(:where(pre *, .expressive-code *, .frame *)) {
-    font-size: 0.88em;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    font-family: var(--sl-font-mono);
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    line-height: inherit;
+    color: inherit;
+    vertical-align: baseline;
+    -webkit-box-decoration-break: initial;
+    box-decoration-break: initial;
 }
 
 /* Tables — card layout, readable API reference grids */

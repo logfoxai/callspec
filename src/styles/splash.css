@@ -374,8 +374,8 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
         &.splash-flow__body--fern {
             justify-content: center;
-            gap: 0.85rem;
-            padding: 0.8rem;
+            gap: 1.15rem;
+            padding: 1.15rem 1rem;
             container-type: inline-size;
             container-name: fern;
         }
@@ -608,17 +608,17 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.45rem;
+        gap: 0.55rem;
         flex: 0 1 auto;
-        padding: 0.15rem 0.25rem 0;
+        padding: 0.25rem 0.35rem 0;
         text-align: center;
     }
 
     .splash-flow__fern-logo {
         display: block;
-        height: 1.65rem;
+        height: 1.35rem;
         width: auto;
-        max-width: 6.5rem;
+        max-width: 5.25rem;
         object-fit: contain;
     }
 
@@ -641,21 +641,21 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
-        gap: 0.35rem 0.55rem;
+        gap: 0.5rem 0.85rem;
         margin: 0;
-        padding: 0.15rem 0 0;
+        padding: 0.35rem 0 0.15rem;
 
         li {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.3rem;
+            gap: 0.4rem;
             margin: 0;
             min-width: 0;
-            padding: 0.05rem;
+            padding: 0.1rem;
             color: var(--flow-muted);
-            font-size: 0.65rem;
+            font-size: 0.68rem;
             font-weight: 500;
             letter-spacing: 0.01em;
             line-height: 1;
@@ -663,8 +663,8 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
         img {
             display: block;
-            width: 1.75rem;
-            height: 1.75rem;
+            width: 2.2rem;
+            height: 2.2rem;
             object-fit: contain;
         }
 
