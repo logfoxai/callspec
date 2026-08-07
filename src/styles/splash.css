@@ -203,7 +203,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         margin: 0;
         font-family: var(--cs-font-heading);
         font-size: clamp(1.85rem, 4.2vw, 2.75rem);
-        font-weight: 700;
+        font-weight: 500;
         letter-spacing: -0.035em;
         line-height: 1.3;
         /* Room for heading-font descenders (g/p/y) inside typewriter overflow:hidden */
