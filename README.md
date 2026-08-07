@@ -27,7 +27,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 ## Try the demo
 
-Explore the docs UI, MCP connect flow, and a sample API — **clone this repo** (not available via `npm i callspec` alone):
+Explore the docs UI, MCP connect flow, and a sample API:
 
 ```bash
 git clone https://github.com/logfoxai/callspec.git
