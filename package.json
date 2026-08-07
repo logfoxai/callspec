@@ -38,10 +38,6 @@
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
     },
-    "./express": {
-      "types": "./dist/expressErrorHandler.d.ts",
-      "default": "./dist/expressErrorHandler.js"
-    },
     "./document": {
       "types": "./dist/document.d.ts",
       "default": "./dist/document.js"

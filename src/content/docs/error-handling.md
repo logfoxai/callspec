@@ -19,7 +19,7 @@ Framework validation and auth **throw** `CallspecValidationError` / `CallspecUna
 
 ## mountSpec runtime
 
-For RPC routes mounted with `mountSpec`, **errors and logging are owned by callspec** — you do not wire `expressErrorHandler`, jsout, or jsout-express on that router for normal operation.
+For RPC routes mounted with `mountSpec`, **errors and logging are owned by callspec** — you do not wire jsout or jsout-express on that router for normal operation.
 
 ```typescript
 mountSpec(router, spec); // request log + catch path + INTERNAL_ERROR — zero extra middleware
@@ -80,15 +80,6 @@ mountSpec(router, spec, {
 ```
 
 Import **`err`** (builtins-only handle) or your domain handle — do not confuse the caught value with the callspec handle.
-
-### Non-RPC Express routes
-
-Routes **outside** `mountSpec` (multipart upload, custom middleware) still use Express `next(err)`:
-
-- **`expressErrorHandler()`** from `callspec/express` — maps `RouteFailure` throws and framework errors to callspec JSON
-- **`logRequest`** from `callspec` — optional request logging on those routers
-
-Malformed JSON on a router with `body-parser` may hit your app-level handler before RPC runs.
 
 ## Two tiers
 
@@ -200,8 +191,6 @@ return err.NOT_FOUND({message: '…'});
 ```
 
 Helpers return `RouteFailuresFrom<typeof registerErr>` (or `void` / domain data); callers propagate with `if (isRouteFailure(x)) return x`.
-
-Express middleware that cannot return through mountSpec may still **`throw`** a `RouteFailure` object; use `isRouteFailure` + `sendRouteFailureResponse` in the error handler.
 
 ## Rules
 

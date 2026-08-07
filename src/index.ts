@@ -19,7 +19,6 @@ export {
     builtInErrorDefs,
 } from './builtinErrors';
 export type {BuiltinErrorCode, ThrowableBuiltinCode} from './builtinErrors';
-export {expressErrorHandler} from './expressErrorHandler';
 export {
     CallspecValidationError,
     CallspecUnauthorizedError,
