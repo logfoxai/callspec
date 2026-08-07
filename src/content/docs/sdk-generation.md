@@ -1,6 +1,6 @@
 # SDK generation
 
-The CLI reads **`{mount}/callspec.json`** (mount URL or file path) and writes a typed **`ApiClient`**. Add **`--validators`** only if you use `spec({ exports })` for shared form preds — see [Shared validation](./shared-validation.md).
+The CLI reads **`{mount}/callspec.json`** (mount URL or file path) and writes one TypeScript file: a typed **`ApiClient`**, route types, and a **`schemas`** object of runtyp preds (spec `exports` plus each route’s input/output). Shared form preds: [Shared validation](./shared-validation.md).
 
 ```bash
 # Live mount
@@ -8,12 +8,16 @@ npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 
 # From a pinned file
 npx callspec ./callspec.json --output src/generated/api.ts
-
-# Optional second pass
-npx callspec ./callspec.json --output src/generated/validators.ts --validators
 ```
 
-Generated code imports only `callspec/client` (browser-safe) — one typed method per route. Codegen reads **`callspec.json`**, not OpenAPI.
+```typescript
+import {ApiClient, schemas, type GetProductByIdInput, type Product} from './generated/api';
+
+const api = new ApiClient({baseUrl: '/v1'});
+schemas.product.parse(form);
+```
+
+Generated code imports `callspec/client` (browser-safe) and `runtyp` (for `schemas`). Codegen reads **`callspec.json`**, not OpenAPI.
 
 ## Pinning for CI (optional)
 

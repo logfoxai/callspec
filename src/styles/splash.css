@@ -261,6 +261,18 @@ html[data-has-hero]:not([data-has-sidebar]) {
             min-height: 2.75rem;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
+            svg {
+                transition: transform 0.15s ease;
+            }
+
+            &.sl-link-button--forward:hover svg {
+                transform: translateX(0.2rem);
+            }
+
+            &.sl-link-button--back:hover svg {
+                transform: translateX(-0.2rem);
+            }
+
             &.primary {
                 background: #a855f7;
                 border-color: #a855f7;
@@ -275,6 +287,13 @@ html[data-has-hero]:not([data-has-sidebar]) {
                 }
             }
         }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash-hero__actions .sl-link-button--forward:hover svg,
+    .splash-hero__actions .sl-link-button--back:hover svg {
+        transform: none;
     }
 }
 

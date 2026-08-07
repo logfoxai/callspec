@@ -37,7 +37,11 @@ const lead =
 							{variant}
 							icon={icon?.name}
 							iconPlacement={icon?.name === 'github' ? 'start' : 'end'}
-							class:list={[className]}
+							class:list={[
+								className,
+								icon?.name === 'right-arrow' && 'sl-link-button--forward',
+								icon?.name === 'left-arrow' && 'sl-link-button--back',
+							]}
 							{...attrs}
 						>
 							{text}

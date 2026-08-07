@@ -20,5 +20,5 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 6. When `!result.ok`, branch on **`result.code`**, not HTTP status. Don’t show `UNKNOWN_ERROR.data` to users.
 7. Don’t wire Express error middleware / jsout on the `mountSpec` router — it owns the catch path.
 8. After route/error changes: regenerate the client; commit pinned contract if the repo pins one.
-9. Prefer generated **`ApiClient`** over raw `CallspecClient`. `--validators` is opt-in for form preds.
+9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.

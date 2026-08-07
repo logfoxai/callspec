@@ -126,10 +126,14 @@ export const api = spec({
 });
 ```
 
-`exports` land in `callspec.json` and power a second codegen pass:
+`exports` land in `callspec.json` and appear on the generated **`schemas`** object (plus top-level Infer types):
 
 ```bash
-npx callspec ./callspec.json --output src/generated/validators.ts --validators
+npx callspec ./callspec.json --output src/generated/api.ts
+```
+
+```typescript
+import {schemas, type Product} from './generated/api';
 ```
 
 See [Shared validation](../shared-validation.md) and [SDK generation](../sdk-generation.md).

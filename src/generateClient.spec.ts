@@ -118,6 +118,53 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
 
 });
 
+test('generateClientSource: one file includes ApiClient, schemas preds, and export Infer types', (assert) => {
+
+    const product = p.object({
+        id: p.string(),
+        name: p.string(),
+    });
+
+    const doc = emitCallspec(
+        {
+            getProductById: route({
+                input: p.object({id: p.string()}),
+                output: product,
+                meta: {summary: 'Get', description: 'Get product', tags: ['products']},
+                auth: 'none',
+                resolver: async (_input, _ctx) => ({id: '1', name: 'Widget'}),
+            }),
+        },
+        {
+            title: 'Unified API',
+            version: '1.0.0',
+            exports: {product},
+        },
+    );
+
+    const generated = generateClientSource(doc);
+
+    assert.equal(generated.includes('export class ApiClient'), true);
+    assert.equal(generated.includes("from 'callspec/client'"), true);
+    assert.equal(generated.includes("from 'runtyp'"), true);
+    assert.equal(generated.includes('export const schemas = {'), true);
+    assert.equal(generated.includes('product:'), true);
+    assert.equal(generated.includes('getProductByIdInput:'), true);
+    assert.equal(generated.includes('getProductByIdOutput:'), true);
+    assert.equal(
+        generated.includes('export type Product = Infer<typeof schemas.product>'),
+        true,
+    );
+    assert.equal(generated.includes('export type GetProductByIdInput'), true);
+    assert.equal(
+        generated.includes('export type GetProductByIdInput = Infer<'),
+        false,
+        'route Input types stay from TS codegen, not Infer',
+    );
+    assert.equal(generated.includes('--validators'), false);
+
+});
+
 test('generateClientFile: generates from HTTP URL', async (assert) => {
 
     const routes = {
@@ -282,6 +329,11 @@ test('generated client makes a real request to an in-process server', async (ass
 
         fs.mkdirSync(path.join(dir, 'node_modules'), {recursive: true});
         fs.symlinkSync(process.cwd(), path.join(dir, 'node_modules', 'callspec'), 'dir');
+        fs.symlinkSync(
+            path.join(process.cwd(), 'node_modules', 'runtyp'),
+            path.join(dir, 'node_modules', 'runtyp'),
+            'dir',
+        );
 
         execSync(`${process.execPath} ${path.join(process.cwd(), 'node_modules/typescript/bin/tsc')} -p tsconfig.json`, {
             cwd: dir,
