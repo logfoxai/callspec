@@ -4,6 +4,16 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
     site: 'https://logfoxai.github.io/callspec',
     outDir: './docs-site',
+    // Dev server only (sec-fetch middleware): allow IDE embedded browsers (Cursor, etc.)
+    // that load localhost with Sec-Fetch-Site: cross-site. Not used by static builds.
+    security: {
+        allowedDomains: [{}],
+    },
+    vite: {
+        server: {
+            cors: true,
+        },
+    },
     integrations: [
         starlight({
             title: 'Callspec',
