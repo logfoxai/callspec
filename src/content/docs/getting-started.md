@@ -2,8 +2,6 @@
 title: Getting started
 ---
 
-# Getting started
-
 Walk through a minimal server and client. For split-file layout see [Server layout](server-layout.md). Single-file copy-paste: [Complete example](complete-example.md).
 
 ## 1. Install backend dependencies

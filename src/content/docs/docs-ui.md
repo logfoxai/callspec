@@ -2,8 +2,6 @@
 title: Docs UI
 ---
 
-# Docs UI
-
 **Quick facts**
 
 | | |

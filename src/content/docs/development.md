@@ -2,8 +2,6 @@
 title: Development
 ---
 
-# Development
-
 ```bash
 npm install
 npm run validate    # build, lint, knip, typecheck:routes, test + coverage

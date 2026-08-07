@@ -2,8 +2,6 @@
 title: Callspec + Fern
 ---
 
-# Callspec + Fern
-
 Callspec is your **TypeScript runtime** — server, integrated TS SDK, in-process MCP, docs, and `/openapi.json` from one `route()` registry. [Fern](https://buildwithfern.com/) is an optional **public DX layer** — multi-language SDKs and hosted docs for external developers.
 
 They are **synergistic, not either/or**. Typical flow: `mountSpec` serves your API → export `/openapi.json` → Fern generates public SDKs and docs. Keep Callspec for everything TypeScript; add Fern when external, multi-language DX is worth a hosted account.

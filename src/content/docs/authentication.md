@@ -2,8 +2,6 @@
 title: Authentication
 ---
 
-# Authentication
-
 Credentials are per-route, not in the input pred.
 
 | `auth` | Behavior |

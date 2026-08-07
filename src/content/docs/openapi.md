@@ -2,8 +2,6 @@
 title: OpenAPI
 ---
 
-# OpenAPI
-
 **Quick facts**
 
 | | |

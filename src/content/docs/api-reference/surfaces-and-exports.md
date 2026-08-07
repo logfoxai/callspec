@@ -2,8 +2,6 @@
 title: Surfaces & package exports
 ---
 
-# Surfaces & package exports
-
 ## Errors
 
 Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md).

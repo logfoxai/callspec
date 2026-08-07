@@ -2,8 +2,6 @@
 title: MCP
 ---
 
-# MCP
-
 **Quick facts**
 
 | | |

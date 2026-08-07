@@ -2,8 +2,6 @@
 title: Client usage
 ---
 
-# Client usage
-
 Wrap generated methods in app helpers — branch on `result.code` in a `switch`; TypeScript flags missing cases.
 
 ```typescript

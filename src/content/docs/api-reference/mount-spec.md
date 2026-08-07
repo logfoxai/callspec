@@ -2,8 +2,6 @@
 title: mountSpec
 ---
 
-# `mountSpec`
-
 ```typescript
 mountSpec(router, spec, options?: MountSpecOptions)
 ```

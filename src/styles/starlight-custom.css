@@ -1,4 +1,94 @@
-/* Splash home — flow diagram (wide asset; don't use Starlight hero image slot). */
+/* Callspec theme overrides for Starlight (see node_modules/@astrojs/starlight/style/props.css). */
+@layer starlight.base {
+    :root,
+    ::backdrop {
+        /* Brand accent — callspec purple (#935DFF) */
+        --sl-color-accent-low: hsl(270, 45%, 18%);
+        --sl-color-accent: hsl(270, 100%, 68%);
+        --sl-color-accent-high: hsl(270, 100%, 88%);
+        --sl-color-text-accent: hsl(270, 100%, 78%);
+
+        /* Inline code: softer pill, not a harsh gray slab */
+        --sl-color-bg-inline-code: hsl(270, 22%, 22%);
+
+        /* Slightly roomier doc column */
+        --sl-content-width: 50rem;
+        --sl-content-gap-y: 1.125rem;
+
+        --callspec-radius-sm: 0.375rem;
+        --callspec-radius-md: 0.625rem;
+        --callspec-radius-lg: 0.75rem;
+    }
+
+    :root[data-theme='light'],
+    [data-theme='light'] ::backdrop {
+        --sl-color-accent-low: hsl(270, 55%, 92%);
+        --sl-color-accent: hsl(270, 85%, 48%);
+        --sl-color-accent-high: hsl(270, 80%, 28%);
+        --sl-color-text-accent: hsl(270, 85%, 42%);
+        --sl-color-bg-inline-code: hsl(270, 35%, 94%);
+    }
+}
+
+@layer starlight.content {
+    /* Inline `code` — rounded pills with subtle border */
+    .sl-markdown-content code:not(:where(.not-content *, pre *, .expressive-code *)) {
+        border-radius: var(--callspec-radius-sm);
+        padding: 0.12em 0.5em;
+        border: 1px solid hsl(270, 18%, 32%);
+        font-size: 0.875em;
+        font-weight: 500;
+    }
+
+    :root[data-theme='light'] .sl-markdown-content code:not(:where(.not-content *, pre *, .expressive-code *)) {
+        border-color: hsl(270, 20%, 85%);
+    }
+
+    /* Fallback fenced blocks (non–expressive-code) */
+    .sl-markdown-content pre:not(:where(.not-content *)) {
+        border-radius: var(--callspec-radius-lg);
+        overflow: hidden;
+    }
+}
+
+@layer starlight.components {
+    /* Expressive Code frames (Starlight default highlighter) */
+    .expressive-code .frame {
+        border-radius: var(--callspec-radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--sl-color-gray-5);
+        box-shadow: var(--sl-shadow-sm);
+    }
+
+    .expressive-code .frame.is-terminal .header {
+        border-top-left-radius: var(--callspec-radius-lg);
+        border-top-right-radius: var(--callspec-radius-lg);
+    }
+
+    .expressive-code .frame pre {
+        border-bottom-left-radius: var(--callspec-radius-lg);
+        border-bottom-right-radius: var(--callspec-radius-lg);
+    }
+
+    /* Splash feature cards */
+    html[data-has-hero] .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 50rem) {
+        html[data-has-hero] .card-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 72rem) {
+        html[data-has-hero] .card-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+}
+
+/* Splash home — flow diagram (wide asset; not in Starlight hero slot). */
 .flow-diagram {
     margin-block: 2rem 0.5rem;
     max-width: min(100%, 56rem);
@@ -9,12 +99,5 @@
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 1rem;
-}
-
-/* Feature cards: 3 columns on wide splash (no stagger offset). */
-@media (min-width: 72rem) {
-    html[data-has-hero] .card-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    border-radius: var(--callspec-radius-lg);
 }
