@@ -39,7 +39,7 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictiona
 
 ## Contents
 
-For coding agents: [AGENTS.md](AGENTS.md) → [skills/callspec/SKILL.md](skills/callspec/SKILL.md)
+For coding agents, use [SKILL.md](skills/callspec/SKILL.md).
 
 - [Getting started](src/content/docs/getting-started.md)
 - [Server layout](src/content/docs/server-layout.md)
