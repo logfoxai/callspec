@@ -1,6 +1,6 @@
 # Server layout
 
-Callspec doesn't care about your folders. A single file is fine — see [Complete example](./complete-example.md). When the API grows, this split keeps routes, shared preds, and the registry easy to find.
+Callspec doesn't care about your folders. A single file is fine — see [Single-file server example](./single-file-server-example.md). When the API grows, this split keeps routes, shared preds, and the registry easy to find.
 
 ```text
 my-api/

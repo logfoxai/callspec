@@ -48,7 +48,7 @@ For coding agents, use [SKILL.md](skills/callspec/SKILL.md).
 - [Coding agents](src/content/docs/coding-agents.md)
 - [Server layout](src/content/docs/server-layout.md)
 - [Unit testing](src/content/docs/unit-testing.md)
-- [Complete example](src/content/docs/complete-example.md)
+- [Single-file server example](src/content/docs/single-file-server-example.md)
 - [Authentication](src/content/docs/authentication.md)
 - [Request context](src/content/docs/request-context.md)
 - [API reference](src/content/docs/api-reference.md)
