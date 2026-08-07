@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 # Callspec
 
-Start at the [README Contents](https://github.com/logfoxai/callspec#contents) — pick the guide under `src/content/docs/`. Guide sources currently live on branch **`next`** (not `main`). Ignore `docs/internal/`.
+Start at the [README Contents](https://github.com/logfoxai/callspec#contents) — pick the guide under `src/content/docs/`. Ignore `docs/internal/`.
 
 ## Do not get wrong
 
