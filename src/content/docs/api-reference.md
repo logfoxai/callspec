@@ -6,8 +6,8 @@ title: API reference
 
 ## Contents
 
-- [Resolvers](api-reference/resolvers.md)
-- [`route` & `spec`](api-reference/route-and-spec.md)
-- [`mountSpec`](api-reference/mount-spec.md)
-- [Auth and scope](api-reference/auth-and-scope.md)
-- [Surfaces & package exports](api-reference/surfaces-and-exports.md)
+- [Resolvers](/api-reference/resolvers/)
+- [`route` & `spec`](/api-reference/route-and-spec/)
+- [`mountSpec`](/api-reference/mount-spec/)
+- [Auth and scope](/api-reference/auth-and-scope/)
+- [Surfaces & package exports](/api-reference/surfaces-and-exports/)

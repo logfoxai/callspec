@@ -30,7 +30,7 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 		<li class="splash-flow__step" style="--step: 1">
 			<header class="splash-flow__head">
 				<span class="splash-flow__num" aria-hidden="true">2</span>
-				<h2 class="splash-flow__title">Serve your API, docs, OpenAPI, and MCP</h2>
+				<h2 class="splash-flow__title">Serve API, docs, OpenAPI &amp; MCP</h2>
 			</header>
 			<div class="splash-flow__body">
 				<ul class="splash-flow__surfaces">
@@ -43,7 +43,7 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 									stroke-width="1.75"></path></svg
 							>
 						</span>
-						<span class="splash-flow__surface-label">HTTP RPC API</span>
+						<span class="splash-flow__surface-label">HTTP RPC</span>
 						<code class="splash-flow__path">/v1/*</code>
 					</li>
 					<li>
@@ -76,7 +76,7 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 									stroke-linecap="round"></path></svg
 							>
 						</span>
-						<span class="splash-flow__surface-label">OpenAPI 3.1</span>
+						<span class="splash-flow__surface-label">OpenAPI</span>
 						<code class="splash-flow__path">/openapi.json</code>
 					</li>
 					<li>
@@ -89,7 +89,7 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 									stroke-linejoin="round"></path></svg
 							>
 						</span>
-						<span class="splash-flow__surface-label">MCP Server</span>
+						<span class="splash-flow__surface-label">MCP</span>
 						<code class="splash-flow__path">/mcp</code>
 					</li>
 				</ul>
@@ -98,7 +98,7 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 						><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75"
 						></rect><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.75"></path></svg
 					>
-					Type safe auth, errors, and logging built in
+					Auth, typed errors, and logging built in
 				</p>
 			</div>
 		</li>
@@ -106,13 +106,14 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 		<li class="splash-flow__step" style="--step: 2">
 			<header class="splash-flow__head">
 				<span class="splash-flow__num" aria-hidden="true">3</span>
-				<h2 class="splash-flow__title">Generate TypeScript SDK</h2>
+				<h2 class="splash-flow__title">Generate a TypeScript SDK</h2>
 			</header>
 			<div class="splash-flow__body splash-flow__body--stack">
 				<div class="splash-flow__cli" aria-label="Terminal">
-					<span class="splash-flow__prompt" aria-hidden="true">&gt;</span>
+					<span class="splash-flow__prompt" aria-hidden="true">$</span>
 					<code><span class="tok-muted">npx</span> <span class="tok-fn">callspec</span></code>
 				</div>
+				<div class="splash-flow__arrow" aria-hidden="true">↓</div>
 				<div class="splash-flow__sdk">
 					<span class="splash-flow__ts" aria-hidden="true">TS</span>
 					<div>
@@ -126,31 +127,25 @@ const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn
 		<li class="splash-flow__step" style="--step: 3">
 			<header class="splash-flow__head">
 				<span class="splash-flow__num" aria-hidden="true">4</span>
-				<h2 class="splash-flow__title">Use OpenAPI for anything</h2>
+				<h2 class="splash-flow__title">Or use OpenAPI anywhere</h2>
 			</header>
-			<div class="splash-flow__body splash-flow__body--stack">
-				<div class="splash-flow__fern">
-					<img
-						class="splash-flow__fern-logo"
-						src="/logos/fern.png"
-						alt="Fern"
-						width="120"
-						height="36"
-					/>
-					<span>Generate multi-language SDKs &amp; docs</span>
+			<div class="splash-flow__body splash-flow__body--fern">
+				<div class="splash-flow__fern-badge">
+					<img class="splash-flow__fern-logo" src="/logos/fern.png" alt="Fern" width="160" height="44" />
 				</div>
+				<p class="splash-flow__fern-copy">Multi-language SDKs &amp; docs from your OpenAPI</p>
 				<ul class="splash-flow__langs" aria-label="Languages">
-					<li>
-						<img src="/logos/python.svg" alt="Python" width="28" height="28" />
+					<li title="Python">
+						<img src="/logos/python.svg" alt="Python" width="40" height="40" />
 					</li>
-					<li>
-						<img src="/logos/go.svg" alt="Go" width="28" height="28" />
+					<li title="Go">
+						<img src="/logos/go.svg" alt="Go" width="40" height="40" />
 					</li>
-					<li>
-						<img src="/logos/java.svg" alt="Java" width="28" height="28" />
+					<li title="Java">
+						<img src="/logos/java.svg" alt="Java" width="40" height="40" />
 					</li>
-					<li>
-						<img src="/logos/csharp.svg" alt="C#" width="28" height="28" />
+					<li title="C#">
+						<img src="/logos/csharp.svg" alt="C#" width="40" height="40" />
 					</li>
 				</ul>
 			</div>

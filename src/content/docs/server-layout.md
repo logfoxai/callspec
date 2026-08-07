@@ -2,7 +2,7 @@
 title: Server layout
 ---
 
-Recommended split-file layout for a growing API — one `route()` per file, shared domain preds in one place, a single `spec()` registry, optional auth and `exports`. **Or put it all in one file** — routes, `spec()`, and `mountSpec()` together work fine; see [Complete example](complete-example.md). Callspec doesn't care about folder names; organize however fits your repo.
+Recommended split-file layout for a growing API — one `route()` per file, shared domain preds in one place, a single `spec()` registry, optional auth and `exports`. **Or put it all in one file** — routes, `spec()`, and `mountSpec()` together work fine; see [Complete example](/complete-example/). Callspec doesn't care about folder names; organize however fits your repo.
 
 ```text
 my-api/
@@ -23,7 +23,7 @@ my-api/
 └── package.json
 ```
 
-Unit-test resolvers directly — [Unit testing](unit-testing.md) (`getProductById.resolver(input, ctx)` — no HTTP).
+Unit-test resolvers directly — [Unit testing](/unit-testing/) (`getProductById.resolver(input, ctx)` — no HTTP).
 
 ## What goes where
 
@@ -31,7 +31,7 @@ Unit-test resolvers directly — [Unit testing](unit-testing.md) (`getProductByI
 |------|-------|---------|
 | **Shared domain entity** | One module, imported by many routes | `Product`, `User`, `Order` |
 | **Route-specific wire shape** | In the route file (inline or local const) | `{ id: string }` input for `getProductById`; `{ items, count }` list wrapper |
-| **Frontend-named export** | Same module as domain pred, registered in `spec({ exports })` | `product` in `exports` for forms — [Shared validation](shared-validation.md) |
+| **Frontend-named export** | Same module as domain pred, registered in `spec({ exports })` | `product` in `exports` for forms — [Shared validation](/shared-validation/) |
 
 Share **`Product`** — don't copy-paste the same object pred in every route file. Keep **route-only** input/output slices (IDs, filters, pagination wrappers) with the route unless they're reused elsewhere.
 
@@ -113,7 +113,7 @@ export const api = spec({
 });
 ```
 
-See [Shared validation](shared-validation.md).
+See [Shared validation](/shared-validation/).
 
 ## Registry and entrypoint
 
@@ -147,4 +147,4 @@ app.use('/v1', router);
 app.listen(3000);
 ```
 
-Bearer routes and `authenticate`: [Authentication](authentication.md). Default URLs after mount: [mountSpec](api-reference/mount-spec.md).
+Bearer routes and `authenticate`: [Authentication](/authentication/). Default URLs after mount: [mountSpec](/api-reference/mount-spec/).

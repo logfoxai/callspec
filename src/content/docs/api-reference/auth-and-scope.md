@@ -2,7 +2,7 @@
 title: Auth and scope
 ---
 
-See [Authentication](../authentication.md) and [Request context](../request-context.md) for full examples.
+See [Authentication](/authentication/) and [Request context](/request-context/) for full examples.
 
 - **`auth: 'none'`** — no credentials required
 - **`auth: 'bearer'`** (default) — 401 without valid Bearer token
@@ -15,4 +15,4 @@ See [Authentication](../authentication.md) and [Request context](../request-cont
 
 OpenAPI Bearer security is **auto-derived** from route `auth`.
 
-← [API reference](../api-reference.md)
+← [API reference](/api-reference/)

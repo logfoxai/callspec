@@ -4,7 +4,7 @@ title: SDK generation
 
 The CLI reads **`{mount}/callspec.json`** — pass a mount-point URL or a path to the file. The document already contains routes, errors, `info`, and paths.
 
-**Default:** generate a typed **`ApiClient`** (`callspec/client`). **`--validators`** is a separate opt-in mode — runtyp preds + `Infer` types from `spec({ exports })`, for forms and shared UI slices. See [Shared validation](shared-validation.md).
+**Default:** generate a typed **`ApiClient`** (`callspec/client`). **`--validators`** is a separate opt-in mode — runtyp preds + `Infer` types from `spec({ exports })`, for forms and shared UI slices. See [Shared validation](/shared-validation/).
 
 ```bash
 # Live mount (server running) → ApiClient

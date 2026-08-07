@@ -215,6 +215,18 @@ header.header {
     }
 }
 
+/*
+ * Search dialog centering — unlayered on purpose.
+ * Starlight sets `margin: 4rem auto auto` in @layer starlight.core, but Vite can
+ * register that layer before layers.css’s order statement, so starlight.reset’s
+ * `* { margin: 0 }` wins and the modal sticks to the top-left.
+ */
+@media (min-width: 50rem) {
+    site-search dialog[open] {
+        margin: 4rem auto auto;
+    }
+}
+
 /* Splash header follows the active theme */
 html[data-has-hero]:not([data-has-sidebar]) header.header {
     border-bottom: 1px solid var(--cs-line);
@@ -458,20 +470,20 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-hero {
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-hero__tagline {
     margin: 0;
-    max-width: 40rem;
+    max-width: min(56rem, 92vw);
     font-family: var(--sl-font);
-    font-size: clamp(1.05rem, 1.7vw, 1.35rem);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.4;
+    font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
     color: var(--cs-ink);
     text-wrap: balance;
 }
 
 @media (max-width: 49.99rem) {
     html[data-has-hero]:not([data-has-sidebar]) .splash-hero__tagline {
-        max-width: 22rem;
-        font-size: 1.1rem;
+        max-width: 28rem;
+        font-size: 1.3rem;
     }
 }
 
@@ -543,7 +555,7 @@ html[data-has-hero]:not([data-has-sidebar])[data-theme='light'] .splash-hero__ac
 html[data-has-hero]:not([data-has-sidebar]) .splash-page {
     display: flex;
     flex-direction: column;
-    gap: clamp(2.5rem, 5vw, 4rem);
+    gap: clamp(1.5rem, 3vw, 2.25rem);
     position: relative;
     z-index: 1;
 }
@@ -695,6 +707,20 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-flow__body {
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__body--stack {
     justify-content: center;
+    gap: 0.55rem;
+}
+
+html[data-has-hero]:not([data-has-sidebar]) .splash-flow__body--fern {
+    justify-content: space-between;
+    gap: 0.85rem;
+}
+
+html[data-has-hero]:not([data-has-sidebar]) .splash-flow__arrow {
+    text-align: center;
+    color: var(--flow-muted);
+    font-size: 0.85rem;
+    line-height: 1;
+    opacity: 0.7;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__code {
@@ -705,7 +731,7 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-flow__code {
     background: transparent;
     color: #e8e9ef;
     font-family: var(--sl-font-mono);
-    font-size: 0.68rem;
+    font-size: 0.82rem;
     line-height: 1.45;
     overflow-x: auto;
     filter: saturate(0.85) brightness(0.98);
@@ -803,7 +829,8 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-flow__cli {
     gap: 0.45rem;
     padding: 0.7rem 0.75rem;
     border-radius: 0.4rem;
-    background: hsl(228 22% 10%);
+    background: #252b3a;
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.07);
     font-family: var(--sl-font-mono);
     font-size: 0.85rem;
 }
@@ -826,7 +853,8 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-flow__sdk {
     gap: 0.7rem;
     padding: 0.75rem;
     border-radius: 0.4rem;
-    background: hsl(228 22% 10%);
+    background: #252b3a;
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.07);
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__ts {
@@ -859,32 +887,38 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-flow__sdk-file {
     color: var(--flow-muted);
 }
 
-html[data-has-hero]:not([data-has-sidebar]) .splash-flow__fern {
+html[data-has-hero]:not([data-has-sidebar]) .splash-flow__fern-badge {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.55rem;
-    padding: 0.7rem 0.75rem;
-    border-radius: 0.4rem;
-    background: hsl(228 22% 10%);
-    font-size: 0.82rem;
-    line-height: 1.35;
-    color: var(--flow-ink);
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 0.45rem;
+    background: #000;
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.06);
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__fern-logo {
     display: block;
-    height: 1.55rem;
+    height: 2.15rem;
     width: auto;
-    /* PNG has a black matte — drop it on the dark stage */
-    mix-blend-mode: lighten;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+html[data-has-hero]:not([data-has-sidebar]) .splash-flow__fern-copy {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--flow-muted);
+    text-wrap: balance;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__langs {
     list-style: none;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.5rem;
+    gap: 0.45rem;
     margin: 0;
     padding: 0;
 }
@@ -893,21 +927,23 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-flow__langs li {
     display: grid;
     place-items: center;
     margin: 0;
-    padding: 0.65rem 0.35rem;
-    border-radius: 0.4rem;
-    background: hsl(228 22% 10%);
+    aspect-ratio: 1;
+    padding: 0.45rem;
+    border-radius: 0.55rem;
+    background: hsl(228 22% 12%);
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.05);
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-flow__langs img {
     display: block;
-    width: 1.65rem;
-    height: 1.65rem;
+    width: 2rem;
+    height: 2rem;
     object-fit: contain;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-features {
     margin: 0;
-    padding: clamp(1rem, 2.5vw, 1.75rem) 0;
+    padding: 0.25rem 0;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -941,8 +977,8 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-features__item {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 0.7rem;
-    padding: 0.5rem 1.1rem;
+    gap: 0.55rem;
+    padding: 0.15rem 1rem;
     margin: 0;
 }
 
@@ -955,14 +991,14 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-features__item {
 html[data-has-hero]:not([data-has-sidebar]) .splash-features__icon {
     display: grid;
     place-items: center;
-    width: 3rem;
-    height: 3rem;
-    margin-bottom: 0.35rem;
+    width: 3.75rem;
+    height: 3.75rem;
+    margin-bottom: 0.15rem;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-features__icon svg {
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 3.35rem;
+    height: 3.35rem;
 }
 
 html[data-has-hero]:not([data-has-sidebar])[data-theme='dark'] .splash-features__icon[data-tone='violet'] { color: #c084fc; }
@@ -995,10 +1031,8 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-features__copy {
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-demo {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: clamp(1.75rem, 3.5vw, 2.5rem);
+    display: block;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
     border: 0;
     border-radius: calc(var(--cs-radius) + 0.15rem);
     background:
@@ -1017,14 +1051,38 @@ html[data-has-hero]:not([data-has-sidebar])[data-theme='light'] .splash-demo__sh
     box-shadow: 0 16px 40px hsl(228 30% 40% / 0.12);
 }
 
-html[data-has-hero]:not([data-has-sidebar])[data-theme='light'] .splash-demo__note {
-    color: hsl(228, 10%, 48%);
+html[data-has-hero]:not([data-has-sidebar]) .splash-demo__grid {
+    display: grid;
+    gap: 1.75rem;
+    align-items: center;
+}
+
+@media (min-width: 64rem) {
+    html[data-has-hero]:not([data-has-sidebar]) .splash-demo__grid {
+        grid-template-columns: 1.35fr 1fr;
+        gap: 2.5rem;
+    }
+}
+
+html[data-has-hero]:not([data-has-sidebar]) .splash-demo__shot {
+    margin: 0;
+    border-radius: var(--cs-radius);
+    overflow: hidden;
+    border: 0;
+    box-shadow: 0 16px 48px hsl(228 40% 2% / 0.45);
+}
+
+html[data-has-hero]:not([data-has-sidebar]) .splash-demo__shot img {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-demo__copy {
-    text-align: center;
-    max-width: 36rem;
-    margin-inline: auto;
+    text-align: left;
+    max-width: 28rem;
+    margin: 0;
+    min-width: 0;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-demo__kicker {
@@ -1043,61 +1101,43 @@ html[data-has-hero]:not([data-has-sidebar]) .splash-demo__title {
     letter-spacing: -0.03em;
     line-height: 1.15;
     color: var(--cs-ink);
+    text-wrap: balance;
 }
 
 html[data-has-hero]:not([data-has-sidebar]) .splash-demo__lede {
-    margin: 0.75rem 0 0;
+    margin: 0.85rem 0 0;
     font-size: 1.05rem;
     line-height: 1.55;
     color: var(--cs-muted);
 }
 
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__grid {
-    display: grid;
-    gap: 1.5rem;
-}
-
-@media (min-width: 64rem) {
-    html[data-has-hero]:not([data-has-sidebar]) .splash-demo__grid {
-        grid-template-columns: 1.35fr 1fr;
-        gap: 2rem;
-        align-items: center;
-    }
-}
-
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__shot {
-    margin: 0;
-    border-radius: var(--cs-radius);
-    overflow: hidden;
-    border: 0;
-    box-shadow: 0 16px 48px hsl(228 40% 2% / 0.45);
-}
-
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__shot img {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__steps,
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__code {
-    min-width: 0;
-    max-width: 100%;
-}
-
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__steps .expressive-code {
-    margin: 0;
-}
-
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__meta {
-    margin: 1rem 0 0;
+html[data-has-hero]:not([data-has-sidebar]) .splash-demo__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.35rem;
+    padding: 0.8rem 1.15rem;
+    border-radius: 0.55rem;
+    background: #a855f7;
+    border: 1px solid #a855f7;
+    color: #0a0b10;
     font-size: 0.95rem;
-    line-height: 1.5;
-    color: var(--cs-muted);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__note {
-    margin: 0.6rem 0 0;
-    font-size: 0.85rem;
-    color: hsl(228, 10%, 50%);
+html[data-has-hero]:not([data-has-sidebar]) .splash-demo__cta:hover {
+    background: #c084fc;
+    border-color: #c084fc;
+    color: #0a0b10;
+}
+
+html[data-has-hero]:not([data-has-sidebar])[data-theme='light'] .splash-demo__cta {
+    color: #ffffff;
+}
+
+html[data-has-hero]:not([data-has-sidebar])[data-theme='light'] .splash-demo__cta:hover {
+    color: #ffffff;
 }

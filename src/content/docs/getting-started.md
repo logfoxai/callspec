@@ -2,7 +2,7 @@
 title: Getting started
 ---
 
-Walk through a minimal server and client. For split-file layout see [Server layout](server-layout.md). Single-file copy-paste: [Complete example](complete-example.md).
+Walk through a minimal server and client. For split-file layout see [Server layout](/server-layout/). Single-file copy-paste: [Complete example](/complete-example/).
 
 ## 1. Install backend dependencies
 
@@ -48,10 +48,10 @@ export const getProductById = route({
 
 **Quick notes:**
 
-- Return failures from resolvers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. See [Error handling](error-handling.md).
+- Return failures from resolvers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. See [Error handling](/error-handling/).
 - Built-in error responses such as `NOT_FOUND` and `SERVICE_UNAVAILABLE` can be returned from any route without defining them.
 - Define custom domain errors with `errors:` on the route.
-- Test resolver logic with `.resolver(input, ctx)` — no HTTP. See [Unit testing](unit-testing.md).
+- Test resolver logic with `.resolver(input, ctx)` — no HTTP. See [Unit testing](/unit-testing/).
 
 ## 3. Define and mount backend API
 
@@ -100,7 +100,7 @@ curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
-See [SDK generation](sdk-generation.md) for CI and `--validators`. Pinning the contract: [SDK generation § Pinning callspec.json for CI](sdk-generation.md#pinning-callspecjson-for-ci).
+See [SDK generation](/sdk-generation/) for CI and `--validators`. Pinning the contract: [SDK generation § Pinning callspec.json for CI](/sdk-generation/#pinning-callspecjson-for-ci).
 
 ## 5. Call from your app
 
@@ -132,4 +132,4 @@ result.value.name;       // string
 result.value.priceCents; // number
 ```
 
-See [Client usage](client-usage.md) for auth headers, app helpers, and React patterns.
+See [Client usage](/client-usage/) for auth headers, app helpers, and React patterns.

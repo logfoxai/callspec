@@ -18,4 +18,4 @@ Register preds under **`exports`** when consumers should import them. Compositio
 
 Powered by [runtyp](https://github.com/logfoxai/runtyp): preds validate on the server and serialize to JSON Schema for docs, OpenAPI, MCP, and codegen.
 
-Generate validators with `--validators` — see [SDK generation](sdk-generation.md). Example layout: [Server layout](server-layout.md).
+Generate validators with `--validators` — see [SDK generation](/sdk-generation/). Example layout: [Server layout](/server-layout/).

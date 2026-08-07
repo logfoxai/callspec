@@ -2,7 +2,7 @@
 title: Complete example
 ---
 
-Single-file server — routes, `spec()`, and `mountSpec()` in one copy-paste module. Equally valid; split-file layout when you outgrow it: [Server layout](server-layout.md). Auth: [Authentication](authentication.md).
+Single-file server — routes, `spec()`, and `mountSpec()` in one copy-paste module. Equally valid; split-file layout when you outgrow it: [Server layout](/server-layout/). Auth: [Authentication](/authentication/).
 
 ```typescript
 import express from 'express';
@@ -67,4 +67,4 @@ app.listen(port, () => {
 });
 ```
 
-With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). Use `docsPath` to mount the UI elsewhere; contract paths stay fixed — see [mountSpec](api-reference/mount-spec.md).
+With defaults, `mountSpec` serves `/docs`, `/callspec.json`, `/openapi.json`, and `/mcp` (when any route has `mcp: true`). Use `docsPath` to mount the UI elsewhere; contract paths stay fixed — see [mountSpec](/api-reference/mount-spec/).

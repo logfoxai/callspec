@@ -51,4 +51,4 @@ export function ProductView() {
 }
 ```
 
-See [Authentication](authentication.md) for Bearer headers and [Error handling](error-handling.md) for the Result contract.
+See [Authentication](/authentication/) for Bearer headers and [Error handling](/error-handling/) for the Result contract.
