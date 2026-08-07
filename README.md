@@ -5,6 +5,9 @@
     <img src="assets/callspec-lockup-light.svg?cb=4" alt="callspec" />
   </picture>
   <h4 align="center">Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.</h4>
+  <p align="center">
+    <a href="https://callspec.logfox.ai"><strong>callspec.logfox.ai</strong></a>
+  </p>
   <br>
   <p align="center">
   <a href="assets/callspec-flow.svg?cb=7">

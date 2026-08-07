@@ -116,6 +116,26 @@ html[data-has-hero]:not([data-has-sidebar]) {
         }
     }
 
+    &[data-theme='light'] site-search > button {
+        border-color: var(--sl-color-gray-5);
+        background-color: #ffffff;
+        color: var(--sl-color-gray-2);
+        box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+
+        &:hover {
+            border-color: var(--sl-color-gray-4);
+            background-color: #ffffff;
+            color: var(--sl-color-white);
+        }
+
+        > kbd {
+            background-color: var(--sl-color-gray-6);
+            color: var(--sl-color-gray-3);
+        }
+    }
+
     &.splash-nav-scrolled {
         header.header {
             background-color: color-mix(in srgb, var(--sl-color-bg-nav) 58%, transparent);
@@ -126,13 +146,18 @@ html[data-has-hero]:not([data-has-sidebar]) {
         }
 
         site-search > button {
-            border-color: var(--sl-color-hairline);
-            background-color: color-mix(in srgb, var(--sl-color-black) 40%, var(--sl-color-gray-6));
+            border-color: var(--sl-color-gray-5);
+            background-color: var(--sl-color-gray-6);
         }
 
         &[data-theme='light'] header.header {
             background-color: color-mix(in srgb, var(--sl-color-bg-nav) 72%, transparent);
             box-shadow: 0 8px 24px color-mix(in srgb, #12141a 6%, transparent);
+        }
+
+        &[data-theme='light'] site-search > button {
+            border-color: var(--sl-color-gray-5);
+            background-color: #ffffff;
         }
     }
 
@@ -169,26 +194,51 @@ html[data-has-hero]:not([data-has-sidebar]) {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1.75rem;
-    padding-block: clamp(2.5rem, 5vw, 3.75rem) clamp(2.5rem, 4.5vw, 3.5rem);
+    gap: 1.1rem;
+    padding-block: clamp(4rem, 8vw, 5.5rem) clamp(2.5rem, 4.5vw, 3.5rem);
     position: relative;
     z-index: 1;
 
-    .splash-hero__tagline {
+    .splash-hero__headline {
         margin: 0;
-        max-width: min(56rem, 92vw);
         font-family: var(--sl-font);
-        font-size: clamp(1.45rem, 2.85vw, 2.05rem);
-        font-weight: 600;
-        letter-spacing: -0.03em;
-        line-height: 1.3;
+        font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.15;
         color: var(--cs-ink);
-        text-wrap: balance;
+        display: inline-block;
+        width: max-content;
+        max-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 0.08em solid currentColor;
+        /* max-width (not width×ch) — ch under-measures proportional glyphs and clips mid-word */
+        animation:
+            splash-typewriter 2.1s steps(var(--type-steps), end) forwards,
+            splash-caret 0.8s step-end infinite;
 
         @media (max-width: 49.99rem) {
-            max-width: 28rem;
-            font-size: 1.35rem;
+            width: auto;
+            max-width: 20rem;
+            font-size: 1.65rem;
+            white-space: normal;
+            text-wrap: balance;
+            border-right-color: transparent;
+            animation: none;
         }
+    }
+
+    .splash-hero__lead {
+        margin: 0.15rem 0 0;
+        max-width: min(36rem, 92vw);
+        font-family: var(--sl-font);
+        font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+        font-weight: 500;
+        letter-spacing: -0.015em;
+        line-height: 1.45;
+        text-wrap: balance;
+        color: var(--cs-muted);
     }
 
     .splash-hero__actions {
@@ -197,6 +247,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         justify-content: center;
         align-items: center;
         gap: 0.75rem;
+        margin-block: 0.85rem 0.5rem;
 
         .sl-link-button {
             font-family: var(--sl-font);
@@ -222,6 +273,43 @@ html[data-has-hero]:not([data-has-sidebar]) {
                 }
             }
         }
+    }
+}
+
+@keyframes splash-typewriter {
+    from {
+        max-width: 0;
+    }
+
+    to {
+        max-width: min(56rem, 92vw);
+    }
+}
+
+@keyframes splash-caret {
+    50% {
+        border-color: transparent;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash-hero .splash-hero__headline {
+        width: auto;
+        max-width: min(56rem, 92vw);
+        white-space: normal;
+        text-wrap: balance;
+        border-right-color: transparent;
+        animation: none;
+    }
+}
+
+@media print {
+    .splash-hero .splash-hero__headline {
+        width: auto;
+        max-width: min(56rem, 92vw);
+        white-space: normal;
+        border-right-color: transparent;
+        animation: none;
     }
 }
 
@@ -418,27 +506,29 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         background: transparent;
         display: flex;
         flex-direction: column;
-        gap: 0.1rem;
+        justify-content: center;
+        gap: 0.05rem;
         flex: 1;
 
         > li {
             display: grid;
-            grid-template-columns: 1.25rem 1fr auto;
+            grid-template-columns: 1.65rem 1fr auto;
             align-items: center;
-            gap: 0.55rem;
-            padding: 0.45rem 0.2rem;
+            gap: 0.65rem;
+            padding: 0.32rem 0.2rem;
+            line-height: 1.15;
         }
     }
 
     .splash-flow__icon {
         display: grid;
         place-items: center;
-        width: 1.25rem;
-        height: 1.25rem;
+        width: 1.65rem;
+        height: 1.65rem;
 
         svg {
-            width: 1.15rem;
-            height: 1.15rem;
+            width: 1.55rem;
+            height: 1.55rem;
         }
 
         &[data-tone='teal'] { color: #22d3ee; }
@@ -448,40 +538,25 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 
     .splash-flow__surface-label {
-        font-size: 0.85rem;
-        font-weight: 500;
+        font-size: 1.02rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
         color: var(--flow-ink);
     }
 
     .splash-flow__path {
         display: inline-block;
         font-family: var(--sl-font-mono);
-        font-size: 0.72rem;
-        font-weight: 400;
+        font-size: 0.8rem;
+        font-weight: 500;
         letter-spacing: -0.01em;
+        line-height: 1.15;
         color: #aeb4c2;
         background: hsl(228 10% 18%);
         border: 0;
         border-radius: 0.3rem;
-        padding: 0.12em 0.38em;
-    }
-
-    .splash-flow__note {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.45rem;
-        margin: 0;
-        font-size: 0.78rem;
-        line-height: 1.4;
-        color: var(--flow-muted);
-
-        svg {
-            flex: 0 0 auto;
-            width: 1rem;
-            height: 1rem;
-            margin-top: 0.1rem;
-            color: var(--flow-ink);
-        }
+        padding: 0.14em 0.42em;
     }
 
     .splash-flow__cli {
@@ -711,10 +786,10 @@ html[data-theme='light'] .splash-flow {
     }
 
     .splash-flow__cli {
-        background: linear-gradient(180deg, #f8f9fc 0%, #eef0f5 100%);
+        background: #ffffff;
         box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.95),
-            inset 0 0 0 1px hsl(228 16% 84%);
+            0 1px 2px hsl(228 25% 40% / 0.1),
+            0 0 0 1px hsl(228 16% 78%);
     }
 
     .splash-flow__sdk-call {
@@ -983,29 +1058,6 @@ html[data-theme='light'] .splash-features__icon {
     .splash-demo__token {
         color: var(--cs-muted);
     }
-
-    .splash-demo__cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        margin-top: 1.15rem;
-        padding: 0.75rem 1.1rem;
-        border-radius: 0.55rem;
-        background: #a855f7;
-        border: 1px solid #a855f7;
-        color: #0a0b10;
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        text-decoration: none;
-        transition: background-color 0.15s ease, border-color 0.15s ease;
-
-        &:hover {
-            background: #c084fc;
-            border-color: #c084fc;
-            color: #0a0b10;
-        }
-    }
 }
 
 html[data-theme='light'] .splash-demo {
@@ -1035,10 +1087,5 @@ html[data-theme='light'] .splash-demo {
 
     .splash-demo__hint code {
         color: #7c3aed;
-    }
-
-    .splash-demo__cta,
-    .splash-demo__cta:hover {
-        color: #ffffff;
     }
 }
