@@ -68,11 +68,3 @@ With `app.use('/v1', router)` and `mountSpec` defaults (`docs: true`, any route 
 Do not treat as API or user documentation:
 
 - `docs/internal/` — plans, review notes, implementation deep-dives
-
-## Logfox monorepo
-
-When working in the Logfox workspace:
-
-- **Skill SSOT:** `libs/callspec/skills/callspec/SKILL.md` — copy into `.cursor/skills/callspec/SKILL.md` when this file changes.
-- **Platform architecture / deploy / workers:** logfox-knowledge skill — link, do not duplicate here.
-- **Local package:** `libs/callspec` (published npm name: `callspec`).
