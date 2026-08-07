@@ -37,8 +37,6 @@ npm run build && npm run serve:chirp-demo
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
 
-**Guide site** (markdown docs, sidebar + search): `npm run dev:astro` → [http://127.0.0.1:4321](http://127.0.0.1:4321)
-
 ## Contents
 
 For coding agents: [AGENTS.md](AGENTS.md) → [skills/callspec/SKILL.md](skills/callspec/SKILL.md)

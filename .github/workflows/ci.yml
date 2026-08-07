@@ -50,9 +50,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Astro guide site
+      - name: Guide site
         if: matrix.node-version == 24
-        run: npm run build:astro
+        run: npm run astro:build
 
       - name: Test
         run: npm test
