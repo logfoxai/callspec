@@ -562,17 +562,11 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 
     .splash-flow__ts {
-        display: grid;
-        place-items: center;
+        display: block;
         width: 2.25rem;
         height: 2.25rem;
-        border-radius: 0.4rem;
-        background: linear-gradient(145deg, #3b82d6, #3178c6);
-        color: #fff;
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        box-shadow: 0 4px 12px hsl(211 70% 30% / 0.35);
+        flex: 0 0 2.25rem;
+        border-radius: 0.35rem;
     }
 
     .splash-flow__sdk-meta {
@@ -727,10 +721,6 @@ html[data-theme='light'] .splash-flow {
         color: #0e7490;
     }
 
-    .splash-flow__ts {
-        box-shadow: 0 4px 12px hsl(211 70% 40% / 0.22);
-    }
-
     .splash-flow__icon {
         &[data-tone='teal'] { color: #0891b2; }
         &[data-tone='orange'] { color: #ea580c; }
@@ -762,13 +752,16 @@ html[data-theme='light'] .splash-flow {
         margin: 0;
         padding: 0;
         display: grid;
-        /* Stack until wide enough for all five — avoids a 2-col orphan */
         grid-template-columns: 1fr;
         gap: 1.75rem;
         align-items: stretch;
 
+        @media (min-width: 40rem) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         @media (min-width: 64rem) {
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             /* media | title | copy — subgrid keeps rows aligned across cards */
             grid-template-rows: var(--feature-media) auto auto;
             gap: 0;
@@ -827,7 +820,6 @@ html[data-theme='light'] .splash-flow {
         &[data-tone='violet'] { --feature-tone: #c084fc; }
         &[data-tone='blue'] { --feature-tone: #60a5fa; }
         &[data-tone='cyan'] { --feature-tone: #22d3ee; }
-        &[data-tone='pink'] { --feature-tone: #f472b6; }
         &[data-tone='green'] { --feature-tone: #a3e635; }
     }
 
@@ -859,7 +851,6 @@ html[data-theme='light'] .splash-features__icon {
     &[data-tone='violet'] { --feature-tone: #9333ea; }
     &[data-tone='blue'] { --feature-tone: #2563eb; }
     &[data-tone='cyan'] { --feature-tone: #0891b2; }
-    &[data-tone='pink'] { --feature-tone: #db2777; }
     &[data-tone='green'] { --feature-tone: #65a30d; }
 }
 

@@ -28,7 +28,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Callspec',
-            description: 'Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.',
+            description: 'Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.',
             logo: {
                 light: './assets/callspec-lockup-light.svg',
                 dark: './assets/callspec-lockup-dark.svg',

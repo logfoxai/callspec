@@ -1,7 +1,7 @@
 {
   "name": "callspec",
   "version": "2.0.0",
-  "description": "Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.",
+  "description": "Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.",
   "keywords": [
     "rpc",
     "openapi",
