@@ -1,6 +1,6 @@
 # Getting started
 
-Walk through a minimal server and client. For split-file layout see [Server layout](./server-layout.md). Single-file copy-paste: [Complete example](./complete-example.md).
+This page walks through a minimal server and client. Prefer one file? Copy the [single-file server example](./single-file-server-example.md).
 
 For coding agents, use [SKILL.md](./coding-agents.md).
 

@@ -68,7 +68,7 @@ export default defineConfig({
                         {label: 'Coding agents', slug: 'coding-agents'},
                         {label: 'Server layout', slug: 'server-layout'},
                         {label: 'Unit testing', slug: 'unit-testing'},
-                        {label: 'Complete example', slug: 'complete-example'},
+                        {label: 'Single-file server example', slug: 'single-file-server-example'},
                     ],
                 },
                 {
