@@ -32,12 +32,12 @@ Explore the docs UI, MCP connect flow, and a sample API — **clone this repo** 
 ```bash
 git clone https://github.com/logfoxai/callspec.git
 cd callspec && npm install
-npm run build && npm run dev:docs
+npm run build && npm run serve:chirp-demo
 ```
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
 
-**Guide site** (sidebar + search over these docs): `npm run docs:dev` → [http://127.0.0.1:4321](http://127.0.0.1:4321)
+**Guide site** (markdown docs, sidebar + search): `npm run dev:astro` → [http://127.0.0.1:4321](http://127.0.0.1:4321)
 
 ## Contents
 

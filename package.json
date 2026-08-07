@@ -63,11 +63,11 @@
     "pretest": "npm run build:server",
     "test": "c8 kizu -f 'src/**/*.spec.ts' && c8 report -r text -r html",
     "typecheck:routes": "tsc --noEmit -p tsconfig.typecheck.json",
-    "dev:docs": "node scripts/dev-docs.cjs",
-    "docs:dev": "astro dev",
-    "docs:build": "astro build",
-    "docs:preview": "astro preview",
-    "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run docs:build"
+    "serve:chirp-demo": "node scripts/serve-chirp-demo.cjs",
+    "dev:astro": "astro dev",
+    "build:astro": "astro build",
+    "preview:astro": "astro preview",
+    "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run build:astro"
   },
   "dependencies": {
     "highlight.js": "11.11.1",

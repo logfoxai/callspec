@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Local dev server for callspec UI — run after `npm run build`.
- * Usage: node scripts/dev-docs.cjs
+ * Express server: fictional Chirp demo API + mountSpec docs UI, OpenAPI, and MCP.
+ * Run after `npm run build`.
+ * Usage: npm run serve:chirp-demo
  */
 const path = require('path');
 const express = require('express');

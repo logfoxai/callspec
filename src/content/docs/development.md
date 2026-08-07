@@ -2,22 +2,25 @@
 title: Development
 ---
 
-**Node:** library consumers need **18+**. Working in this repo — especially `npm run validate`, `docs:dev`, and `docs:build` — needs **≥22.12** (Astro 7). CI runs the docs build on Node 24.
+**Node:** library consumers need **18+**. Working in this repo — especially `npm run validate`, `dev:astro`, and `build:astro` — needs **≥22.12** (Astro 7). CI runs the Astro build on Node 24.
 
 ```bash
 npm install
-npm run validate    # build, lint, knip, typecheck:routes, test + coverage, docs:build
-npm run docs:dev    # guide site (Starlight) — http://127.0.0.1:4321
-npm run docs:build  # static site → docs-site/
-npm run dev:docs    # Chirp API demo — see README § Try the demo
+npm run validate       # build, lint, knip, typecheck:routes, test + coverage, build:astro
+npm run dev:astro      # Astro guide site — http://127.0.0.1:4321
+npm run build:astro    # static site → docs-site/
+npm run preview:astro  # serve production Astro build locally
+npm run serve:chirp-demo   # Chirp demo API + mountSpec docs UI — see README § Try the demo
 ```
 
-## Guide site vs API demo
+## Astro guide site vs Chirp demo
 
 | Command | What you get |
 |---------|----------------|
-| `npm run docs:dev` | **Markdown guides** (getting started, error handling, …) with sidebar and search |
-| `npm run dev:docs` | **Live Chirp API** with Callspec's built-in `/docs` explorer and MCP |
+| `npm run dev:astro` | **Markdown guides** (getting started, error handling, …) — sidebar and search |
+| `npm run serve:chirp-demo` | **Live Chirp demo API** with Callspec's built-in `/v1/docs` explorer, OpenAPI, and MCP |
+
+The guide site is Astro with the [Starlight](https://starlight.astro.build/) docs theme. Starlight is not a separate stack — it's an Astro integration that gives you sidebar, search, and MDX out of the box.
 
 ## Help build the standard
 
