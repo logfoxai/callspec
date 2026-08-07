@@ -1,4 +1,6 @@
-# Callspec error handling
+---
+title: Callspec error handling
+---
 
 Design reference for the callspec error contract, mountSpec runtime, and client Result shape.
 
@@ -164,6 +166,8 @@ If `fetch` throws (DNS failure, offline, abort, etc.) before any HTTP response, 
 HTML tag stripping applies **only** while matching (steps 2–4). It is not applied to `UNKNOWN_ERROR.data.body`.
 
 For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same HTTP pipeline (optional `responseHeaders` in options).
+
+For fuzzy-matching implementation notes, see `docs/internal/` in the repo (not published on the guide site).
 
 ## Resolver pattern
 

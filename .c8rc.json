@@ -7,7 +7,8 @@
     "**/*.spec.js",
     "src/callspec-ui/ui/main.ts",
     "src/demo/**",
-    "src/typecheck/**"
+    "src/typecheck/**",
+    "src/content.config.ts"
   ],
   "reporter": [],
   "all": true,
