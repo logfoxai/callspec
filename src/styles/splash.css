@@ -176,32 +176,26 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
     .splash-hero__tagline {
         margin: 0;
+        max-width: min(56rem, 92vw);
         font-family: var(--sl-font);
         font-size: clamp(1.45rem, 2.85vw, 2.05rem);
         font-weight: 600;
         letter-spacing: -0.03em;
         line-height: 1.3;
-        color: var(--cs-ink);
-        display: inline-block;
-        width: max-content;
-        max-width: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        border-right: 0.08em solid currentColor;
-        /* max-width (not width×ch) — ch under-measures proportional glyphs and clips mid-word */
-        animation:
-            splash-typewriter 2.4s steps(var(--type-steps), end) forwards,
-            splash-caret 0.8s step-end infinite;
+        text-wrap: balance;
+        background: linear-gradient(
+            180deg,
+            var(--cs-ink) 35%,
+            color-mix(in srgb, var(--cs-ink) 78%, var(--cs-muted)) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: splash-tagline-in 0.75s ease-out both;
 
-        /* nowrap typewriter needs horizontal room — skip on narrow viewports */
         @media (max-width: 49.99rem) {
             max-width: 28rem;
-            width: auto;
             font-size: 1.35rem;
-            white-space: normal;
-            text-wrap: balance;
-            border-right-color: transparent;
-            animation: none;
         }
     }
 
@@ -240,41 +234,31 @@ html[data-has-hero]:not([data-has-sidebar]) {
     }
 }
 
-@keyframes splash-typewriter {
+@keyframes splash-tagline-in {
     from {
-        max-width: 0;
+        opacity: 0;
+        transform: translateY(0.45rem);
     }
 
     to {
-        /* Larger than the line — reveals full text without ch-based under-measure */
-        max-width: min(56rem, 92vw);
-    }
-}
-
-@keyframes splash-caret {
-    50% {
-        border-color: transparent;
+        opacity: 1;
+        transform: none;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .splash-hero .splash-hero__tagline {
-        width: auto;
-        max-width: min(56rem, 92vw);
-        white-space: normal;
-        text-wrap: balance;
-        border-right-color: transparent;
         animation: none;
     }
 }
 
 @media print {
     .splash-hero .splash-hero__tagline {
-        width: auto;
-        max-width: min(56rem, 92vw);
-        white-space: normal;
-        border-right-color: transparent;
         animation: none;
+        background: none;
+        color: var(--cs-ink);
+        -webkit-background-clip: unset;
+        background-clip: unset;
     }
 }
 
