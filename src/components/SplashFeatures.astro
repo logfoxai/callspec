@@ -8,7 +8,8 @@ const icons = {
 	sync: `<svg viewBox="0 0 48 48" fill="none"><path d="M34.5 18.5A11.5 11.5 0 0 0 16 14.2" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><path d="M16 10v5.5h5.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 29.5A11.5 11.5 0 0 0 32 33.8" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><path d="M32 38v-5.5h-5.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 	link: `<svg viewBox="0 0 48 48" fill="none"><path d="M20.5 27.5a7 7 0 0 1 0-9.9l4.6-4.6a7 7 0 0 1 9.9 9.9l-2.4 2.4" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M27.5 20.5a7 7 0 0 1 0 9.9l-4.6 4.6a7 7 0 1 1-9.9-9.9l2.4-2.4" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 	code: `<svg viewBox="0 0 48 48" fill="none"><rect x="8" y="10" width="32" height="28" rx="4" stroke="currentColor" stroke-width="2.25"/><path d="M8 18h32" stroke="currentColor" stroke-width="2.25"/><circle cx="14" cy="14" r="1.4" fill="currentColor"/><circle cx="19" cy="14" r="1.4" fill="currentColor"/><circle cx="24" cy="14" r="1.4" fill="currentColor"/><path d="M19 28.5 15.5 25 19 21.5M29 21.5 32.5 25 29 28.5M25.5 20.5 22.5 29.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-	target: `<svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="2.25"/><circle cx="24" cy="24" r="4" stroke="currentColor" stroke-width="2.25"/><path d="M24 10v4M24 34v4M10 24h4M34 24h4M14.2 14.2l2.8 2.8M31 31l2.8 2.8M14.2 33.8l2.8-2.8M31 17l2.8-2.8" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><path d="M24 24 33 15" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></svg>`,
+	/** Official OpenAPI Initiative mark (Simple Icons), currentColor fill. */
+	openapi: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="openapi-erode"/></svg>`,
 } as const;
 
 const features = [
@@ -40,7 +41,7 @@ const features = [
 		tone: 'green',
 		title: 'Works with the ecosystem',
 		copy: 'Plays well with your favorite tools.',
-		icon: 'target',
+		icon: 'openapi',
 	},
 ] as const;
 ---
@@ -50,12 +51,14 @@ const features = [
 		{
 			features.map(({tone, title, copy, icon}) => (
 				<li class="splash-features__item">
-					<span
-						class="splash-features__icon"
-						data-tone={tone}
-						aria-hidden="true"
-						set:html={icons[icon]}
-					/>
+					<span class="splash-features__media">
+						<span
+							class="splash-features__icon"
+							data-tone={tone}
+							aria-hidden="true"
+							set:html={icons[icon]}
+						/>
+					</span>
 					<h2 class="splash-features__title">{title}</h2>
 					<p class="splash-features__copy">{copy}</p>
 				</li>

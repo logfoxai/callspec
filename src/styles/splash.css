@@ -749,6 +749,11 @@ html[data-theme='light'] .splash-flow {
 /* ─── Features ───────────────────────────────────────────────────────────── */
 
 .splash-features {
+    --feature-media: 4.5rem;
+    --feature-title-lines: 2;
+    --feature-title-lh: 1.25;
+    --feature-gap: 0.55rem;
+
     margin: 0 0 1.75rem;
     padding: 0.25rem 0;
 
@@ -760,9 +765,12 @@ html[data-theme='light'] .splash-flow {
         /* Stack until wide enough for all five — avoids a 2-col orphan */
         grid-template-columns: 1fr;
         gap: 1.75rem;
+        align-items: stretch;
 
         @media (min-width: 64rem) {
             grid-template-columns: repeat(5, minmax(0, 1fr));
+            /* media | title | copy — subgrid keeps rows aligned across cards */
+            grid-template-rows: var(--feature-media) auto auto;
             gap: 0;
         }
     }
@@ -772,22 +780,48 @@ html[data-theme='light'] .splash-flow {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 0.55rem;
+        gap: var(--feature-gap);
         padding: 0.15rem 1rem;
         margin: 0;
+        min-width: 0;
+
+        @media (min-width: 64rem) {
+            display: grid;
+            grid-template-rows: subgrid;
+            grid-row: span 3;
+            row-gap: var(--feature-gap);
+            align-items: center;
+            justify-items: center;
+        }
+    }
+
+    .splash-features__media {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--feature-media);
+        height: var(--feature-media);
+        flex: 0 0 var(--feature-media);
     }
 
     .splash-features__icon {
-        display: grid;
-        place-items: center;
-        width: 3.75rem;
-        height: 3.75rem;
-        margin-bottom: 0.15rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
         color: var(--feature-tone);
 
         svg {
-            width: 3.35rem;
-            height: 3.35rem;
+            display: block;
+            width: 4rem;
+            height: 4rem;
+        }
+
+        /* Filled brand marks read larger than stroke icons — nudge down */
+        &[data-tone='green'] svg {
+            width: 3.55rem;
+            height: 3.55rem;
         }
 
         &[data-tone='violet'] { --feature-tone: #c084fc; }
@@ -798,12 +832,18 @@ html[data-theme='light'] .splash-flow {
     }
 
     .splash-features__title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin: 0;
+        width: 100%;
+        min-height: calc(1em * var(--feature-title-lh) * var(--feature-title-lines));
         font-size: 1.125rem;
         font-weight: 600;
         letter-spacing: -0.025em;
-        line-height: 1.25;
+        line-height: var(--feature-title-lh);
         color: var(--cs-ink);
+        text-wrap: balance;
     }
 
     .splash-features__copy {

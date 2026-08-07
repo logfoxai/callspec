@@ -1,39 +1,39 @@
 # Server layout
 
-Recommended split-file layout for a growing API — one `route()` per file, shared domain preds in one place, a single `spec()` registry, optional auth and `exports`. **Or put it all in one file** — routes, `spec()`, and `mountSpec()` together work fine; see [Complete example](./complete-example.md). Callspec doesn't care about folder names; organize however fits your repo.
+Callspec doesn't care about your folders. A single file is fine — see [Complete example](./complete-example.md). When the API grows, this split keeps routes, shared preds, and the registry easy to find.
 
 ```text
 my-api/
 ├── server/
 │   ├── index.ts              # Express app — mountSpec on /v1
 │   ├── routes.ts             # spec({ meta, routes, exports?, authenticate? })
-│   ├── auth.ts               # optional — Authenticate<Ctx> (see Authentication)
+│   ├── auth.ts               # optional — Authenticate<Ctx>
 │   ├── schemas/
-│   │   └── product.ts        # shared domain preds (Product, ProductList, …)
+│   │   └── product.ts        # shared domain preds
 │   └── routes/
-│       ├── getProductById.ts # route + route-specific wire shapes
+│       ├── getProductById.ts
 │       ├── getProductById.spec.ts
 │       └── listProducts.ts
 ├── src/
 │   └── generated/
 │       └── api.ts            # npx callspec → ApiClient
-├── callspec.json             # optional — pinned contract for CI (see SDK generation)
+├── callspec.json             # optional — pinned contract for CI
 └── package.json
 ```
 
-Unit-test resolvers directly — [Unit testing](./unit-testing.md) (`getProductById.resolver(input, ctx)` — no HTTP).
+Test resolvers with `.resolver(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
 
 ## What goes where
 
-| Pred | Where | Example |
-|------|-------|---------|
-| **Shared domain entity** | One module, imported by many routes | `Product`, `User`, `Order` |
-| **Route-specific wire shape** | In the route file (inline or local const) | `{ id: string }` input for `getProductById`; `{ items, count }` list wrapper |
-| **Frontend-named export** | Same module as domain pred, registered in `spec({ exports })` | `product` in `exports` for forms — [Shared validation](./shared-validation.md) |
+| Kind | Put it | Example |
+|------|--------|---------|
+| Shared domain entity | One schema module, imported by routes | `Product`, `User` |
+| Route-only wire shape | In the route file | `{ id }` input; list wrappers |
+| Frontend form/filter pred | Schema module + `spec({ exports })` | `product` — [Shared validation](./shared-validation.md) |
 
-Share **`Product`** — don't copy-paste the same object pred in every route file. Keep **route-only** input/output slices (IDs, filters, pagination wrappers) with the route unless they're reused elsewhere.
+Share domain preds. Keep ID/filter/pagination shapes with the route unless they're reused.
 
-## Shared domain schemas
+## Shared schemas
 
 ```typescript
 // server/schemas/product.ts
@@ -51,9 +51,7 @@ export const productList = p.object({
 });
 ```
 
-## Route files
-
-Import shared preds; define wire shapes that belong to this method only:
+## Routes
 
 ```typescript
 // server/routes/getProductById.ts
@@ -97,22 +95,6 @@ export const listProducts = route({
 });
 ```
 
-## Exports (optional)
-
-`spec({ exports })` is for preds the **frontend** should import (forms, filters). Often the same shared domain preds — register `product` from `schemas/product.ts`:
-
-```typescript
-import {product, productList} from './schemas/product';
-
-export const api = spec({
-    meta: { /* … */ },
-    routes: {getProductById, listProducts},
-    exports: {product, productList},
-});
-```
-
-See [Shared validation](./shared-validation.md).
-
 ## Registry and entrypoint
 
 ```typescript
@@ -125,6 +107,7 @@ import {listProducts} from './routes/listProducts';
 export const api = spec({
     meta: {title: 'My API', version: '1.0.0', intro: 'Product catalog with typed RPC.'},
     routes: {getProductById, listProducts},
+    // optional — preds the frontend imports (forms, filters)
     exports: {product, productList},
 });
 ```
@@ -145,5 +128,4 @@ app.use('/v1', router);
 app.listen(3000);
 ```
 
-Bearer routes and `authenticate`: [Authentication](./authentication.md). Default URLs after mount: [mountSpec](./api-reference/mount-spec.md).
-
+Auth: [Authentication](./authentication.md). Default mount URLs: [mountSpec](./api-reference/mount-spec.md).

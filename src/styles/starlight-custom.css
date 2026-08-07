@@ -244,6 +244,8 @@ html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, 
 
 /* Tables — card layout, readable API reference grids */
 html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) {
+    /* block + overflow for horizontal scroll (Starlight); thead/tbody stay
+       display:table so the header bar and rows fill the rounded frame. */
     display: block;
     width: 100%;
     margin-block: 1.25rem 1.5rem;
@@ -253,6 +255,12 @@ html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) {
     border-spacing: 0;
     background: var(--cs-table-bg);
     -webkit-overflow-scrolling: touch;
+}
+
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) :is(thead, tbody) {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
 html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) thead {
@@ -296,11 +304,11 @@ html[data-has-sidebar] .sl-markdown-content tbody tr:hover:not(:where(.not-conte
     background: var(--cs-table-row-hover);
 }
 
-/* 3-column option tables — mono name + default columns */
+/* Option tables (name | default | …) — first cell is <code>; skip prose tables */
 html[data-has-sidebar]
     .sl-markdown-content
     table:has(thead th:nth-child(3))
-    :is(td:first-child, th:first-child):not(:where(.not-content *)) {
+    td:first-child:has(code):not(:where(.not-content *)) {
     font-family: var(--sl-font-mono);
     font-size: 0.875em;
     color: var(--cs-ink);
@@ -310,6 +318,7 @@ html[data-has-sidebar]
 html[data-has-sidebar]
     .sl-markdown-content
     table:has(thead th:nth-child(3))
+    tr:has(td:first-child code)
     td:nth-child(2):not(:where(.not-content *)) {
     color: var(--cs-muted);
     font-family: var(--sl-font-mono);
