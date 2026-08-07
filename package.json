@@ -67,7 +67,7 @@
     "astro:dev": "astro dev",
     "astro:build": "astro build",
     "astro:preview": "astro preview",
-    "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run astro:build"
+    "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run astro:build && node scripts/assert-prod-css-backdrop.mjs"
   },
   "dependencies": {
     "highlight.js": "11.11.1",
