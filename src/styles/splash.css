@@ -930,6 +930,9 @@ html[data-theme='light'] .splash-features__icon {
     }
 
     .splash-demo__cmd {
+        display: block;
+        width: fit-content;
+        max-width: 100%;
         margin: 1.25rem 0 0;
         padding: 0.85rem 1rem;
         overflow-x: auto;
@@ -937,36 +940,70 @@ html[data-theme='light'] .splash-features__icon {
         border: 1px solid hsl(0 0% 100% / 0.1);
         background: hsl(228 30% 6% / 0.65);
         box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
+        text-align: left;
 
         code {
-            font-family: var(--sl-font-mono);
+            display: inline;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.82rem;
+            font-variant-ligatures: none;
+            letter-spacing: normal;
+            word-spacing: normal;
             color: #e2e8f0;
             white-space: nowrap;
+            background: none;
+            border: 0;
+            padding: 0;
         }
     }
 
     .splash-demo__hint {
-        margin: 0.85rem 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+        margin: 0.9rem 0 0;
         font-size: 0.9rem;
-        line-height: 1.5;
+        line-height: 1.45;
         color: var(--cs-muted);
 
         code {
-            font-family: var(--sl-font-mono);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.82em;
+            font-variant-ligatures: none;
+            letter-spacing: normal;
+            word-spacing: normal;
             color: #c4b5fd;
+            background: none;
+            border: 0;
+            padding: 0;
         }
+    }
 
-        a {
-            color: var(--cs-cyan);
-            text-decoration: none;
-            font-weight: 600;
-            white-space: nowrap;
+    .splash-demo__token {
+        color: var(--cs-muted);
+    }
 
-            &:hover {
-                text-decoration: underline;
-            }
+    .splash-demo__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 1.15rem;
+        padding: 0.75rem 1.1rem;
+        border-radius: 0.55rem;
+        background: #a855f7;
+        border: 1px solid #a855f7;
+        color: #0a0b10;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+            background: #c084fc;
+            border-color: #c084fc;
+            color: #0a0b10;
         }
     }
 }
@@ -998,5 +1035,10 @@ html[data-theme='light'] .splash-demo {
 
     .splash-demo__hint code {
         color: #7c3aed;
+    }
+
+    .splash-demo__cta,
+    .splash-demo__cta:hover {
+        color: #ffffff;
     }
 }
