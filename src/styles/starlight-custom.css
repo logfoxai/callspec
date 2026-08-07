@@ -427,8 +427,9 @@ header.header {
         max-width: 22rem;
         height: 2.25rem;
         border-radius: 0.55rem;
-        border: 1px solid var(--sl-color-hairline);
-        background-color: color-mix(in srgb, var(--sl-color-black) 55%, var(--sl-color-gray-6));
+        /* gray-6/5 — not black+gray-6 (black is near-white in light theme) */
+        border: 1px solid var(--sl-color-gray-5);
+        background-color: var(--sl-color-gray-6);
         color: var(--sl-color-gray-2);
         padding-inline: 0.85rem;
         justify-content: flex-start;
@@ -442,7 +443,21 @@ header.header {
 
     site-search > button > kbd {
         margin-inline-start: auto;
+        background-color: var(--sl-color-gray-5);
+        border: 0;
+        color: var(--sl-color-gray-2);
     }
+}
+
+html[data-theme='light'] site-search > button {
+    background-color: #ffffff;
+    border-color: var(--sl-color-gray-5);
+    box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
+}
+
+html[data-theme='light'] site-search > button > kbd {
+    background-color: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-3);
 }
 
 /* Header right icons — GitHub, theme toggle */

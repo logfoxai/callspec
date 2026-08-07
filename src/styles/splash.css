@@ -116,6 +116,26 @@ html[data-has-hero]:not([data-has-sidebar]) {
         }
     }
 
+    &[data-theme='light'] site-search > button {
+        border-color: var(--sl-color-gray-5);
+        background-color: #ffffff;
+        color: var(--sl-color-gray-2);
+        box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+
+        &:hover {
+            border-color: var(--sl-color-gray-4);
+            background-color: #ffffff;
+            color: var(--sl-color-white);
+        }
+
+        > kbd {
+            background-color: var(--sl-color-gray-6);
+            color: var(--sl-color-gray-3);
+        }
+    }
+
     &.splash-nav-scrolled {
         header.header {
             background-color: color-mix(in srgb, var(--sl-color-bg-nav) 58%, transparent);
@@ -126,13 +146,18 @@ html[data-has-hero]:not([data-has-sidebar]) {
         }
 
         site-search > button {
-            border-color: var(--sl-color-hairline);
-            background-color: color-mix(in srgb, var(--sl-color-black) 40%, var(--sl-color-gray-6));
+            border-color: var(--sl-color-gray-5);
+            background-color: var(--sl-color-gray-6);
         }
 
         &[data-theme='light'] header.header {
             background-color: color-mix(in srgb, var(--sl-color-bg-nav) 72%, transparent);
             box-shadow: 0 8px 24px color-mix(in srgb, #12141a 6%, transparent);
+        }
+
+        &[data-theme='light'] site-search > button {
+            border-color: var(--sl-color-gray-5);
+            background-color: #ffffff;
         }
     }
 
@@ -761,10 +786,10 @@ html[data-theme='light'] .splash-flow {
     }
 
     .splash-flow__cli {
-        background: linear-gradient(180deg, #f8f9fc 0%, #eef0f5 100%);
+        background: #ffffff;
         box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.95),
-            inset 0 0 0 1px hsl(228 16% 84%);
+            0 1px 2px hsl(228 25% 40% / 0.1),
+            0 0 0 1px hsl(228 16% 78%);
     }
 
     .splash-flow__sdk-call {
