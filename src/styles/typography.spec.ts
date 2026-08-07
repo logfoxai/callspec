@@ -12,32 +12,32 @@ const pageTitleAstro = readFileSync(
 	'utf8',
 );
 
-test('body stack is Inter; heading stack is Manrope', (assert) => {
+test('body stack is Inter; heading stack is Google Sans Flex', (assert) => {
 	assert.equal(
 		/--sl-font:\s*'Inter'/.test(starlightCss),
 		true,
 		'--sl-font is Inter',
 	);
 	assert.equal(
-		/--cs-font-heading:\s*'Manrope'/.test(starlightCss),
+		/--cs-font-heading:\s*'Google Sans Flex'/.test(starlightCss),
 		true,
-		'--cs-font-heading is Manrope',
+		'--cs-font-heading is Google Sans Flex',
 	);
 	assert.equal(
 		fontsCss.includes("font-family: 'Inter'") &&
-			fontsCss.includes("font-family: 'Manrope'"),
+			fontsCss.includes("font-family: 'Google Sans Flex'"),
 		true,
 		'@font-face registers both families',
 	);
 });
 
-test('headers and CTAs use Manrope; UI/body stay Inter', (assert) => {
+test('headers and CTAs use Google Sans Flex; UI/body stay Inter', (assert) => {
 	assert.equal(
 		/\.splash-hero__headline\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(
 			splashCss,
 		),
 		true,
-		'splash hero headline uses Manrope',
+		'splash hero headline uses Google Sans Flex',
 	);
 	assert.equal(
 		/\.splash-hero__lead\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(splashCss),
@@ -47,7 +47,7 @@ test('headers and CTAs use Manrope; UI/body stay Inter', (assert) => {
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(splashCss),
 		true,
-		'splash CTA buttons use Manrope',
+		'splash CTA buttons use Google Sans Flex',
 	);
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-weight:\s*700/s.test(splashCss),
@@ -63,7 +63,7 @@ test('headers and CTAs use Manrope; UI/body stay Inter', (assert) => {
 				),
 			),
 		true,
-		'central heading rule includes splash hero + Manrope token',
+		'central heading rule includes splash hero + heading token',
 	);
 	assert.equal(
 		pageTitleAstro.includes('font-family: var(--cs-font-heading)'),
@@ -88,7 +88,7 @@ test('headers and CTAs use Manrope; UI/body stay Inter', (assert) => {
 			)
 			.includes('.splash-flow__title'),
 		true,
-		'flow titles are not in the Manrope heading rule',
+		'flow titles are not in the heading-font rule',
 	);
 	assert.equal(
 		/#starlight__sidebar\s+summary\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(
