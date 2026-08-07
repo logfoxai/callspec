@@ -37,7 +37,7 @@ Today:
 ```typescript
 spec({
   meta: { … },
-  routes: { searchLogs: defineRoute({ input: searchLogsInput, … }) },
+  routes: { searchLogs: route({ input: searchLogsInput, … }) },
   exports: {
     logQueryFilter,
     notificationRule,

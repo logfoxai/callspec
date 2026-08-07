@@ -78,7 +78,7 @@ function toBuiltInErrorDef(spec: RouteErrorSpec): RouteErrorDef {
 
 }
 
-/** Builtin error defs merged onto every route at defineRoute time. */
+/** Builtin error defs merged onto every route at route time. */
 export const builtInErrorDefs = Object.fromEntries(
     (Object.entries(builtInErrors) as [ThrowableBuiltinCode, RouteErrorSpec][]).map(
         ([code, spec]) => [code, toBuiltInErrorDef(spec)],

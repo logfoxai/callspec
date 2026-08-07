@@ -1,5 +1,5 @@
-export {route} from './defineRouteContract';
-export type {RouteContractInput} from './defineRouteContract';
+export {route} from './route';
+export type {RouteContractInput} from './route';
 export {spec} from './defineSpec';
 export type {Callspec} from './defineSpec';
 export {mountSpec} from './mountSpec';

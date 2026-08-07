@@ -9,7 +9,7 @@ Design reference for the callspec error contract, mountSpec runtime, and client 
 - **`defineErrors()`** — domain error maps; shorthand **`err`** is builtins-only.
 - **Return failures from resolvers** — `return err.NOT_FOUND()` / `return registerErr.USER_EXISTS({ … })`; success is a plain route output object.
 - **`RouteFailure`** — `{ ok: false, code, status, data? }` from resolvers and from `defineErrors` / `err` handles.
-- **Builtins on every route** — merged at `defineRoute` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
+- **Builtins on every route** — merged at `route` time; automatic in OpenAPI, `callspec.json`, and every client `*Result` union. Do not re-declare builtin codes on routes.
 - **Strict domain registration** — returned domain codes must appear on the route; TypeScript checks resolver return types against `errors:` at compile time (no runtime allowlist).
 - **`BUILTIN_ERROR`** — one constant namespace for all automatic codes (validation, auth, route-not-found, etc.).
 - Client Result — `{ ok: true, value } | { ok: false, status, code, data? }`. Branch on `code` when `!result.ok`. Every failure union includes client-only **`UNKNOWN_ERROR`** (HTTP response outside the route contract) and **`NETWORK_ERROR`** (no HTTP response — DNS, offline, abort; `status: 0`).
@@ -94,7 +94,7 @@ Malformed JSON on a router with `body-parser` may hit your app-level handler bef
 
 | Tier | Declared on route? | In every `*Result`? | Production |
 |------|-------------------|---------------------|------------|
-| Builtin | No (merged at `defineRoute`) | Yes | `return err.NOT_FOUND()` etc. |
+| Builtin | No (merged at `route`) | Yes | `return err.NOT_FOUND()` etc. |
 | Domain | Yes (`errors: defineErrors({ … })`) | Only that route | `return registerErr.USER_EXISTS(…)` |
 
 ### Builtin codes
