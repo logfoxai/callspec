@@ -59,6 +59,7 @@ export default defineConfig({
                     label: 'Introduction',
                     items: [
                         {label: 'Getting started', slug: 'getting-started'},
+                        {label: 'Coding agents', slug: 'coding-agents'},
                         {label: 'Server layout', slug: 'server-layout'},
                         {label: 'Unit testing', slug: 'unit-testing'},
                         {label: 'Complete example', slug: 'complete-example'},

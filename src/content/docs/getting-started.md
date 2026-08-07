@@ -2,6 +2,8 @@
 
 Walk through a minimal server and client. For split-file layout see [Server layout](./server-layout.md). Single-file copy-paste: [Complete example](./complete-example.md).
 
+For coding agents, use [SKILL.md](./coding-agents.md).
+
 ## 1. Install backend dependencies
 
 ```bash
