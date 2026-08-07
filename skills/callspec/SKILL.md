@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 Spec-first TypeScript RPC: one `route()` registry → server, SDK, MCP, docs, OpenAPI.
 
-Human docs: [github.com/logfoxai/callspec/tree/main/src/content/docs](https://github.com/logfoxai/callspec/tree/main/src/content/docs). Repo README: [README.md](https://github.com/logfoxai/callspec#readme).
+Human docs: [`src/content/docs/`](https://github.com/logfoxai/callspec/tree/main/src/content/docs) (single source — GitHub and guide site). README: [README.md](https://github.com/logfoxai/callspec#readme).
 
 ## Task → doc
 

@@ -13,17 +13,19 @@
 </p>
 </div>
 
-Define your API once with simple TypeScript — methods like `getProductById` with typed inputs, outputs, and errors — and Callspec gives you the whole stack from that one place: the server, a **TypeScript SDK** you use in your own app or ship to consumers, shared types (and optional form validators), docs, MCP tools, and **OpenAPI 3.1**.
+```bash
+npm i callspec runtyp express
+```
 
-On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
+Define routes in TypeScript — Callspec gives you HTTP RPC, a generated SDK, docs UI, MCP, and OpenAPI from one spec.
 
-- ⚡ **RPC functions** — define simple functions like `getProductById`, not REST CRUD
-- 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers
-- 🎯 **Result-typed errors** — end-to-end error codes from resolver → SDK → OpenAPI → MCP
-- 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
-- 🤖 **MCP** — same methods as your SDK, same auth and validation
-- 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
-- ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
+## Documentation
+
+All guides live in **[`src/content/docs/`](src/content/docs/)**. That folder is the single source: GitHub renders it when you browse the repo; `npm run astro:dev` builds the **same pages** as the guide site (sidebar + search). See [Development](src/content/docs/development.md).
+
+**[Getting started →](src/content/docs/getting-started.md)**
+
+For coding agents: [AGENTS.md](AGENTS.md) → [skills/callspec/SKILL.md](skills/callspec/SKILL.md)
 
 ## Try the demo
 
@@ -36,24 +38,3 @@ npm run build && npm run serve:chirp-demo
 ```
 
 Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
-
-## Contents
-
-For coding agents: [AGENTS.md](AGENTS.md) → [skills/callspec/SKILL.md](skills/callspec/SKILL.md)
-
-- [Getting started](src/content/docs/getting-started.md)
-- [Server layout](src/content/docs/server-layout.md)
-- [Unit testing](src/content/docs/unit-testing.md)
-- [Complete example](src/content/docs/complete-example.md)
-- [Authentication](src/content/docs/authentication.md)
-- [Request context](src/content/docs/request-context.md)
-- [API reference](src/content/docs/api-reference.md)
-- [Error handling](src/content/docs/error-handling.md)
-- [SDK generation](src/content/docs/sdk-generation.md)
-- [Client usage](src/content/docs/client-usage.md)
-- [Shared validation](src/content/docs/shared-validation.md)
-- [Docs UI](src/content/docs/docs-ui.md)
-- [MCP](src/content/docs/mcp.md)
-- [OpenAPI](src/content/docs/openapi.md)
-- [Callspec + Fern](src/content/docs/using-fern-with-callspec.md)
-- [Development](src/content/docs/development.md)
