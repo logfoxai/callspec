@@ -2,10 +2,7 @@ import type {Request, Response, NextFunction, ErrorRequestHandler} from 'express
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
-    formatRouteErrorBody,
-    isRouteError,
     isRouteFailure,
-    sendRouteErrorResponse,
     sendRouteFailureResponse,
 } from './errors';
 import {BUILTIN_ERROR} from './builtinErrors';
@@ -42,17 +39,8 @@ export function expressErrorHandler(): ErrorRequestHandler {
 
         }
 
-        if (isRouteError(err)) {
-
-            sendRouteErrorResponse(res, err);
-            return;
-
-        }
-
         res.status(500).json({error: BUILTIN_ERROR.INTERNAL_ERROR});
 
     };
 
 }
-
-export {formatRouteErrorBody, isRouteError, sendRouteErrorResponse};

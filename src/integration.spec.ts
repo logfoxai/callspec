@@ -6,7 +6,6 @@ import {spec} from './defineSpec';
 import {defineRoute} from './defineRoute';
 import {mountSpec} from './mountSpec';
 import {defineErrors} from './defineErrors';
-import {RouteError} from './errors';
 import {callspecDocumentToUiSpec} from './callspec-ui/toUiSpec';
 import {parseCallspecDocument} from './callspecDocument';
 
@@ -500,59 +499,6 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
 
         assert.equal(res.status, 500);
         assert.equal(await res.json(), {error: 'INTERNAL_ERROR'});
-
-    } finally {
-
-        await closeServer(server);
-
-    }
-
-});
-
-test('integration: thrown RouteError serializes on RPC (legacy throw path)', async (assert) => {
-
-    const api = spec({
-        meta: {title: 'Legacy throw API', version: '1.0.0'},
-        routes: {
-            legacy: defineRoute({
-                input: p.object({}),
-                output: p.string(),
-                meta: {summary: 'Legacy', description: 'Legacy', tags: ['x']},
-                auth: 'none',
-                resolver: async (_input, _ctx) => {
-
-                    throw new RouteError('NOT_FOUND', 404, {message: 'missing'});
-
-                },
-            }),
-        },
-    });
-
-    const app = express();
-    const router = express.Router();
-
-    router.use(express.json());
-    mountSpec(router, api, {logging: false});
-    app.use('/v1', router);
-
-    const server = http.createServer(app);
-
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
-
-    const addr = server.address();
-
-    if (!addr || typeof addr === 'string') throw new Error('expected server address');
-
-    try {
-
-        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/legacy`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({}),
-        });
-
-        assert.equal(res.status, 404);
-        assert.equal(await res.json(), {error: 'NOT_FOUND', data: {message: 'missing'}});
 
     } finally {
 

@@ -2,9 +2,7 @@ import type {RequestHandler, Router} from 'express';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
-    formatRouteErrorBody,
     formatRouteFailureBody,
-    isRouteError,
     isRouteFailure,
 } from './errors';
 import {executeRoute} from './executeRoute';
@@ -153,13 +151,6 @@ export function mountMcp<Ctx>(
                     if (err instanceof CallspecValidationError) {
 
                         respond(toolError(JSON.stringify(err.errors)));
-                        return;
-
-                    }
-
-                    if (isRouteError(err)) {
-
-                        respond(toolError(JSON.stringify(formatRouteErrorBody(err))));
                         return;
 
                     }

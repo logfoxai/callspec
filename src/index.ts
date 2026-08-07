@@ -26,9 +26,6 @@ export {
     isRouteFailure,
     formatRouteFailureBody,
     sendRouteFailureResponse,
-    isRouteError,
-    formatRouteErrorBody,
-    sendRouteErrorResponse,
 } from './errors';
 export type {RouteFailure, RouteResolver, Authenticate, RouteAuth, RouteScope, RouteDef, WiredRoute} from './types';
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';

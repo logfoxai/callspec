@@ -35,30 +35,29 @@ After `executeRoute` returns or throws:
 | 2 | Resolver **throws** `RouteFailure` | Wire failure | None |
 | 3 | `CallspecValidationError` (input validation) | 400 `VALIDATION_ERROR` + `errors` | None |
 | 4 | `CallspecUnauthorizedError` (private route, bad/missing token) | 401 `UNAUTHORIZED` | None |
-| 5 | Thrown legacy `RouteError` | Wire failure (`sendRouteErrorResponse`) | None |
-| 6 | `handleUnhandledError(err, req)` returns `RouteFailure` | Wire failure | **You** choose (mountSpec skips default error log) |
-| 7 | Anything else (bug, rejected promise, unknown throw) | 500 `INTERNAL_ERROR` | jsout `logger.error` via `logUnhandledError` |
+| 5 | `handleUnhandledError(err, req)` returns `RouteFailure` | Wire failure | **You** choose (mountSpec skips default error log) |
+| 6 | Anything else (bug, rejected promise, unknown throw) | 500 `INTERNAL_ERROR` | jsout `logger.error` via `logUnhandledError` |
 
 **Success** is step 0: HTTP **200** + route output JSON — no error log.
 
-Steps 1–5 are intentional contract outcomes. Step 7 is for unexpected failures: synchronous `throw new Error('…')`, rejected async resolvers, driver/library throws, etc.
+Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures: synchronous `throw new Error('…')`, rejected async resolvers, driver/library throws, etc.
 
 ### Logging
 
 | Event | Who | When | Default |
 |-------|-----|------|---------|
 | RPC request | `mountSpec` → jsout-express `logRequest` | Every request on the mounted router (on response finish) | On when `logging !== false` |
-| Unhandled bug | `logUnhandledError` | Catch step 7 only | `logger.error(undefined, err, { url, method })` |
-| Infra / known throw | Your `handleUnhandledError` | Catch step 6 | Your level — e.g. `logger.warn` for query timeout, no log for benign cases |
-| Intentional failure | — | Steps 1–5 | No error log |
+| Unhandled bug | `logUnhandledError` | Catch step 6 only | `logger.error(undefined, err, { url, method })` |
+| Infra / known throw | Your `handleUnhandledError` | Catch step 5 | Your level — e.g. `logger.warn` for query timeout, no log for benign cases |
+| Intentional failure | — | Steps 1–4 | No error log |
 
 **`MountSpecOptions`:**
 
 | Option | Default | Purpose |
 |--------|---------|---------|
 | `logging` | `true` | `false` silences request logging and default error logging (use in tests) |
-| `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 7 |
-| `logUnhandledError` | jsout `logger.error` | Override only the step-7 error log |
+| `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 6 |
+| `logUnhandledError` | jsout `logger.error` | Override only the step-6 error log |
 
 Re-exported **`logRequest`** from `callspec` is the same jsout-express middleware — use it on **other** Express routers (upload, webhooks) so request logs match.
 
@@ -203,8 +202,6 @@ return err.NOT_FOUND({message: '…'});
 Helpers return `RouteFailuresFrom<typeof registerErr>` (or `void` / domain data); callers propagate with `if (isRouteFailure(x)) return x`.
 
 Express middleware that cannot return through mountSpec may still **`throw`** a `RouteFailure` object; use `isRouteFailure` + `sendRouteFailureResponse` in the error handler.
-
-**Legacy `RouteError` (Error subclass):** still supported for throws on RPC (`mountSpec`) and non-RPC (`expressErrorHandler`) via `isRouteError`. Prefer `RouteFailure` returns; new code should not introduce `RouteError`.
 
 ## Rules
 
