@@ -14,10 +14,13 @@ npx callspec ./callspec.json --output src/generated/api.ts
 import {ApiClient, schemas, type GetProductByIdInput, type Product} from './generated/api';
 
 const api = new ApiClient({baseUrl: '/v1'});
-schemas.product.parse(form);
+const checked = schemas.product(form);
+if (!checked.isValid) {
+    // checked.errors — field → message
+}
 ```
 
-Generated code imports `callspec/client` (browser-safe) and `runtyp` (for `schemas`). Codegen reads **`callspec.json`**, not OpenAPI.
+Generated code imports `callspec/client` (browser-safe) and `runtyp` (for `schemas`). Install both in the app that compiles the generated file (`npm i callspec runtyp`). Codegen reads **`callspec.json`**, not OpenAPI.
 
 ## Pinning for CI (optional)
 
