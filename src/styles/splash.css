@@ -269,6 +269,15 @@ html[data-has-hero]:not([data-has-sidebar]) {
     }
 }
 
+@media print {
+    .splash-hero .splash-hero__title {
+        width: auto;
+        border-right-color: transparent;
+        animation: none;
+        filter: none;
+    }
+}
+
 html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
     background: hsl(228 16% 14%);
     border-color: var(--cs-line);

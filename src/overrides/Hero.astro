@@ -12,13 +12,15 @@ const typeSteps = Math.max([...titlePlain].length, 1);
 ---
 
 <section class="splash-hero">
+	{/* Plain text — typewriter width/steps assume a single glyph run, not HTML. */}
 	<h1
 		id={PAGE_TITLE_ID}
 		class="splash-hero__title"
 		data-page-title
 		style={`--type-steps: ${typeSteps}`}
-		set:html={title}
-	/>
+	>
+		{titlePlain}
+	</h1>
 	{tagline && <p class="splash-hero__tagline" set:html={tagline} />}
 	{
 		actions.length > 0 && (

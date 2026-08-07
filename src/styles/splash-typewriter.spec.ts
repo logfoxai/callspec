@@ -26,4 +26,9 @@ test('splash hero title typewriter keyframes and reduced-motion fallback exist',
 		true,
 		'reduced-motion visitors must skip the typewriter',
 	);
+	assert.equal(
+		/@media\s+print[\s\S]*?\.splash-hero__title[\s\S]*?animation:\s*none/.test(splashCss),
+		true,
+		'print must show the full title (animations do not run when printing)',
+	);
 });
