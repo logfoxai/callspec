@@ -13,7 +13,7 @@ The overlap is small: **docs**, nominally **TypeScript clients**, and a surface-
 | **Job** | Run the API in TypeScript; ship TS client, MCP, contracts | Public developer adoption — SDKs + docs in many languages |
 | **Source of truth** | Live TypeScript + runtyp | OpenAPI / Fern Definition (from Callspec's `/openapi.json` or elsewhere) |
 | **Server** | `mountSpec` *is* the runtime | Does not replace your server |
-| **TS client** | Generated from `callspec.json` — Result-typed, exhaustive errors, `NETWORK_ERROR`, shared runtyp validators | Can emit TS from OpenAPI — idiomatic HTTP client, not callspec-native |
+| **TS client** | Generated from `callspec.json` — Result-typed, exhaustive errors, `NETWORK_ERROR`, `schemas` runtyp preds | Can emit TS from OpenAPI — idiomatic HTTP client, not callspec-native |
 | **Multi-lang SDKs** | Fern's job (via `/openapi.json`) | Core product (Python, Go, Java, C#, …) |
 | **MCP** | **API tools** — in-process `/mcp`; same resolvers, auth, validation as RPC | **Docs MCP** — hosted on Fern docs site; agents query **documentation** (Ask Fern), not your live API |
 | **Docs** | Built-in `/docs` — fast, white-label, good for **internal** and many product cases | Enterprise public docs — localization, deep customization, Postman-scale polish |
@@ -51,7 +51,7 @@ Both can produce a TypeScript client. **Use Callspec's for your app** — it is 
 | **Error model** | **Result** — `{ ok, value }` or `{ ok: false, code, … }`; exhaustive `code` union per method | Typical throw / HTTP status patterns from OpenAPI |
 | **Domain errors** | Same codes as server, MCP, and docs — switch is exhaustive | Mapped from HTTP; no callspec error contract |
 | **Client-only errors** | `NETWORK_ERROR`, `UNKNOWN_ERROR` built in | Varies by generator |
-| **Validation sharing** | Same runtyp preds via `exports` + `--validators` for forms | Not part of the product |
+| **Validation sharing** | Same runtyp preds via `exports` → generated `schemas` for forms | Not part of the product |
 | **Integration** | One registry → server, SDK, MCP, docs stay in sync | Consumer of `/openapi.json`; parallel surface |
 
 Fern's Python/Go/Java SDKs (and any TS SDK they emit) are best for **external** developers. They will not get Result-typed domain errors, shared form validators, or the same codegen loop as your frontend. That is by design — OpenAPI cannot carry the full callspec contract.

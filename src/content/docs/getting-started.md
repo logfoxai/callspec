@@ -100,7 +100,7 @@ curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
 
-See [SDK generation](./sdk-generation.md) for CI and `--validators`. Pinning the contract: [SDK generation § Pinning callspec.json for CI](./sdk-generation.md#pinning-callspecjson-for-ci).
+CI, pinning, and `schemas`: [SDK generation](./sdk-generation.md).
 
 ## 5. Call from your app
 

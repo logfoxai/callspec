@@ -2,28 +2,27 @@
 
 import {CallspecDocumentError} from '../callspecDocument';
 import {generateClientFile} from '../generateClient/generateClient';
-import {generateValidatorsFile} from '../generateValidators/generateValidators';
 
 function printHelp(): void {
 
     process.stdout.write(`Usage:
-  callspec <source> --output <file> [--validators] [--class-name <name>]
+  callspec <source> --output <file> [--class-name <name>]
 
 Arguments:
   <source>    Mount point (URL or directory) or path to callspec.json
 
 Options:
   --output      Output TypeScript file (required)
-  --validators  Emit runtyp validators + Infer types (default: HTTP client)
-  --class-name  Generated client class name (default: ApiClient; client mode only)
+  --class-name  Generated client class name (default: ApiClient)
   --help        Show this help
+
+Emits ApiClient, route types, and a \`schemas\` object of runtyp preds (exports + route wire shapes).
 
 Document paths are fixed: <mount>/callspec.json (and <mount>/openapi.json for OpenAPI tools).
 
 Examples:
   callspec ./callspec.json --output ./src/generated/api.ts
   callspec ./ --output ./src/generated/api.ts
-  callspec ./callspec.json --output ./src/generated/validators.ts --validators
   callspec http://127.0.0.1:3000/v1 --output ./src/generated/api.ts
   callspec https://api.example.com/v1/callspec.json --output ./src/generated/api.ts
 `);
@@ -34,7 +33,6 @@ function parseArgs(argv: string[]): {
     source?: string
     output?: string
     className?: string
-    validators?: boolean
     help?: boolean
 } {
 
@@ -63,10 +61,6 @@ function parseArgs(argv: string[]): {
 
             result.className = args[index + 1];
             index += 1;
-
-        } else if (arg === '--validators') {
-
-            result.validators = true;
 
         }
 
@@ -108,17 +102,9 @@ async function main(): Promise<void> {
 
     try {
 
-        if (parsed.validators) {
-
-            await generateValidatorsFile(parsed.source, parsed.output);
-
-        } else {
-
-            await generateClientFile(parsed.source, parsed.output, {
-                className: parsed.className,
-            });
-
-        }
+        await generateClientFile(parsed.source, parsed.output, {
+            className: parsed.className,
+        });
 
     } catch (err) {
 

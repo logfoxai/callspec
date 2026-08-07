@@ -1,13 +1,9 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
 import {route} from './route';
 import {emitCallspec} from './emitCallspec';
 import {parseCallspecDocument} from './callspecDocument';
-import {generateValidatorsFile} from './generateValidators/generateValidators';
-import {generateValidatorsSource} from './generateValidators/generateValidatorsSource';
+import {generateSchemasSection} from './generateClient/generateSchemasSection';
 import {schemaToRuntyp} from './generateValidators/schemaToRuntyp';
 
 test('schemaToRuntyp: object with optional fields', (assert) => {
@@ -87,7 +83,7 @@ test('parseCallspecDocument: round-trips exports', (assert) => {
 
 });
 
-test('generateValidatorsSource: rejects duplicate export and route pred names', (assert) => {
+test('generateSchemasSection: rejects duplicate export and route pred names', (assert) => {
 
     const logQueryFilter = p.object({env: p.string()});
 
@@ -108,7 +104,7 @@ test('generateValidatorsSource: rejects duplicate export and route pred names', 
     );
 
     assert.throws(
-        () => generateValidatorsSource(doc),
+        () => generateSchemasSection(doc),
         /Duplicate validator name "searchLogsInput"/,
     );
 
@@ -121,7 +117,7 @@ test('schemaToRuntyp: uuid and url formats', (assert) => {
 
 });
 
-test('generateValidatorsFile: emits runtyp preds for exports and routes', async (assert) => {
+test('generateSchemasSection: emits schemas object for exports and routes', (assert) => {
 
     const logQueryFilter = p.object({
         env: p.string(),
@@ -148,28 +144,20 @@ test('generateValidatorsFile: emits runtyp preds for exports and routes', async 
         },
     );
 
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'callspec-validators-'));
-    const sourcePath = path.join(dir, 'callspec.json');
-    const outputPath = path.join(dir, 'validators.ts');
+    const generated = generateSchemasSection(doc);
 
-    fs.writeFileSync(sourcePath, JSON.stringify(doc));
-
-    await generateValidatorsFile(sourcePath, outputPath);
-
-    const generated = fs.readFileSync(outputPath, 'utf8');
-
-    assert.equal(generated.includes("from 'runtyp'"), true);
-    assert.equal(generated.includes('export const logQueryFilter ='), true);
-    assert.equal(generated.includes('export type LogQueryFilter = Infer<typeof logQueryFilter>'), true);
-    assert.equal(generated.includes('export const searchLogsInput ='), true);
-    assert.equal(generated.includes('export type SearchLogsInput = Infer<typeof searchLogsInput>'), true);
-    assert.equal(generated.includes('express'), false);
-
-    const sampleFilter = {env: 'production'};
-    const pred = logQueryFilter;
-
-    assert.equal(pred(sampleFilter).isValid, true);
-
-    fs.rmSync(dir, {recursive: true, force: true});
+    assert.equal(generated.includes('export const schemas = {'), true);
+    assert.equal(generated.includes('logQueryFilter:'), true);
+    assert.equal(
+        generated.includes('export type LogQueryFilter = Infer<typeof schemas.logQueryFilter>'),
+        true,
+    );
+    assert.equal(generated.includes('searchLogsInput:'), true);
+    assert.equal(generated.includes('searchLogsOutput:'), true);
+    assert.equal(
+        generated.includes('export type SearchLogsInput = Infer<'),
+        false,
+        'route Input Infer types are omitted to avoid colliding with client types',
+    );
 
 });

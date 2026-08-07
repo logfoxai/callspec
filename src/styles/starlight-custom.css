@@ -757,12 +757,27 @@ html[data-has-sidebar] .pagination-links svg {
     opacity: 0.9;
     transition:
         color 0.15s ease,
-        opacity 0.15s ease;
+        opacity 0.15s ease,
+        transform 0.15s ease;
 }
 
 html[data-has-sidebar] .pagination-links a:hover svg {
     color: var(--sl-color-accent);
     opacity: 1;
+}
+
+html[data-has-sidebar] .pagination-links a[rel='next']:hover svg {
+    transform: translateX(0.2rem);
+}
+
+html[data-has-sidebar] .pagination-links a[rel='prev']:hover svg {
+    transform: translateX(-0.2rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-has-sidebar] .pagination-links a:hover svg {
+        transform: none;
+    }
 }
 
 /* Sidebar breathing room — Starlight defaults pad-bottom: 0 and a tight top */

@@ -1,4 +1,5 @@
 import type {CallspecDocument} from '../callspecDocument';
+import {generateSchemasSection} from './generateSchemasSection';
 import {
     assertGeneratableSchema,
     sanitizeMethodName,
@@ -21,6 +22,7 @@ export function generateClientSource(
     const typeBlocks: string[] = [];
     const methods: string[] = [];
     const usedMethodNames = new Set<string>();
+    const schemasSection = generateSchemasSection(document);
 
     for (const routeName of routeNames) {
 
@@ -163,10 +165,20 @@ export function generateClientSource(
 
     }
 
+    const imports = [
+        `import {CallspecClient, type CallspecClientConfig, type CallspecRouteResult} from 'callspec/client';`,
+    ];
+
+    if (schemasSection) {
+
+        imports.push(`import {predicates as p, type Infer} from 'runtyp';`);
+
+    }
+
     return [
         GENERATED_HEADER,
         '',
-        `import {CallspecClient, type CallspecClientConfig, type CallspecRouteResult} from 'callspec/client';`,
+        ...imports,
         '',
         ...typeBlocks,
         '',
@@ -178,7 +190,7 @@ export function generateClientSource(
         '    }',
         ...methods,
         '}',
-        '',
+        ...(schemasSection ? ['', schemasSection, ''] : ['']),
     ].join('\n');
 
 }

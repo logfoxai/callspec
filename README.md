@@ -26,7 +26,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
 - 🤖 **MCP** — same methods as your SDK, same auth and validation
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients
-- ✅ **Shared types & validators** — same preds end-to-end; optional `exports` + `--validators` for forms
+- ✅ **Shared types & schemas** — same preds end-to-end; optional `exports` land on generated `schemas`
 
 ## Try the demo
 
