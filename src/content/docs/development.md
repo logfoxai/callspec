@@ -2,11 +2,13 @@
 title: Development
 ---
 
+**Node:** library consumers need **18+**. Working in this repo — especially `npm run validate`, `docs:dev`, and `docs:build` — needs **≥22.12** (Astro 7). CI runs the docs build on Node 24.
+
 ```bash
 npm install
-npm run validate    # build, lint, knip, typecheck:routes, test + coverage
-npm run docs:dev    # guide site (Starlight) — http://127.0.0.1:4321 (Node ≥22.12)
-npm run docs:build  # static site → docs-site/ (Node ≥22.12)
+npm run validate    # build, lint, knip, typecheck:routes, test + coverage, docs:build
+npm run docs:dev    # guide site (Starlight) — http://127.0.0.1:4321
+npm run docs:build  # static site → docs-site/
 npm run dev:docs    # Chirp API demo — see README § Try the demo
 ```
 

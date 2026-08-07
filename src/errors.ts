@@ -25,7 +25,11 @@ export class CallspecUnauthorizedError extends Error {
 
 }
 
-/** Thrown via {@link defineErrors} handles — mapped to HTTP by mountSpec / expressErrorHandler. */
+/**
+ * Legacy Error subclass for intentional HTTP failures.
+ * Prefer returning {@link RouteFailure} from resolvers (`defineErrors` / `err`).
+ * Still mapped when thrown: RPC via `mountSpec`, non-RPC via `expressErrorHandler`.
+ */
 export class RouteError<
     Code extends string = string,
     Data = unknown,

@@ -79,6 +79,9 @@
     "jsout-express": "^1.1.9",
     "runtyp": "2.5.0"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "peerDependencies": {
     "express": "^4.18.0"
   },

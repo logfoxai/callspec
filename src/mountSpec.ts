@@ -2,7 +2,9 @@ import type {Request, RequestHandler, Router} from 'express';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
+    isRouteError,
     isRouteFailure,
+    sendRouteErrorResponse,
     sendRouteFailureResponse,
 } from './errors';
 import {BUILTIN_ERROR} from './builtinErrors';
@@ -160,6 +162,13 @@ export function mountSpec<Ctx>(
                 if (err instanceof CallspecUnauthorizedError) {
 
                     res.status(401).json({error: BUILTIN_ERROR.UNAUTHORIZED});
+                    return;
+
+                }
+
+                if (isRouteError(err)) {
+
+                    sendRouteErrorResponse(res, err);
                     return;
 
                 }

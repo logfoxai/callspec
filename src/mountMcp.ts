@@ -2,7 +2,9 @@ import type {RequestHandler, Router} from 'express';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
+    formatRouteErrorBody,
     formatRouteFailureBody,
+    isRouteError,
     isRouteFailure,
 } from './errors';
 import {executeRoute} from './executeRoute';
@@ -155,6 +157,13 @@ export function mountMcp<Ctx>(
 
                     }
 
+                    if (isRouteError(err)) {
+
+                        respond(toolError(JSON.stringify(formatRouteErrorBody(err))));
+                        return;
+
+                    }
+
                     throw err;
 
                 }
@@ -170,9 +179,10 @@ export function mountMcp<Ctx>(
 
             respondError(400, `Unsupported method: ${body?.method ?? 'unknown'}`);
 
-        } catch (err) {
+        } catch {
 
-            respondError(500, err instanceof Error ? err.message : 'Internal error');
+            // Match HTTP RPC: never leak Error.message to clients.
+            respondError(500, 'Internal error');
 
         }
 
