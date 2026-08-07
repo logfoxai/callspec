@@ -929,26 +929,44 @@ html[data-theme='light'] .splash-features__icon {
         color: var(--cs-muted);
     }
 
-    .splash-demo__cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        margin-top: 1.35rem;
-        padding: 0.8rem 1.15rem;
+    .splash-demo__cmd {
+        margin: 1.25rem 0 0;
+        padding: 0.85rem 1rem;
+        overflow-x: auto;
         border-radius: 0.55rem;
-        background: #a855f7;
-        border: 1px solid #a855f7;
-        color: #0a0b10;
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        text-decoration: none;
-        transition: background-color 0.15s ease, border-color 0.15s ease;
+        border: 1px solid hsl(0 0% 100% / 0.1);
+        background: hsl(228 30% 6% / 0.65);
+        box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
 
-        &:hover {
-            background: #c084fc;
-            border-color: #c084fc;
-            color: #0a0b10;
+        code {
+            font-family: var(--sl-font-mono);
+            font-size: 0.82rem;
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+    }
+
+    .splash-demo__hint {
+        margin: 0.85rem 0 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--cs-muted);
+
+        code {
+            font-family: var(--sl-font-mono);
+            font-size: 0.82em;
+            color: #c4b5fd;
+        }
+
+        a {
+            color: var(--cs-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            white-space: nowrap;
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 }
@@ -969,8 +987,16 @@ html[data-theme='light'] .splash-demo {
             0 18px 44px hsl(228 25% 40% / 0.14);
     }
 
-    .splash-demo__cta,
-    .splash-demo__cta:hover {
-        color: #ffffff;
+    .splash-demo__cmd {
+        border-color: hsl(228 16% 82%);
+        background: hsl(228 20% 96%);
+
+        code {
+            color: #1e293b;
+        }
+    }
+
+    .splash-demo__hint code {
+        color: #7c3aed;
     }
 }
