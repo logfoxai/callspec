@@ -3,32 +3,39 @@ import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {test} from 'kizu';
 
-const splashCss = readFileSync(
-	join(dirname(fileURLToPath(import.meta.url)), 'splash.css'),
+const stylesDir = dirname(fileURLToPath(import.meta.url));
+const splashCss = readFileSync(join(stylesDir, 'splash.css'), 'utf8');
+const heroAstro = readFileSync(
+	join(stylesDir, '../overrides/Hero.astro'),
 	'utf8',
 );
 
-test('splash tagline uses gradient text + fade-in, not typewriter', (assert) => {
+test('splash hero is typewriter headline + lead, no eyebrow', (assert) => {
 	assert.equal(
-		splashCss.includes('splash-typewriter') || splashCss.includes('splash-caret'),
+		heroAstro.includes('splash-hero__eyebrow'),
 		false,
-		'typewriter/caret animation was removed',
+		'eyebrow was removed',
 	);
 	assert.equal(
-		/background-clip:\s*text/.test(splashCss),
+		heroAstro.includes('splash-hero__headline') && heroAstro.includes('<h2'),
 		true,
-		'tagline should use clipped gradient text',
+		'visible typewriter line is an h2',
 	);
 	assert.equal(
-		splashCss.includes('@keyframes splash-tagline-in'),
+		heroAstro.includes('splash-hero__lead'),
 		true,
-		'subtle entrance animation should remain',
+		'lead explains what you define and what you get',
 	);
 	assert.equal(
-		/prefers-reduced-motion:\s*reduce[\s\S]*?\.splash-hero__tagline[\s\S]*?animation:\s*none/.test(
+		splashCss.includes('splash-typewriter') && splashCss.includes('splash-caret'),
+		true,
+		'headline keeps typewriter + caret',
+	);
+	assert.equal(
+		/prefers-reduced-motion:\s*reduce[\s\S]*?\.splash-hero__headline[\s\S]*?animation:\s*none/.test(
 			splashCss,
 		),
 		true,
-		'reduced-motion skips the entrance animation',
+		'reduced-motion skips the typewriter',
 	);
 });
