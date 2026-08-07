@@ -1,17 +1,24 @@
 ---
 /**
- * Splash hero — brand lives in the nav lockup; no duplicate visible title.
- * Guide pages use Starlight’s PageTitle, not this override.
+ * Splash hero — visible brand title with CSS typewriter; guide pages use PageTitle.
  */
 import {LinkButton} from '@astrojs/starlight/components';
 
 const PAGE_TITLE_ID = '_top';
 const {data} = Astro.locals.starlightRoute.entry;
 const {title = data.title, tagline, actions = []} = data.hero || {};
+const titlePlain = String(title).replace(/<[^>]*>/g, '');
+const typeSteps = Math.max([...titlePlain].length, 1);
 ---
 
 <section class="splash-hero">
-	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
+	<h1
+		id={PAGE_TITLE_ID}
+		class="splash-hero__title"
+		data-page-title
+		style={`--type-steps: ${typeSteps}`}
+		set:html={title}
+	/>
 	{tagline && <p class="splash-hero__tagline" set:html={tagline} />}
 	{
 		actions.length > 0 && (

@@ -174,6 +174,25 @@ html[data-has-hero]:not([data-has-sidebar]) {
     position: relative;
     z-index: 1;
 
+    .splash-hero__title {
+        margin: 0;
+        font-family: var(--sl-font);
+        font-size: clamp(2.75rem, 7vw, 4.25rem);
+        font-weight: 700;
+        letter-spacing: -0.045em;
+        line-height: 1.05;
+        color: var(--cs-ink);
+        filter: drop-shadow(0 0 8px #707070) drop-shadow(0 0 8px #707070);
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 0.08em solid currentColor;
+        width: 0;
+        animation:
+            splash-typewriter 2s steps(var(--type-steps), end) forwards,
+            splash-caret 0.8s step-end infinite;
+    }
+
     .splash-hero__tagline {
         margin: 0;
         max-width: min(56rem, 92vw);
@@ -222,6 +241,31 @@ html[data-has-hero]:not([data-has-sidebar]) {
                 }
             }
         }
+    }
+}
+
+@keyframes splash-typewriter {
+    from {
+        width: 0;
+    }
+
+    to {
+        /* ch ≈ “0” width; pad slightly so proportional glyphs aren’t clipped */
+        width: calc(var(--type-steps) * 1ch + 0.15em);
+    }
+}
+
+@keyframes splash-caret {
+    50% {
+        border-color: transparent;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash-hero .splash-hero__title {
+        width: auto;
+        border-right-color: transparent;
+        animation: none;
     }
 }
 
