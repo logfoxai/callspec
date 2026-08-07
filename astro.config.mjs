@@ -21,6 +21,12 @@ export default defineConfig({
         allowedDomains: [{}],
     },
     vite: {
+        // Vite 8 defaults cssMinify to lightningcss, which drops unprefixed
+        // backdrop-filter when -webkit- is present — Chromium then skips frost.
+        // https://github.com/vitejs/vite/issues/22649
+        build: {
+            cssMinify: 'esbuild',
+        },
         server: {
             cors: true,
         },
