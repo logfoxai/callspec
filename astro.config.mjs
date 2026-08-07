@@ -1,7 +1,11 @@
 import {defineConfig} from 'astro/config';
 import starlight from '@astrojs/starlight';
+import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
 
 export default defineConfig({
+    markdown: {
+        remarkPlugins: [remarkStarlightMdLinks],
+    },
     site: 'https://logfoxai.github.io/callspec',
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)

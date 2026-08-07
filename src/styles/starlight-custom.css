@@ -88,6 +88,11 @@ html[data-has-sidebar] .sl-markdown-content > .sl-heading-wrapper:first-child {
     margin-top: 0;
 }
 
+/* Guide sources use `# Title` for GitHub; PageTitle renders it in Starlight chrome. */
+html[data-has-sidebar] .sl-markdown-content > .sl-heading-wrapper.level-h1:first-child {
+    display: none;
+}
+
 html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper + .expressive-code,
 html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper + pre {
     margin-top: 0.85rem;
@@ -315,6 +320,15 @@ html[data-theme='light'] {
 .expressive-code pre code {
     display: block;
     min-width: min-content;
+    color: var(--ec-codeFg, #f8f8f2);
+}
+
+/*
+ * Token colors — unlayered fallback. Expressive Code injects its stylesheet via
+ * <link> inside the first block (body), which can load after paint in dev.
+ */
+.expressive-code .ec-line .code span[style*='--0:'] {
+    color: var(--0, var(--ec-codeFg, #f8f8f2));
 }
 
 /*
