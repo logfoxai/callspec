@@ -4,7 +4,7 @@
     <source srcset="assets/callspec-lockup-light.svg?cb=4" media="(prefers-color-scheme: light)" />
     <img src="assets/callspec-lockup-light.svg?cb=4" alt="callspec" />
   </picture>
-  <h4 align="center">Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.</h4>
+  <h4 align="center">Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.</h4>
   <br>
   <p align="center">
   <a href="assets/callspec-flow.svg?cb=7">
