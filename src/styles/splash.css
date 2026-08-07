@@ -402,7 +402,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         color: #e8e9ef;
         font-family: var(--sl-font-mono);
         /* Sized to fit equal 4-col panels without clipping longest lines */
-        font-size: 0.72rem;
+        font-size: 0.8rem;
         line-height: 1.4;
         overflow-x: auto;
         filter: saturate(0.85) brightness(0.98);
