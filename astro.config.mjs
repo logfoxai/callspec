@@ -4,6 +4,8 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
     site: 'https://logfoxai.github.io/callspec',
     outDir: './docs-site',
+    // Brand / docs static media — single source of truth (also used by README)
+    publicDir: './assets',
     // Dev server only (sec-fetch middleware): allow IDE embedded browsers (Cursor, etc.)
     // that load localhost with Sec-Fetch-Site: cross-site. Not used by static builds.
     security: {
@@ -17,15 +19,28 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Callspec',
-            description:
-                'Spec-first TypeScript RPC: server, SDK, MCP, docs, and OpenAPI from one route() registry.',
+            description: 'Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.',
             logo: {
-                light: './src/assets/callspec-lockup-light.svg',
-                dark: './src/assets/callspec-lockup-dark.svg',
+                light: './assets/callspec-lockup-light.svg',
+                dark: './assets/callspec-lockup-dark.svg',
                 replacesTitle: true,
             },
-            favicon: '/callspec-lockup-light.svg',
-            customCss: ['./src/styles/starlight-custom.css'],
+            favicon: '/favicon.svg',
+            // Code block chrome lives in ec.config.mjs (ui-components Code look)
+            expressiveCode: true,
+            customCss: [
+                '@fontsource/ibm-plex-sans/400.css',
+                '@fontsource/ibm-plex-sans/500.css',
+                '@fontsource/ibm-plex-sans/600.css',
+                '@fontsource/ibm-plex-sans/700.css',
+                '@fontsource/ibm-plex-mono/400.css',
+                '@fontsource/ibm-plex-mono/500.css',
+                './src/styles/starlight-custom.css',
+            ],
+            components: {
+                Hero: './src/overrides/Hero.astro',
+                ThemeSelect: './src/overrides/ThemeSelect.astro',
+            },
             social: [
                 {
                     icon: 'github',

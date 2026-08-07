@@ -3,6 +3,11 @@
   "ignoreBinaries": [
     "report"
   ],
+  "ignoreDependencies": [
+    "@fontsource/ibm-plex-sans",
+    "@fontsource/ibm-plex-mono",
+    "astro-expressive-code"
+  ],
   "ignoreIssues": {
     "src/defineErrors.ts": ["types"]
   },

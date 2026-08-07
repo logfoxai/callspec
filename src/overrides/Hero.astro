@@ -1,0 +1,37 @@
+---
+/**
+ * Splash hero — brand is the nav lockup; no duplicate title.
+ * Guide pages use PageTitle, not this component.
+ */
+import {LinkButton} from '@astrojs/starlight/components';
+
+const PAGE_TITLE_ID = '_top';
+const {data} = Astro.locals.starlightRoute.entry;
+const {title = data.title, tagline, actions = []} = data.hero || {};
+---
+
+<section class="splash-hero">
+	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
+	{tagline && <p class="splash-hero__tagline" set:html={tagline} />}
+	{
+		actions.length > 0 && (
+			<div class="splash-hero__actions">
+				{actions.map(
+					({attrs: {class: className, ...attrs} = {}, icon, link: href, text, variant}) => (
+						<LinkButton
+							{href}
+							{variant}
+							icon={icon?.name}
+							iconPlacement={icon?.name === 'github' ? 'start' : 'end'}
+							class:list={[className]}
+							{...attrs}
+						>
+							{text}
+							{icon?.html && <Fragment set:html={icon.html} />}
+						</LinkButton>
+					),
+				)}
+			</div>
+		)
+	}
+</section>

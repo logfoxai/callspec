@@ -1,54 +1,114 @@
 ---
-title: Callspec
-description: Simple TypeScript powers your RPC API, SDK, MCP, docs, and OpenAPI spec.
+title: Home
+description: Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.
 template: splash
 hero:
-  tagline: Define your API once — get the whole stack with no drift.
+  title: Callspec
+  tagline: Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.
   actions:
     - text: Get started
       link: /getting-started/
       icon: right-arrow
-    - text: API reference
-      link: /api-reference/
-      variant: minimal
+    - text: View on GitHub
+      link: https://github.com/logfoxai/callspec
+      icon: github
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
 ---
 
-import {Card, CardGrid} from '@astrojs/starlight/components';
+import SplashFlow from '../../components/SplashFlow.astro';
 
-<div class="flow-diagram">
-  <img
-    src="/callspec-flow.svg"
-    alt="Callspec flow — define in TypeScript, mountSpec, CLI SDK, OpenAPI export"
-    width="1812"
-    height="785"
-    loading="eager"
-  />
-</div>
+<div class="splash-page not-content">
 
-<CardGrid>
-  <Card title="RPC functions" icon="rocket">
-    Define simple functions like `getProductById` — not REST CRUD.
-  </Card>
-  <Card title="TypeScript SDK" icon="seti:typescript">
-    Use it in your frontend or publish it for API consumers.
-  </Card>
-  <Card title="Result-typed errors" icon="approve-check">
-    End-to-end error codes from resolver → SDK → OpenAPI → MCP.
-  </Card>
-  <Card title="OpenAPI 3.1" icon="document">
-    For gateways, contract tests, and multi-language generators.
-  </Card>
-  <Card title="MCP" icon="puzzle">
-    Same methods as your SDK — same auth and validation.
-  </Card>
-  <Card title="Docs UI" icon="open-book">
-    White-label explorer to try RPCs and connect MCP clients.
-  </Card>
-</CardGrid>
+<SplashFlow />
 
-## Try the live API demo
+<section class="splash-features" aria-label="Highlights">
+  <ul class="splash-features__list">
+    <li class="splash-features__item">
+      <span class="splash-features__icon" data-tone="violet" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 6L10 12v12c0 9.2 5.8 17.7 14 20.7 8.2-3 14-11.5 14-20.7V12L24 6Z" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/>
+          <path d="M17.5 24.5 22 29l8.5-9.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <h2 class="splash-features__title">Typed errors done right</h2>
+      <p class="splash-features__copy">Every error has a code, a type, and a shape. No more guessing.</p>
+    </li>
+    <li class="splash-features__item">
+      <span class="splash-features__icon" data-tone="blue" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M34.5 18.5A11.5 11.5 0 0 0 16 14.2" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/>
+          <path d="M16 10v5.5h5.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13.5 29.5A11.5 11.5 0 0 0 32 33.8" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/>
+          <path d="M32 38v-5.5h-5.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <h2 class="splash-features__title">No drift</h2>
+      <p class="splash-features__copy">Client and server stay in sync automatically.</p>
+    </li>
+    <li class="splash-features__item">
+      <span class="splash-features__icon" data-tone="cyan" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.5 27.5a7 7 0 0 1 0-9.9l4.6-4.6a7 7 0 0 1 9.9 9.9l-2.4 2.4" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M27.5 20.5a7 7 0 0 1 0 9.9l-4.6 4.6a7 7 0 1 1-9.9-9.9l2.4-2.4" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <h2 class="splash-features__title">End-to-end types</h2>
+      <p class="splash-features__copy">From server to SDK to docs to clients.</p>
+    </li>
+    <li class="splash-features__item">
+      <span class="splash-features__icon" data-tone="pink" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="10" width="32" height="28" rx="4" stroke="currentColor" stroke-width="2.25"/>
+          <path d="M8 18h32" stroke="currentColor" stroke-width="2.25"/>
+          <circle cx="14" cy="14" r="1.4" fill="currentColor"/>
+          <circle cx="19" cy="14" r="1.4" fill="currentColor"/>
+          <circle cx="24" cy="14" r="1.4" fill="currentColor"/>
+          <path d="M19 28.5 15.5 25 19 21.5M29 21.5 32.5 25 29 28.5M25.5 20.5 22.5 29.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <h2 class="splash-features__title">Built for TypeScript</h2>
+      <p class="splash-features__copy">DX that feels natural from day one.</p>
+    </li>
+    <li class="splash-features__item">
+      <span class="splash-features__icon" data-tone="green" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="2.25"/>
+          <circle cx="24" cy="24" r="4" stroke="currentColor" stroke-width="2.25"/>
+          <path d="M24 10v4M24 34v4M10 24h4M34 24h4M14.2 14.2l2.8 2.8M31 31l2.8 2.8M14.2 33.8l2.8-2.8M31 17l2.8-2.8" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/>
+          <path d="M24 24 33 15" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <h2 class="splash-features__title">Works with the ecosystem</h2>
+      <p class="splash-features__copy">Plays well with your favorite tools.</p>
+    </li>
+  </ul>
+</section>
 
-Explore the **interactive** docs UI, MCP connect flow, and sample **Chirp API** — clone the repo (not available via `npm i callspec` alone):
+<section class="splash-demo">
+  <div class="splash-demo__copy">
+    <p class="splash-demo__kicker">Live demo</p>
+    <h2 class="splash-demo__title">Try the Chirp API explorer</h2>
+    <p class="splash-demo__lede">
+      Interactive docs UI, MCP connect flow, and a sample API — clone the repo and run locally.
+    </p>
+  </div>
+
+  <div class="splash-demo__grid">
+    <figure class="splash-demo__shot">
+      <img
+        src="/chirp-demo.png"
+        alt="Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config"
+        width="1600"
+        height="1000"
+        loading="lazy"
+      />
+    </figure>
+
+    <div class="splash-demo__steps">
+      <div class="splash-demo__code">
 
 ```bash
 git clone https://github.com/logfoxai/callspec.git
@@ -56,6 +116,16 @@ cd callspec && npm install
 npm run build && npm run dev:docs
 ```
 
-Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — Bearer token `demo` for authenticated routes and MCP.
+      </div>
+      <p class="splash-demo__meta">
+        Open <a href="http://127.0.0.1:3456/v1/docs">http://127.0.0.1:3456/v1/docs</a>
+        · Bearer token <code>demo</code>
+      </p>
+      <p class="splash-demo__note">
+        This site is the guide. The demo is Callspec’s built-in explorer on a running server.
+      </p>
+    </div>
+  </div>
+</section>
 
-This site is the **guide** (markdown). The demo above is Callspec's built-in API explorer on a running server.
+</div>

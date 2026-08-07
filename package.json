@@ -1,7 +1,7 @@
 {
   "name": "callspec",
   "version": "2.0.0",
-  "description": "Spec-first RPC: HTTP, OpenAPI docs, MCP, and typed client from one defineRoute spec",
+  "description": "Write your API once. Get HTTP RPC, SDK, MCP, docs, and OpenAPI spec.",
   "keywords": [
     "rpc",
     "openapi",
@@ -88,8 +88,10 @@
     }
   },
   "devDependencies": {
+    "@astrojs/starlight": "0.41.7",
     "@types/express": "^4.17.17",
     "@types/node": "^25.5.0",
+    "astro": "7.2.0",
     "c8": "12.0.0",
     "eslint": "^10.0.0",
     "express": "^4.18.2",
@@ -97,9 +99,9 @@
     "knip": "^6.29.0",
     "typescript": "^5.6.0",
     "typescript-eslint": "^8.0.0",
-    "astro": "7.2.0",
-    "@astrojs/starlight": "0.41.7",
-    "vite": "8.2.1"
+    "vite": "8.2.1",
+    "@fontsource/ibm-plex-sans": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
