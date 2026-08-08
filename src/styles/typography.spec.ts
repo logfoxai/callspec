@@ -49,6 +49,11 @@ test('headers and CTAs share Inter; no separate display face', (assert) => {
 		'splash CTA buttons use heading token (Inter)',
 	);
 	assert.equal(
+		/\.sl-link-button\s*\{[^}]*font-weight:\s*600/s.test(splashCss),
+		true,
+		'splash CTA buttons match guide link-button weight (600)',
+	);
+	assert.equal(
 		pageTitleAstro.includes('font-family: var(--cs-font-heading)'),
 		true,
 		'guide page title uses heading token (Inter)',
