@@ -254,7 +254,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
         .sl-link-button {
             font-family: var(--cs-font-heading);
             font-size: 0.95rem;
-            font-weight: 600;
             letter-spacing: -0.01em;
             padding: 0.55rem 1.1rem;
             border-radius: 0.55rem;
@@ -274,6 +273,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
             }
 
             &.primary {
+                font-weight: 600;
                 background: #a855f7;
                 border-color: #a855f7;
                 color: #0a0b10;
@@ -285,6 +285,10 @@ html[data-has-hero]:not([data-has-sidebar]) {
                     color: #0a0b10;
                     transform: none;
                 }
+            }
+
+            &.secondary {
+                font-weight: 400;
             }
         }
     }
