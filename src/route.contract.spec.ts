@@ -4,7 +4,7 @@ import {defineErrors, err} from './defineErrors';
 import {route} from './route';
 import {executeRoute} from './executeRoute';
 
-test('route wires resolver for spec', async (assert) => {
+test('route wires handler for spec', async (assert) => {
 
     const productErr = defineErrors({
         PRODUCT_DISCONTINUED: {},
@@ -16,7 +16,7 @@ test('route wires resolver for spec', async (assert) => {
         errors: productErr,
         meta: {summary: 'Get product', tags: ['catalog']},
         auth: 'none',
-        resolver: async (input, _ctx) => {
+        handler: async (input, _ctx) => {
 
             if (input.id === 'missing') return err.NOT_FOUND();
 
@@ -37,21 +37,21 @@ test('route wires resolver for spec', async (assert) => {
         'builtin not found',
     );
 
-    assert.equal(typeof getProductById.resolver, 'function', 'resolver on wired route');
+    assert.equal(typeof getProductById.handler, 'function', 'handler on wired route');
 
 });
 
-test('route rejects non-2-arg resolvers', (assert) => {
+test('route rejects non-2-arg handlers', (assert) => {
 
     assert.throws(
         () => route({
             input: p.object({}),
             output: p.any(),
             meta: {summary: 'x', tags: ['t']},
-            resolver: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
+            handler: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
         }),
         /arity 2/,
-        'throws on 0-arg resolver',
+        'throws on 0-arg handler',
     );
 
 });

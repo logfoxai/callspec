@@ -29,7 +29,7 @@ const api = spec({
             },
             auth: 'bearer',
             mcp: true,
-            resolver: async (_input, _ctx) => ({results: []}),
+            handler: async (_input, _ctx) => ({results: []}),
         }),
         healthcheck: route({
             input: p.object({}),
@@ -40,7 +40,7 @@ const api = spec({
                 tags: ['system'],
             },
             auth: 'none',
-            resolver: async (_input, _ctx) => ({status: 'ok'}),
+            handler: async (_input, _ctx) => ({status: 'ok'}),
         }),
     },
     authenticate: () => ({userId: 'test'}),
@@ -155,7 +155,7 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
             meta: {summary: 'Public', description: 'Exported', tags: []},
             scope: 'public',
             auth: 'none',
-            resolver: async (_input, _ctx) => ({ok: true}),
+            handler: async (_input, _ctx) => ({ok: true}),
         }),
         internalRoute: route({
             input: p.object({}),
@@ -163,7 +163,7 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
             meta: {summary: 'Internal', description: 'Not exported', tags: []},
             scope: 'private',
             auth: 'none',
-            resolver: async (_input, _ctx) => ({ok: true}),
+            handler: async (_input, _ctx) => ({ok: true}),
         }),
     };
 

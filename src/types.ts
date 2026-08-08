@@ -33,7 +33,7 @@ export type RouteErrorDef = {
     data?: Pred<unknown>
 };
 
-/** Declared route failure — return from resolvers via `defineErrors` / `err` handles. */
+/** Declared route failure — return from handlers via `defineErrors` / `err` handles. */
 export type RouteFailure = {
     ok: false
     code: string
@@ -41,7 +41,7 @@ export type RouteFailure = {
     data?: unknown
 };
 
-export type RouteResolver<
+export type RouteHandler<
     TInput,
     TOutput,
     Ctx,
@@ -59,10 +59,10 @@ export type RouteDef<TInput = unknown, TOutput = unknown, Ctx = unknown> = {
     auth: RouteAuth
     scope: RouteScope
     mcp?: McpRouteConfig
-    resolver: RouteResolver<TInput, TOutput, Ctx>
+    handler: RouteHandler<TInput, TOutput, Ctx>
 };
 
-/** Wired route — returned from `route({ …, resolver })`; required by `spec`. */
+/** Wired route — returned from `route({ …, handler })`; required by `spec`. */
 export type WiredRoute<TInput = unknown, TOutput = unknown, Ctx = unknown> = RouteDef<
     TInput,
     TOutput,

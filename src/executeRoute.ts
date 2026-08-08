@@ -22,7 +22,7 @@ export async function executeRoute<TInput, TOutput, Ctx>(
 
     }
 
-    const result = await route.resolver(inputResult.value, ctx as Ctx);
+    const result = await route.handler(inputResult.value, ctx as Ctx);
 
     if (isRouteFailure(result)) {
 

@@ -21,7 +21,7 @@ my-api/
 └── package.json
 ```
 
-Test resolvers with `.resolver(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
+Test handlers with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
 
 ## What goes where
 
@@ -69,7 +69,7 @@ export const getProductById = route({
     output: product,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
-    resolver: async (input, _ctx) => {
+    handler: async (input, _ctx) => {
         const found = products.find((item) => item.id === input.id);
         if (!found) return err.NOT_FOUND();
         return found;
@@ -88,7 +88,7 @@ export const listProducts = route({
     output: productList,
     meta: {summary: 'List products', tags: ['catalog']},
     auth: 'none',
-    resolver: async () => ({
+    handler: async () => ({
         items: [{id: 'sku-1', name: 'Widget', priceCents: 999}],
         count: 1,
     }),

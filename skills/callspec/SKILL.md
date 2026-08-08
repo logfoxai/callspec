@@ -12,7 +12,7 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 
 ## Do not get wrong
 
-1. Resolvers **return** `err.*` / domain handles for expected failures. Bare `throw` → `INTERNAL_ERROR`.
+1. Handlers **return** `err.*` / domain handles for expected failures. Bare `throw` → `INTERNAL_ERROR`.
 2. SDK/codegen reads **`callspec.json`** (`npx callspec …`), **not** OpenAPI.
 3. Default `auth` is **`bearer`** — requires `authenticate` on `spec()`, or set `auth: 'none'`.
 4. `scope: 'private'` omits from SDK/docs/OpenAPI/MCP; still mounted; does **not** skip auth.

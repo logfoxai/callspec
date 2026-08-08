@@ -4,7 +4,7 @@
 
 ## Contents
 
-- [Resolvers](./api-reference/resolvers.md)
+- [Handlers](./api-reference/handlers.md)
 - [`route` & `spec`](./api-reference/route-and-spec.md)
 - [`mountSpec`](./api-reference/mount-spec.md)
 - [Auth and scope](./api-reference/auth-and-scope.md)

@@ -4,34 +4,34 @@ import {spec, route} from '.';
 import {executeRoute} from './executeRoute';
 import {CallspecUnauthorizedError, CallspecValidationError} from './errors';
 
-test('route rejects non-2-arg resolvers', (assert) => {
+test('route rejects non-2-arg handlers', (assert) => {
 
     assert.throws(
         () => route({
             input: p.object({}),
             output: p.any(),
             meta: {summary: 'x', description: 'x', tags: ['t']},
-            resolver: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
+            handler: (() => 'ok') as unknown as (input: unknown, ctx: unknown) => string,
         }),
         /arity 2/,
-        'throws on 0-arg resolver',
+        'throws on 0-arg handler',
     );
 
 });
 
-test('executeRoute validates and calls resolver', async (assert) => {
+test('executeRoute validates and calls handler', async (assert) => {
 
     const r = route({
         input: p.object({n: p.number()}),
         output: p.object({double: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         auth: 'none',
-        resolver: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
+        handler: async (input: {n: number}, _ctx: unknown) => ({double: input.n * 2}),
     });
 
     const out = await executeRoute(r, {n: 3}, undefined);
 
-    assert.equal(out, {double: 6}, 'resolver result');
+    assert.equal(out, {double: 6}, 'handler result');
 
 });
 
@@ -42,7 +42,7 @@ test('executeRoute 401 on private without ctx', async (assert) => {
         output: p.string(),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         auth: 'bearer',
-        resolver: async (_input: unknown, _ctx: unknown) => 'secret',
+        handler: async (_input: unknown, _ctx: unknown) => 'secret',
     });
 
     try {
@@ -65,7 +65,7 @@ test('executeRoute validation error', async (assert) => {
         output: p.object({n: p.number()}),
         meta: {summary: 'x', description: 'x', tags: ['t']},
         auth: 'none',
-        resolver: async (input: {n: number}, _ctx: unknown) => input,
+        handler: async (input: {n: number}, _ctx: unknown) => input,
     });
 
     try {
@@ -90,12 +90,12 @@ test('spec wires meta and routes', (assert) => {
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 auth: 'none',
-                resolver: async (_input: unknown, _ctx: unknown) => 'pong',
+                handler: async (_input: unknown, _ctx: unknown) => 'pong',
             }),
         },
     });
 
-    assert.equal(typeof api.routes.ping.resolver, 'function', 'spec has route');
+    assert.equal(typeof api.routes.ping.handler, 'function', 'spec has route');
     assert.equal(api.meta.title, undefined, 'meta starts sparse');
 
 });
@@ -110,7 +110,7 @@ test('spec requires authenticate for bearer routes', (assert) => {
                     output: p.string(),
                     meta: {summary: 'x', description: 'x', tags: ['t']},
                     auth: 'bearer',
-                    resolver: async (_input: unknown, _ctx: unknown) => 'secret',
+                    handler: async (_input: unknown, _ctx: unknown) => 'secret',
                 }),
             },
         }),

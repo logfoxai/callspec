@@ -37,7 +37,7 @@ See [Client error normalization](../error-handling.md#client-error-normalization
 
 Set `mcp: true` on any `route`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
 
-Agents call the **same resolvers** as HTTP RPC — same auth gate, same input validation, same error codes. Guide: [MCP](../mcp.md).
+Agents call the **same handlers** as HTTP RPC — same auth gate, same input validation, same error codes. Guide: [MCP](../mcp.md).
 
 ## Docs UI
 
@@ -49,7 +49,7 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `aut
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `route`, `spec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteContractInput`, `ResolverFor`, `RouteResolver`, `Authenticate`, `WiredRoute` |
+| `callspec` | `route`, `spec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteContractInput`, `HandlerFor`, `RouteHandler`, `Authenticate`, `WiredRoute` |
 | `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
 | `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile` |
 

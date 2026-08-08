@@ -88,7 +88,7 @@ test('generateClientFile: generates deterministic TypeScript from local file', a
             output: p.object({results: p.array(p.object({id: p.string()}))}),
             meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
             auth: 'bearer',
-            resolver: async (_input, _ctx) => ({results: []}),
+            handler: async (_input, _ctx) => ({results: []}),
         }),
     };
 
@@ -132,7 +132,7 @@ test('generateClientSource: one file includes ApiClient, schemas preds, and expo
                 output: product,
                 meta: {summary: 'Get', description: 'Get product', tags: ['products']},
                 auth: 'none',
-                resolver: async (_input, _ctx) => ({id: '1', name: 'Widget'}),
+                handler: async (_input, _ctx) => ({id: '1', name: 'Widget'}),
             }),
         },
         {
@@ -173,7 +173,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
             output: p.string(),
             meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
             auth: 'none',
-            resolver: async (_input, _ctx) => 'pong',
+            handler: async (_input, _ctx) => 'pong',
         }),
     };
 
@@ -281,7 +281,7 @@ test('generated client makes a real request to an in-process server', async (ass
             output: p.object({echo: p.string()}),
             meta: {summary: 'Echo', description: 'Echo', tags: ['demo']},
             auth: 'none',
-            resolver: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
+            handler: async (input: {message: string}, _ctx: unknown) => ({echo: input.message}),
         }),
     };
 
@@ -383,7 +383,7 @@ test('generateClientSource: error response types omit data when wire schema has 
             errors: err,
             meta: {summary: 'Get user', description: 'Get user', tags: ['users']},
             auth: 'none',
-            resolver: async (input, _ctx) => ({email: input.email}),
+            handler: async (input, _ctx) => ({email: input.email}),
         }),
     }, {title: 'Errors API', version: '1.0.0'});
 
@@ -408,7 +408,7 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
             output: p.string(),
             meta: {summary: 'Evil', description: 'Evil', tags: ['x']},
             auth: 'none',
-            resolver: async (_input, _ctx) => 'ok',
+            handler: async (_input, _ctx) => 'ok',
         }),
     }, {title: 'Evil API', version: '1.0.0'});
 

@@ -6,9 +6,9 @@ import {
     type DefineErrorsInput,
     type RouteFailuresFor,
 } from './defineErrors';
-import {type RouteResolver, type RouteMeta, type RouteAuth, type RouteScope, type McpRouteConfig, type WiredRoute} from './types';
+import {type RouteHandler, type RouteMeta, type RouteAuth, type RouteScope, type McpRouteConfig, type WiredRoute} from './types';
 
-/** Route preds and meta — the fields on `route()` besides `resolver`. */
+/** Route preds and meta — the fields on `route()` besides `handler`. */
 export type RouteContractInput = {
     input: Pred<any>
     output: Pred<any>
@@ -28,11 +28,11 @@ type RouteBase<I extends Pred<any>, O extends Pred<any>> = {
     mcp?: McpRouteConfig
 };
 
-/** Route with no domain errors — builtins only on the resolver return type. */
+/** Route with no domain errors — builtins only on the handler return type. */
 export function route<I extends Pred<any>, O extends Pred<any>, Ctx>(
     def: RouteBase<I, O> & {
         errors?: undefined
-        resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
 ): WiredRoute<Infer<I>, Infer<O>, Ctx>;
 
@@ -45,7 +45,7 @@ export function route<
 >(
     def: RouteBase<I, O> & {
         errors: E
-        resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, RouteFailuresFor<E>>
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, RouteFailuresFor<E>>
     },
 ): WiredRoute<Infer<I>, Infer<O>, Ctx>;
 
@@ -56,14 +56,14 @@ export function route<
 >(
     def: RouteBase<I, O> & {
         errors?: DefineErrorsInput
-        resolver: RouteResolver<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
+        handler: RouteHandler<Infer<I>, Infer<O>, Ctx, BuiltinRouteFailures>
     },
 ): WiredRoute<Infer<I>, Infer<O>, Ctx> {
 
-    if (def.resolver.length !== 2) {
+    if (def.handler.length !== 2) {
 
         throw new Error(
-            `Route resolver must accept (input, ctx) — arity 2, got ${def.resolver.length}`,
+            `Route handler must accept (input, ctx) — arity 2, got ${def.handler.length}`,
         );
 
     }
@@ -81,7 +81,7 @@ export function route<
         auth: def.auth ?? 'bearer',
         scope: def.scope ?? 'public',
         mcp: def.mcp,
-        resolver: def.resolver,
+        handler: def.handler,
         __callspecWired: true as const,
     };
 

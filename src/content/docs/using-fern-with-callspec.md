@@ -15,7 +15,7 @@ The overlap is small: **docs**, nominally **TypeScript clients**, and a surface-
 | **Server** | `mountSpec` *is* the runtime | Does not replace your server |
 | **TS client** | Generated from `callspec.json` — Result-typed, exhaustive errors, `NETWORK_ERROR`, `schemas` runtyp preds | Can emit TS from OpenAPI — idiomatic HTTP client, not callspec-native |
 | **Multi-lang SDKs** | Fern's job (via `/openapi.json`) | Core product (Python, Go, Java, C#, …) |
-| **MCP** | **API tools** — in-process `/mcp`; same resolvers, auth, validation as RPC | **Docs MCP** — hosted on Fern docs site; agents query **documentation** (Ask Fern), not your live API |
+| **MCP** | **API tools** — in-process `/mcp`; same handlers, auth, validation as RPC | **Docs MCP** — hosted on Fern docs site; agents query **documentation** (Ask Fern), not your live API |
 | **Docs** | Built-in `/docs` — fast, white-label, good for **internal** and many product cases | Enterprise public docs — localization, deep customization, Postman-scale polish |
 | **Cost / account** | **[MIT](https://github.com/logfoxai/callspec)** — fully open source, self-hosted, **no account** | Hosted platform — **account required**; hobby tier available; **paid** for production-grade public DX |
 
@@ -64,7 +64,7 @@ Both mention MCP, but they solve **different agent problems**.
 
 ### Callspec MCP — call your API
 
-`mountSpec` serves **`/mcp`** on the **same process** as your RPC server. Routes with `mcp: true` become MCP tools that invoke the **same resolvers** as HTTP — same Bearer auth, runtyp validation, and error codes. Connect from the built-in docs UI; no separate doc product required.
+`mountSpec` serves **`/mcp`** on the **same process** as your RPC server. Routes with `mcp: true` become MCP tools that invoke the **same handlers** as HTTP — same Bearer auth, runtyp validation, and error codes. Connect from the built-in docs UI; no separate doc product required.
 
 This is for agents that need to **execute** your API (create resources, run queries, etc.) with production auth and validation.
 

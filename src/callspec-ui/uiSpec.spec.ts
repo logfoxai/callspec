@@ -69,7 +69,7 @@ test('emitCallspec to UI spec: native round trip', (assert) => {
             output: p.string(),
             meta: {summary: 'Health', description: 'Health', tags: ['health']},
             auth: 'none',
-            resolver: async (_input, _ctx) => 'ok',
+            handler: async (_input, _ctx) => 'ok',
         }),
     }, {
         title: 'Demo API',

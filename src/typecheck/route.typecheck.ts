@@ -11,13 +11,13 @@ type Ctx = {userId: string};
 const searchInput = p.object({query: p.string()});
 const searchOutput = p.object({results: p.array(p.string())});
 
-async function searchResolver(input: {query: string}, _ctx: Ctx) {
+async function searchHandler(input: {query: string}, _ctx: Ctx) {
 
     return {results: [input.query]};
 
 }
 
-async function wrongSearchResolver(_input: {query: number}, _ctx: Ctx) {
+async function wrongSearchHandler(_input: {query: number}, _ctx: Ctx) {
 
     return {results: [] as string[]};
 
@@ -29,10 +29,10 @@ route({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler output must match output pred
-    resolver: async (_input, _ctx: Ctx) => ({hello: 123}),
+    handler: async (_input, _ctx: Ctx) => ({hello: 123}),
 });
 
-async function wrongInputResolver(input: {name: number}, _ctx: Ctx) {
+async function wrongInputHandler(input: {name: number}, _ctx: Ctx) {
 
     return {hello: String(input.name)};
 
@@ -44,7 +44,7 @@ route({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler input must match input pred
-    resolver: wrongInputResolver,
+    handler: wrongInputHandler,
 });
 
 route({
@@ -53,7 +53,7 @@ route({
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler input must match input pred
-    resolver: wrongSearchResolver,
+    handler: wrongSearchHandler,
 });
 
 route({
@@ -61,10 +61,10 @@ route({
     output: searchOutput,
     meta: {summary: 'Search', description: 'Search', tags: ['t']},
     auth: 'none',
-    resolver: searchResolver,
+    handler: searchHandler,
 });
 
-async function wrongOutputResolver(_input: {name: string}, _ctx: Ctx) {
+async function wrongOutputHandler(_input: {name: string}, _ctx: Ctx) {
 
     return {hello: 123};
 
@@ -76,10 +76,10 @@ route({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error handler output must match output pred
-    resolver: wrongOutputResolver,
+    handler: wrongOutputHandler,
 });
 
-async function correctResolver(input: {name: string}, _ctx: Ctx) {
+async function correctHandler(input: {name: string}, _ctx: Ctx) {
 
     return {hello: input.name};
 
@@ -90,7 +90,7 @@ route({
     output: p.object({hello: p.string()}),
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
-    resolver: correctResolver,
+    handler: correctHandler,
 });
 
 route({
@@ -98,7 +98,7 @@ route({
     output: p.any(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
-    resolver: correctResolver,
+    handler: correctHandler,
 });
 
 const domainErr = defineErrors({
@@ -111,7 +111,7 @@ route({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     errors: domainErr,
-    resolver: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
+    handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });
 
 route({
@@ -121,7 +121,7 @@ route({
     auth: 'none',
     errors: domainErr,
     // @ts-expect-error undeclared domain failure on this route
-    resolver: (_input, _ctx: Ctx) => {
+    handler: (_input, _ctx: Ctx) => {
 
         const other = defineErrors({OTHER: {}});
 
@@ -135,7 +135,7 @@ route({
     output: p.string(),
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
-    resolver: (_input, _ctx: Ctx) => err.NOT_FOUND(),
+    handler: (_input, _ctx: Ctx) => err.NOT_FOUND(),
 });
 
 route({
@@ -144,5 +144,5 @@ route({
     meta: {summary: 'x', description: 'x', tags: ['t']},
     auth: 'none',
     // @ts-expect-error route without errors: allows builtins only
-    resolver: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
+    handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
 });

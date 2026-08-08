@@ -5,7 +5,7 @@
 import {predicates as p} from 'runtyp';
 import {defineErrors} from '../defineErrors';
 import {route} from '../route';
-import type {ResolverFor} from '../routeResolver';
+import type {HandlerFor} from '../routeHandler';
 
 type Ctx = {userId: string};
 
@@ -21,7 +21,7 @@ const searchPreds = {
     auth: 'none',
 } as const;
 
-const searchResolver: ResolverFor<typeof searchPreds, Ctx> = async (input, _ctx) => {
+const searchHandler: HandlerFor<typeof searchPreds, Ctx> = async (input, _ctx) => {
 
     void input.query;
 
@@ -35,10 +35,10 @@ route({
     errors: searchPreds.errors,
     meta: searchPreds.meta,
     auth: searchPreds.auth,
-    resolver: searchResolver,
+    handler: searchHandler,
 });
 
-const typedResolver: ResolverFor<typeof searchPreds, Ctx> = async (input, _ctx) => {
+const typedHandler: HandlerFor<typeof searchPreds, Ctx> = async (input, _ctx) => {
 
     return {results: [input.query]};
 
@@ -50,7 +50,7 @@ route({
     errors: searchPreds.errors,
     meta: searchPreds.meta,
     auth: searchPreds.auth,
-    resolver: typedResolver,
+    handler: typedHandler,
 });
 
 route({
@@ -60,7 +60,7 @@ route({
     meta: searchPreds.meta,
     auth: searchPreds.auth,
     // @ts-expect-error wrong input field type
-    resolver: async (_input: {query: number}, _ctx: Ctx) => ({results: []}),
+    handler: async (_input: {query: number}, _ctx: Ctx) => ({results: []}),
 });
 
 route({
@@ -70,7 +70,7 @@ route({
     meta: searchPreds.meta,
     auth: searchPreds.auth,
     // @ts-expect-error wrong success output shape
-    resolver: async (_input, _ctx: Ctx) => ({results: [1]}),
+    handler: async (_input, _ctx: Ctx) => ({results: [1]}),
 });
 
 route({
@@ -80,7 +80,7 @@ route({
     meta: searchPreds.meta,
     auth: searchPreds.auth,
     // @ts-expect-error undeclared domain failure
-    resolver: async (_input, _ctx: Ctx) => {
+    handler: async (_input, _ctx: Ctx) => {
 
         const other = defineErrors({OTHER: {}});
 

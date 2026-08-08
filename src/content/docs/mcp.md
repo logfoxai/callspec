@@ -6,7 +6,7 @@
 |--|--|
 | Enable | `mcp: true` on any `route()` |
 | Endpoint | `{mount}/mcp` (default; override `mcpPath` on `mountSpec`) |
-| Behavior | Same resolvers as HTTP RPC — same auth, validation, error codes |
+| Behavior | Same handlers as HTTP RPC — same auth, validation, error codes |
 | Agent hints | `meta.mcpInstructions` (MCP server `instructions`; docs UI connect panel shows `authHint` instead) |
 | Export | Only `scope: 'public'` routes appear in `tools/list` |
 
