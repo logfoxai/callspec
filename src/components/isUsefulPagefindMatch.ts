@@ -25,8 +25,7 @@ export function isUsefulMark(query: string, mark: string): boolean {
 		const minLen = Math.min(3, q.length);
 		return m.length >= minLen && m.length >= Math.ceil(q.length * 0.5);
 	}
-	// Nearby fuzzy lengths (light typos)
-	return m.length >= 3 && Math.abs(m.length - q.length) <= 2;
+	return false;
 }
 
 export type PagefindMatchData = {
@@ -46,9 +45,7 @@ export function isUsefulPagefindMatch(query: string, data: PagefindMatchData): b
 	}
 
 	const marks = htmlBits.flatMap(extractMarks);
-	if (marks.length > 0) {
-		return marks.some((mark) => isUsefulMark(q, mark));
-	}
+	if (marks.some((mark) => isUsefulMark(q, mark))) return true;
 
 	const plainBits = [
 		...htmlBits.map(normalize),

@@ -26,6 +26,11 @@ test('keeps real prefix/extension matches and exact terms', (assert) => {
 	assert.equal(isUsefulMark('route', 'routes'), true);
 	assert.equal(isUsefulMark('err', 'error'), true);
 	assert.equal(isUsefulMark('mcp', 'MCP'), true);
+	assert.equal(
+		isUsefulMark('adsf', 'host'),
+		false,
+		'unrelated similar-length marks are not kept',
+	);
 
 	assert.equal(
 		isUsefulPagefindMatch('mcp', {
@@ -40,5 +45,13 @@ test('keeps real prefix/extension matches and exact terms', (assert) => {
 			sub_results: [{excerpt: 'Multiple <mark>routes</mark> share schemas'}],
 		}),
 		true,
+	);
+	assert.equal(
+		isUsefulPagefindMatch('openapi', {
+			excerpt: 'Fetch from <mark>a</mark> running server',
+			meta: {title: 'OpenAPI'},
+		}),
+		true,
+		'title still counts when excerpt marks are weak',
 	);
 });
