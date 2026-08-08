@@ -1,7 +1,7 @@
 ---
 /**
  * Idle / empty polish for Starlight’s Pagefind search dialog.
- * Injects a suggestion panel when the drawer is hidden (no query yet).
+ * Injects a suggestion panel when there is no active query yet.
  */
 ---
 
@@ -20,6 +20,8 @@
 </template>
 
 <script>
+	import {isSearchIdle} from './searchIdleState';
+
 	function ensureIdlePanel(frame: Element): HTMLElement | null {
 		const existing = frame.querySelector<HTMLElement>('[data-cs-search-idle]');
 		if (existing) return existing;
@@ -47,12 +49,15 @@
 
 	function syncIdle(root: Element, idle: HTMLElement) {
 		const drawer = root.querySelector('.pagefind-ui__drawer');
-		const isIdle = !drawer || drawer.classList.contains('pagefind-ui__hidden');
-		idle.hidden = !isIdle;
+		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+		const drawerHidden = !drawer || drawer.classList.contains('pagefind-ui__hidden');
+		const query = input?.value ?? '';
+		const idleNow = isSearchIdle(drawerHidden, query);
+		idle.hidden = !idleNow;
 
 		const dialog = root.closest('dialog');
 		if (!dialog) return;
-		if (isIdle) {
+		if (idleNow) {
 			dialog.dataset.csSearch = 'idle';
 		} else if (root.querySelector('.pagefind-ui__result')) {
 			dialog.dataset.csSearch = 'results';
@@ -62,6 +67,9 @@
 	}
 
 	function bindSiteSearch(siteSearch: HTMLElement) {
+		if (siteSearch.dataset.csSearchPolishBound === '1') return;
+		siteSearch.dataset.csSearchPolishBound = '1';
+
 		const frame = siteSearch.querySelector('.dialog-frame');
 		const root = siteSearch.querySelector('#starlight__search');
 		if (!frame || !root) return;
@@ -76,6 +84,7 @@
 			const query = suggestion?.dataset.csSearchSuggestion;
 			if (!query) return;
 			setQuery(root, query);
+			syncIdle(root, idle);
 		});
 
 		const sync = () => syncIdle(root, idle);
@@ -86,6 +95,9 @@
 			attributes: true,
 			attributeFilter: ['class'],
 		});
+
+		root.addEventListener('input', sync);
+		root.addEventListener('keyup', sync);
 
 		const dialog = siteSearch.querySelector('dialog');
 		if (dialog) {
