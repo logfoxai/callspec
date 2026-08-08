@@ -1,20 +1,41 @@
 ---
 /**
- * Icon-only theme control — cycles light → dark → auto.
- * Replaces Starlight’s labeled “Auto ▾” select.
+ * Theme slider — sun / system / moon. Default is system (auto).
  */
 import {Icon} from '@astrojs/starlight/components';
 ---
 
 <starlight-theme-select>
-	<button
-		type="button"
-		class="theme-toggle"
-		aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
-		aria-live="polite"
-	>
-		<Icon name="laptop" class="label-icon" />
-	</button>
+	<div class="theme-slider" data-theme-value="auto">
+		<button
+			type="button"
+			class="theme-slider__icon"
+			data-theme="light"
+			aria-label="Light theme"
+			title="Light"
+		>
+			<Icon name="sun" />
+		</button>
+		<input
+			type="range"
+			class="theme-slider__range"
+			min="0"
+			max="2"
+			step="1"
+			value="1"
+			aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
+			aria-valuetext="System"
+		/>
+		<button
+			type="button"
+			class="theme-slider__icon"
+			data-theme="dark"
+			aria-label="Dark theme"
+			title="Dark"
+		>
+			<Icon name="moon" />
+		</button>
+	</div>
 </starlight-theme-select>
 
 <script is:inline>
@@ -25,34 +46,46 @@ import {Icon} from '@astrojs/starlight/components';
 	type Theme = 'auto' | 'dark' | 'light';
 
 	const storageKey = 'starlight-theme';
-	const order: Theme[] = ['light', 'dark', 'auto'];
+	const themes: Theme[] = ['light', 'auto', 'dark'];
+	const labels: Record<Theme, string> = {
+		light: 'Light',
+		auto: 'System',
+		dark: 'Dark',
+	};
 
 	const parseTheme = (theme: unknown): Theme =>
 		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
 
-	const loadTheme = (): Theme =>
-		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+	const loadTheme = (): Theme => {
+		if (typeof localStorage === 'undefined') return 'auto';
+		const raw = localStorage.getItem(storageKey);
+		// Starlight stores auto as empty string
+		if (raw === null || raw === '') return 'auto';
+		return parseTheme(raw);
+	};
 
 	function storeTheme(theme: Theme): void {
-		if (typeof localStorage !== 'undefined') {
-			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
-		}
+		if (typeof localStorage === 'undefined') return;
+		localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
 	}
 
-	const getPreferredColorScheme = (): Theme =>
+	const getPreferredColorScheme = (): 'light' | 'dark' =>
 		matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 
 	function onThemeChange(theme: Theme): void {
 		StarlightThemeProvider.updatePickers(theme);
-		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
+		document.documentElement.dataset.theme =
+			theme === 'auto' ? getPreferredColorScheme() : theme;
 		storeTheme(theme);
-		const button = document.querySelector('starlight-theme-select .theme-toggle');
-		if (button instanceof HTMLButtonElement) {
-			const label =
-				theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'Auto (system)';
-			button.title = `Theme: ${label} — click to change`;
-			button.dataset.themeValue = theme;
-		}
+
+		const root = document.querySelector('starlight-theme-select .theme-slider');
+		const range = root?.querySelector('.theme-slider__range');
+		if (!(root instanceof HTMLElement) || !(range instanceof HTMLInputElement)) return;
+
+		root.dataset.themeValue = theme;
+		range.value = String(themes.indexOf(theme));
+		range.setAttribute('aria-valuetext', labels[theme]);
+		range.title = `Theme: ${labels[theme]}`;
 	}
 
 	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
@@ -62,11 +95,22 @@ import {Icon} from '@astrojs/starlight/components';
 	class StarlightThemeSelect extends HTMLElement {
 		constructor() {
 			super();
-			const current = loadTheme();
-			onThemeChange(current);
-			this.querySelector('button')?.addEventListener('click', () => {
-				const idx = order.indexOf(loadTheme());
-				onThemeChange(order[(idx + 1) % order.length]!);
+			const range = this.querySelector('.theme-slider__range');
+			if (!(range instanceof HTMLInputElement)) return;
+
+			onThemeChange(loadTheme());
+
+			range.addEventListener('input', () => {
+				const next = themes[Number(range.value)] ?? 'auto';
+				onThemeChange(next);
+			});
+
+			this.querySelectorAll<HTMLButtonElement>('.theme-slider__icon').forEach((btn) => {
+				btn.addEventListener('click', () => {
+					const chosen = parseTheme(btn.dataset.theme);
+					// Tap the active end again to return to system
+					onThemeChange(loadTheme() === chosen ? 'auto' : chosen);
+				});
 			});
 		}
 	}
@@ -75,37 +119,129 @@ import {Icon} from '@astrojs/starlight/components';
 </script>
 
 <style>
-	.theme-toggle {
+	.theme-slider {
+		--ts-track: var(--sl-color-gray-5);
+		--ts-thumb: var(--sl-color-white);
+		--ts-ink: var(--sl-color-gray-2);
+		--ts-ink-active: var(--sl-color-white);
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		height: 2.5rem;
+		padding-inline: 0.2rem;
+		color: var(--ts-ink);
+	}
+
+	.theme-slider__icon {
 		display: grid;
 		place-items: center;
-		width: 2.5rem;
-		height: 2.5rem;
+		width: 1.6rem;
+		height: 1.6rem;
 		margin: 0;
 		padding: 0;
-		border: 1px solid transparent;
-		border-radius: 0.55rem;
+		border: 0;
+		border-radius: 999px;
 		background: transparent;
-		color: var(--sl-color-gray-2);
+		color: inherit;
 		cursor: pointer;
+		opacity: 0.55;
 		transition:
+			opacity 0.15s ease,
 			color 0.15s ease,
-			background-color 0.15s ease,
-			border-color 0.15s ease;
+			transform 0.15s ease;
 	}
 
-	.theme-toggle:hover {
-		color: var(--sl-color-white);
-		background-color: color-mix(in srgb, var(--sl-color-gray-5) 55%, transparent);
-		border-color: var(--sl-color-hairline);
+	.theme-slider__icon:hover {
+		opacity: 0.9;
+		color: var(--ts-ink-active);
 	}
 
-	.theme-toggle:focus-visible {
+	.theme-slider__icon:focus-visible {
 		outline: 2px solid var(--sl-color-accent);
 		outline-offset: 2px;
 	}
 
-	.theme-toggle :global(svg) {
-		width: 1.35rem;
+	.theme-slider[data-theme-value='light'] .theme-slider__icon[data-theme='light'],
+	.theme-slider[data-theme-value='dark'] .theme-slider__icon[data-theme='dark'] {
+		opacity: 1;
+		color: var(--ts-ink-active);
+	}
+
+	.theme-slider__icon :global(svg) {
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.theme-slider__range {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 3.4rem;
 		height: 1.35rem;
+		margin: 0;
+		padding: 0;
+		border-radius: 999px;
+		background: var(--ts-track);
+		box-shadow: inset 0 0 0 1px var(--sl-color-hairline);
+		cursor: pointer;
+	}
+
+	.theme-slider__range:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+	}
+
+	.theme-slider__range::-webkit-slider-runnable-track {
+		height: 1.35rem;
+		border-radius: 999px;
+		background: transparent;
+	}
+
+	.theme-slider__range::-moz-range-track {
+		height: 1.35rem;
+		border-radius: 999px;
+		background: transparent;
+		border: 0;
+	}
+
+	.theme-slider__range::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 1.05rem;
+		height: 1.05rem;
+		margin-top: 0.15rem;
+		border-radius: 50%;
+		border: 0;
+		background: var(--ts-thumb);
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 22%),
+			0 0 0 1px color-mix(in srgb, var(--sl-color-gray-2) 25%, transparent);
+		transition: transform 0.12s ease;
+	}
+
+	.theme-slider__range::-moz-range-thumb {
+		width: 1.05rem;
+		height: 1.05rem;
+		border-radius: 50%;
+		border: 0;
+		background: var(--ts-thumb);
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 22%),
+			0 0 0 1px color-mix(in srgb, var(--sl-color-gray-2) 25%, transparent);
+	}
+
+	.theme-slider__range:active::-webkit-slider-thumb {
+		transform: scale(1.06);
+	}
+
+	.theme-slider__range:active::-moz-range-thumb {
+		transform: scale(1.06);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.theme-slider__icon,
+		.theme-slider__range::-webkit-slider-thumb,
+		.theme-slider__range::-moz-range-thumb {
+			transition: none;
+		}
 	}
 </style>
