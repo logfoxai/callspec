@@ -1,0 +1,8 @@
+{
+	"search.label": "Search docs",
+	"pagefind.zero_results": "No matches for [SEARCH_TERM]",
+	"pagefind.one_result": "[COUNT] match for [SEARCH_TERM]",
+	"pagefind.many_results": "[COUNT] matches for [SEARCH_TERM]",
+	"pagefind.searching": "Searching [SEARCH_TERM]…",
+	"pagefind.search_suggestion": "No matches for [SEARCH_TERM]. Try one of these:"
+}
