@@ -89,9 +89,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 <script>
 	import {pagefindUserConfig} from 'virtual:starlight/pagefind-config';
-	import {isUsefulPagefindMatch} from '../components/isUsefulPagefindMatch';
-
-	const patchedPagefindBundles = new Set<string>();
 
 	class SiteSearch extends HTMLElement {
 		constructor() {
@@ -167,26 +164,12 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 				if (pagefindPromise) return pagefindPromise;
 				pagefindPromise = (async () => {
 					try {
-						const bundlePath = import.meta.env.BASE_URL.replace(/\/$/, '') + '/pagefind/';
-						// Patch the shared Pagefind module before PagefindUI imports it, so
-						// gibberish queries that only match short prefixes ("adsf" → "a")
-						// collapse to zero results instead of flooding the modal.
-						const pagefindUrl = bundlePath + 'pagefind.js';
-						const pagefind = await import(/* @vite-ignore */ pagefindUrl);
-						if (typeof pagefind.search === 'function' && !patchedPagefindBundles.has(pagefindUrl)) {
-							const rawSearch = pagefind.search.bind(pagefind);
-							pagefind.search = async (term: string, options?: object) => {
-								const res = await rawSearch(term, options);
-								if (!term?.trim()) return res;
-								const kept = [];
-								for (const result of res.results) {
-									const data = await result.data();
-									if (isUsefulPagefindMatch(term, data)) kept.push(result);
-								}
-								return {...res, results: kept};
-							};
-							patchedPagefindBundles.add(pagefindUrl);
-						}
+						const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+						// Real index + wasm live under /pagefind/. PagefindUI loads JS from
+						// /cs-pagefind/ — a build shim that wraps search (ESM exports are
+						// immutable, so we cannot patch /pagefind/pagefind.js in place).
+						const indexPath = `${base}/pagefind/`;
+						const bundlePath = `${base}/cs-pagefind/`;
 
 						// @ts-expect-error — Missing types for @pagefind/default-ui package.
 						const {PagefindUI} = await import('@pagefind/default-ui');
@@ -195,6 +178,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 							element: '#starlight__search',
 							baseUrl: import.meta.env.BASE_URL,
 							bundlePath,
+							basePath: indexPath,
 							showImages: false,
 							translations,
 							showSubResults: true,
@@ -209,7 +193,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 						this.querySelector('[data-cs-search-loading]')?.remove();
 						this.toggleAttribute('data-cs-search-ready', true);
 						if (dialog.open) this.querySelector('input')?.focus();
-					} catch {
+					} catch (err) {
+						console.error('Callspec search failed to load', err);
 						pagefindPromise = null;
 						showSearchLoadError();
 					}

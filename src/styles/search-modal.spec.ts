@@ -103,3 +103,29 @@ test('cold open shows a loading state and does not wait on requestIdleCallback',
 		'starlight-custom.css must style the loading placeholder',
 	);
 });
+
+test('filtered search uses a cs-pagefind shim (ESM exports are immutable)', (assert) => {
+	const searchOverride = join(stylesDir, '../overrides/Search.astro');
+	const packageJson = readFileSync(join(stylesDir, '../../package.json'), 'utf8');
+	const searchSrc = existsSync(searchOverride) ? readFileSync(searchOverride, 'utf8') : '';
+	const shimEntry = join(stylesDir, '../cs-pagefind/pagefind.ts');
+	const shimScript = join(stylesDir, '../../scripts/write-cs-pagefind-shim.mjs');
+
+	assert.equal(existsSync(shimEntry), true, 'cs-pagefind entry must exist');
+	assert.equal(existsSync(shimScript), true, 'write-cs-pagefind-shim script must exist');
+	assert.equal(
+		/write-cs-pagefind-shim/.test(packageJson),
+		true,
+		'astro:build must emit the cs-pagefind shim after Pagefind indexes',
+	);
+	assert.equal(
+		/cs-pagefind\//.test(searchSrc),
+		true,
+		'Search must load PagefindUI JS from the filtered shim path',
+	);
+	assert.equal(
+		/\.search\s*=/.test(searchSrc),
+		false,
+		'must not assign over pagefind.search (throws on ESM module namespace)',
+	);
+});
