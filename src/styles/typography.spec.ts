@@ -49,9 +49,25 @@ test('headers and CTAs share Inter; no separate display face', (assert) => {
 		'splash CTA buttons use heading token (Inter)',
 	);
 	assert.equal(
-		/\.sl-link-button\s*\{[^}]*font-weight:\s*600/s.test(splashCss),
+		/\.sl-link-button\s*\{[\s\S]*?&\.primary\s*\{[^}]*font-weight:\s*600/s.test(
+			splashCss,
+		),
 		true,
-		'splash CTA buttons match guide link-button weight (600)',
+		'Get started (primary) is bold like guide buttons (600)',
+	);
+	assert.equal(
+		/\.sl-link-button\s*\{[\s\S]*?&\.secondary\s*\{[^}]*font-weight:\s*400/s.test(
+			splashCss,
+		),
+		true,
+		'View on GitHub (secondary) is normal weight (400)',
+	);
+	assert.equal(
+		/header\.header\s+\.social-icons\s+a\s*\{[^}]*color:\s*var\(--sl-color-white\)/s.test(
+			starlightCss,
+		),
+		true,
+		'header GitHub icon is white (not accent purple)',
 	);
 	assert.equal(
 		pageTitleAstro.includes('font-family: var(--cs-font-heading)'),

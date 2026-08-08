@@ -475,6 +475,8 @@ header.header .social-icons a {
     height: 2.5rem;
     padding: 0;
     margin: 0;
+    /* Neutral — Starlight defaults social icons to accent (purple here). */
+    color: var(--sl-color-white);
 }
 
 header.header .social-icons a svg {
