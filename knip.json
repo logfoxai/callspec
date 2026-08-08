@@ -5,6 +5,7 @@
   ],
   "ignoreDependencies": [
     "@fontsource-variable/inter",
+    "@pagefind/default-ui",
     "astro-expressive-code"
   ],
   "ignoreIssues": {
@@ -12,13 +13,14 @@
   },
   "entry": [
     "src/callspec-ui/ui/main.ts",
+    "src/cs-pagefind/pagefind.ts",
     "src/demo/chirpDemoApi.ts",
     "src/**/*.spec.ts",
     "src/typecheck/**/*.ts",
     "scripts/*.{mjs,cjs,js}"
   ],
   "project": [
-    "src/**/*.ts",
+    "src/**/*.{ts,js}",
     "scripts/**/*.{mjs,cjs,js}"
   ]
 }

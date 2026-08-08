@@ -1,0 +1,206 @@
+---
+/**
+ * Idle / empty / in-flight polish for Starlight’s Pagefind search dialog.
+ * Injects suggestion chips when idle, Discord help on zero results, and a
+ * shimmer skeleton while a query is running.
+ */
+const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
+---
+
+<template id="cs-search-idle-template">
+	<div class="cs-search-idle" data-cs-search-idle hidden>
+		<p class="cs-search-idle__eyebrow">Search the docs</p>
+		<p class="cs-search-idle__lead">Guides, API reference, MCP, SDK generation, and more.</p>
+		<ul class="cs-search-idle__chips" role="list">
+			<li><button type="button" data-cs-search-suggestion="route">route</button></li>
+			<li><button type="button" data-cs-search-suggestion="MCP">MCP</button></li>
+			<li><button type="button" data-cs-search-suggestion="errors">errors</button></li>
+			<li><button type="button" data-cs-search-suggestion="OpenAPI">OpenAPI</button></li>
+			<li><button type="button" data-cs-search-suggestion="SDK">SDK</button></li>
+		</ul>
+	</div>
+</template>
+
+<template id="cs-search-empty-help-template">
+	<p class="cs-search-empty-help" data-cs-search-empty-help hidden>
+		Stuck? Ask in <a href={discordInvite} target="_blank" rel="noopener noreferrer">Discord</a>.
+	</p>
+</template>
+
+<template id="cs-search-pending-template">
+	<div class="cs-search-pending" data-cs-search-pending hidden aria-hidden="true">
+		<div class="cs-search-pending__row"></div>
+		<div class="cs-search-pending__row"></div>
+		<div class="cs-search-pending__row cs-search-pending__row--short"></div>
+	</div>
+</template>
+
+<script>
+	import {isSearchIdle} from './searchIdleState';
+
+	function ensureIdlePanel(frame: Element): HTMLElement | null {
+		const existing = frame.querySelector<HTMLElement>('[data-cs-search-idle]');
+		if (existing) return existing;
+
+		const template = document.querySelector<HTMLTemplateElement>('#cs-search-idle-template');
+		const idle = template?.content.firstElementChild?.cloneNode(true);
+		if (!(idle instanceof HTMLElement)) return null;
+
+		const host =
+			frame.querySelector('.search-container') ??
+			frame.querySelector('#starlight__search')?.parentElement ??
+			frame;
+		host.appendChild(idle);
+		return idle;
+	}
+
+	function ensureEmptyHelp(root: Element): HTMLElement | null {
+		const existing = root.querySelector<HTMLElement>('[data-cs-search-empty-help]');
+		if (existing) return existing;
+
+		const area = root.querySelector('.pagefind-ui__results-area');
+		if (!area) return null;
+
+		const template = document.querySelector<HTMLTemplateElement>('#cs-search-empty-help-template');
+		const help = template?.content.firstElementChild?.cloneNode(true);
+		if (!(help instanceof HTMLElement)) return null;
+
+		area.appendChild(help);
+		return help;
+	}
+
+	function ensurePending(root: Element): HTMLElement | null {
+		const existing = root.querySelector<HTMLElement>('[data-cs-search-pending]');
+		if (existing) return existing;
+
+		const area = root.querySelector('.pagefind-ui__results-area');
+		if (!area) return null;
+
+		const template = document.querySelector<HTMLTemplateElement>('#cs-search-pending-template');
+		const pending = template?.content.firstElementChild?.cloneNode(true);
+		if (!(pending instanceof HTMLElement)) return null;
+
+		area.appendChild(pending);
+		return pending;
+	}
+
+	function setQuery(root: Element, query: string) {
+		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+		if (!input) return;
+		const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		setter?.call(input, query);
+		input.dispatchEvent(new Event('input', {bubbles: true}));
+		input.focus();
+	}
+
+	function isZeroResults(root: Element): boolean {
+		if (root.querySelector('.pagefind-ui__result')) return false;
+		const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
+		if (!message.trim()) return false;
+		return !/searching/i.test(message);
+	}
+
+	function syncPanels(root: Element, idle: HTMLElement) {
+		const siteSearch = root.closest('site-search');
+		const searchReady =
+			Boolean(siteSearch?.hasAttribute('data-cs-search-ready')) ||
+			Boolean(root.querySelector('.pagefind-ui__search-input'));
+		const drawer = root.querySelector('.pagefind-ui__drawer');
+		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+		const drawerHidden = !drawer || drawer.classList.contains('pagefind-ui__hidden');
+		const query = input?.value ?? '';
+		const idleNow = isSearchIdle(searchReady, drawerHidden, query);
+		const zeroNow = searchReady && !idleNow && isZeroResults(root);
+		const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
+		const searchingMessage = /searching/i.test(message);
+		// Only treat as searching once Pagefind opens the drawer / shows its
+		// searching copy — not during the debounce window when the drawer is still hidden
+		// (that would reserve min-height with no visible skeleton).
+		const searchingNow =
+			searchReady &&
+			!idleNow &&
+			!root.querySelector('.pagefind-ui__result') &&
+			!zeroNow &&
+			(!drawerHidden || searchingMessage);
+		idle.hidden = !idleNow;
+
+		const help = ensureEmptyHelp(root);
+		if (help) help.hidden = !zeroNow;
+
+		const dialog = root.closest('dialog');
+		if (!dialog) return;
+		if (!searchReady) {
+			dialog.dataset.csSearch = 'loading';
+		} else if (idleNow) {
+			dialog.dataset.csSearch = 'idle';
+		} else if (root.querySelector('.pagefind-ui__result')) {
+			dialog.dataset.csSearch = 'results';
+		} else if (zeroNow) {
+			dialog.dataset.csSearch = 'empty';
+		} else if (searchingNow) {
+			dialog.dataset.csSearch = 'searching';
+		} else {
+			dialog.dataset.csSearch = 'querying';
+		}
+
+		const pending = ensurePending(root);
+		if (pending) pending.hidden = dialog.dataset.csSearch !== 'searching';
+	}
+
+	function bindSiteSearch(siteSearch: HTMLElement) {
+		if (siteSearch.dataset.csSearchPolishBound === '1') return;
+		siteSearch.dataset.csSearchPolishBound = '1';
+
+		const frame = siteSearch.querySelector('.dialog-frame');
+		const root = siteSearch.querySelector('#starlight__search');
+		if (!frame || !root) return;
+
+		const idle = ensureIdlePanel(frame);
+		if (!idle) return;
+
+		idle.addEventListener('click', (event) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) return;
+			const suggestion = target.closest<HTMLElement>('[data-cs-search-suggestion]');
+			const query = suggestion?.dataset.csSearchSuggestion;
+			if (!query) return;
+			setQuery(root, query);
+			syncPanels(root, idle);
+		});
+
+		const sync = () => syncPanels(root, idle);
+		const observer = new MutationObserver(sync);
+		observer.observe(root, {
+			subtree: true,
+			childList: true,
+			attributes: true,
+			attributeFilter: ['class'],
+		});
+		observer.observe(siteSearch, {
+			attributes: true,
+			attributeFilter: ['data-cs-search-ready'],
+		});
+
+		root.addEventListener('input', sync);
+		root.addEventListener('keyup', sync);
+
+		const dialog = siteSearch.querySelector('dialog');
+		if (dialog) {
+			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
+			dialog.addEventListener('close', sync);
+		}
+		siteSearch.querySelector('[data-open-modal]')?.addEventListener('click', () => {
+			requestAnimationFrame(sync);
+		});
+		sync();
+	}
+
+	function init() {
+		document.querySelectorAll('site-search').forEach((el) => {
+			if (el instanceof HTMLElement) bindSiteSearch(el);
+		});
+	}
+
+	init();
+	document.addEventListener('astro:page-load', init);
+</script>
