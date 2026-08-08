@@ -564,7 +564,8 @@ site-search dialog::backdrop {
 
 /*
  * Starlight reset (`* { margin: 0 }`) beats layered Pagefind/Search margins.
- * Keep load-more + result-card gaps unlayered so they survive after “Load more”.
+ * Unlayered so result cards keep a gap under their rounded bottoms, and so the
+ * load-more button isn’t flush with the last result.
  */
 #starlight__search .pagefind-ui__button {
     margin-top: 0.85rem;
