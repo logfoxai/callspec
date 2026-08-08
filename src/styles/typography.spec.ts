@@ -12,32 +12,32 @@ const pageTitleAstro = readFileSync(
 	'utf8',
 );
 
-test('body stack is Inter; heading stack is Google Sans Flex', (assert) => {
+test('body stack is Inter; heading stack is Oxanium', (assert) => {
 	assert.equal(
 		/--sl-font:\s*'Inter'/.test(starlightCss),
 		true,
 		'--sl-font is Inter',
 	);
 	assert.equal(
-		/--cs-font-heading:\s*'Google Sans Flex'/.test(starlightCss),
+		/--cs-font-heading:\s*'Oxanium'/.test(starlightCss),
 		true,
-		'--cs-font-heading is Google Sans Flex',
+		'--cs-font-heading is Oxanium',
 	);
 	assert.equal(
 		fontsCss.includes("font-family: 'Inter'") &&
-			fontsCss.includes("font-family: 'Google Sans Flex'"),
+			fontsCss.includes("font-family: 'Oxanium'"),
 		true,
 		'@font-face registers both families',
 	);
 });
 
-test('headers and CTAs use Google Sans Flex; UI/body stay Inter', (assert) => {
+test('headers and CTAs use Oxanium; UI/body stay Inter', (assert) => {
 	assert.equal(
 		/\.splash-hero__headline\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(
 			splashCss,
 		),
 		true,
-		'splash hero headline uses Google Sans Flex',
+		'splash hero headline uses Oxanium',
 	);
 	assert.equal(
 		/\.splash-hero__lead\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(splashCss),
@@ -47,7 +47,7 @@ test('headers and CTAs use Google Sans Flex; UI/body stay Inter', (assert) => {
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(splashCss),
 		true,
-		'splash CTA buttons use Google Sans Flex',
+		'splash CTA buttons use Oxanium',
 	);
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-weight:\s*500/s.test(splashCss),
