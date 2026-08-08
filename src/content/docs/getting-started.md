@@ -37,7 +37,7 @@ export const getProductById = route({
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
-    resolver: async (input, _ctx) => {
+    handler: async (input, _ctx) => {
         // input validated and fully typed — return and errors too! 🎉
         const found = products.find((item) => item.id === input.id);
         if (!found) return err.NOT_FOUND();
@@ -48,10 +48,10 @@ export const getProductById = route({
 
 **Quick notes:**
 
-- Return failures from resolvers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. See [Error handling](./error-handling.md).
+- Return failures from handlers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. See [Error handling](./error-handling.md).
 - Built-in error responses such as `NOT_FOUND` and `SERVICE_UNAVAILABLE` can be returned from any route without defining them.
 - Define custom domain errors with `errors:` on the route.
-- Test resolver logic with `.resolver(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
+- Test handler logic with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
 
 ## 3. Define and mount backend API
 

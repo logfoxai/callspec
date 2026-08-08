@@ -22,7 +22,7 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 - ⚡ **RPC functions** — define simple functions like `getProductById`, not REST CRUD
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers
-- 🎯 **Result-typed errors** — end-to-end error codes from resolver → SDK → OpenAPI → MCP
+- 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them
 - 🤖 **MCP** — same methods as your SDK, same auth and validation
 - 📘 **Docs UI** — white-label explorer to try methods and connect MCP clients

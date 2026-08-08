@@ -24,7 +24,7 @@ export const getProductById = route({
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
-    resolver: async (input, _ctx) => {
+    handler: async (input, _ctx) => {
         // input validated and fully typed — return and errors too! 🎉
         const found = products.find((item) => item.id === input.id);
         if (!found) return err.NOT_FOUND();

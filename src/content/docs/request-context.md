@@ -1,6 +1,6 @@
 # Request context
 
-Building on [Authentication](./authentication.md): the resolver's second argument is **request context** — whatever `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.
+Building on [Authentication](./authentication.md): the handler's second argument is **request context** — whatever `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.
 
 Use `req` when context depends on more than the token — tenant header, tracing ids, etc.
 
@@ -21,14 +21,14 @@ export const authenticate: Authenticate<Ctx> = async (token, req: Request) => {
 };
 ```
 
-Annotate `ctx: Ctx` on the resolver param. **Public routes** (`auth: 'none'`): `ctx` is normally `undefined`; if the client sends `Authorization: Bearer …` and you defined `authenticate`, context is still resolved.
+Annotate `ctx: Ctx` on the handler param. **Public routes** (`auth: 'none'`): `ctx` is normally `undefined`; if the client sends `Authorization: Bearer …` and you defined `authenticate`, context is still resolved.
 
 ## Testing
 
 No HTTP, no Express:
 
 ```typescript
-const orders = await listOrders.resolver({status: 'open'}, {
+const orders = await listOrders.handler({status: 'open'}, {
     userId: 'user_1',
     tenantId: 'acme',
 });

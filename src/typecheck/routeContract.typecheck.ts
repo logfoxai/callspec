@@ -6,7 +6,7 @@ import {predicates as p} from 'runtyp';
 import {defineErrors, err} from '../defineErrors';
 import {spec} from '../defineSpec';
 import {route} from '../route';
-import type {ResolverFor} from '../routeResolver';
+import type {HandlerFor} from '../routeHandler';
 
 type Ctx = {userId: string};
 
@@ -22,7 +22,7 @@ const getProductByIdPreds = {
     auth: 'none',
 } as const;
 
-const getProductByIdResolver: ResolverFor<typeof getProductByIdPreds, Ctx> = async (input, _ctx) => {
+const getProductByIdHandler: HandlerFor<typeof getProductByIdPreds, Ctx> = async (input, _ctx) => {
 
     if (input.id === 'missing') return err.NOT_FOUND();
 
@@ -36,16 +36,16 @@ const getProductById = route({
     errors: getProductByIdPreds.errors,
     meta: getProductByIdPreds.meta,
     auth: getProductByIdPreds.auth,
-    resolver: getProductByIdResolver,
+    handler: getProductByIdHandler,
 });
 
-void getProductById.resolver;
+void getProductById.handler;
 
 spec<Ctx>({
     routes: {getProductById},
 });
 
-async function wrongInputResolver(input: {id: number}, _ctx: Ctx) {
+async function wrongInputHandler(input: {id: number}, _ctx: Ctx) {
 
     return {id: String(input.id), name: 'x'};
 
@@ -57,11 +57,11 @@ route({
     errors: getProductByIdPreds.errors,
     meta: getProductByIdPreds.meta,
     auth: getProductByIdPreds.auth,
-    // @ts-expect-error resolver input must match route input pred
-    resolver: wrongInputResolver,
+    // @ts-expect-error handler input must match route input pred
+    handler: wrongInputHandler,
 });
 
-async function wrongOutputResolver(input: {id: string}, _ctx: Ctx) {
+async function wrongOutputHandler(input: {id: string}, _ctx: Ctx) {
 
     return {id: input.id, name: 123};
 
@@ -73,8 +73,8 @@ route({
     errors: getProductByIdPreds.errors,
     meta: getProductByIdPreds.meta,
     auth: getProductByIdPreds.auth,
-    // @ts-expect-error resolver output must match route output pred
-    resolver: wrongOutputResolver,
+    // @ts-expect-error handler output must match route output pred
+    handler: wrongOutputHandler,
 });
 
 route({
@@ -84,7 +84,7 @@ route({
     meta: getProductByIdPreds.meta,
     auth: getProductByIdPreds.auth,
     // @ts-expect-error undeclared domain failure
-    resolver: async (_input, _ctx: Ctx) => {
+    handler: async (_input, _ctx: Ctx) => {
 
         const other = defineErrors({OTHER: {}});
 
@@ -106,7 +106,7 @@ route({
     meta: noErrorsPreds.meta,
     auth: noErrorsPreds.auth,
     // @ts-expect-error route without errors allows builtins only
-    resolver: async (_input, _ctx: Ctx) => {
+    handler: async (_input, _ctx: Ctx) => {
 
         const domain = defineErrors({MY_CODE: {}});
 
@@ -115,7 +115,7 @@ route({
     },
 });
 
-// @ts-expect-error resolver is required on route()
+// @ts-expect-error handler is required on route()
 route({
     input: p.object({id: p.string()}),
     output: p.object({id: p.string(), name: p.string()}),

@@ -20,7 +20,7 @@ const routes = {
             tags: ['health'],
         },
         auth: 'none',
-        resolver: (_input, _ctx) => 'OK',
+        handler: (_input, _ctx) => 'OK',
     }),
 
     echo: route({
@@ -32,7 +32,7 @@ const routes = {
             tags: ['demo'],
         },
         auth: 'bearer',
-        resolver: (input: {message: string}, _ctx) => ({echo: input.message}),
+        handler: (input: {message: string}, _ctx) => ({echo: input.message}),
     }),
 
     greet: route({
@@ -45,7 +45,7 @@ const routes = {
         },
         auth: 'none',
         mcp: true,
-        resolver: (input: {name: string}, _ctx) => ({hello: input.name}),
+        handler: (input: {name: string}, _ctx) => ({hello: input.name}),
     }),
 
 };
@@ -416,7 +416,7 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
                 auth: 'none',
-                resolver: async (_input, _ctx) => {
+                handler: async (_input, _ctx) => {
 
                     throw new Error('boom');
 
@@ -469,7 +469,7 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
                 output: p.string(),
                 meta: {summary: 'Reject', description: 'Reject', tags: ['x']},
                 auth: 'none',
-                resolver: async (_input, _ctx) => Promise.reject(new Error('reject')),
+                handler: async (_input, _ctx) => Promise.reject(new Error('reject')),
             }),
         },
     });
@@ -519,7 +519,7 @@ test('integration: MCP unhandled throw does not leak Error.message', async (asse
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
                 auth: 'none',
                 mcp: true,
-                resolver: async (_input, _ctx) => {
+                handler: async (_input, _ctx) => {
 
                     throw new Error('secret db connection string leaked');
 
@@ -583,7 +583,7 @@ test('integration: handleUnhandledError maps throw to wire failure', async (asse
                 output: p.string(),
                 meta: {summary: 'Timeout', description: 'Timeout', tags: ['x']},
                 auth: 'none',
-                resolver: async (_input, _ctx) => {
+                handler: async (_input, _ctx) => {
 
                     const err = new Error('canceling statement due to statement timeout') as Error & {code: string};
                     err.code = '57014';
@@ -659,7 +659,7 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
                 output: p.string(),
                 meta: {summary: 'Boom', description: 'Boom', tags: ['x']},
                 auth: 'none',
-                resolver: async (_input, _ctx) => {
+                handler: async (_input, _ctx) => {
 
                     throw new Error('logged boom');
 
@@ -730,7 +730,7 @@ test('integration: declared route errors map to HTTP status and body', async (as
                     tags: ['users'],
                 },
                 auth: 'none',
-                resolver: (input: {email: string}, _ctx: unknown) => {
+                handler: (input: {email: string}, _ctx: unknown) => {
 
                     if (input.email === 'missing@example.com') {
 
@@ -830,7 +830,7 @@ test('integration: declared domain failure is returned on the wire', async (asse
                     tags: ['test'],
                 },
                 auth: 'none',
-                resolver: (_input, _ctx) => domainErr.MYSTERY(),
+                handler: (_input, _ctx) => domainErr.MYSTERY(),
             }),
         },
     });
@@ -928,7 +928,7 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 auth: 'none',
-                resolver: (_input, _ctx) => 'pong',
+                handler: (_input, _ctx) => 'pong',
             }),
         },
     });
@@ -1016,7 +1016,7 @@ test('integration: default meta title and version when omitted', async (assert) 
                 output: p.string(),
                 meta: {summary: 'Ping', description: 'Ping', tags: ['health']},
                 auth: 'none',
-                resolver: (_input, _ctx) => 'pong',
+                handler: (_input, _ctx) => 'pong',
             }),
         },
     });

@@ -106,7 +106,7 @@ export default defineConfig({
                     label: 'API reference',
                     items: [
                         {label: 'Overview', slug: 'api-reference'},
-                        {label: 'Resolvers', slug: 'api-reference/resolvers'},
+                        {label: 'Handlers', slug: 'api-reference/handlers'},
                         {label: 'route & spec', slug: 'api-reference/route-and-spec'},
                         {label: 'mountSpec', slug: 'api-reference/mount-spec'},
                         {label: 'Auth and scope', slug: 'api-reference/auth-and-scope'},

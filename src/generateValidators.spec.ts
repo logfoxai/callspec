@@ -53,7 +53,7 @@ test('emitCallspec: includes exports when provided', (assert) => {
                 }),
                 output: p.object({results: p.array(p.object({id: p.string()}))}),
                 meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-                resolver: async (_input, _ctx) => ({results: []}),
+                handler: async (_input, _ctx) => ({results: []}),
             }),
         },
         {
@@ -93,7 +93,7 @@ test('generateSchemasSection: rejects duplicate export and route pred names', (a
                 input: p.object({teamId: p.string()}),
                 output: p.object({ok: p.boolean()}),
                 meta: {summary: 'Search', description: 'Search', tags: []},
-                resolver: async (_input, _ctx) => ({ok: true}),
+                handler: async (_input, _ctx) => ({ok: true}),
             }),
         },
         {
@@ -133,7 +133,7 @@ test('generateSchemasSection: emits schemas object for exports and routes', (ass
                 }),
                 output: p.object({results: p.array(p.object({id: p.string()}))}),
                 meta: {summary: 'Search', description: 'Search logs', tags: ['logs']},
-                resolver: async (_input, _ctx) => ({results: []}),
+                handler: async (_input, _ctx) => ({results: []}),
             }),
         },
         {

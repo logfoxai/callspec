@@ -1,9 +1,9 @@
-# Resolvers
+# Handlers
 
-Pass preds, meta, and `resolver` in one `route()` call:
+Pass preds, meta, and `handler` in one `route()` call:
 
 ```typescript
-import {route, err, type ResolverFor} from 'callspec';
+import {route, err, type HandlerFor} from 'callspec';
 import {predicates as p} from 'runtyp';
 
 const product = p.object({id: p.string(), name: p.string(), priceCents: p.number()});
@@ -19,7 +19,7 @@ export const getProductById = route({
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
-    resolver: async (input, _ctx) => {
+    handler: async (input, _ctx) => {
         const found = products.find((item) => item.id === input.id);
         if (!found) return err.NOT_FOUND();
         return found;
@@ -27,30 +27,30 @@ export const getProductById = route({
 });
 ```
 
-Separate resolver binding (optional):
+Separate handler binding (optional):
 
 ```typescript
 const preds = { input, output, meta, auth: 'none' } as const;
 
-const impl: ResolverFor<typeof preds, Ctx> = async (input, _ctx) => {
+const impl: HandlerFor<typeof preds, Ctx> = async (input, _ctx) => {
     return {id: input.id, name: '…', priceCents: 0};
 };
 
-export const getProductById = route({...preds, resolver: impl});
+export const getProductById = route({...preds, handler: impl});
 ```
 
 | Export | Purpose |
 |--------|---------|
-| `route({ …, resolver })` | Wired route for `spec`; resolver also on `.resolver` for tests |
-| `ResolverFor<typeof preds, Ctx?>` | Explicit resolver type for a separate binding |
+| `route({ …, handler })` | Wired route for `spec`; handler also on `.handler` for tests |
+| `HandlerFor<typeof preds, Ctx?>` | Explicit handler type for a separate binding |
 
 Domain-specific errors: `defineErrors()` + `errors:` on the route — see [Error handling](../error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`.
 
-Private routes: annotate auth context on the resolver — `resolver: async (input, ctx: Ctx) => …`. See [Authentication](../authentication.md) and [Request context](../request-context.md).
+Private routes: annotate auth context on the handler — `handler: async (input, ctx: Ctx) => …`. See [Authentication](../authentication.md) and [Request context](../request-context.md).
 
-## Testing resolvers
+## Testing handlers
 
-Call `.resolver(input, ctx)` on the wired route — no HTTP. Full guide: [Unit testing](../unit-testing.md).
+Call `.handler(input, ctx)` on the wired route — no HTTP. Full guide: [Unit testing](../unit-testing.md).
 
 ```typescript
 import {test} from 'kizu';
@@ -58,7 +58,7 @@ import {isRouteFailure} from 'callspec';
 import {getProductById} from '../routes/getProductById';
 
 test('getProductById: NOT_FOUND', async (assert) => {
-    const missing = await getProductById.resolver({id: 'missing'}, undefined);
+    const missing = await getProductById.handler({id: 'missing'}, undefined);
     assert.equal(isRouteFailure(missing) && missing.code, 'NOT_FOUND');
 });
 ```

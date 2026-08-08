@@ -11,7 +11,7 @@ const routes = {
         output: p.object({value: p.string()}),
         meta: {summary: 'Z route', description: 'Sorted last', tags: ['alpha']},
         auth: 'none',
-        resolver: async (_input, _ctx) => ({value: 'z'}),
+        handler: async (_input, _ctx) => ({value: 'z'}),
     }),
     aFirst: route({
         input: p.object({
@@ -24,7 +24,7 @@ const routes = {
         meta: {summary: 'A route', description: 'Sorted first', tags: ['beta', 'alpha']},
         auth: 'bearer',
         mcp: true,
-        resolver: async (_input, _ctx) => ({items: []}),
+        handler: async (_input, _ctx) => ({items: []}),
     }),
 };
 
@@ -174,14 +174,14 @@ test('emitOpenApi: bearer security only on private routes', (assert) => {
             output: p.object({status: p.string()}),
             meta: {summary: 'Health check', description: 'Public health check', tags: ['system']},
             auth: 'none',
-            resolver: (_input, _ctx) => ({status: 'ok'}),
+            handler: (_input, _ctx) => ({status: 'ok'}),
         }),
         getSecret: route({
             input: p.object({}),
             output: p.object({secret: p.boolean()}),
             meta: {summary: 'Private route', description: 'Requires auth', tags: ['system']},
             auth: 'bearer',
-            resolver: (_input, _ctx) => ({secret: true}),
+            handler: (_input, _ctx) => ({secret: true}),
         }),
     }, {
         title: 'Test API',

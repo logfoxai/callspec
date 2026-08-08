@@ -4,8 +4,8 @@ Credentials are per-route, not in the input pred.
 
 | `auth` | Behavior |
 |--------|----------|
-| `'none'` | No token required — resolver gets `ctx: undefined` unless the client sent a Bearer token and you wired `authenticate` |
-| `'bearer'` (default) | Missing or invalid token → **401 `UNAUTHORIZED`** before the resolver runs |
+| `'none'` | No token required — handler gets `ctx: undefined` unless the client sent a Bearer token and you wired `authenticate` |
+| `'bearer'` (default) | Missing or invalid token → **401 `UNAUTHORIZED`** before the handler runs |
 
 Any route with `auth: 'bearer'` requires `authenticate` on the spec — `spec` throws at load time if it is missing.
 
@@ -33,7 +33,7 @@ export const getProfile = route({
     output: p.object({userId: p.string()}),
     meta: {summary: 'Get profile', tags: ['users']},
     auth: 'bearer',
-    resolver: async (_input, ctx: Ctx) => ({userId: ctx.userId}),
+    handler: async (_input, ctx: Ctx) => ({userId: ctx.userId}),
 });
 ```
 

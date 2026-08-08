@@ -26,7 +26,7 @@ export {
     formatRouteFailureBody,
     sendRouteFailureResponse,
 } from './errors';
-export type {RouteFailure, RouteResolver, Authenticate, RouteAuth, RouteScope, RouteDef, WiredRoute} from './types';
+export type {RouteFailure, RouteHandler, Authenticate, RouteAuth, RouteScope, RouteDef, WiredRoute} from './types';
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 export type {RoutesMap} from './types';
-export type {RouteResolverDef, ResolverFor} from './routeResolver';
+export type {RouteHandlerDef, HandlerFor} from './routeHandler';

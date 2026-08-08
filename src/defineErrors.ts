@@ -157,7 +157,7 @@ export function defineErrors<const T extends Record<string, RouteErrorSpec>>(
 
 }
 
-/** Builtin-only fail handle — use in resolvers when a route has no domain errors. */
+/** Builtin-only fail handle — use in handlers when a route has no domain errors. */
 export const err = defineErrors({});
 
 /** Failures from {@link err} — builtins only (every route allows these). */

@@ -5,21 +5,21 @@
 ## route
 
 ```typescript
-route({ input, output, meta, resolver, … })
+route({ input, output, meta, handler, … })
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `input` | — | Runtyp pred for the request body (POST JSON). Validated before your resolver runs. |
+| `input` | — | Runtyp pred for the request body (POST JSON). Validated before your handler runs. |
 | `output` | — | Runtyp pred for a successful response. |
 | `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
-| `resolver` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |
+| `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |
 | `errors` | — | Domain error codes from `defineErrors()`. Builtins (`NOT_FOUND`, `UNAUTHORIZED`, …) are always available — never declare those. |
-| `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the resolver. |
+| `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
 | `scope` | `'public'` | `'public'` — included in docs, OpenAPI, SDK codegen, MCP `tools/list`. `'private'` — server-only; omitted from exports. |
 | `mcp` | — | Expose as an MCP tool. `true`, or `{ name?, annotations? }` to override the tool name or MCP annotations. |
 
-Returns a **wired route** (`WiredRoute`) for `spec({ routes })`. Call `.resolver(input, ctx)` in tests — no HTTP. See [Resolvers](./resolvers.md) and [Unit testing](../unit-testing.md).
+Returns a **wired route** (`WiredRoute`) for `spec({ routes })`. Call `.handler(input, ctx)` in tests — no HTTP. See [Handlers](./handlers.md) and [Unit testing](../unit-testing.md).
 
 ### Route meta
 
@@ -48,7 +48,7 @@ Throws at load time if any route uses `auth: 'bearer'` and `authenticate` is mis
 
 ### Routes map
 
-Keys become **RPC method names** — `routes: { getProductById }` is called as `POST /v1/getProductById` (plus your Express mount prefix). Values must come from `route({ …, resolver })`, not bare preds.
+Keys become **RPC method names** — `routes: { getProductById }` is called as `POST /v1/getProductById` (plus your Express mount prefix). Values must come from `route({ …, handler })`, not bare preds.
 
 Only routes with `scope: 'public'` appear in `callspec.json`, OpenAPI, SDK codegen, and MCP `tools/list`. Private routes still run on the server.
 
@@ -153,6 +153,6 @@ export const authenticate: Authenticate<Ctx> = async (token, req) => {
 export const api = spec({meta, routes, authenticate});
 ```
 
-Callspec extracts `Authorization: Bearer …`, calls your hook, and passes the returned context to resolvers on bearer routes. Return `undefined` for invalid tokens → 401. See [Authentication](../authentication.md) and [Request context](../request-context.md).
+Callspec extracts `Authorization: Bearer …`, calls your hook, and passes the returned context to handlers on bearer routes. Return `undefined` for invalid tokens → 401. See [Authentication](../authentication.md) and [Request context](../request-context.md).
 
 ← [API reference](../api-reference.md) · Next: [`mountSpec`](./mount-spec.md)
