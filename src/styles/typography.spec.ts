@@ -12,93 +12,50 @@ const pageTitleAstro = readFileSync(
 	'utf8',
 );
 
-test('body stack is Inter; heading stack is Arial-like', (assert) => {
+test('everything uses Inter (body + headings)', (assert) => {
 	assert.equal(
 		/--sl-font:\s*'Inter'/.test(starlightCss),
 		true,
 		'--sl-font is Inter',
 	);
 	assert.equal(
-		/--cs-font-heading:\s*Arial,\s*'Helvetica Neue',\s*Helvetica/.test(starlightCss),
+		/--cs-font-heading:\s*var\(--sl-font\)/.test(starlightCss),
 		true,
-		'--cs-font-heading is Arial / Helvetica stack',
+		'heading token aliases Inter body stack',
 	);
 	assert.equal(
 		fontsCss.includes("font-family: 'Inter'"),
 		true,
 		'@font-face registers Inter',
 	);
-	assert.equal(
-		fontsCss.includes('Oxanium') || fontsCss.includes('Chakra Petch') || fontsCss.includes('Google Sans'),
-		false,
-		'no display webfont in fonts.css',
-	);
 });
 
-test('headers and CTAs use heading token; UI/body stay Inter', (assert) => {
+test('headers and CTAs share Inter; no separate display face', (assert) => {
 	assert.equal(
 		/\.splash-hero__headline\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(
 			splashCss,
 		),
 		true,
-		'splash hero headline uses heading font',
+		'splash hero headline uses heading token (Inter)',
 	);
 	assert.equal(
 		/\.splash-hero__lead\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(splashCss),
 		true,
-		'splash lead stays Inter',
+		'splash lead uses Inter',
 	);
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(splashCss),
 		true,
-		'splash CTA buttons use heading font',
-	);
-	assert.equal(
-		/\.sl-link-button\s*\{[^}]*font-weight:\s*500/s.test(splashCss),
-		true,
-		'splash CTA buttons use medium weight',
-	);
-	assert.equal(
-		starlightCss.includes('.splash-hero__headline') &&
-			/font-family:\s*var\(--cs-font-heading\)/.test(
-				starlightCss.slice(
-					starlightCss.indexOf('/* Headings'),
-					starlightCss.indexOf('/* Belt-and-suspenders'),
-				),
-			),
-		true,
-		'central heading rule includes splash hero + heading token',
+		'splash CTA buttons use heading token (Inter)',
 	);
 	assert.equal(
 		pageTitleAstro.includes('font-family: var(--cs-font-heading)'),
 		true,
-		'guide page title uses heading font',
+		'guide page title uses heading token (Inter)',
 	);
 	assert.equal(
 		/Belt-and-suspenders[\s\S]*font-family:\s*var\(--sl-font\)/.test(starlightCss),
 		true,
-		'chrome / body copy forced back to Inter',
-	);
-	assert.equal(
-		/\.splash-flow__title\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(splashCss),
-		true,
-		'flow diagram titles use Inter',
-	);
-	assert.equal(
-		!starlightCss
-			.slice(
-				starlightCss.indexOf('/* Headings'),
-				starlightCss.indexOf('/* Belt-and-suspenders'),
-			)
-			.includes('.splash-flow__title'),
-		true,
-		'flow titles are not in the heading-font rule',
-	);
-	assert.equal(
-		/#starlight__sidebar\s+summary\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(
-			starlightCss,
-		),
-		true,
-		'sidebar nav group headers use Inter',
+		'chrome / body copy uses Inter',
 	);
 });

@@ -1,7 +1,6 @@
 /*
  * Self-hosted Google fonts (@fontsource). Latin only, optional display.
- * Body: Inter. Headings: Arial-like system stack via --cs-font-heading (no webfont).
- * Mono: system stack only.
+ * UI + headings: Inter. Mono: system stack only.
  */
 
 @font-face {
