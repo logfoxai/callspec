@@ -7,26 +7,34 @@ const theme = readFileSync(
 	'utf8',
 );
 
-test('theme control is a 3-position slider with system default and sun/moon icons', (assert) => {
+test('theme control is a click toggle with in-track sun/moon; default system', (assert) => {
 	assert.equal(theme.includes('name="laptop"'), false, 'no laptop icon');
 	assert.equal(theme.includes('name="sun"'), true, 'sun icon for light');
 	assert.equal(theme.includes('name="moon"'), true, 'moon icon for dark');
 	assert.equal(
-		/type="range"|role="slider"|theme-slider/.test(theme),
+		theme.includes('theme-slider__shell') &&
+			theme.includes('theme-slider__icon--sun') &&
+			theme.includes('theme-slider__icon--moon'),
 		true,
-		'slider control present',
+		'sun/moon live inside the slider shell',
+	);
+	assert.equal(theme.includes('type="range"'), false, 'no drag range input');
+	assert.equal(
+		/<button[\s\S]*class="theme-slider"/.test(theme) && theme.includes("addEventListener('click'"),
+		true,
+		'click toggles theme',
 	);
 	assert.equal(
-		theme.includes("'auto'") && /default|loadTheme|parseTheme/.test(theme),
+		theme.includes("'auto'") && /raw === null \|\| raw === ''/.test(theme),
 		true,
-		'system/auto theme supported',
+		'unset storage defaults to system/auto',
 	);
-	// Default preference: empty storage → auto (system)
+	// Binary UI: thumb keyed off resolved light/dark, not a middle auto slot
 	assert.equal(
-		/localStorage\.getItem[\s\S]*\?\? ['"]auto['"]|parseTheme\([^)]*\)\s*:\s*'auto'|:\s*'auto'/.test(
-			theme,
-		),
+		theme.includes("data-resolved") &&
+			theme.includes("[data-resolved='dark']") &&
+			!theme.includes("[data-theme-value='auto'] .theme-slider__thumb"),
 		true,
-		'falls back to auto/system when unset',
+		'thumb has light/dark positions only (system follows resolved)',
 	);
 });
