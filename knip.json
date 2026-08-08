@@ -5,7 +5,6 @@
   ],
   "ignoreDependencies": [
     "@fontsource-variable/inter",
-    "@fontsource-variable/google-sans-flex",
     "astro-expressive-code"
   ],
   "ignoreIssues": {
