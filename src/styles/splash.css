@@ -862,7 +862,7 @@ html[data-theme='light'] .splash-flow {
         }
 
         @media (min-width: 64rem) {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             /* media | title | copy — subgrid keeps rows aligned across cards */
             grid-template-rows: var(--feature-media) auto auto;
             gap: 0;
@@ -886,6 +886,15 @@ html[data-theme='light'] .splash-flow {
             row-gap: var(--feature-gap);
             align-items: center;
             justify-items: center;
+        }
+
+        /* FOSS lead card: wide row only — keep the 2×2 / stack as four product pillars */
+        &.splash-features__item--wide-only {
+            display: none;
+
+            @media (min-width: 64rem) {
+                display: grid;
+            }
         }
     }
 
@@ -918,6 +927,7 @@ html[data-theme='light'] .splash-flow {
             height: 3.55rem;
         }
 
+        &[data-tone='amber'] { --feature-tone: #fbbf24; }
         &[data-tone='violet'] { --feature-tone: #c084fc; }
         &[data-tone='blue'] { --feature-tone: #60a5fa; }
         &[data-tone='cyan'] { --feature-tone: #22d3ee; }
@@ -946,10 +956,13 @@ html[data-theme='light'] .splash-flow {
         font-size: 0.9rem;
         line-height: 1.45;
         color: var(--cs-muted);
+        /* Prefer even breaks; avoid a stranded last word when columns get narrow */
+        text-wrap: pretty;
     }
 }
 
 html[data-theme='light'] .splash-features__icon {
+    &[data-tone='amber'] { --feature-tone: #d97706; }
     &[data-tone='violet'] { --feature-tone: #9333ea; }
     &[data-tone='blue'] { --feature-tone: #2563eb; }
     &[data-tone='cyan'] { --feature-tone: #0891b2; }
