@@ -539,6 +539,20 @@ site-search dialog::backdrop {
     --pagefind-ui-scale: 0.92;
 }
 
+/* Pagefind defaults (~21px titles / ~16px excerpts) read oversized in this modal. */
+#starlight__search .pagefind-ui__result-title {
+    font-size: 0.9375rem;
+}
+
+#starlight__search .pagefind-ui__result-nested .pagefind-ui__result-link {
+    font-size: 0.875rem;
+}
+
+#starlight__search .pagefind-ui__result-excerpt {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
 #starlight__search .pagefind-ui__search-input {
     font-weight: 500;
     letter-spacing: -0.01em;
