@@ -5,6 +5,7 @@
   ],
   "ignoreDependencies": [
     "@fontsource-variable/inter",
+    "@pagefind/default-ui",
     "astro-expressive-code"
   ],
   "ignoreIssues": {

@@ -50,6 +50,7 @@ export default defineConfig({
             components: {
                 Head: './src/overrides/Head.astro',
                 Hero: './src/overrides/Hero.astro',
+                Search: './src/overrides/Search.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
             },

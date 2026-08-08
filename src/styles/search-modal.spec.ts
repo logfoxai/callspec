@@ -66,3 +66,31 @@ test('zero-results message is styled as a composed empty state', (assert) => {
 		'en i18n should override Pagefind’s zero_results copy',
 	);
 });
+
+test('cold open shows a loading state and does not wait on requestIdleCallback', (assert) => {
+	const searchOverride = join(stylesDir, '../overrides/Search.astro');
+	const astroConfig = readFileSync(join(stylesDir, '../../astro.config.mjs'), 'utf8');
+	const searchSrc = existsSync(searchOverride) ? readFileSync(searchOverride, 'utf8') : '';
+
+	assert.equal(existsSync(searchOverride), true, 'Search.astro override must exist');
+	assert.equal(
+		/Search:\s*['"]\.\/src\/overrides\/Search\.astro['"]/.test(astroConfig),
+		true,
+		'astro.config must wire the Search override',
+	);
+	assert.equal(
+		/data-cs-search-loading/.test(searchSrc),
+		true,
+		'Search override must render a loading placeholder before Pagefind mounts',
+	);
+	assert.equal(
+		/requestIdleCallback/.test(searchSrc),
+		false,
+		'must not defer Pagefind init to requestIdleCallback (cold-open delay)',
+	);
+	assert.equal(
+		/\.cs-search-loading/.test(customCss),
+		true,
+		'starlight-custom.css must style the loading placeholder',
+	);
+});

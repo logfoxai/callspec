@@ -48,16 +48,22 @@
 	}
 
 	function syncIdle(root: Element, idle: HTMLElement) {
+		const siteSearch = root.closest('site-search');
+		const searchReady =
+			Boolean(siteSearch?.hasAttribute('data-cs-search-ready')) ||
+			Boolean(root.querySelector('.pagefind-ui__search-input'));
 		const drawer = root.querySelector('.pagefind-ui__drawer');
 		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
 		const drawerHidden = !drawer || drawer.classList.contains('pagefind-ui__hidden');
 		const query = input?.value ?? '';
-		const idleNow = isSearchIdle(drawerHidden, query);
+		const idleNow = isSearchIdle(searchReady, drawerHidden, query);
 		idle.hidden = !idleNow;
 
 		const dialog = root.closest('dialog');
 		if (!dialog) return;
-		if (idleNow) {
+		if (!searchReady) {
+			dialog.dataset.csSearch = 'loading';
+		} else if (idleNow) {
 			dialog.dataset.csSearch = 'idle';
 		} else if (root.querySelector('.pagefind-ui__result')) {
 			dialog.dataset.csSearch = 'results';
@@ -94,6 +100,10 @@
 			childList: true,
 			attributes: true,
 			attributeFilter: ['class'],
+		});
+		observer.observe(siteSearch, {
+			attributes: true,
+			attributeFilter: ['data-cs-search-ready'],
 		});
 
 		root.addEventListener('input', sync);
