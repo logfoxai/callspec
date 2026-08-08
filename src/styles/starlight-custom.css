@@ -583,6 +583,28 @@ site-search dialog::backdrop {
  */
 #starlight__search .pagefind-ui__button {
     margin-top: 0.85rem;
+    height: auto;
+    min-height: 2.35rem;
+    padding: 0.55rem 1.1rem;
+    border: 1px solid var(--cs-line);
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--sl-color-black) 55%, transparent);
+    color: var(--cs-ink);
+    font-family: var(--sl-font);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    box-shadow: none;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+#starlight__search .pagefind-ui__button:hover {
+    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
+    background: color-mix(in srgb, var(--sl-color-black) 35%, var(--sl-color-gray-6));
+    color: var(--cs-ink);
 }
 
 #starlight__search .pagefind-ui__results > * + * {
@@ -871,6 +893,18 @@ html[data-theme='light'] .cs-search-idle__chips button {
 html[data-theme='light'] #starlight__search:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
     background: #fff;
     border-color: var(--sl-color-gray-5);
+}
+
+html[data-theme='light'] #starlight__search .pagefind-ui__button {
+    background: #ffffff;
+    border-color: var(--cs-line);
+    color: var(--cs-ink);
+}
+
+html[data-theme='light'] #starlight__search .pagefind-ui__button:hover {
+    background: #f0f1f5;
+    border-color: color-mix(in srgb, var(--sl-color-accent) 35%, var(--cs-line));
+    color: var(--cs-ink);
 }
 
 @layer starlight.components {
