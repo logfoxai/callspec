@@ -86,7 +86,9 @@ Import **`err`** (builtins-only handle) or your domain handle — do not confuse
 | Builtin | No (merged at `route`) | Yes | `return err.NOT_FOUND()` etc. |
 | Domain | Yes (`errors: defineErrors({ … })`) | Only that route | `return registerErr.USER_EXISTS(…)` |
 
-### Builtin codes
+## Builtin codes
+
+Use these from any resolver via `err.CODE()` — no `errors:` declaration needed. Domain codes still require `defineErrors` on the route.
 
 | Code | Typical HTTP status | Source |
 |------|---------------------|--------|
@@ -101,6 +103,8 @@ Import **`err`** (builtins-only handle) or your domain handle — do not confuse
 | `INTERNAL_ERROR` | 500 | mountSpec (unhandled throw or rejected promise in resolver) |
 
 `ROUTE_NOT_FOUND` and `NOT_FOUND` both use HTTP 404 but mean different things — the **`code`** is the contract; status is a transport hint.
+
+New here? Start with [Getting started](./getting-started.md), then [API reference](./api-reference.md) for `route` / `spec` / `mountSpec`.
 
 ## Wire format and HTTP status
 
@@ -196,4 +200,6 @@ Helpers return `RouteFailuresFrom<typeof registerErr>` (or `void` / domain data)
 - Builtins are always allowed — merged onto every route at definition time
 - Undeclared domain returns are a **compile error** on the route resolver (routes without `errors:` allow builtins only)
 - **`CallspecClient.callResult`** — see [Client error normalization](#client-error-normalization). Mapped HTTP failures use builtins + route-declared codes; unmapped responses are **`UNKNOWN_ERROR`**; transport failures are **`NETWORK_ERROR`**.
+
+**Related:** [Getting started](./getting-started.md) · [Client usage](./client-usage.md) · [Authentication](./authentication.md) · [Resolvers](./api-reference/resolvers.md) · [Surfaces & exports](./api-reference/surfaces-and-exports.md)
 

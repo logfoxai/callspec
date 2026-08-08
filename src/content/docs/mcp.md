@@ -14,7 +14,7 @@ Set `mcp: true` on any route. When any route opts in, `mountSpec` mounts MCP aut
 
 Set `meta.mcpInstructions` for the MCP server `instructions` field. Use `meta.authHint` for Bearer guidance in the docs UI connect panel on the home page.
 
-This is **API-tool MCP** (live `tools/call` on your server). [Fern's MCP](./using-fern-with-callspec.md#mcp) is different — docs Q&A on a Fern-hosted site (Ask Fern), not a substitute for calling your API. You can run both.
+This is **API-tool MCP** — live `tools/call` against your server (same resolvers as HTTP RPC). It is not a docs-search MCP.
 
 See also: [`mountSpec` options](./api-reference/mount-spec.md) · [Docs UI](./docs-ui.md)
 

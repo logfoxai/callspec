@@ -7,13 +7,13 @@
 | URL | `{mount}/openapi.json` (fixed path when `docs: true`) |
 | Version | OpenAPI 3.1 |
 | Source | Same `routes` object as RPC — **not** derived from `callspec.json` |
-| Use for | Gateways, mocking, contract tests, Fern / multi-lang SDKs |
+| Use for | Gateways, mocking, contract tests, multi-lang SDK generators |
 | **Not for** | Callspec TypeScript SDK codegen (use `callspec.json`) |
 | Omitted | `scope: 'private'` routes; Bearer security auto-derived from `auth` |
 
 **OpenAPI 3.1** at **`/openapi.json`** — a projection from the same `routes` object as your RPC server. RPC methods appear as `POST` paths; errors grouped by HTTP status.
 
-Use for gateways, mocking, contract tests, and **public DX tools** — e.g. [Fern](./using-fern-with-callspec.md) for multi-language SDKs and public docs while Callspec stays the runtime.
+Use for gateways, mocking, contract tests, and any OpenAPI-based tooling. Callspec’s TypeScript SDK still comes from `callspec.json` — see [SDK generation](./sdk-generation.md).
 
 See [Auth and scope](./api-reference/auth-and-scope.md) for `scope` and Bearer behavior.
 

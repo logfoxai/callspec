@@ -482,12 +482,12 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
             padding: 1rem;
         }
 
-        &.splash-flow__body--fern {
+        &.splash-flow__body--openapi {
             justify-content: center;
             gap: 1.15rem;
             padding: 1.15rem 1rem;
             container-type: inline-size;
-            container-name: fern;
+            container-name: openapi;
         }
     }
 
@@ -694,7 +694,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         color: var(--flow-muted);
     }
 
-    .splash-flow__fern-hero {
+    .splash-flow__openapi-hero {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -705,19 +705,20 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         text-align: center;
     }
 
-    .splash-flow__fern-logo {
-        display: block;
-        height: 1.35rem;
-        width: auto;
-        max-width: 5.25rem;
-        object-fit: contain;
+    .splash-flow__openapi-path {
+        display: inline-block;
+        margin: 0;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.4rem;
+        font-family: var(--sl-font-mono);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--flow-ink);
+        background: color-mix(in srgb, var(--flow-soft) 40%, transparent);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--flow-muted) 35%, transparent);
     }
 
-    .splash-flow__fern-logo--light {
-        display: none;
-    }
-
-    .splash-flow__fern-copy {
+    .splash-flow__openapi-copy {
         margin: 0;
         max-width: 16rem;
         font-size: 0.78rem;
@@ -784,14 +785,6 @@ html[data-theme='light'] .splash-flow {
     .splash-flow__body {
         background: var(--flow-soft);
         box-shadow: inset 0 0 0 1px hsl(228 14% 90%);
-    }
-
-    .splash-flow__fern-logo--dark {
-        display: none;
-    }
-
-    .splash-flow__fern-logo--light {
-        display: block;
     }
 
     .splash-flow__code {

@@ -1,20 +1,23 @@
 ---
 /**
- * Icon-only theme control — cycles light → dark → auto.
- * Replaces Starlight’s labeled “Auto ▾” select.
+ * Light/dark theme switch — clearer than cycling through Auto with a laptop icon.
  */
-import {Icon} from '@astrojs/starlight/components';
 ---
 
 <starlight-theme-select>
-	<button
-		type="button"
-		class="theme-toggle"
-		aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
-		aria-live="polite"
-	>
-		<Icon name="laptop" class="label-icon" />
-	</button>
+	<label class="theme-switch">
+		<span class="sr-only">Dark mode</span>
+		<input
+			type="checkbox"
+			class="theme-switch__input"
+			role="switch"
+			aria-checked="false"
+			aria-label="Toggle dark mode"
+		/>
+		<span class="theme-switch__track" aria-hidden="true">
+			<span class="theme-switch__thumb"></span>
+		</span>
+	</label>
 </starlight-theme-select>
 
 <script is:inline>
@@ -22,51 +25,50 @@ import {Icon} from '@astrojs/starlight/components';
 </script>
 
 <script>
-	type Theme = 'auto' | 'dark' | 'light';
+	type Theme = 'dark' | 'light';
 
 	const storageKey = 'starlight-theme';
-	const order: Theme[] = ['light', 'dark', 'auto'];
 
-	const parseTheme = (theme: unknown): Theme =>
-		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
-
-	const loadTheme = (): Theme =>
-		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
-
-	function storeTheme(theme: Theme): void {
-		if (typeof localStorage !== 'undefined') {
-			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
-		}
-	}
+	const parseTheme = (theme: unknown): Theme | null =>
+		theme === 'dark' || theme === 'light' ? theme : null;
 
 	const getPreferredColorScheme = (): Theme =>
 		matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 
-	function onThemeChange(theme: Theme): void {
-		StarlightThemeProvider.updatePickers(theme);
-		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
-		storeTheme(theme);
-		const button = document.querySelector('starlight-theme-select .theme-toggle');
-		if (button instanceof HTMLButtonElement) {
-			const label =
-				theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'Auto (system)';
-			button.title = `Theme: ${label} — click to change`;
-			button.dataset.themeValue = theme;
+	const loadTheme = (): Theme => {
+		const stored = parseTheme(
+			typeof localStorage !== 'undefined' && localStorage.getItem(storageKey),
+		);
+		return stored ?? getPreferredColorScheme();
+	};
+
+	function storeTheme(theme: Theme): void {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(storageKey, theme);
 		}
 	}
 
-	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-		if (loadTheme() === 'auto') onThemeChange('auto');
-	});
+	function onThemeChange(theme: Theme): void {
+		StarlightThemeProvider.updatePickers(theme);
+		document.documentElement.dataset.theme = theme;
+		storeTheme(theme);
+		const input = document.querySelector('starlight-theme-select .theme-switch__input');
+		if (input instanceof HTMLInputElement) {
+			const dark = theme === 'dark';
+			input.checked = dark;
+			input.setAttribute('aria-checked', dark ? 'true' : 'false');
+			input.title = dark ? 'Dark mode on — click for light' : 'Light mode on — click for dark';
+		}
+	}
 
 	class StarlightThemeSelect extends HTMLElement {
 		constructor() {
 			super();
-			const current = loadTheme();
-			onThemeChange(current);
-			this.querySelector('button')?.addEventListener('click', () => {
-				const idx = order.indexOf(loadTheme());
-				onThemeChange(order[(idx + 1) % order.length]!);
+			const input = this.querySelector('.theme-switch__input');
+			if (!(input instanceof HTMLInputElement)) return;
+			onThemeChange(loadTheme());
+			input.addEventListener('change', () => {
+				onThemeChange(input.checked ? 'dark' : 'light');
 			});
 		}
 	}
@@ -75,37 +77,75 @@ import {Icon} from '@astrojs/starlight/components';
 </script>
 
 <style>
-	.theme-toggle {
+	.theme-switch {
 		display: grid;
 		place-items: center;
-		width: 2.5rem;
+		width: 2.75rem;
 		height: 2.5rem;
 		margin: 0;
-		padding: 0;
-		border: 1px solid transparent;
-		border-radius: 0.55rem;
-		background: transparent;
-		color: var(--sl-color-gray-2);
 		cursor: pointer;
-		transition:
-			color 0.15s ease,
-			background-color 0.15s ease,
-			border-color 0.15s ease;
 	}
 
-	.theme-toggle:hover {
-		color: var(--sl-color-white);
-		background-color: color-mix(in srgb, var(--sl-color-gray-5) 55%, transparent);
-		border-color: var(--sl-color-hairline);
+	.theme-switch__input {
+		position: absolute;
+		opacity: 0;
+		width: 1px;
+		height: 1px;
+		margin: 0;
+		pointer-events: none;
 	}
 
-	.theme-toggle:focus-visible {
+	.theme-switch__track {
+		display: block;
+		position: relative;
+		width: 2.4rem;
+		height: 1.3rem;
+		border-radius: 999px;
+		background: var(--sl-color-gray-5);
+		border: 1px solid var(--sl-color-hairline);
+		transition: background-color 0.15s ease, border-color 0.15s ease;
+	}
+
+	.theme-switch__thumb {
+		position: absolute;
+		top: 50%;
+		left: 0.15rem;
+		width: 0.95rem;
+		height: 0.95rem;
+		border-radius: 50%;
+		background: var(--sl-color-white);
+		transform: translateY(-50%);
+		transition: transform 0.15s ease;
+		box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+	}
+
+	.theme-switch__input:checked + .theme-switch__track {
+		background: color-mix(in srgb, var(--sl-color-accent) 55%, var(--sl-color-gray-5));
+		border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--sl-color-hairline));
+	}
+
+	.theme-switch__input:checked + .theme-switch__track .theme-switch__thumb {
+		transform: translate(1rem, -50%);
+	}
+
+	.theme-switch__input:focus-visible + .theme-switch__track {
 		outline: 2px solid var(--sl-color-accent);
 		outline-offset: 2px;
 	}
 
-	.theme-toggle :global(svg) {
-		width: 1.35rem;
-		height: 1.35rem;
+	.theme-switch:hover .theme-switch__track {
+		border-color: var(--sl-color-gray-2);
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 </style>

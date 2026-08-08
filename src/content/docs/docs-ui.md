@@ -95,4 +95,4 @@ Full option list: [`mountSpec`](./api-reference/mount-spec.md).
 
 - [MCP](./mcp.md) — enable tools with `mcp: true` on routes
 - [OpenAPI](./openapi.md) — parallel export from the same routes
-- [Using Fern with Callspec](./using-fern-with-callspec.md) — when to keep Callspec docs vs add Fern
+- [Getting started](./getting-started.md) — minimal server + client walkthrough

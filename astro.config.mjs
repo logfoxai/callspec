@@ -52,6 +52,7 @@ export default defineConfig({
                 Hero: './src/overrides/Hero.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
+                Search: './src/overrides/Search.astro',
             },
             social: [
                 {
@@ -93,7 +94,6 @@ export default defineConfig({
                         {label: 'Docs UI', slug: 'docs-ui'},
                         {label: 'MCP', slug: 'mcp'},
                         {label: 'OpenAPI', slug: 'openapi'},
-                        {label: 'Callspec + Fern', slug: 'using-fern-with-callspec'},
                     ],
                 },
                 {
@@ -114,6 +114,7 @@ export default defineConfig({
                             label: 'Surfaces & exports',
                             slug: 'api-reference/surfaces-and-exports',
                         },
+                        {label: 'Builtin errors', slug: 'error-handling'},
                     ],
                 },
             ],

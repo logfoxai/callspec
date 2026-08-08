@@ -13,6 +13,14 @@ npm i -D tsx typescript @types/express
 
 Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer). Contributing to this repo (`npm run validate`, docs site) needs Node **≥22.12** — see [Development](./development.md).
 
+### Install with an AI assistant
+
+Paste this into Cursor, Claude Code, or similar:
+
+```text
+Install Callspec in this project: npm i callspec runtyp express and npm i -D tsx typescript @types/express. Then follow https://callspec.logfox.ai/getting-started/ — define a route with route(), mount with mountSpec, generate the client with npx callspec, and use Result-typed client calls (check result.ok / result.code). Return err.* from resolvers; do not throw expected failures.
+```
+
 ## 2. Define a route
 
 ```typescript
@@ -37,6 +45,7 @@ export const getProductById = route({
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none',
     mcp: true,
+    // resolver = the function that runs for this RPC method (typed input + ctx → output or err.*)
     resolver: async (input, _ctx) => {
         // input validated and fully typed — return and errors too! 🎉
         const found = products.find((item) => item.id === input.id);
@@ -48,9 +57,8 @@ export const getProductById = route({
 
 **Quick notes:**
 
-- Return failures from resolvers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. See [Error handling](./error-handling.md).
-- Built-in error responses such as `NOT_FOUND` and `SERVICE_UNAVAILABLE` can be returned from any route without defining them.
-- Define custom domain errors with `errors:` on the route.
+- Return failures from resolvers (ie, `return err.NOT_FOUND()`) — **don't throw exceptions**. Built-in codes (`NOT_FOUND`, `UNAUTHORIZED`, …) are listed under [Builtin codes](./error-handling.md#builtin-codes).
+- Define custom domain errors with `errors:` on the route — see [Error handling](./error-handling.md).
 - Test resolver logic with `.resolver(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
 
 ## 3. Define and mount backend API
@@ -134,3 +142,4 @@ result.value.priceCents; // number
 
 See [Client usage](./client-usage.md) for auth headers, app helpers, and React patterns.
 
+**Also useful:** [Authentication](./authentication.md) · [Request context](./request-context.md) · [API reference](./api-reference.md) · [SDK generation](./sdk-generation.md)

@@ -1,0 +1,137 @@
+---
+/**
+ * Starlight Pagefind search + empty-state suggestions (popular docs).
+ */
+import Default from '@astrojs/starlight/components/Search.astro';
+
+const suggestions = [
+	{href: '/getting-started/', label: 'Getting started'},
+	{href: '/error-handling/#builtin-codes', label: 'Builtin errors'},
+	{href: '/authentication/', label: 'Authentication'},
+	{href: '/sdk-generation/', label: 'SDK generation'},
+	{href: '/api-reference/', label: 'API reference'},
+	{href: '/mcp/', label: 'MCP'},
+] as const;
+---
+
+<Default class={Astro.props.class} />
+
+<template id="callspec-search-suggestions-template">
+	<nav class="search-suggestions" data-search-suggestions aria-label="Popular pages">
+		<p class="search-suggestions__label">Popular</p>
+		<ul class="search-suggestions__list">
+			{
+				suggestions.map(({href, label}) => (
+					<li>
+						<a href={href}>{label}</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+</template>
+
+<script>
+	function mountSuggestions(root: ParentNode): void {
+		const container = root.querySelector('.search-container');
+		const template = document.getElementById(
+			'callspec-search-suggestions-template',
+		) as HTMLTemplateElement | null;
+		if (!container || !template || container.querySelector('[data-search-suggestions]')) {
+			return;
+		}
+		const node = template.content.cloneNode(true);
+		container.appendChild(node);
+		syncSuggestionsVisibility(container);
+	}
+
+	function syncSuggestionsVisibility(container: Element): void {
+		const suggestions = container.querySelector('[data-search-suggestions]');
+		const input = container.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+		if (!(suggestions instanceof HTMLElement)) return;
+		const query = input?.value?.trim() ?? '';
+		suggestions.hidden = query.length > 0;
+	}
+
+	function wireSiteSearch(el: Element): void {
+		const dialog = el.querySelector('dialog');
+		if (!(dialog instanceof HTMLDialogElement)) return;
+
+		const ensure = () => {
+			mountSuggestions(el);
+			const container = el.querySelector('.search-container');
+			if (container) syncSuggestionsVisibility(container);
+		};
+
+		dialog.addEventListener('close', ensure);
+		el.addEventListener(
+			'input',
+			(event) => {
+				if (!(event.target instanceof HTMLInputElement)) return;
+				if (!event.target.classList.contains('pagefind-ui__search-input')) return;
+				const container = el.querySelector('.search-container');
+				if (container) syncSuggestionsVisibility(container);
+			},
+			true,
+		);
+
+		const openBtn = el.querySelector('button[data-open-modal]');
+		openBtn?.addEventListener('click', () => {
+			requestAnimationFrame(ensure);
+			setTimeout(ensure, 50);
+			setTimeout(ensure, 200);
+		});
+	}
+
+	function init(): void {
+		document.querySelectorAll('site-search').forEach(wireSiteSearch);
+	}
+
+	init();
+	document.addEventListener('astro:page-load', init);
+</script>
+
+<style is:global>
+	.search-suggestions {
+		margin-top: 1rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--sl-color-gray-5);
+	}
+
+	.search-suggestions[hidden] {
+		display: none;
+	}
+
+	.search-suggestions__label {
+		margin: 0 0 0.5rem;
+		font-size: var(--sl-text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--sl-color-gray-3);
+	}
+
+	.search-suggestions__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.25rem;
+	}
+
+	.search-suggestions__list a {
+		display: block;
+		padding: 0.55rem 0.75rem;
+		border-radius: 0.4rem;
+		color: var(--sl-color-white);
+		text-decoration: none;
+		background: var(--sl-color-black);
+		border: 1px solid transparent;
+	}
+
+	.search-suggestions__list a:hover,
+	.search-suggestions__list a:focus-visible {
+		border-color: var(--sl-color-accent-high);
+		outline: none;
+	}
+</style>

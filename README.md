@@ -11,7 +11,7 @@
   <br>
   <p align="center">
   <a href="assets/callspec-flow.svg?cb=7">
-    <img src="assets/callspec-flow.svg?cb=7" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export, optional Fern multi-language SDKs" />
+    <img src="assets/callspec-flow.svg?cb=7" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, OpenAPI export" />
   </a>
 </p>
 </div>
@@ -59,5 +59,4 @@ For coding agents, use [SKILL.md](skills/callspec/SKILL.md).
 - [Docs UI](src/content/docs/docs-ui.md)
 - [MCP](src/content/docs/mcp.md)
 - [OpenAPI](src/content/docs/openapi.md)
-- [Callspec + Fern](src/content/docs/using-fern-with-callspec.md)
 - [Development](src/content/docs/development.md)
