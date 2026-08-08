@@ -29,13 +29,16 @@ test('theme control is a click toggle with in-track sun/moon; default system', (
 		true,
 		'unset storage defaults to system/auto',
 	);
-	// Binary UI: thumb keyed off resolved light/dark, not a middle auto slot
 	assert.equal(
-		theme.includes("data-resolved") &&
-			theme.includes("[data-resolved='dark']") &&
-			!theme.includes("[data-theme-value='auto'] .theme-slider__thumb"),
+		theme.includes("querySelectorAll('starlight-theme-select .theme-slider')") ||
+			theme.includes('querySelectorAll("starlight-theme-select .theme-slider")'),
 		true,
-		'thumb has light/dark positions only (system follows resolved)',
+		'syncs every ThemeSelect instance (header + mobile)',
+	);
+	assert.equal(
+		theme.includes("html[data-theme='dark']") && theme.includes("html[data-theme='light']"),
+		true,
+		'thumb/icons follow html[data-theme] (no hardcoded dark default)',
 	);
 	assert.equal(
 		/--ts-thumb:\s*#fff/.test(theme) && !theme.includes('--ts-thumb: var(--sl-color-white)'),

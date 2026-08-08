@@ -2,6 +2,7 @@
 /**
  * Click-to-toggle theme switch — sun/moon inside the track.
  * Default preference is system; UI is light ↔ dark only (no middle).
+ * Thumb position follows html[data-theme] so it stays in sync with ThemeProvider.
  */
 import {Icon} from '@astrojs/starlight/components';
 ---
@@ -10,8 +11,6 @@ import {Icon} from '@astrojs/starlight/components';
 	<button
 		type="button"
 		class="theme-slider"
-		data-theme-value="auto"
-		data-resolved="dark"
 		aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
 		aria-pressed="false"
 		title="Theme: System"
@@ -61,21 +60,26 @@ import {Icon} from '@astrojs/starlight/components';
 		return theme === 'auto' ? getPreferredColorScheme() : theme;
 	}
 
+	function syncSliderButton(button: HTMLButtonElement, theme: Theme, resolved: Resolved): void {
+		button.dataset.themeValue = theme;
+		button.setAttribute('aria-pressed', resolved === 'dark' ? 'true' : 'false');
+		const label =
+			theme === 'auto' ? `System (${resolved})` : resolved === 'dark' ? 'Dark' : 'Light';
+		button.title = `Theme: ${label} — click to toggle`;
+	}
+
+	function syncAllSliders(theme: Theme, resolved: Resolved): void {
+		document.querySelectorAll('starlight-theme-select .theme-slider').forEach((el) => {
+			if (el instanceof HTMLButtonElement) syncSliderButton(el, theme, resolved);
+		});
+	}
+
 	function onThemeChange(theme: Theme): void {
 		const resolved = resolveTheme(theme);
 		StarlightThemeProvider.updatePickers(theme);
 		document.documentElement.dataset.theme = resolved;
 		storeTheme(theme);
-
-		const button = document.querySelector('starlight-theme-select .theme-slider');
-		if (!(button instanceof HTMLButtonElement)) return;
-
-		button.dataset.themeValue = theme;
-		button.dataset.resolved = resolved;
-		button.setAttribute('aria-pressed', resolved === 'dark' ? 'true' : 'false');
-		const label =
-			theme === 'auto' ? `System (${resolved})` : resolved === 'dark' ? 'Dark' : 'Light';
-		button.title = `Theme: ${label} — click to toggle`;
+		syncAllSliders(theme, resolved);
 	}
 
 	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
@@ -88,7 +92,8 @@ import {Icon} from '@astrojs/starlight/components';
 			const button = this.querySelector('.theme-slider');
 			if (!(button instanceof HTMLButtonElement)) return;
 
-			onThemeChange(loadTheme());
+			const theme = loadTheme();
+			syncSliderButton(button, theme, resolveTheme(theme));
 
 			button.addEventListener('click', () => {
 				const resolved = resolveTheme(loadTheme());
@@ -174,13 +179,6 @@ import {Icon} from '@astrojs/starlight/components';
 		fill: currentColor;
 	}
 
-	/* Active side: icon sits on the white knob */
-	.theme-slider[data-resolved='light'] .theme-slider__icon--sun,
-	.theme-slider[data-resolved='dark'] .theme-slider__icon--moon {
-		z-index: 3;
-		color: var(--ts-ink-on-thumb);
-	}
-
 	.theme-slider__thumb {
 		position: absolute;
 		top: 50%;
@@ -196,8 +194,15 @@ import {Icon} from '@astrojs/starlight/components';
 		pointer-events: none;
 	}
 
-	.theme-slider[data-resolved='dark'] .theme-slider__thumb {
+	/* Follow ThemeProvider’s html[data-theme] — keeps header + mobile menu aligned */
+	:global(html[data-theme='dark']) .theme-slider__thumb {
 		transform: translate(1.7rem, -50%);
+	}
+
+	:global(html[data-theme='light']) .theme-slider__icon--sun,
+	:global(html[data-theme='dark']) .theme-slider__icon--moon {
+		z-index: 3;
+		color: var(--ts-ink-on-thumb);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
