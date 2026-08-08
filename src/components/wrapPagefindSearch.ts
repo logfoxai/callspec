@@ -22,11 +22,12 @@ export function wrapPagefindSearch(rawSearch: PagefindSearchFn): PagefindSearchF
 	return async (term, options) => {
 		const res = await rawSearch(term, options);
 		if (!term?.trim()) return res;
-		const kept: PagefindSearchResult[] = [];
-		for (const result of res.results) {
-			const data = await result.data();
-			if (isUsefulPagefindMatch(term, data)) kept.push(result);
-		}
-		return {...res, results: kept};
+		const judged = await Promise.all(
+			res.results.map(async (result) => {
+				const data = await result.data();
+				return isUsefulPagefindMatch(term, data) ? result : null;
+			}),
+		);
+		return {...res, results: judged.filter((result): result is PagefindSearchResult => result !== null)};
 	};
 }

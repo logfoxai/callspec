@@ -180,6 +180,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 							bundlePath,
 							basePath: indexPath,
 							showImages: false,
+							debounceTimeoutMs: 150,
 							translations,
 							showSubResults: true,
 							processResult: (result: {url: string; sub_results: Array<{url: string}>}) => {

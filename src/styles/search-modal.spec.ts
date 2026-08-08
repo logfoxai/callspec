@@ -129,3 +129,29 @@ test('filtered search uses a cs-pagefind shim (ESM exports are immutable)', (ass
 		'must not assign over pagefind.search (throws on ESM module namespace)',
 	);
 });
+
+test('in-flight search shows a pending skeleton and keeps dialog height stable', (assert) => {
+	const searchOverride = join(stylesDir, '../overrides/Search.astro');
+	const searchSrc = existsSync(searchOverride) ? readFileSync(searchOverride, 'utf8') : '';
+
+	assert.equal(
+		/data-cs-search-pending/.test(polishAstro),
+		true,
+		'SearchModalPolish must inject a pending panel while a query runs',
+	);
+	assert.equal(
+		/\.cs-search-pending/.test(customCss),
+		true,
+		'starlight-custom.css must style the pending shimmer rows',
+	);
+	assert.equal(
+		/dialog\[open\]\[data-cs-search=["']searching["']\][^}]*min-height:\s*\d/.test(customCss),
+		true,
+		'searching dialog must reserve min-height so the shell does not collapse',
+	);
+	assert.equal(
+		/debounceTimeoutMs:\s*150/.test(searchSrc),
+		true,
+		'PagefindUI should use a snappier 150ms debounce',
+	);
+});

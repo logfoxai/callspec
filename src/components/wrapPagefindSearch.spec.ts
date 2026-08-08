@@ -40,3 +40,32 @@ test('wrapPagefindSearch returns a new function (ESM exports cannot be reassigne
 	assert.equal(typeof wrapped, 'function');
 	assert.equal(wrapped === raw, false);
 });
+
+test('wrapPagefindSearch hydrates result data in parallel', async (assert) => {
+	let inFlight = 0;
+	let maxInFlight = 0;
+	const makeResult = (excerpt: string): {data: () => Promise<{excerpt: string}>} => ({
+		data: async (): Promise<{excerpt: string}> => {
+			inFlight += 1;
+			maxInFlight = Math.max(maxInFlight, inFlight);
+			await new Promise((resolve) => setTimeout(resolve, 25));
+			inFlight -= 1;
+			return {excerpt};
+		},
+	});
+
+	const rawSearch = async (): Promise<{
+		results: Array<{data: () => Promise<{excerpt: string}>}>;
+	}> => ({
+		results: [
+			makeResult('Fetch from <mark>a</mark> running server.'),
+			makeResult('Enable <mark>MCP</mark> tools'),
+			makeResult('same routes object <mark>as</mark> your RPC server'),
+		],
+	});
+
+	const search = wrapPagefindSearch(rawSearch);
+	const garbage = await search('adsf');
+	assert.equal(garbage.results.length, 0);
+	assert.equal(maxInFlight > 1, true, 'must hydrate multiple results concurrently');
+});

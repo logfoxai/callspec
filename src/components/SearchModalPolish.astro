@@ -1,7 +1,8 @@
 ---
 /**
- * Idle / empty polish for Starlight’s Pagefind search dialog.
- * Injects suggestion chips when idle, and a Discord help line on zero results.
+ * Idle / empty / in-flight polish for Starlight’s Pagefind search dialog.
+ * Injects suggestion chips when idle, Discord help on zero results, and a
+ * shimmer skeleton while a query is running.
  */
 const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 ---
@@ -24,6 +25,14 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 	<p class="cs-search-empty-help" data-cs-search-empty-help hidden>
 		Stuck? Ask in <a href={discordInvite} target="_blank" rel="noopener noreferrer">Discord</a>.
 	</p>
+</template>
+
+<template id="cs-search-pending-template">
+	<div class="cs-search-pending" data-cs-search-pending hidden aria-hidden="true">
+		<div class="cs-search-pending__row"></div>
+		<div class="cs-search-pending__row"></div>
+		<div class="cs-search-pending__row cs-search-pending__row--short"></div>
+	</div>
 </template>
 
 <script>
@@ -60,6 +69,21 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		return help;
 	}
 
+	function ensurePending(root: Element): HTMLElement | null {
+		const existing = root.querySelector<HTMLElement>('[data-cs-search-pending]');
+		if (existing) return existing;
+
+		const area = root.querySelector('.pagefind-ui__results-area');
+		if (!area) return null;
+
+		const template = document.querySelector<HTMLTemplateElement>('#cs-search-pending-template');
+		const pending = template?.content.firstElementChild?.cloneNode(true);
+		if (!(pending instanceof HTMLElement)) return null;
+
+		area.appendChild(pending);
+		return pending;
+	}
+
 	function setQuery(root: Element, query: string) {
 		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
 		if (!input) return;
@@ -87,6 +111,17 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		const query = input?.value ?? '';
 		const idleNow = isSearchIdle(searchReady, drawerHidden, query);
 		const zeroNow = searchReady && !idleNow && isZeroResults(root);
+		const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
+		const searchingMessage = /searching/i.test(message);
+		// Only treat as searching once Pagefind opens the drawer / shows its
+		// searching copy — not during the debounce window when the drawer is still hidden
+		// (that would reserve min-height with no visible skeleton).
+		const searchingNow =
+			searchReady &&
+			!idleNow &&
+			!root.querySelector('.pagefind-ui__result') &&
+			!zeroNow &&
+			(!drawerHidden || searchingMessage);
 		idle.hidden = !idleNow;
 
 		const help = ensureEmptyHelp(root);
@@ -102,9 +137,14 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			dialog.dataset.csSearch = 'results';
 		} else if (zeroNow) {
 			dialog.dataset.csSearch = 'empty';
-		} else {
+		} else if (searchingNow) {
 			dialog.dataset.csSearch = 'searching';
+		} else {
+			dialog.dataset.csSearch = 'querying';
 		}
+
+		const pending = ensurePending(root);
+		if (pending) pending.hidden = dialog.dataset.csSearch !== 'searching';
 	}
 
 	function bindSiteSearch(siteSearch: HTMLElement) {
