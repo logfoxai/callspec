@@ -649,6 +649,15 @@ site-search dialog::backdrop {
     letter-spacing: -0.01em;
 }
 
+.cs-search-loading--error .cs-search-loading__field {
+    animation: none;
+    opacity: 0.45;
+}
+
+.cs-search-loading--error .cs-search-loading__label {
+    color: var(--sl-color-orange-high, var(--cs-ink));
+}
+
 @keyframes cs-search-shimmer {
     0% {
         background-position: 100% 0;

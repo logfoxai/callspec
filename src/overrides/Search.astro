@@ -151,31 +151,44 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			const formatURL = shouldStrip ? stripTrailingSlash : (path: string) => path;
 
 			let pagefindPromise: Promise<void> | null = null;
+			const showSearchLoadError = () => {
+				const loading = this.querySelector<HTMLElement>('[data-cs-search-loading]');
+				if (!loading) return;
+				loading.setAttribute('aria-busy', 'false');
+				loading.classList.add('cs-search-loading--error');
+				const label = loading.querySelector('.cs-search-loading__label');
+				if (label) label.textContent = 'Search failed to load. Close and try again.';
+			};
 			const loadPagefind = () => {
 				if (import.meta.env.DEV) return Promise.resolve();
 				if (pagefindPromise) return pagefindPromise;
 				pagefindPromise = (async () => {
-					// @ts-expect-error — Missing types for @pagefind/default-ui package.
-					const {PagefindUI} = await import('@pagefind/default-ui');
-					new PagefindUI({
-						...pagefindUserConfig,
-						element: '#starlight__search',
-						baseUrl: import.meta.env.BASE_URL,
-						bundlePath: import.meta.env.BASE_URL.replace(/\/$/, '') + '/pagefind/',
-						showImages: false,
-						translations,
-						showSubResults: true,
-						processResult: (result: {url: string; sub_results: Array<{url: string}>}) => {
-							result.url = formatURL(result.url);
-							result.sub_results = result.sub_results.map((sub_result) => {
-								sub_result.url = formatURL(sub_result.url);
-								return sub_result;
-							});
-						},
-					});
-					this.querySelector('[data-cs-search-loading]')?.remove();
-					this.toggleAttribute('data-cs-search-ready', true);
-					if (dialog.open) this.querySelector('input')?.focus();
+					try {
+						// @ts-expect-error — Missing types for @pagefind/default-ui package.
+						const {PagefindUI} = await import('@pagefind/default-ui');
+						new PagefindUI({
+							...pagefindUserConfig,
+							element: '#starlight__search',
+							baseUrl: import.meta.env.BASE_URL,
+							bundlePath: import.meta.env.BASE_URL.replace(/\/$/, '') + '/pagefind/',
+							showImages: false,
+							translations,
+							showSubResults: true,
+							processResult: (result: {url: string; sub_results: Array<{url: string}>}) => {
+								result.url = formatURL(result.url);
+								result.sub_results = result.sub_results.map((sub_result) => {
+									sub_result.url = formatURL(sub_result.url);
+									return sub_result;
+								});
+							},
+						});
+						this.querySelector('[data-cs-search-loading]')?.remove();
+						this.toggleAttribute('data-cs-search-ready', true);
+						if (dialog.open) this.querySelector('input')?.focus();
+					} catch {
+						pagefindPromise = null;
+						showSearchLoadError();
+					}
 				})();
 				return pagefindPromise;
 			};
