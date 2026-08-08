@@ -567,20 +567,14 @@ site-search dialog::backdrop {
     padding: 0.35rem 0.15rem 0.75rem;
 }
 
-/* Zero-results: one dashed card (title + tip) instead of a lonely line in a tall box */
+/* Zero-results: compact card — quoted term via i18n; Discord help injected in JS */
 #starlight__search:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
     display: block;
     margin: 0.15rem 0 0;
-    padding: 1.15rem 1.1rem 0.45rem;
-    border-radius: 0.75rem 0.75rem 0 0;
-    border: 1px dashed color-mix(in srgb, var(--sl-color-gray-5) 70%, var(--sl-color-accent));
-    border-bottom: 0;
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--sl-color-black) 55%, transparent),
-            color-mix(in srgb, var(--sl-color-gray-6) 80%, transparent)
-        );
+    padding: 1rem 1.1rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--sl-color-gray-5) 75%, var(--sl-color-accent));
+    background: color-mix(in srgb, var(--sl-color-black) 55%, transparent);
     color: var(--cs-ink);
     font-size: 0.9375rem;
     font-weight: 600;
@@ -594,24 +588,26 @@ site-search dialog::backdrop {
     list-style: none;
 }
 
-#starlight__search .pagefind-ui__results:not(:has(.pagefind-ui__result))::after {
-    content: 'Try a shorter term, or search for route, MCP, errors, or OpenAPI.';
-    display: block;
-    margin: 0;
-    padding: 0 1.1rem 1.15rem;
-    border: 1px dashed color-mix(in srgb, var(--sl-color-gray-5) 70%, var(--sl-color-accent));
-    border-top: 0;
-    border-radius: 0 0 0.75rem 0.75rem;
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--sl-color-gray-6) 80%, transparent),
-            color-mix(in srgb, var(--sl-color-black) 55%, transparent)
-        );
+.cs-search-empty-help {
+    margin: 0.65rem 0 0;
+    padding: 0 0.15rem;
     color: var(--cs-muted);
     font-size: 0.8125rem;
-    font-weight: 400;
     line-height: 1.45;
+}
+
+.cs-search-empty-help[hidden] {
+    display: none !important;
+}
+
+.cs-search-empty-help a {
+    color: var(--sl-color-text-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.cs-search-empty-help a:hover {
+    color: var(--cs-cyan);
 }
 
 #starlight__search mark {
@@ -790,8 +786,7 @@ html[data-theme='light'] .cs-search-idle__chips button {
     color: var(--cs-ink);
 }
 
-html[data-theme='light'] #starlight__search:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message,
-html[data-theme='light'] #starlight__search .pagefind-ui__results:not(:has(.pagefind-ui__result))::after {
+html[data-theme='light'] #starlight__search:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
     background: #fff;
     border-color: var(--sl-color-gray-5);
 }

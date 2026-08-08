@@ -1,8 +1,9 @@
 ---
 /**
  * Idle / empty polish for Starlight’s Pagefind search dialog.
- * Injects a suggestion panel when there is no active query yet.
+ * Injects suggestion chips when idle, and a Discord help line on zero results.
  */
+const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 ---
 
 <template id="cs-search-idle-template">
@@ -17,6 +18,12 @@
 			<li><button type="button" data-cs-search-suggestion="SDK">SDK</button></li>
 		</ul>
 	</div>
+</template>
+
+<template id="cs-search-empty-help-template">
+	<p class="cs-search-empty-help" data-cs-search-empty-help hidden>
+		Stuck? Ask in <a href={discordInvite} target="_blank" rel="noopener noreferrer">Discord</a>.
+	</p>
 </template>
 
 <script>
@@ -38,6 +45,21 @@
 		return idle;
 	}
 
+	function ensureEmptyHelp(root: Element): HTMLElement | null {
+		const existing = root.querySelector<HTMLElement>('[data-cs-search-empty-help]');
+		if (existing) return existing;
+
+		const area = root.querySelector('.pagefind-ui__results-area');
+		if (!area) return null;
+
+		const template = document.querySelector<HTMLTemplateElement>('#cs-search-empty-help-template');
+		const help = template?.content.firstElementChild?.cloneNode(true);
+		if (!(help instanceof HTMLElement)) return null;
+
+		area.appendChild(help);
+		return help;
+	}
+
 	function setQuery(root: Element, query: string) {
 		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
 		if (!input) return;
@@ -47,7 +69,14 @@
 		input.focus();
 	}
 
-	function syncIdle(root: Element, idle: HTMLElement) {
+	function isZeroResults(root: Element): boolean {
+		if (root.querySelector('.pagefind-ui__result')) return false;
+		const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
+		if (!message.trim()) return false;
+		return !/searching/i.test(message);
+	}
+
+	function syncPanels(root: Element, idle: HTMLElement) {
 		const siteSearch = root.closest('site-search');
 		const searchReady =
 			Boolean(siteSearch?.hasAttribute('data-cs-search-ready')) ||
@@ -57,7 +86,11 @@
 		const drawerHidden = !drawer || drawer.classList.contains('pagefind-ui__hidden');
 		const query = input?.value ?? '';
 		const idleNow = isSearchIdle(searchReady, drawerHidden, query);
+		const zeroNow = searchReady && !idleNow && isZeroResults(root);
 		idle.hidden = !idleNow;
+
+		const help = ensureEmptyHelp(root);
+		if (help) help.hidden = !zeroNow;
 
 		const dialog = root.closest('dialog');
 		if (!dialog) return;
@@ -67,8 +100,10 @@
 			dialog.dataset.csSearch = 'idle';
 		} else if (root.querySelector('.pagefind-ui__result')) {
 			dialog.dataset.csSearch = 'results';
-		} else {
+		} else if (zeroNow) {
 			dialog.dataset.csSearch = 'empty';
+		} else {
+			dialog.dataset.csSearch = 'searching';
 		}
 	}
 
@@ -90,10 +125,10 @@
 			const query = suggestion?.dataset.csSearchSuggestion;
 			if (!query) return;
 			setQuery(root, query);
-			syncIdle(root, idle);
+			syncPanels(root, idle);
 		});
 
-		const sync = () => syncIdle(root, idle);
+		const sync = () => syncPanels(root, idle);
 		const observer = new MutationObserver(sync);
 		observer.observe(root, {
 			subtree: true,

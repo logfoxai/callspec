@@ -52,18 +52,27 @@ test('idle state ships a real empty panel (not a blank dialog)', (assert) => {
 	);
 });
 
-test('zero-results message is styled as a composed empty state', (assert) => {
+test('zero-results quotes the term and offers Discord help', (assert) => {
 	assert.equal(existsSync(enI18nPath), true, 'src/content/i18n/en.json must exist');
 	assert.equal(
-		/\.pagefind-ui__message/.test(customCss) &&
-			/pagefind-ui__results:not\(:has\(\.pagefind-ui__result\)\)/.test(customCss),
+		/"pagefind\.zero_results"\s*:\s*"No matches for [“"]\[SEARCH_TERM\][”"]/.test(enI18n),
 		true,
-		'CSS must target the zero-results message + empty results list',
+		'zero_results copy should quote the search term',
 	);
 	assert.equal(
-		/"pagefind\.zero_results"\s*:\s*"[^"]+"/.test(enI18n),
+		/Try a shorter term/.test(customCss),
+		false,
+		'must not keep the old tip copy under no-matches',
+	);
+	assert.equal(
+		/discord\.gg\/2wyYnBDhWQ/.test(polishAstro),
 		true,
-		'en i18n should override Pagefind’s zero_results copy',
+		'zero-results help should link the Callspec Discord invite',
+	);
+	assert.equal(
+		/data-cs-search-empty-help/.test(polishAstro) && /\.cs-search-empty-help/.test(customCss),
+		true,
+		'empty-help panel must be injected and styled',
 	);
 });
 
