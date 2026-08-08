@@ -37,4 +37,9 @@ test('theme control is a click toggle with in-track sun/moon; default system', (
 		true,
 		'thumb has light/dark positions only (system follows resolved)',
 	);
+	assert.equal(
+		/--ts-thumb:\s*#fff/.test(theme) && !theme.includes('--ts-thumb: var(--sl-color-white)'),
+		true,
+		'thumb uses a real white (Starlight --sl-color-white is text color)',
+	);
 });

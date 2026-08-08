@@ -101,11 +101,15 @@ import {Icon} from '@astrojs/starlight/components';
 </script>
 
 <style>
+	/*
+	 * Physical colors — Starlight’s --sl-color-white is text (dark in light mode),
+	 * so it must not be used for the knob or the sun vanishes on a black thumb.
+	 */
 	.theme-slider {
-		--ts-track: var(--sl-color-gray-5);
-		--ts-thumb: var(--sl-color-white);
-		--ts-ink: var(--sl-color-gray-2);
-		--ts-ink-on-thumb: #12141a;
+		--ts-track: color-mix(in srgb, var(--sl-color-gray-5) 88%, var(--sl-color-gray-2));
+		--ts-thumb: #ffffff;
+		--ts-ink: color-mix(in srgb, var(--sl-color-gray-2) 70%, transparent);
+		--ts-ink-on-thumb: #1a1b20;
 		display: grid;
 		place-items: center;
 		width: auto;
@@ -120,8 +124,8 @@ import {Icon} from '@astrojs/starlight/components';
 
 	.theme-slider__shell {
 		position: relative;
-		width: 3.15rem;
-		height: 1.55rem;
+		width: 3.35rem;
+		height: 1.65rem;
 		border-radius: 999px;
 		background: var(--ts-track);
 		box-shadow: inset 0 0 0 1px var(--sl-color-hairline);
@@ -147,54 +151,53 @@ import {Icon} from '@astrojs/starlight/components';
 		z-index: 1;
 		display: grid;
 		place-items: center;
-		width: 1.15rem;
-		height: 1.15rem;
+		width: 1.2rem;
+		height: 1.2rem;
 		transform: translateY(-50%);
 		color: var(--ts-ink);
-		opacity: 0.65;
+		opacity: 1;
 		pointer-events: none;
-		transition: opacity 0.15s ease, color 0.15s ease;
+		transition: color 0.15s ease, opacity 0.15s ease;
 	}
 
 	.theme-slider__icon--sun {
-		left: 0.2rem;
+		left: 0.22rem;
 	}
 
 	.theme-slider__icon--moon {
-		right: 0.2rem;
+		right: 0.22rem;
 	}
 
 	.theme-slider__icon :global(svg) {
-		width: 0.85rem;
-		height: 0.85rem;
+		width: 0.9rem;
+		height: 0.9rem;
+		fill: currentColor;
 	}
 
+	/* Active side: icon sits on the white knob */
 	.theme-slider[data-resolved='light'] .theme-slider__icon--sun,
 	.theme-slider[data-resolved='dark'] .theme-slider__icon--moon {
 		z-index: 3;
 		color: var(--ts-ink-on-thumb);
-		opacity: 1;
 	}
 
 	.theme-slider__thumb {
 		position: absolute;
 		top: 50%;
-		left: 0.16rem;
+		left: 0.18rem;
 		z-index: 2;
-		width: 1.22rem;
-		height: 1.22rem;
+		width: 1.3rem;
+		height: 1.3rem;
 		border-radius: 50%;
 		background: var(--ts-thumb);
-		box-shadow:
-			0 1px 2px rgb(0 0 0 / 22%),
-			0 0 0 1px color-mix(in srgb, var(--sl-color-gray-2) 22%, transparent);
+		box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
 		transform: translate(0, -50%);
 		transition: transform 0.18s ease;
 		pointer-events: none;
 	}
 
 	.theme-slider[data-resolved='dark'] .theme-slider__thumb {
-		transform: translate(1.6rem, -50%);
+		transform: translate(1.7rem, -50%);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
