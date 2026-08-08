@@ -562,6 +562,11 @@ site-search dialog::backdrop {
     margin-top: 0.85rem;
 }
 
+/* Starlight reset (`* { margin: 0 }`) beats Pagefind’s layered button margin. */
+#starlight__search .pagefind-ui__button {
+    margin-top: 0.85rem;
+}
+
 #starlight__search .pagefind-ui__message {
     font-size: 0.8125rem;
     font-weight: 500;
