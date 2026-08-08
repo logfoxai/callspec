@@ -12,32 +12,36 @@ const pageTitleAstro = readFileSync(
 	'utf8',
 );
 
-test('body stack is Inter; heading stack is Oxanium', (assert) => {
+test('body stack is Inter; heading stack is Arial-like', (assert) => {
 	assert.equal(
 		/--sl-font:\s*'Inter'/.test(starlightCss),
 		true,
 		'--sl-font is Inter',
 	);
 	assert.equal(
-		/--cs-font-heading:\s*'Oxanium'/.test(starlightCss),
+		/--cs-font-heading:\s*Arial,\s*'Helvetica Neue',\s*Helvetica/.test(starlightCss),
 		true,
-		'--cs-font-heading is Oxanium',
+		'--cs-font-heading is Arial / Helvetica stack',
 	);
 	assert.equal(
-		fontsCss.includes("font-family: 'Inter'") &&
-			fontsCss.includes("font-family: 'Oxanium'"),
+		fontsCss.includes("font-family: 'Inter'"),
 		true,
-		'@font-face registers both families',
+		'@font-face registers Inter',
+	);
+	assert.equal(
+		fontsCss.includes('Oxanium') || fontsCss.includes('Chakra Petch') || fontsCss.includes('Google Sans'),
+		false,
+		'no display webfont in fonts.css',
 	);
 });
 
-test('headers and CTAs use Oxanium; UI/body stay Inter', (assert) => {
+test('headers and CTAs use heading token; UI/body stay Inter', (assert) => {
 	assert.equal(
 		/\.splash-hero__headline\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(
 			splashCss,
 		),
 		true,
-		'splash hero headline uses Oxanium',
+		'splash hero headline uses heading font',
 	);
 	assert.equal(
 		/\.splash-hero__lead\s*\{[^}]*font-family:\s*var\(--sl-font\)/s.test(splashCss),
@@ -47,7 +51,7 @@ test('headers and CTAs use Oxanium; UI/body stay Inter', (assert) => {
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-family:\s*var\(--cs-font-heading\)/s.test(splashCss),
 		true,
-		'splash CTA buttons use Oxanium',
+		'splash CTA buttons use heading font',
 	);
 	assert.equal(
 		/\.sl-link-button\s*\{[^}]*font-weight:\s*500/s.test(splashCss),

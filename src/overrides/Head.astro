@@ -1,8 +1,5 @@
 ---
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
-import oxanium500 from '@fontsource/oxanium/files/oxanium-latin-500-normal.woff2?url';
-import oxanium600 from '@fontsource/oxanium/files/oxanium-latin-600-normal.woff2?url';
-import oxanium700 from '@fontsource/oxanium/files/oxanium-latin-700-normal.woff2?url';
 
 const {head} = Astro.locals.starlightRoute;
 ---
@@ -10,6 +7,3 @@ const {head} = Astro.locals.starlightRoute;
 {head.map(({tag: Tag, attrs, content}) => <Tag {...attrs} set:html={content} />)}
 
 <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href={oxanium500} as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href={oxanium600} as="font" type="font/woff2" crossorigin="anonymous" />
-<link rel="preload" href={oxanium700} as="font" type="font/woff2" crossorigin="anonymous" />
