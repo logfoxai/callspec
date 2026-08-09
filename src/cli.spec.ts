@@ -12,9 +12,34 @@ test('cli --help exits zero', (assert) => {
     const output = execSync('node dist/cli/generate-client.js --help', {encoding: 'utf8'});
 
     assert.equal(output.includes('--output'), true);
+    assert.equal(output.includes('export-docs-ui'), true);
     assert.equal(output.includes('--validators'), false);
     assert.equal(output.includes('schemas'), true);
     assert.equal(output.includes('callspec.json'), true);
+
+});
+
+test('cli export-docs-ui writes static dist', (assert) => {
+
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'callspec-cli-export-ui-'));
+
+    const output = execSync(
+        `node dist/cli/generate-client.js export-docs-ui --out ${outDir} `
+        + '--spec-url https://api.example.com/v1/callspec.json '
+        + '--rpc-base https://api.example.com/v1 '
+        + '--title "Export API"',
+        {encoding: 'utf8'},
+    );
+
+    assert.equal(output.includes('Wrote Docs UI'), true);
+    assert.equal(fs.existsSync(path.join(outDir, 'index.html')), true);
+    assert.equal(fs.existsSync(path.join(outDir, 'assets')), true);
+
+    const html = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
+
+    assert.equal(html.includes('"specUrl":"https://api.example.com/v1/callspec.json"'), true);
+
+    fs.rmSync(outDir, {recursive: true, force: true});
 
 });
 

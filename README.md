@@ -60,6 +60,7 @@ For coding agents: [Working with Coding Agents](src/content/docs/coding-agents.m
 - [Shared validation](src/content/docs/shared-validation.md)
 - [Docs UI](src/content/docs/docs-ui.md)
 - [Docs UI branding](src/content/docs/docs-ui-branding.md)
+- [Hosting Docs UI (CloudFront / Pages)](src/content/docs/hosting-cloudfront-pages.md)
 - [MCP Server](src/content/docs/mcp.md)
 - [OpenAPI](src/content/docs/openapi.md)
 - [Callspec + Fern](src/content/docs/using-fern-with-callspec.md)

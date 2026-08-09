@@ -2,16 +2,20 @@
 
 import {CallspecDocumentError} from '../callspecDocument';
 import {generateClientFile} from '../generateClient/generateClient';
+import {printExportDocsUiHelp, runExportDocsUi} from './export-docs-ui';
 
 function printHelp(): void {
 
     process.stdout.write(`Usage:
   callspec <source> --output <file> [--class-name <name>]
+  callspec export-docs-ui --out <dir> --spec-url <url> --rpc-base <url> [options]
 
-Arguments:
+Commands:
+  <source> …          Generate a typed TypeScript client from callspec.json
+  export-docs-ui …    Write a static Docs UI folder for S3 / Pages hosting
+
+Client generation:
   <source>    Mount point (URL or directory) or path to callspec.json
-
-Options:
   --output      Output TypeScript file (required)
   --class-name  Generated client class name (default: ApiClient)
   --help        Show this help
@@ -25,6 +29,7 @@ Examples:
   callspec ./ --output ./src/generated/api.ts
   callspec http://127.0.0.1:3000/v1 --output ./src/generated/api.ts
   callspec https://api.example.com/v1/callspec.json --output ./src/generated/api.ts
+  callspec export-docs-ui --help
 `);
 
 }
@@ -71,6 +76,23 @@ function parseArgs(argv: string[]): {
 }
 
 async function main(): Promise<void> {
+
+    const command = process.argv[2];
+
+    if (command === 'export-docs-ui') {
+
+        if (process.argv.includes('--help') || process.argv.includes('-h')) {
+
+            printExportDocsUiHelp();
+            process.exit(0);
+            return;
+
+        }
+
+        process.exit(runExportDocsUi(process.argv));
+        return;
+
+    }
 
     const parsed = parseArgs(process.argv);
 
