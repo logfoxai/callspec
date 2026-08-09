@@ -103,3 +103,14 @@ export function ProductView() {
 ```
 
 See [Authentication](./authentication.md) for Bearer headers and [Error handling](./error-handling.md) for the Result contract and client normalization.
+
+## Dates
+
+JSON has no `Date` type. On the wire, dates are **ISO 8601 strings** (`2024-01-15T12:00:00.000Z`) — matching OpenAPI `format: date-time`.
+
+`CallspecClient` converts automatically:
+
+- **Requests:** pass `Date` in input objects; `JSON.stringify` sends ISO strings.
+- **Responses:** ISO strings in JSON are revived to `Date` before `result.value` is returned.
+
+Legacy responses using `{ __type: 'Date', value: '…' }` are still accepted on read. Handlers keep using `p.date()`; coercion runs at the RPC boundary before validation.
