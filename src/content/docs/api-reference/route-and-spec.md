@@ -64,9 +64,10 @@ Only routes with `scope: 'public'` appear in `callspec.json`, OpenAPI, SDK codeg
 | `website` | — | Docs UI home link | `{ url, label? }` — `label` defaults to the hostname or “Learn more”. |
 | `logo` | — | Docs UI header + home | `{ light, dark? }` — image URLs; see [Logo URLs](#logo-urls). |
 | `favicon` | `logo.light` | Docs UI tab icon | Explicit favicon URL; falls back to `logo.light`. |
-| `theme` | — | Docs UI CSS variables | `{ accent?, background?, surface?, fontFamily?, fontUrls? }` — injected at boot. Accent-only keeps light/dark distinct; `background` / `surface` pin both modes and derive text for contrast. |
+| `theme` | — | Docs UI CSS variables | `{ accent?, background?, surface?, fontFamily?, fontUrls?, customCssUrl?, customCss? }` — vars injected at boot; optional stylesheet URL / capped inline CSS. Accent-only keeps light/dark distinct; `background` / `surface` pin both modes and derive text for contrast. See [escape hatches](../docs-ui-branding.md#escape-hatches-tier-3). |
 | `navbarLinks` | — | Docs UI top header | `{ label, href, external? }[]` — product links next to the brand. |
 | `footer` | `{ poweredBy: true }` | Docs UI footer | `{ poweredBy?: boolean }` — set `poweredBy: false` to hide “Powered by callspec”. |
+| `headerHtml` | — | Docs UI above `#app` | Trusted-server HTML snippet (last resort; prefer `navbarLinks`). Server config only. |
 | `sdkInstall` | — | Docs UI home | Static install hint with copy button (e.g. `npm i @acme/sdk`). |
 | `authHint` | auto | Docs UI MCP connect panel (home page) | Prose about Bearer tokens shown in the connect UI. Auto-set when bearer routes exist unless you override. |
 | `mcpInstructions` | — | MCP server `instructions` field | Agent-facing server description returned by MCP `initialize` — not shown in the docs UI connect panel. |

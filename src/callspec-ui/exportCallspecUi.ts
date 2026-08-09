@@ -9,6 +9,8 @@ export type ExportCallspecUiOptions = {
     rpcBase: string
     title?: string
     branding?: CallspecUiBranding
+    /** Mount-level stylesheet URL; wins over `branding.theme.customCssUrl`. */
+    customCssUrl?: string
     mcpPath?: string
     mcp?: CallspecUiMcp
 };
@@ -43,6 +45,7 @@ export function exportCallspecUi(options: ExportCallspecUiOptions): void {
         rpcBase: options.rpcBase,
         title: options.title,
         branding: options.branding,
+        customCssUrl: options.customCssUrl,
         mcpPath: defaultMcpPath(options.rpcBase, options.mcpPath),
         mcp: options.mcp,
     });

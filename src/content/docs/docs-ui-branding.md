@@ -42,12 +42,13 @@ export const api = spec({
 | `website` | Outbound link on home |
 | `logo.light` / `logo.dark` | Header + home mark (`dark` falls back to `light`) |
 | `favicon` | Docs tab icon (defaults to `logo.light` when omitted) |
-| `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. |
+| `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. Escape hatches: `customCssUrl`, `customCss` — see below. |
 | `navbarLinks` | Top header links (`label`, `href`, optional `external`) |
 | `footer.poweredBy` | Show “Powered by callspec” (default `true` when omitted) |
 | `sdkInstall` | Static install command on the home page (copy button) |
 | `authHint` | Copy in the MCP connect panel when bearer tools exist |
 | `mcpInstructions` | MCP `instructions` on `initialize` — **agents** see this, not the docs chrome |
+| `headerHtml` | Last-resort HTML above the app shell — prefer `navbarLinks` |
 
 Per-route labels: `route({ meta: { summary, tags, description? } })` — sidebar grouping and route titles.
 
@@ -63,3 +64,49 @@ mountSpec(router, api, {docsPath: '/docs'});
 ```
 
 Or use absolute CDN URLs and skip static hosting.
+
+## Escape hatches (Tier 3)
+
+Use these only when theme vars + `navbarLinks` are not enough. Callspec UI is a **live contract explorer**, not a docs CMS — do not build marketing sites or MDX guides here.
+
+**Security:** set these only from **server-side** `meta` / mount options (your TypeScript config). Never accept them from query params, request bodies, or other untrusted input.
+
+| Escape hatch | Where | Behavior |
+|--------------|-------|----------|
+| `theme.customCssUrl` | `meta.theme` | Injects `<link rel="stylesheet" href="…">` (href escaped). |
+| Mount `customCssUrl` | `mountCallspecUi({ customCssUrl })` | Same link injection; **wins over** `meta.theme.customCssUrl`. |
+| `theme.customCss` | `meta.theme` | Small inline `<style>` (capped at 8KB UTF-8; `</style` sequences stripped). |
+| `headerHtml` | `meta` | Trusted HTML snippet above `#app`, wrapped in `.callspec-ui-header-html`. Prefer `navbarLinks`. Basic stripping of `<script>`, `<base>`, `on*` (including `/onload=`), and `javascript:` (including common HTML-entity encodings) — not a full HTML sanitizer. |
+
+### When not to use them
+
+- Prefer `theme.accent` / `background` / `surface` / `fontFamily` / `fontUrls` for brand color and type.
+- Prefer `navbarLinks` for product / docs / GitHub links in the top header.
+- Do **not** use `headerHtml` for user-generated content, CMS snippets, or anything that is not under your deploy-time control.
+- Do **not** treat `customCss` as a place for large design systems — host a stylesheet and use `customCssUrl` (or fix the theme vars).
+
+### Stable class hooks
+
+Override carefully; these are the main layout hooks:
+
+| Class / id | Role |
+|------------|------|
+| `.top-header` | Sticky product header |
+| `.top-nav` / `.top-nav-link` | Product links from `navbarLinks` |
+| `.sidebar` | Route navigation drawer / column |
+| `.footer` | “Powered by callspec” footer |
+| `#app` | App shell grid |
+| `.callspec-ui-header-html` | Wrapper around `headerHtml` |
+
+Theme CSS variables (`--accent`, `--bg`, `--surface`, `--sans`, …) remain the preferred override surface.
+
+```typescript
+theme: {
+    accent: '#0ea5e9',
+    customCssUrl: 'https://cdn.acme.example/docs-overrides.css',
+    // or a tiny inline tweak (≤ 8KB):
+    // customCss: '.top-header { border-bottom-color: var(--accent); }',
+},
+// last resort only — prefer navbarLinks:
+// headerHtml: '<div class="acme-banner">…</div>',
+```
