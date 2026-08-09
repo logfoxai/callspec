@@ -8,6 +8,41 @@ export function copyButtonContent(isCopied: boolean): {label: string; state: 'id
         : {label: 'Copy', state: 'idle'};
 }
 
+/** Expressive Code joins multi-line `data-code` with U+007F. */
+export function ecDataCodeToText(dataCode: string): string {
+    return dataCode.replace(/\u007f/g, '\n');
+}
+
+export type TryCopyTextDeps = {
+    writeText?: (text: string) => Promise<void>
+};
+
+/**
+ * Copy text like app-frontend `useCopyToClipboard`: succeed → true; failure → false.
+ * Inject `writeText` in tests; browser path uses `navigator.clipboard.writeText`.
+ */
+export async function tryCopyText(text: string, deps: TryCopyTextDeps = {}): Promise<boolean> {
+    if (!text) {
+        return false;
+    }
+
+    const writeText = deps.writeText
+        ?? (typeof navigator !== 'undefined' && navigator.clipboard?.writeText
+            ? (value: string): Promise<void> => navigator.clipboard.writeText(value)
+            : undefined);
+
+    if (!writeText) {
+        return false;
+    }
+
+    try {
+        await writeText(text);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 /** File-extension → short language label for code-block chrome. */
 const EXT_KIND: ReadonlyArray<readonly [RegExp, string]> = [
     [/\.tsx$/i, 'TSX'],
@@ -99,15 +134,25 @@ function ensureCopyInHeader(frame: HTMLElement, header: HTMLElement): void {
     renderCopyButton(button, false);
 
     let resetTimer: ReturnType<typeof setTimeout> | undefined;
-    button.addEventListener('click', () => {
-        renderCopyButton(button, true);
-        if (resetTimer !== undefined) {
-            clearTimeout(resetTimer);
-        }
-        resetTimer = setTimeout(() => {
-            renderCopyButton(button, false);
-            resetTimer = undefined;
-        }, COPY_FEEDBACK_MS);
+    button.addEventListener('click', (event) => {
+        // Own the clipboard path so we only show “Copied!” after a real success.
+        event.preventDefault();
+        event.stopPropagation();
+
+        const text = ecDataCodeToText(button.dataset.code ?? '');
+        void tryCopyText(text).then((ok) => {
+            if (!ok) {
+                return;
+            }
+            renderCopyButton(button, true);
+            if (resetTimer !== undefined) {
+                clearTimeout(resetTimer);
+            }
+            resetTimer = setTimeout(() => {
+                renderCopyButton(button, false);
+                resetTimer = undefined;
+            }, COPY_FEEDBACK_MS);
+        });
     });
 }
 

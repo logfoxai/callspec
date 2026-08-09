@@ -1,5 +1,11 @@
 import {test} from 'kizu';
-import {COPY_FEEDBACK_MS, copyButtonContent, fileKindFromName} from './codeBlockTitles';
+import {
+    COPY_FEEDBACK_MS,
+    copyButtonContent,
+    ecDataCodeToText,
+    fileKindFromName,
+    tryCopyText,
+} from './codeBlockTitles';
 
 test('copyButtonContent matches app-frontend idle / copied labels', (assert) => {
     assert.equal(copyButtonContent(false), {label: 'Copy', state: 'idle'});
@@ -8,6 +14,24 @@ test('copyButtonContent matches app-frontend idle / copied labels', (assert) => 
 
 test('COPY_FEEDBACK_MS matches useCopyToClipboard reset window', (assert) => {
     assert.equal(COPY_FEEDBACK_MS, 1500);
+});
+
+test('ecDataCodeToText turns EC delimiter into newlines', (assert) => {
+    assert.equal(ecDataCodeToText(`a\u007fb`), 'a\nb');
+    assert.equal(ecDataCodeToText('plain'), 'plain');
+});
+
+test('tryCopyText returns true only when write succeeds', async (assert) => {
+    assert.equal(await tryCopyText('hi', {writeText: async () => undefined}), true);
+    assert.equal(
+        await tryCopyText('hi', {
+            writeText: async () => {
+                throw new Error('denied');
+            },
+        }),
+        false,
+    );
+    assert.equal(await tryCopyText('', {writeText: async () => undefined}), false);
 });
 
 test('fileKindFromName maps common extensions', (assert) => {
