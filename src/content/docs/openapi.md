@@ -27,7 +27,7 @@ Auth/scope details: [Auth and scope](./api-reference/auth-and-scope.md).
 
 Served at **`{mount}/openapi.json`** whenever `docs` is enabled (default). Disabled with `mountSpec(router, api, {docs: false})` — same switch as the docs UI and `callspec.json`.
 
-Replace the host, port, and mount with yours:
+Replace the host (`127.0.0.1`), port (`3000`), and mount (`/v1`) with yours:
 
 ```bash
 curl -fsS http://127.0.0.1:3000/v1/openapi.json -o openapi.json
