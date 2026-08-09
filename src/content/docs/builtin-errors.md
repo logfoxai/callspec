@@ -47,6 +47,6 @@ Always in every generated `*Result` union. You cannot `return` these from a serv
 | `NETWORK_ERROR` | `0` | `fetch` failed before any HTTP response (DNS, offline, abort, …) | `{ message, name? }` from the thrown `Error` when available |
 | `UNKNOWN_ERROR` | HTTP status of the response | Response outside the route contract (proxy HTML, undeclared `{ error }`, invalid domain payload, …) | `{ body, headers? }` — **debug only; do not show to end users** |
 
-Copy-paste **exhaustive** client helper (every code above filled in): [Client usage](./client-usage.md#exhaustive-call-template).
+Typical client pattern (handle what you care about + shared default): [Client usage](./client-usage.md).
 
 Normalization details (status fallbacks, fuzzy body match): [Client error normalization](./error-handling.md#client-error-normalization).
