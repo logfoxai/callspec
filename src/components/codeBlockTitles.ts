@@ -179,7 +179,10 @@ function enhanceTitle(frame: HTMLElement): void {
 }
 
 export function enhanceCodeBlockTitles(root: ParentNode = document): void {
-    for (const frame of root.querySelectorAll('.expressive-code .frame.has-title, .expressive-code .frame.is-terminal')) {
+    const frames = Array.from(
+        root.querySelectorAll('.expressive-code .frame.has-title, .expressive-code .frame.is-terminal'),
+    );
+    for (const frame of frames) {
         if (frame instanceof HTMLElement) {
             enhanceTitle(frame);
         }
