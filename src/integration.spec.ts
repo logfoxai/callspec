@@ -233,16 +233,23 @@ test('integration: callspec UI at /docs', async (assert) => {
 
         assert.equal(specFromDocs.status, 200);
         assert.equal((await specFromDocs.json() as {callspec?: string}).callspec, '2.0');
-        assert.equal(html.includes('src="./assets/app.js"'), true);
+        assert.equal(/src="\.\/assets\/app\.[a-f0-9]{8}\.js"/.test(html), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
         assert.equal(html.includes('class="footer-link"'), true);
         assert.equal(html.includes('callspec'), true);
+        assert.equal(res.headers.get('cache-control'), 'no-cache');
 
-        const asset = await fetch(`${base}/docs/assets/app.js`);
+        const jsMatch = html.match(/src="\.\/assets\/(app\.[a-f0-9]{8}\.js)"/);
+        const jsName = jsMatch?.[1];
+
+        assert.equal(typeof jsName, 'string');
+
+        const asset = await fetch(`${base}/docs/assets/${jsName}`);
 
         assert.equal(asset.status, 200);
         assert.equal(asset.headers.get('content-type')?.includes('javascript'), true);
+        assert.equal(asset.headers.get('cache-control'), 'public, max-age=31536000, immutable');
 
         const bare = await fetch(`${base}/docs`, {redirect: 'manual'});
 

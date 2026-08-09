@@ -3,6 +3,7 @@ import path from 'path';
 import type {RequestHandler, Router} from 'express';
 import express from 'express';
 import type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
+import {cacheControlForUiAsset, UI_HTML_CACHE_CONTROL} from './uiCacheHeaders';
 
 export type MountCallspecUiOptions = {
     /** Mount path for the UI. Default `/docs`. */
@@ -23,7 +24,8 @@ export type MountCallspecUiOptions = {
 const CONFIG_PLACEHOLDER = '<!--CALLSPEC_UI_CONFIG-->';
 const FOOTER_RE = /<footer\b[^>]*>[\s\S]*?<\/footer>/i;
 
-function uiDir(): string {
+/** Resolve built Docs UI directory (index.html + assets/). */
+export function resolveCallspecUiDir(): string {
 
     const candidates = [
         path.join(__dirname, 'ui'),
@@ -47,7 +49,7 @@ function uiDir(): string {
 
 function readIndexHtml(): string {
 
-    const file = path.join(uiDir(), 'index.html');
+    const file = path.join(resolveCallspecUiDir(), 'index.html');
 
     return fs.readFileSync(file, 'utf8');
 
@@ -64,7 +66,7 @@ function escapeHtmlAttr(value: string): string {
 }
 
 /** Inject config, favicon, and optional footer into the built docs UI shell. */
-function renderCallspecUiPage(config: CallspecUiConfig): string {
+export function renderCallspecUiPage(config: CallspecUiConfig): string {
 
     let html = readIndexHtml();
     const branding = config.branding;
@@ -105,7 +107,7 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
     const mountPathWithSlash = mountPath.endsWith('/') ? mountPath : `${mountPath}/`;
     const specUrl = options.specPath ?? '../callspec.json';
     const rpcBase = options.rpcBase ?? '..';
-    const assetsDir = uiDir();
+    const assetsDir = resolveCallspecUiDir();
 
     const servePage: RequestHandler = (req, res) => {
 
@@ -116,6 +118,7 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
 
         }
 
+        res.setHeader('Cache-Control', UI_HTML_CACHE_CONTROL);
         res.type('html').send(renderCallspecUiPage({
             specUrl,
             rpcBase,
@@ -128,6 +131,13 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
     };
 
     router.get(mountPath, servePage);
-    router.use(mountPathWithSlash, express.static(assetsDir, {index: false}));
+    router.use(mountPathWithSlash, express.static(assetsDir, {
+        index: false,
+        setHeaders: (res, filePath) => {
+
+            res.setHeader('Cache-Control', cacheControlForUiAsset(filePath));
+
+        },
+    }));
 
 }

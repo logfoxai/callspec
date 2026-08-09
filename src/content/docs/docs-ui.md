@@ -56,6 +56,7 @@ Routes with `auth: 'bearer'` need a token in the UI session (same `Authorization
 ## Related
 
 - [Branding](./docs-ui-branding.md) — `meta` title, logo, theme, navbar, footer, auth/MCP hints
+- [Hosting (CloudFront / Pages)](./hosting-cloudfront-pages.md) — reverse proxy vs static export
 - [MCP](./mcp.md) — `mcp: true` on routes, connect from the home panel
 - [OpenAPI](./openapi.md) — `/openapi.json` for gateways and multi-lang tools
 - [SDK generation](./sdk-generation.md) — TypeScript client from `callspec.json`, not from the docs UI

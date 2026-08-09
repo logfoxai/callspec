@@ -121,6 +121,7 @@ export default defineConfig({
                     items: [
                         {label: 'Overview', slug: 'docs-ui'},
                         {label: 'Branding', slug: 'docs-ui-branding'},
+                        {label: 'Hosting (CloudFront / Pages)', slug: 'hosting-cloudfront-pages'},
                     ],
                 },
                 {
