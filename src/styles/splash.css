@@ -421,7 +421,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
             align-items: stretch;
         }
 
-        @media (min-width: 72rem) {
+        @media (min-width: 68rem) {
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 1.5rem;
             align-items: stretch;
