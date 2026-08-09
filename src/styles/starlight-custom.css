@@ -361,20 +361,23 @@ html[data-has-sidebar]
     width: 1%;
 }
 
-/* 2-column tables — last column stays compact */
-html[data-has-sidebar]
-    .sl-markdown-content
-    table:not(:has(thead th:nth-child(3)))
-    :is(th, td):last-child:not(:where(.not-content *)) {
-    width: 30%;
-}
-
+/* 2-column tables — label/token column stays compact; content column can wrap */
 html[data-has-sidebar]
     .sl-markdown-content
     table:not(:has(thead th:nth-child(3)))
     td:first-child:not(:where(.not-content *)) {
     font-weight: 500;
     color: var(--cs-ink);
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+html[data-has-sidebar]
+    .sl-markdown-content
+    table:not(:has(thead th:nth-child(3)))
+    td:last-child:not(:where(.not-content *)) {
+    vertical-align: top;
 }
 
 /* Keep tokens intact; .cs-table-scroll provides overflow-x */
