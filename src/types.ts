@@ -119,6 +119,8 @@ export type CallspecMeta = {
     navbarLinks?: CallspecNavbarLink[]
     footer?: CallspecUiFooter
     favicon?: string
+    /** Static SDK install hint on the docs home page (e.g. `npm i @acme/sdk`). */
+    sdkInstall?: string
 };
 
 export type Callspec<Ctx = unknown> = {

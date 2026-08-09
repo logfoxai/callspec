@@ -37,6 +37,9 @@ test('callspecDocumentToUiSpec: extracts routes from native document', (assert) 
                     required: ['teamId'],
                 },
                 output: {type: 'array', items: {type: 'object'}},
+                errors: {
+                    TEAM_NOT_FOUND: {status: 404, data: {type: 'object'}},
+                },
                 mcp: {enabled: true},
             },
         },
@@ -53,11 +56,15 @@ test('callspecDocumentToUiSpec: extracts routes from native document', (assert) 
     assert.equal(health?.auth, 'none');
     assert.equal(health?.mcp, false);
     assert.equal(health?.tags[0], 'health');
+    assert.equal(health?.errors, undefined);
 
     const search = spec.routes.find((route) => route.name === 'searchLogs');
 
     assert.equal(search?.auth, 'bearer');
     assert.equal(search?.mcp, true);
+    assert.equal(search?.errors, {
+        TEAM_NOT_FOUND: {status: 404, data: {type: 'object'}},
+    });
 
 });
 

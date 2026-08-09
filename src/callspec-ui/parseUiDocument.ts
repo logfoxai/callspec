@@ -1,4 +1,8 @@
-import type {CallspecDocument, CallspecDocumentRoute, JsonSchema} from '../callspecDocumentTypes';
+import type {
+    CallspecDocument,
+    CallspecDocumentRoute,
+    JsonSchema,
+} from '../callspecDocumentTypes';
 import {CALLSPEC_DOCUMENT_VERSION, CallspecDocumentError} from '../callspecDocumentTypes';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -22,6 +26,39 @@ function coerceAuthScope(route: Record<string, unknown>): {auth: 'none' | 'beare
 
 }
 
+function coerceRouteErrors(
+    value: unknown,
+): CallspecDocumentRoute['errors'] {
+
+    if (!isRecord(value)) {
+
+        return undefined;
+
+    }
+
+    const errors: NonNullable<CallspecDocumentRoute['errors']> = {};
+
+    for (const [code, entry] of Object.entries(value)) {
+
+        if (!isRecord(entry) || typeof entry.status !== 'number') {
+
+            continue;
+
+        }
+
+        errors[code] = {
+            status: entry.status,
+            ...(isRecord(entry.data) ? {data: entry.data} : {}),
+            ...(entry.dataRequired === false ? {dataRequired: false} : {}),
+            ...(entry.dataRequired === true ? {dataRequired: true} : {}),
+        };
+
+    }
+
+    return Object.keys(errors).length ? errors : undefined;
+
+}
+
 function coerceRoute(name: string, value: unknown): CallspecDocumentRoute {
 
     const route = isRecord(value) ? value : {};
@@ -29,6 +66,7 @@ function coerceRoute(name: string, value: unknown): CallspecDocumentRoute {
         ? route.name
         : name;
     const {auth, scope} = coerceAuthScope(route);
+    const errors = coerceRouteErrors(route.errors);
 
     return {
         name: routeName,
@@ -41,6 +79,7 @@ function coerceRoute(name: string, value: unknown): CallspecDocumentRoute {
         scope,
         input: coerceSchema(route.input),
         output: coerceSchema(route.output),
+        ...(errors ? {errors} : {}),
         mcp: {
             enabled: isRecord(route.mcp) && route.mcp.enabled === true,
         },

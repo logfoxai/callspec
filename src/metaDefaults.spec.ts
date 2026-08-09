@@ -72,6 +72,18 @@ test('metaBrandingFromCallspecMeta: omits optional branding when unset', (assert
     assert.equal(branding.theme, undefined);
     assert.equal(branding.navbarLinks, undefined);
     assert.equal(branding.footer, undefined);
+    assert.equal(branding.sdkInstall, undefined);
+
+});
+
+test('metaBrandingFromCallspecMeta: passes sdkInstall', (assert) => {
+
+    const branding = metaBrandingFromCallspecMeta({
+        title: 'Acme API',
+        sdkInstall: 'npm i @acme/sdk',
+    });
+
+    assert.equal(branding.sdkInstall, 'npm i @acme/sdk');
 
 });
 

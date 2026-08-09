@@ -26,6 +26,7 @@ export const api = spec({
             {label: 'GitHub', href: 'https://github.com/acme/api', external: true},
         ],
         footer: {poweredBy: false},
+        sdkInstall: 'npm i @acme/sdk',
         authHint: 'Production keys from the developer portal. Header: Authorization: Bearer <key>.',
         mcpInstructions: 'Catalog API — search by SKU, check stock. Bearer required for write tools.',
     },
@@ -44,6 +45,7 @@ export const api = spec({
 | `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. |
 | `navbarLinks` | Top header links (`label`, `href`, optional `external`) |
 | `footer.poweredBy` | Show “Powered by callspec” (default `true` when omitted) |
+| `sdkInstall` | Static install command on the home page (copy button) |
 | `authHint` | Copy in the MCP connect panel when bearer tools exist |
 | `mcpInstructions` | MCP `instructions` on `initialize` — **agents** see this, not the docs chrome |
 

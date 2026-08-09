@@ -2,8 +2,13 @@
  * Fictional "Chirp API v2" — Twitter/X-shaped demo spec for callspec UI dev server.
  */
 import {predicates as p} from 'runtyp';
+import {defineErrors} from '../defineErrors';
 import {spec} from '../defineSpec';
 import {route} from '../route';
+
+const userErr = defineErrors({
+    USER_NOT_FOUND: {status: 404},
+});
 
 const pagination = {
     maxResults: p.optional(p.number({
@@ -204,6 +209,7 @@ const meta = {
         {label: 'chirp.social', href: 'https://chirp.social', external: true},
         {label: 'GitHub', href: 'https://github.com/logfoxai/callspec', external: true},
     ],
+    sdkInstall: 'npm i @chirp/sdk',
     authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
     mcpInstructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
 };
@@ -229,6 +235,7 @@ const routes = {
             expansions: p.optional(p.array(p.string())),
         }),
         output: userOut,
+        errors: userErr,
         meta: {
             summary: 'Get User by ID',
             description: 'Returns information about a User specified by ID.',
@@ -236,9 +243,19 @@ const routes = {
         },
         auth: 'bearer',
         mcp: true,
-        handler: (input: {id: string}, _ctx: ChirpCtx) => ({
-            data: mockUser(input.id, 'janedoe'),
-        }),
+        handler: (input: {id: string}, _ctx: ChirpCtx) => {
+
+            if (input.id === '0') {
+
+                return userErr.USER_NOT_FOUND();
+
+            }
+
+            return {
+                data: mockUser(input.id, 'janedoe'),
+            };
+
+        },
     }),
 
     getUserByUsername: route({

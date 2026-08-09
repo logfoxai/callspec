@@ -25,6 +25,8 @@ export type CallspecUiBranding = {
     navbarLinks?: CallspecNavbarLink[]
     /** Footer options; poweredBy defaults to true when omitted */
     footer?: CallspecUiFooter
+    /** Static SDK install command shown on the home page */
+    sdkInstall?: string
 };
 
 export type CallspecUiMcp = {
