@@ -91,6 +91,7 @@ export default defineConfig({
                             label: 'Surfaces & exports',
                             slug: 'api-reference/surfaces-and-exports',
                         },
+                        {label: 'Builtin errors', slug: 'builtin-errors'},
                     ],
                 },
                 {
@@ -105,7 +106,6 @@ export default defineConfig({
                         {label: 'Authentication', slug: 'authentication'},
                         {label: 'Request context', slug: 'request-context'},
                         {label: 'Error handling', slug: 'error-handling'},
-                        {label: 'Builtin errors', slug: 'builtin-errors'},
                     ],
                 },
                 {

@@ -44,7 +44,7 @@ export const getProductById = route({...preds, handler: impl});
 | `route({ …, handler })` | Wired route for `spec`; handler also on `.handler` for tests |
 | `HandlerFor<typeof preds, Ctx?>` | Explicit handler type for a separate binding |
 
-Domain-specific errors: `defineErrors()` + `errors:` on the route — see [Error handling](../error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`.
+Domain-specific errors: `defineErrors()` + `errors:` on the route — see [Error handling](../error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors` — full list: [Builtin errors](../builtin-errors.md).
 
 Private routes: annotate auth context on the handler — `handler: async (input, ctx: Ctx) => …`. See [Authentication](../authentication.md) and [Request context](../request-context.md).
 
