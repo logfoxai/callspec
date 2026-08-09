@@ -56,12 +56,17 @@ export function notifyCall(
 	},
 ): void {
 	if (!onCall) return;
-	onCall(
-		toCallEvent({
-			surface: input.surface,
-			route: input.route,
-			durationMs: performance.now() - input.startedAt,
-			outcome: input.outcome,
-		}),
-	);
+	try {
+		onCall(
+			toCallEvent({
+				surface: input.surface,
+				route: input.route,
+				durationMs: performance.now() - input.startedAt,
+				outcome: input.outcome,
+			}),
+		);
+	} catch (err) {
+		// Never let a sink break MCP/RPC responses.
+		logger.error('onCall sink failed', err);
+	}
 }

@@ -62,3 +62,15 @@ test('notifyCall is a no-op without a sink', (assert) => {
 	});
 	assert.equal(true, true);
 });
+
+test('notifyCall swallows sink throws so callers stay unaffected', (assert) => {
+	notifyCall(() => {
+		throw new Error('sink down');
+	}, {
+		surface: 'mcp',
+		route: 'echo',
+		startedAt: performance.now(),
+		outcome: {ok: true},
+	});
+	assert.equal(true, true, 'did not rethrow');
+});
