@@ -49,9 +49,9 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `aut
 
 | Import | Use |
 |--------|-----|
-| `callspec` | `route`, `spec`, `mountSpec`, `defineErrors`, `err`, `logRequest`, `BUILTIN_ERROR`; types `Callspec`, `RoutesMap`, `MountSpecOptions`, `RouteFailure`, `RouteContractInput`, `HandlerFor`, `RouteHandler`, `Authenticate`, `WiredRoute` |
-| `callspec/client` | Runtime client (`CallspecClient`, `isCallspecOk`, `CLIENT_ERROR`, `BUILTIN_ERROR`, `CallspecRouteResult`, …) |
-| `callspec/document` | `emitCallspec`, `emitOpenApi`, `parseCallspecDocument`, `generateClientFile` |
+| `callspec` | Server: route, spec, mountSpec, defineErrors, err, logRequest, BUILTIN_ERROR.<br>Types: Callspec, RoutesMap, MountSpecOptions, RouteFailure, RouteContractInput, HandlerFor, RouteHandler, Authenticate, WiredRoute |
+| `callspec/client` | Runtime client: CallspecClient, isCallspecOk, CLIENT_ERROR, BUILTIN_ERROR, CallspecRouteResult, … |
+| `callspec/document` | emitCallspec, emitOpenApi, parseCallspecDocument, generateClientFile |
 
 ← [API reference](../api-reference.md)
 
