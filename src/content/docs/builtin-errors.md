@@ -12,15 +12,15 @@ Use `import {err} from 'callspec'` (or your `defineErrors` handle — builtins a
 |------|------|-------------|-----------------|
 | `NOT_FOUND` | 404 | Resource missing | `message?`, `description?` |
 | `FORBIDDEN` | 403 | Authenticated but not allowed | `message?`, `description?` |
-| `CONFLICT` | 409 | State conflict (duplicate, version) | `message?`, `description?` |
 | `TOO_MANY_REQUESTS` | 429 | Rate limit / quota | `title?`, `message?` |
 | `SERVICE_UNAVAILABLE` | 503 | Dependency down, try later | `message?`, `description?` |
+
+State conflicts (duplicate key, version mismatch) are **domain** errors — declare them with `defineErrors` and your own HTTP status (often 409).
 
 ```typescript
 import {err} from 'callspec';
 
 if (!found) return err.NOT_FOUND({message: 'Unknown sku'});
-if (taken) return err.CONFLICT();
 ```
 
 `NOT_FOUND` (handler) ≠ `ROUTE_NOT_FOUND` (unknown RPC method) — both are HTTP 404; the **code** is the contract.

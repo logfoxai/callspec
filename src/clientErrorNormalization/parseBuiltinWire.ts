@@ -82,12 +82,6 @@ export function parseBuiltinFromWire(wire: WireRecord): CallspecBuiltinClientErr
 
     }
 
-    if (wire.error === BUILTIN_ERROR.CONFLICT) {
-
-        return builtinClientError(BUILTIN_ERROR.CONFLICT, wire.data);
-
-    }
-
     if (wire.error === BUILTIN_ERROR.SERVICE_UNAVAILABLE) {
 
         return builtinClientError(BUILTIN_ERROR.SERVICE_UNAVAILABLE, wire.data);

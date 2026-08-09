@@ -38,3 +38,11 @@ test('matchBuiltinByStatus: 502 maps to SERVICE_UNAVAILABLE', (assert) => {
     assert.equal(result?.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
 });
+
+test('matchBuiltinByStatus: 409 is not a builtin (no CONFLICT)', (assert) => {
+
+    const result = matchBuiltinByStatus(409, '');
+
+    assert.equal(result, undefined);
+
+});

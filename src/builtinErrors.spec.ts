@@ -14,9 +14,10 @@ test('defineErrors: builtin failers are always on the handle', (assert) => {
 
     assert.equal(typeof routeErr.NOT_FOUND, 'function');
     assert.equal(typeof routeErr.FORBIDDEN, 'function');
-    assert.equal(typeof routeErr.CONFLICT, 'function');
     assert.equal(typeof routeErr.TOO_MANY_REQUESTS, 'function');
     assert.equal(typeof routeErr.SERVICE_UNAVAILABLE, 'function');
+    assert.equal('CONFLICT' in routeErr, false);
+    assert.equal('CONFLICT' in BUILTIN_ERROR, false);
     assert.equal(routeErr.NOT_FOUND().status, 404);
     assert.equal(routeErr.FORBIDDEN().status, 403);
     assert.equal(routeErr.TOO_MANY_REQUESTS({title: 'x', message: 'y'}).code, BUILTIN_ERROR.TOO_MANY_REQUESTS);

@@ -135,7 +135,6 @@ if (!result.ok) {
             // …
             return null;
         case 'FORBIDDEN':
-        case 'CONFLICT':
         case 'TOO_MANY_REQUESTS':
         case 'SERVICE_UNAVAILABLE':
         case 'VALIDATION_ERROR':

@@ -57,12 +57,6 @@ export function matchBuiltinByStatus(status: number, body: unknown): CallspecBui
 
     }
 
-    if (status === 409) {
-
-        return {code: BUILTIN_ERROR.CONFLICT};
-
-    }
-
     if (status === 429) {
 
         if (isWireRecord(body)) {

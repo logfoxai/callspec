@@ -11,7 +11,6 @@ export const BUILTIN_ERROR = {
     ROUTE_NOT_FOUND: 'ROUTE_NOT_FOUND',
     NOT_FOUND: 'NOT_FOUND',
     FORBIDDEN: 'FORBIDDEN',
-    CONFLICT: 'CONFLICT',
     TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
     SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
 } as const;
@@ -22,7 +21,6 @@ export type BuiltinErrorCode = typeof BUILTIN_ERROR[keyof typeof BUILTIN_ERROR];
 export type ThrowableBuiltinCode =
     | typeof BUILTIN_ERROR.NOT_FOUND
     | typeof BUILTIN_ERROR.FORBIDDEN
-    | typeof BUILTIN_ERROR.CONFLICT
     | typeof BUILTIN_ERROR.TOO_MANY_REQUESTS
     | typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE;
 
@@ -41,13 +39,6 @@ export const builtInErrors = {
     },
     FORBIDDEN: {
         status: 403,
-        data: p.optional(p.object({
-            message: p.optional(p.string()),
-            description: p.optional(p.string()),
-        })),
-    },
-    CONFLICT: {
-        status: 409,
         data: p.optional(p.object({
             message: p.optional(p.string()),
             description: p.optional(p.string()),
