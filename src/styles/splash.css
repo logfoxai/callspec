@@ -708,11 +708,16 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 
     .splash-flow__openapi-copy {
         margin: 0;
-        max-width: 17rem;
+        max-width: 18.5rem;
         font-size: 0.82rem;
         line-height: 1.45;
         color: var(--flow-muted);
         text-wrap: balance;
+
+        .splash-flow__path {
+            font-size: 0.78em;
+            vertical-align: 0.05em;
+        }
     }
 
     .splash-flow__langs {
