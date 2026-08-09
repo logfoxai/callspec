@@ -188,7 +188,12 @@ export class CallspecClient {
 
         }
 
-        const body = await parseResponseBody(resp, options?.output);
+        // Success: schema-guided date revive. Errors: legacy-only — output pred must not
+        // rewrite domain error `data` before JSON Schema validation.
+        const body = await parseResponseBody(
+            resp,
+            resp.ok ? options?.output : undefined,
+        );
 
         if (resp.ok) {
 

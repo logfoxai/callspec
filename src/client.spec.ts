@@ -340,6 +340,56 @@ test('CallspecClient.callResult preserves declared domain error bodies', async (
 
 });
 
+test('CallspecClient does not apply output pred date revive to error bodies', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+    const iso = '2024-01-15T12:00:00.000Z';
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'SLOT_TAKEN',
+        data: {at: iso},
+    }), {
+        status: 409,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('book', {}, {
+            // Same shape as success output — must not coerce error data.at to Date.
+            output: p.object({
+                data: p.object({at: p.date()}),
+            }),
+            allowedErrorCodes: ['SLOT_TAKEN'],
+            domainErrors: {
+                SLOT_TAKEN: {
+                    dataRequired: true,
+                    data: {
+                        type: 'object',
+                        properties: {at: {type: 'string'}},
+                        required: ['at'],
+                    },
+                },
+            },
+        });
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.code, 'SLOT_TAKEN');
+            assert.equal((result as {data?: {at: string}}).data?.at, iso);
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
 test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (assert) => {
 
     const originalFetch = globalThis.fetch;
