@@ -118,13 +118,16 @@ export function mountSpec<Ctx>(
         });
 
         const authHint = defaultAuthHint(resolvedMeta, routes);
+        const brandingWithMcp = metaBrandingFromCallspecMeta(resolvedMeta, {authHint});
+        const {mcp, ...branding} = brandingWithMcp;
 
         mountCallspecUi(router, {
             path: joinMountPath(basePath, docsPath),
             specPath: relativeToMountPath(docsPath, CALLSPEC_JSON_PATH),
             rpcBase: relativeToMountRoot(docsPath),
             title: resolvedMeta.title,
-            branding: metaBrandingFromCallspecMeta(resolvedMeta, {authHint}),
+            branding,
+            mcp,
             mcpPath: relativeToMountPath(docsPath, mcpSubPath),
         });
 

@@ -83,6 +83,25 @@ type CallspecWebsite = {
     label?: string
 };
 
+export type CallspecUiTheme = {
+    accent?: string
+    background?: string
+    surface?: string
+    fontFamily?: string
+    fontUrls?: string[]
+};
+
+export type CallspecNavbarLink = {
+    label: string
+    href: string
+    external?: boolean
+};
+
+export type CallspecUiFooter = {
+    /** Show “Powered by callspec”. Default true when omitted. */
+    poweredBy?: boolean
+};
+
 export type Authenticate<Ctx> = (
     token: string,
     req: Request,
@@ -96,6 +115,10 @@ export type CallspecMeta = {
     logo?: CallspecLogo
     authHint?: string
     mcpInstructions?: string
+    theme?: CallspecUiTheme
+    navbarLinks?: CallspecNavbarLink[]
+    footer?: CallspecUiFooter
+    favicon?: string
 };
 
 export type Callspec<Ctx = unknown> = {

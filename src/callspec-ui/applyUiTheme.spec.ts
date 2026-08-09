@@ -1,0 +1,72 @@
+import {test} from 'kizu';
+import {applyUiTheme} from './applyUiTheme';
+
+test('applyUiTheme: maps theme keys to CSS vars and returns fontUrls', (assert) => {
+
+    const result = applyUiTheme({
+        accent: '#0ea5e9',
+        background: '#0f172a',
+        surface: '#1e293b',
+        fontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+        fontUrls: [
+            'https://fonts.example/plex.css',
+            'https://fonts.example/plex-mono.css',
+        ],
+    });
+
+    assert.equal(result.cssVars['--accent'], '#0ea5e9');
+    assert.equal(result.cssVars['--bg'], '#0f172a');
+    assert.equal(result.cssVars['--surface'], '#1e293b');
+    assert.equal(result.cssVars['--sans'], '"IBM Plex Sans", system-ui, sans-serif');
+    // Dark brand surfaces pin both color modes — derive light text for contrast.
+    assert.equal(result.cssVars['--text'], '#fafafa');
+    assert.equal(result.cssVars['--text-secondary'], '#a3a3a3');
+    assert.equal(result.cssVars['--text-tertiary'], '#737373');
+    assert.equal(result.fontUrls, [
+        'https://fonts.example/plex.css',
+        'https://fonts.example/plex-mono.css',
+    ]);
+
+});
+
+test('applyUiTheme: light background derives dark text tokens', (assert) => {
+
+    const result = applyUiTheme({
+        background: '#f7f9f9',
+        surface: '#ffffff',
+    });
+
+    assert.equal(result.cssVars['--bg'], '#f7f9f9');
+    assert.equal(result.cssVars['--surface'], '#ffffff');
+    assert.equal(result.cssVars['--text'], '#1c1917');
+    assert.equal(result.cssVars['--text-secondary'], '#6b6560');
+    assert.equal(result.cssVars['--text-tertiary'], '#9c958c');
+
+});
+
+test('applyUiTheme: accent-only does not pin background or text (light/dark stay intact)', (assert) => {
+
+    const result = applyUiTheme({accent: '#111'});
+
+    assert.equal(result.cssVars, {'--accent': '#111'});
+    assert.equal(result.fontUrls, []);
+
+});
+
+test('applyUiTheme: empty theme yields empty cssVars', (assert) => {
+
+    const result = applyUiTheme({});
+
+    assert.equal(result.cssVars, {});
+    assert.equal(result.fontUrls, []);
+
+});
+
+test('applyUiTheme: undefined theme yields empty result', (assert) => {
+
+    const result = applyUiTheme(undefined);
+
+    assert.equal(result.cssVars, {});
+    assert.equal(result.fontUrls, []);
+
+});

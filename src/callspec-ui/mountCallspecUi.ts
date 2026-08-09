@@ -21,6 +21,7 @@ export type MountCallspecUiOptions = {
 };
 
 const CONFIG_PLACEHOLDER = '<!--CALLSPEC_UI_CONFIG-->';
+const FOOTER_RE = /<footer\b[^>]*>[\s\S]*?<\/footer>/i;
 
 function uiDir(): string {
 
@@ -52,18 +53,49 @@ function readIndexHtml(): string {
 
 }
 
+function escapeHtmlAttr(value: string): string {
+
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+}
+
+/** Inject config, favicon, and optional footer into the built docs UI shell. */
 function renderCallspecUiPage(config: CallspecUiConfig): string {
 
-    const html = readIndexHtml();
+    let html = readIndexHtml();
+    const branding = config.branding;
     const script = `<script>window.__CALLSPEC_UI__=${JSON.stringify(config)};</script>`;
 
     if (html.includes(CONFIG_PLACEHOLDER)) {
 
-        return html.replace(CONFIG_PLACEHOLDER, script);
+        html = html.replace(CONFIG_PLACEHOLDER, script);
+
+    } else {
+
+        html = html.replace('</head>', `${script}</head>`);
 
     }
 
-    return html.replace('</head>', `${script}</head>`);
+    if (branding?.favicon) {
+
+        const favicon = `<link rel="icon" href="${escapeHtmlAttr(branding.favicon)}">`;
+
+        html = html.replace('</head>', `${favicon}</head>`);
+
+    }
+
+    if (branding?.footer?.poweredBy === false) {
+
+        html = html.replace(FOOTER_RE, '');
+        html = html.replace('<body>', '<body class="no-footer">');
+
+    }
+
+    return html;
 
 }
 

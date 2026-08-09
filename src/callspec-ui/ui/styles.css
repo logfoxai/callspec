@@ -67,6 +67,11 @@
     --sidebar: 16.25rem;
     --radius: 0.5rem;
     --footer-height: 2.5rem;
+    --header-height: 3.25rem;
+}
+
+body.no-footer {
+    --footer-height: 0;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -86,6 +91,7 @@ html, body {
 #app {
     display: grid;
     grid-template-columns: var(--sidebar) 1fr;
+    grid-template-rows: var(--header-height) 1fr;
     min-height: calc(100vh - var(--footer-height));
 }
 
@@ -94,6 +100,77 @@ html, body {
     align-items: center;
     justify-content: center;
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+
+.top-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: var(--header-height);
+    padding: 0 1rem 0 1rem;
+    border-bottom: 0.0625rem solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 15;
+}
+
+.top-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.top-brand:hover {
+    color: var(--text-secondary);
+}
+
+.top-brand-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top-nav {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 0.25rem;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.top-nav-link {
+    flex-shrink: 0;
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.375rem;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.top-nav-link:hover {
+    color: var(--text);
+    background: var(--accent-soft);
+}
+
+.top-header .theme-toggle {
+    margin-left: auto;
 }
 
 .loading-text {
@@ -107,8 +184,8 @@ html, body {
     display: flex;
     flex-direction: column;
     position: sticky;
-    top: 0;
-    height: calc(100vh - var(--footer-height));
+    top: var(--header-height);
+    height: calc(100vh - var(--footer-height) - var(--header-height));
     overflow: hidden;
 }
 
@@ -903,8 +980,14 @@ html, body {
     border: 1px solid var(--border-subtle);
 }
 
-.sidebar-mark.brand-letter {
+.sidebar-mark,
+.top-mark {
     --logo-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.sidebar-mark.brand-letter,
+.top-mark.brand-letter {
     font-size: 0.75rem;
 }
 
@@ -922,10 +1005,6 @@ html, body {
 
 .intro-logo {
     margin-bottom: 1rem;
-}
-
-.sidebar-mark {
-    flex-shrink: 0;
 }
 
 .intro-title {

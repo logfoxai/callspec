@@ -14,7 +14,7 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 | Hand someone OpenAPI | `{mount}/openapi.json` is served next to the UI when docs are on. |
 | Pin the Callspec contract | `{mount}/callspec.json` — what `npx callspec` reads for the TypeScript SDK. |
 
-**Home vs route list:** set `meta.intro` for a home page (title, logo, intro, website, MCP panel) — see [Branding](./docs-ui-branding.md). Without `intro`, the UI lands on the route list (grouped by `tags`).
+**Home is always on** — title, version, route/MCP counts, Browse API, and the MCP connect panel. Optional `meta.intro` is only the welcome blurb. Theme colors, top navbar links, favicon, and footer: [Branding](./docs-ui-branding.md). Route list is grouped by `tags`.
 
 ## Minimal setup
 
@@ -35,7 +35,7 @@ mountSpec(router, api, {docsPath: '/explorer'});
 
 The UI always fetches **`../callspec.json` relative to the docs path** — renaming `docsPath` does not rename the contract URL. Full options: [`mountSpec`](./api-reference/mount-spec.md).
 
-Title, logo, intro, and MCP hints: **[Branding](./docs-ui-branding.md)**.
+Title, logo, theme, navbar, footer, and MCP hints: **[Branding](./docs-ui-branding.md)**.
 
 ## Hide in production
 
@@ -55,7 +55,7 @@ Routes with `auth: 'bearer'` need a token in the UI session (same `Authorization
 
 ## Related
 
-- [Branding](./docs-ui-branding.md) — `meta` title, logo, intro, auth/MCP hints
+- [Branding](./docs-ui-branding.md) — `meta` title, logo, theme, navbar, footer, auth/MCP hints
 - [MCP](./mcp.md) — `mcp: true` on routes, connect from the home panel
 - [OpenAPI](./openapi.md) — `/openapi.json` for gateways and multi-lang tools
 - [SDK generation](./sdk-generation.md) — TypeScript client from `callspec.json`, not from the docs UI

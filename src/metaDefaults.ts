@@ -1,3 +1,4 @@
+import type {CallspecUiBranding} from './callspec-ui/branding';
 import type {CallspecMeta, RouteAuth} from './types';
 import {hasBearerRoutes} from './routeVisibility';
 
@@ -23,15 +24,7 @@ export function resolveCallspecMeta(meta: CallspecMeta): CallspecMeta & {
 export function metaBrandingFromCallspecMeta(
     meta: CallspecMeta & {title: string},
     options?: {authHint?: string},
-): {
-    name?: string
-    intro?: string
-    websiteUrl?: string
-    websiteLabel?: string
-    logoUrl?: string
-    logoUrlDark?: string
-    mcp?: {authHint?: string}
-} {
+): CallspecUiBranding & {mcp?: {authHint?: string}} {
 
     const authHint = meta.authHint ?? options?.authHint;
 
@@ -42,6 +35,10 @@ export function metaBrandingFromCallspecMeta(
         websiteLabel: meta.website?.label,
         logoUrl: meta.logo?.light,
         logoUrlDark: meta.logo?.dark ?? meta.logo?.light,
+        favicon: meta.favicon ?? meta.logo?.light,
+        theme: meta.theme,
+        navbarLinks: meta.navbarLinks,
+        footer: meta.footer,
         ...(authHint ? {mcp: {authHint}} : {}),
     };
 
