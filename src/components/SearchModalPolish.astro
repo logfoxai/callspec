@@ -1,8 +1,8 @@
 ---
 /**
  * Idle / empty / in-flight polish for Starlight’s Pagefind search dialog.
- * Injects suggestion chips when idle, Discord help on zero results, and a
- * shimmer skeleton while a query is running.
+ * Injects suggestion chips when idle, Discord help on zero results, a
+ * shimmer skeleton while a query is running, and arrow/Enter keyboard nav.
  */
 const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 ---
@@ -37,6 +37,17 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 <script>
 	import {isSearchIdle} from './searchIdleState';
+	import {
+		applySelection,
+		collectResultRows,
+		collectSuggestionChips,
+		handleSearchKey,
+		markAwaitingFreshResults,
+		resolveKeyboardSelection,
+		resultLinkForRow,
+		type KeyboardNavMode,
+		type KeyboardNavState,
+	} from './searchKeyboardNav';
 
 	function ensureIdlePanel(frame: Element): HTMLElement | null {
 		const existing = frame.querySelector<HTMLElement>('[data-cs-search-idle]');
@@ -158,6 +169,58 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		const idle = ensureIdlePanel(frame);
 		if (!idle) return;
 
+		const dialog = siteSearch.querySelector('dialog');
+		let navState: KeyboardNavState = {
+			selectedIndex: -1,
+			lastFingerprint: '',
+			awaitingFreshResults: false,
+			sawSearchingWhileAwaiting: false,
+		};
+
+		const navMode = (): KeyboardNavMode => {
+			const mode = dialog?.dataset.csSearch;
+			if (mode === 'idle') return 'idle';
+			// Keep result-nav state across querying/searching so awaiting is not cleared.
+			if (mode === 'results' || mode === 'searching' || mode === 'querying') return 'results';
+			return 'other';
+		};
+
+		const fingerprintFor = (mode: KeyboardNavMode, rows: HTMLElement[], chips: HTMLElement[]): string => {
+			if (mode === 'results') {
+				return `results:${rows.map((row) => resultLinkForRow(row)?.href ?? '').join('\0')}`;
+			}
+			if (mode === 'idle') return `idle:${chips.length}`;
+			return mode;
+		};
+
+		const selectableItems = (mode: KeyboardNavMode, rows: HTMLElement[], chips: HTMLElement[]): HTMLElement[] => {
+			if (mode === 'idle') return chips;
+			if (mode === 'results' && !navState.awaitingFreshResults) return rows;
+			return [];
+		};
+
+		const syncSelection = () => {
+			syncPanels(root, idle);
+			const mode = navMode();
+			const rows = collectResultRows(root);
+			const chips = collectSuggestionChips(idle);
+			const fp = fingerprintFor(mode, rows, chips);
+			const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
+			const isSearching =
+				dialog?.dataset.csSearch === 'searching' || /searching/i.test(message);
+			navState = resolveKeyboardSelection(
+				navState,
+				mode,
+				fp,
+				mode === 'idle' ? chips.length : rows.length,
+				isSearching,
+			);
+			const items = selectableItems(mode, rows, chips);
+			applySelection(rows, -1);
+			applySelection(chips, -1);
+			applySelection(items, navState.selectedIndex);
+		};
+
 		idle.addEventListener('click', (event) => {
 			const target = event.target;
 			if (!(target instanceof HTMLElement)) return;
@@ -165,10 +228,10 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			const query = suggestion?.dataset.csSearchSuggestion;
 			if (!query) return;
 			setQuery(root, query);
-			syncPanels(root, idle);
+			syncSelection();
 		});
 
-		const sync = () => syncPanels(root, idle);
+		const sync = () => syncSelection();
 		const observer = new MutationObserver(sync);
 		observer.observe(root, {
 			subtree: true,
@@ -181,13 +244,50 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			attributeFilter: ['data-cs-search-ready'],
 		});
 
-		root.addEventListener('input', sync);
+		root.addEventListener('input', () => {
+			navState = markAwaitingFreshResults(navState);
+			syncSelection();
+		});
 		root.addEventListener('keyup', sync);
 
-		const dialog = siteSearch.querySelector('dialog');
 		if (dialog) {
 			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
-			dialog.addEventListener('close', sync);
+			dialog.addEventListener('close', () => {
+				navState = {
+					selectedIndex: -1,
+					lastFingerprint: '',
+					awaitingFreshResults: false,
+					sawSearchingWhileAwaiting: false,
+				};
+				syncSelection();
+			});
+			dialog.addEventListener(
+				'keydown',
+				(event) => {
+					if (!dialog.open) return;
+					const mode = navMode();
+					const rows = collectResultRows(root);
+					const chips = collectSuggestionChips(idle);
+					const items = selectableItems(mode, rows, chips);
+					const result = handleSearchKey(event.key, navState.selectedIndex, items.length);
+					if (result.preventDefault) event.preventDefault();
+					if (result.selectedIndex !== navState.selectedIndex) {
+						navState = {...navState, selectedIndex: result.selectedIndex};
+						applySelection(items, navState.selectedIndex);
+						items[navState.selectedIndex]?.scrollIntoView({block: 'nearest'});
+					}
+					if (!result.activate) return;
+					const item = items[navState.selectedIndex];
+					if (!item) return;
+					if (mode === 'idle') {
+						const query = item.dataset.csSearchSuggestion;
+						if (query) setQuery(root, query);
+						return;
+					}
+					resultLinkForRow(item)?.click();
+				},
+				true,
+			);
 		}
 		siteSearch.querySelector('[data-open-modal]')?.addEventListener('click', () => {
 			requestAnimationFrame(sync);
