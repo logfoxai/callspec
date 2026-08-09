@@ -54,12 +54,14 @@ Call `.handler(input, ctx)` on the wired route — no HTTP. Full guide: [Unit te
 
 ```typescript
 import {test} from 'kizu';
-import {isRouteFailure} from 'callspec';
+import {err} from 'callspec';
 import {getProductById} from '../routes/getProductById';
 
 test('getProductById: NOT_FOUND', async (assert) => {
-    const missing = await getProductById.handler({id: 'missing'}, undefined);
-    assert.equal(isRouteFailure(missing) && missing.code, 'NOT_FOUND');
+    assert.equal(
+        await getProductById.handler({id: 'covfefe'}, undefined),
+        err.NOT_FOUND(),
+    );
 });
 ```
 

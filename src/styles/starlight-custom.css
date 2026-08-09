@@ -242,39 +242,69 @@ html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, 
     box-decoration-break: initial;
 }
 
-/* Tables — card layout, readable API reference grids */
-html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) {
-    /* block + overflow for horizontal scroll (Starlight); thead/tbody stay
-       display:table so the header bar and rows fill the rounded frame. */
-    display: block;
+/* Tables — real <table> layout (auto columns), optional scroll wrapper */
+html[data-has-sidebar] .sl-markdown-content .cs-table-scroll {
     width: 100%;
     margin-block: 1.25rem 1.5rem;
     overflow-x: auto;
+    overflow-y: hidden;
     border: 1px solid var(--cs-line);
     border-radius: calc(var(--cs-radius) - 0.1rem);
-    border-spacing: 0;
     background: var(--cs-table-bg);
     -webkit-overflow-scrolling: touch;
 }
 
-html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) :is(thead, tbody) {
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) {
     display: table;
     width: 100%;
-    table-layout: fixed;
-    /* display:block table makes thead/tbody siblings — zero Starlight gap-y */
-    margin: 0;
+    margin-block: 1.25rem 1.5rem;
+    border: 1px solid var(--cs-line);
+    border-radius: calc(var(--cs-radius) - 0.1rem);
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+    background: var(--cs-table-bg);
 }
 
-html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) thead {
+html[data-has-sidebar] .sl-markdown-content .cs-table-scroll > table:not(:where(.not-content *)) {
+    margin-block: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+/* Dense HTML tables with <colgroup> — fixed columns + room to scroll */
+html[data-has-sidebar] .sl-markdown-content .cs-table-scroll > table:has(colgroup):not(:where(.not-content *)) {
+    min-width: 40rem;
+    table-layout: fixed;
+}
+
+/* Header/footer fills on cells so they follow the rounded frame */
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) thead th {
     background: var(--cs-table-head-bg);
+}
+
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) thead th:first-child {
+    border-top-left-radius: calc(var(--cs-radius) - 0.1rem);
+}
+
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) thead th:last-child {
+    border-top-right-radius: calc(var(--cs-radius) - 0.1rem);
+}
+
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) tbody tr:last-child td:first-child {
+    border-bottom-left-radius: calc(var(--cs-radius) - 0.1rem);
+}
+
+html[data-has-sidebar] .sl-markdown-content table:not(:where(.not-content *)) tbody tr:last-child td:last-child {
+    border-bottom-right-radius: calc(var(--cs-radius) - 0.1rem);
 }
 
 html[data-has-sidebar] .sl-markdown-content :is(th, td):not(:where(.not-content *)) {
     border-bottom: 1px solid var(--cs-line);
-    padding: 0.7rem 1rem;
+    padding: 0.55rem 0.85rem;
     vertical-align: top;
-    line-height: 1.55;
-    overflow-wrap: break-word;
+    line-height: 1.45;
 }
 
 html[data-has-sidebar] .sl-markdown-content tbody tr:last-child :is(th, td):not(:where(.not-content *)) {
@@ -307,7 +337,7 @@ html[data-has-sidebar] .sl-markdown-content tbody tr:hover:not(:where(.not-conte
     background: var(--cs-table-row-hover);
 }
 
-/* Option tables (name | default | …) — first cell is <code>; skip prose tables */
+/* Option tables (name | default | …) — first cell is <code> */
 html[data-has-sidebar]
     .sl-markdown-content
     table:has(thead th:nth-child(3))
@@ -316,6 +346,7 @@ html[data-has-sidebar]
     font-size: 0.875em;
     color: var(--cs-ink);
     white-space: nowrap;
+    width: 1%;
 }
 
 html[data-has-sidebar]
@@ -327,9 +358,10 @@ html[data-has-sidebar]
     font-family: var(--sl-font-mono);
     font-size: 0.875em;
     white-space: nowrap;
+    width: 1%;
 }
 
-/* 2-column tables — first column wraps (prose + inline code); “See” stays compact */
+/* 2-column tables — last column stays compact */
 html[data-has-sidebar]
     .sl-markdown-content
     table:not(:has(thead th:nth-child(3)))
@@ -343,14 +375,15 @@ html[data-has-sidebar]
     td:first-child:not(:where(.not-content *)) {
     font-weight: 500;
     color: var(--cs-ink);
-    white-space: normal;
 }
 
+/* Keep tokens intact; .cs-table-scroll provides overflow-x */
 html[data-has-sidebar] .sl-markdown-content table
     code:not(:where(pre *, .expressive-code *, .frame *)) {
     font-size: 0.9em;
     padding: 0.12em 0.38em;
     background-color: var(--cs-table-code-bg);
+    white-space: nowrap;
 }
 
 @layer starlight.core {
@@ -1039,18 +1072,19 @@ html[data-theme='light'] {
 /*
  * Minimal window chrome (splash-style dots) + active file tab.
  * Kill EC’s editor-tab / terminal-dot defaults — we draw our own.
- * Transparent titlebar; outer + header-separator borders share one color.
+ * Dark: border matches code bg; frame shell transparent so the titlebar
+ * reads as open to the page. Light: filled panel + stronger edge.
  */
 .expressive-code .frame.has-title,
 .expressive-code .frame.has-title:not(.is-terminal),
 .expressive-code .frame.is-terminal {
-    /* Was the titlebar fill — now the frame/separator border (dark + light) */
-    --cs-code-border: #000;
+    /* Just a hair lighter than the code panel */
+    --cs-code-border: color-mix(in srgb, var(--cs-code-bg) 88%, white);
     --code-background: var(--cs-code-bg) !important;
     /* Keep copy control inside the chrome bar (EC’s titled default pushes it into the code) */
     --button-spacing: 0.38rem !important;
     position: relative;
-    background: var(--cs-code-bg) !important;
+    background: transparent !important;
     border: 1px solid var(--cs-code-border) !important;
     border-radius: 0.55rem !important;
     overflow: hidden;
@@ -1060,8 +1094,8 @@ html[data-theme='light'] {
 
 html[data-theme='light'] .expressive-code .frame.has-title,
 html[data-theme='light'] .expressive-code .frame.is-terminal {
-    /* Dark mode uses #000; light needs a real edge against --cs-code-bg */
     --cs-code-border: hsl(228, 14%, 72%);
+    background: var(--cs-code-bg) !important;
 }
 
 .expressive-code .frame.has-title > .header,
@@ -1255,7 +1289,8 @@ html[data-theme='light'] .expressive-code .cs-code-file {
 .expressive-code .frame.has-title > pre,
 .expressive-code .frame.is-terminal > pre {
     border-radius: 0 !important;
-    background: transparent !important;
+    /* Code body keeps panel fill; frame/header stay transparent in dark mode */
+    background: var(--cs-code-bg) !important;
 }
 
 /*

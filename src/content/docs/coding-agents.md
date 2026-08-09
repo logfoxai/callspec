@@ -37,6 +37,7 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 8. After route/error changes: regenerate the client; commit pinned contract if the repo pins one.
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.
+11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `routes.ts` = `spec()` registry only; never hand-build wired route objects for `spec({ routes })`.
 ````
 
 ## Prompt: work with Callspec
@@ -50,7 +51,7 @@ Follow the Callspec skill I provided (return err.* for expected failures; codege
 
 Task: <what you want changed — e.g. add a route, fix error handling, regenerate the SDK>
 
-Read guides under https://github.com/logfoxai/callspec/tree/main/src/content/docs — start with getting-started.md, error-handling.md, and sdk-generation.md as needed. Ignore docs/internal/.
+Read guides under https://github.com/logfoxai/callspec/tree/main/src/content/docs — start with getting-started.md, server-layout.md, error-handling.md, and sdk-generation.md as needed. Ignore docs/internal/.
 ```
 
 ## Prompt: migrate to Callspec
@@ -67,20 +68,22 @@ Goals:
 
 Do this in order:
 1. Install callspec + runtyp (+ express peer). Sketch meta + authenticate if routes need bearer auth.
-2. Convert each endpoint to route({ input, output, errors?, auth, mcp?, meta, handler }) — handlers return values or err.*; do not throw for expected failures.
-3. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
-4. Emit/pin callspec.json; generate the TypeScript client into the frontend; switch call sites to Result (result.ok / result.code).
-5. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.
+2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; routes.ts = spec() registry only.
+3. Convert each endpoint to route({ input, output, errors?, auth, mcp?, meta, handler }) — handlers return values or err.*; do not throw for expected failures.
+4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
+5. Emit/pin callspec.json; generate the TypeScript client into the frontend; switch call sites to Result (result.ok / result.code).
+6. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.
 
 Constraints:
 - Don't invent REST CRUD wrappers — Callspec is RPC methods (getProductById, …)
+- Always use route() for spec({ routes }) values — never hand-build wired route objects
 - scope: 'private' hides from SDK/docs/OpenAPI/MCP; it does not skip auth
 - Builtin error codes are reserved — only register domain codes
 - Prefer small PRs: pilot one route end-to-end before bulk migration
 
 Repo / stack notes: <paste stack — Express version, auth model, existing OpenAPI/tRPC/etc., monorepo layout>
 
-Start by proposing the target folder layout and the first pilot route, then implement.
+Start by proposing the target folder layout (per server-layout.md) and the first pilot route, then implement.
 ```
 
 ## Runtime agents (MCP)

@@ -1,7 +1,9 @@
 import {defineConfig} from 'astro/config';
+import {unified} from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
 import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
+import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -10,7 +12,10 @@ export default defineConfig({
     prefetch: isDev ? false : {prefetchAll: true, defaultStrategy: 'hover'},
     devToolbar: {enabled: false},
     markdown: {
-        remarkPlugins: [remarkStarlightMdLinks],
+        processor: unified({
+            remarkPlugins: [remarkStarlightMdLinks],
+            rehypePlugins: [rehypeWrapTables],
+        }),
     },
     site: 'https://logfoxai.github.io/callspec',
     outDir: './docs-site',

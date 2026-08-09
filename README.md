@@ -21,6 +21,7 @@ Define your API once with simple TypeScript — methods like `getProductById` wi
 On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. No drift, no hand-rolled client, no guessing which status codes mean what.
 
 - ⚡ **RPC functions** — define simple functions like `getProductById`, not REST CRUD
+- 🧪 **Unit-test the real handler** — `.handler(input, ctx)` — no HTTP, no `req`/`res`, no mocks (unless you use singletons); 100% line/branch/function coverage is realistic
 - 🧩 **TypeScript SDK** — use it in your frontend or publish it for API consumers
 - 🎯 **Result-typed errors** — end-to-end error codes from handler → SDK → OpenAPI → MCP
 - 📄 **OpenAPI 3.1** — for tooling, gateways, and multi-language generators when you need them

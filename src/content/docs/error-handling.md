@@ -27,14 +27,64 @@ mountSpec(router, spec); // request log + catch path + INTERNAL_ERROR — zero e
 
 After `executeRoute` returns or throws:
 
-| Step | Condition | HTTP response | Default error log |
-|------|-----------|---------------|-------------------|
-| 1 | Handler **returns** `RouteFailure` | Wire failure (`sendRouteFailureResponse`) | None |
-| 2 | Handler **throws** `RouteFailure` | Wire failure | None |
-| 3 | `CallspecValidationError` (input validation) | 400 `VALIDATION_ERROR` + `errors` | None |
-| 4 | `CallspecUnauthorizedError` (private route, bad/missing token) | 401 `UNAUTHORIZED` | None |
-| 5 | `handleUnhandledError(err, req)` returns `RouteFailure` | Wire failure | **You** choose (mountSpec skips default error log) |
-| 6 | Anything else (bug, rejected promise, unknown throw) | 500 `INTERNAL_ERROR` | jsout `logger.error` via `logUnhandledError` |
+<div class="cs-table-scroll">
+
+<table>
+  <colgroup>
+    <col style="width: 3.5rem" />
+    <col style="width: 38%" />
+    <col style="width: 28%" />
+    <col style="width: 30%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Step</th>
+      <th>Condition</th>
+      <th>HTTP response</th>
+      <th>Default error log</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Handler <strong>returns</strong> <code>RouteFailure</code></td>
+      <td>Wire failure (<code>sendRouteFailureResponse</code>)</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Handler <strong>throws</strong> <code>RouteFailure</code></td>
+      <td>Wire failure</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>CallspecValidationError</code> (input validation)</td>
+      <td>400 <code>VALIDATION_ERROR</code> + <code>errors</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>CallspecUnauthorizedError</code> (private route, bad/missing token)</td>
+      <td>401 <code>UNAUTHORIZED</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><code>handleUnhandledError(err, req)</code> returns <code>RouteFailure</code></td>
+      <td>Wire failure</td>
+      <td><strong>You</strong> choose (<code>mountSpec</code> skips default error log)</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Anything else (bug, rejected promise, unknown throw)</td>
+      <td>500 <code>INTERNAL_ERROR</code></td>
+      <td>jsout <code>logger.error</code> via <code>logUnhandledError</code></td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
 
 **Success** is step 0: HTTP **200** + route output JSON — no error log.
 
@@ -42,12 +92,52 @@ Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures
 
 ### Logging
 
-| Event | Who | When | Default |
-|-------|-----|------|---------|
-| RPC request | `mountSpec` → jsout-express `logRequest` | Every request on the mounted router (on response finish) | On when `logging !== false` |
-| Unhandled bug | `logUnhandledError` | Catch step 6 only | `logger.error(undefined, err, { url, method })` |
-| Infra / known throw | Your `handleUnhandledError` | Catch step 5 | Your level — e.g. `logger.warn` for query timeout, no log for benign cases |
-| Intentional failure | — | Steps 1–4 | No error log |
+<div class="cs-table-scroll">
+
+<table>
+  <colgroup>
+    <col style="width: 18%" />
+    <col style="width: 26%" />
+    <col style="width: 28%" />
+    <col style="width: 28%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Event</th>
+      <th>Who</th>
+      <th>When</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>RPC request</td>
+      <td><code>mountSpec</code> → jsout-express <code>logRequest</code></td>
+      <td>Every request on the mounted router (on response finish)</td>
+      <td>On when <code>logging !== false</code></td>
+    </tr>
+    <tr>
+      <td>Unhandled bug</td>
+      <td><code>logUnhandledError</code></td>
+      <td>Catch step 6 only</td>
+      <td><code>logger.error(undefined, err, { url, method })</code></td>
+    </tr>
+    <tr>
+      <td>Infra / known throw</td>
+      <td>Your <code>handleUnhandledError</code></td>
+      <td>Catch step 5</td>
+      <td>Your level — e.g. <code>logger.warn</code> for query timeout, no log for benign cases</td>
+    </tr>
+    <tr>
+      <td>Intentional failure</td>
+      <td>—</td>
+      <td>Steps 1–4</td>
+      <td>No error log</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
 
 **`MountSpecOptions`:**
 

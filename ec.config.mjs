@@ -1,10 +1,30 @@
+/**
+ * When a fence has no `title="…"`, use the language id so every block gets
+ * editor/terminal chrome (our CSS + codeBlockTitles enhancer).
+ */
+function titleFromLangPlugin() {
+    return {
+        name: 'cs-title-from-lang',
+        hooks: {
+            preprocessMetadata({codeBlock}) {
+                if (codeBlock.props.title) {
+                    return;
+                }
+                const lang = (codeBlock.language ?? '').trim().toLowerCase();
+                codeBlock.props.title = lang || 'code';
+            },
+        },
+    };
+}
+
 /** @type {import('astro-expressive-code').AstroExpressiveCodeOptions} */
 export default {
     // Inline theme CSS in the first block — avoids a body <link> that FOUCs on navigation.
     emitExternalStylesheet: false,
-    // Flat panels by default; shell langs get a terminal frame + bash title
+    plugins: [titleFromLangPlugin()],
+    // Auto frame + lang title for untitled fences; shell langs stay terminal/bash
     defaultProps: {
-        frame: 'none',
+        frame: 'auto',
         overridesByLang: {
             'bash,sh,shell,zsh,shellscript,shellsession,console': {
                 frame: 'terminal',
