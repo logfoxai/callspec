@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/logfoxai/callspec.git"
   },
-  "homepage": "https://github.com/logfoxai/callspec#readme",
+  "homepage": "https://callspec.logfox.ai",
   "directories": {
     "doc": "src/content/docs"
   },
