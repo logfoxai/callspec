@@ -230,6 +230,27 @@ html, body {
     color: var(--text-secondary);
 }
 
+.drawer-nav {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+.drawer-nav-link {
+    display: block;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.375rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8125rem;
+}
+
+.drawer-nav-link:hover {
+    background: var(--accent-soft);
+    color: var(--text);
+}
+
 .nav-overlay {
     display: none;
 }
@@ -1250,6 +1271,10 @@ html, body {
 
     .drawer-search,
     .drawer-theme {
+        display: flex;
+    }
+
+    .drawer-nav {
         display: flex;
     }
 

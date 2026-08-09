@@ -122,23 +122,44 @@ function renderLogo(title: string, branding: CallspecUiBranding | undefined): st
 
 }
 
-function renderNavbarLinks(branding: CallspecUiBranding | undefined): string {
+function renderNavbarLinkItems(
+    branding: CallspecUiBranding | undefined,
+    linkClass: string,
+): string {
 
     const links = branding?.navbarLinks;
 
     if (!links?.length) return '';
 
-    const items = links.map((link) => {
+    return links.map((link) => {
 
         const external = link.external
             ? ' target="_blank" rel="noopener"'
             : '';
 
-        return `<a class="top-nav-link" href="${escapeHtml(link.href)}"${external}>${escapeHtml(link.label)}</a>`;
+        return `<a class="${linkClass}" href="${escapeHtml(link.href)}"${external}>${escapeHtml(link.label)}</a>`;
 
     }).join('');
 
+}
+
+function renderNavbarLinks(branding: CallspecUiBranding | undefined): string {
+
+    const items = renderNavbarLinkItems(branding, 'top-nav-link');
+
+    if (!items) return '';
+
     return `<nav class="top-nav" aria-label="Product">${items}</nav>`;
+
+}
+
+function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): string {
+
+    const items = renderNavbarLinkItems(branding, 'drawer-nav-link');
+
+    if (!items) return '';
+
+    return `<nav class="drawer-nav" aria-label="Product">${items}</nav>`;
 
 }
 
@@ -607,6 +628,7 @@ function renderRoute(
     route: CallspecUiRoute,
     bodyJson: string,
     allRoutes: CallspecUiRoute[],
+    authToken: string,
 ): string {
 
     return `
@@ -641,7 +663,7 @@ function renderRoute(
                         ${route.auth === 'bearer' ? `
                         <div class="field">
                             <label for="auth">Authorization</label>
-                            <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false">
+                            <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" value="${escapeHtml(authToken)}">
                         </div>
                         ` : ''}
                         <div class="field">
@@ -803,6 +825,7 @@ async function boot(): Promise<void> {
         };
         let navOpen = false;
         let drawerCleanup: (() => void) | null = null;
+        let authToken = '';
         const bodies = new Map<string, string>();
 
         for (const route of routes) {
@@ -810,6 +833,26 @@ async function boot(): Promise<void> {
             bodies.set(route.name, JSON.stringify(exampleFromSchema(route.inputSchema), null, 2));
 
         }
+
+        const persistRouteDraft = (): void => {
+
+            const bodyEl = document.getElementById('body');
+
+            if (view.kind === 'route' && bodyEl instanceof HTMLTextAreaElement) {
+
+                bodies.set(view.name, bodyEl.value);
+
+            }
+
+            const authEl = document.getElementById('auth');
+
+            if (authEl instanceof HTMLInputElement) {
+
+                authToken = authEl.value;
+
+            }
+
+        };
 
         const closeNav = (): void => {
 
@@ -917,14 +960,7 @@ async function boot(): Promise<void> {
 
         const navigate = (next: View): void => {
 
-            const bodyEl = document.getElementById('body');
-
-            if (view.kind === 'route' && bodyEl instanceof HTMLTextAreaElement) {
-
-                bodies.set(view.name, bodyEl.value);
-
-            }
-
+            persistRouteDraft();
             view = next;
             setViewHash(next);
             closeNav();
@@ -988,6 +1024,7 @@ async function boot(): Promise<void> {
                             ${renderThemeToggle('theme-toggle-drawer')}
                             <span class="drawer-theme-label">Theme</span>
                         </div>
+                        ${renderDrawerNavbarLinks(branding)}
                     </div>
                     <div class="route-list">${renderSidebar(sidebarRoutes, view, showHome)}</div>
                 </aside>
@@ -1031,7 +1068,12 @@ async function boot(): Promise<void> {
 
                 if (route) {
 
-                    main.innerHTML = renderRoute(route, bodies.get(route.name) ?? '{}', routes);
+                    main.innerHTML = renderRoute(
+                        route,
+                        bodies.get(route.name) ?? '{}',
+                        routes,
+                        authToken,
+                    );
 
                     document.getElementById('send')?.addEventListener('click', () => {
 
@@ -1071,6 +1113,7 @@ async function boot(): Promise<void> {
 
                 input.addEventListener('input', () => {
 
+                    persistRouteDraft();
                     filters = {...filters, text: input.value};
                     render();
                     const restored = document.getElementById(id);
