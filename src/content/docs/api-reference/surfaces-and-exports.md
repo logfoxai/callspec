@@ -43,7 +43,7 @@ Agents call the **same handlers** as HTTP RPC — same auth gate, same input val
 
 Minimal, fast docs UI baked into the package. Browse routes, try RPCs, read schemas, and **connect MCP clients** from the home page. Pass `{docs: false}` to keep the API private and use `/mcp` only.
 
-Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `authHint`, `mcpInstructions`). Guide: [Docs UI](../docs-ui.md).
+Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `authHint`, `mcpInstructions`). Guide: [Docs UI](../docs-ui.md) · [Branding](../docs-ui-branding.md).
 
 ## Package exports
 

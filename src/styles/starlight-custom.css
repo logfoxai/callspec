@@ -274,6 +274,7 @@ html[data-has-sidebar] .sl-markdown-content :is(th, td):not(:where(.not-content 
     padding: 0.7rem 1rem;
     vertical-align: top;
     line-height: 1.55;
+    overflow-wrap: break-word;
 }
 
 html[data-has-sidebar] .sl-markdown-content tbody tr:last-child :is(th, td):not(:where(.not-content *)) {
@@ -328,22 +329,21 @@ html[data-has-sidebar]
     white-space: nowrap;
 }
 
-/* 2-column tables — mono only when the cell is code-like */
+/* 2-column tables — first column wraps (prose + inline code); “See” stays compact */
 html[data-has-sidebar]
     .sl-markdown-content
-    td:first-child:not(:where(.not-content *)):has(code) {
-    font-family: var(--sl-font-mono);
-    font-size: 0.875em;
-    white-space: nowrap;
+    table:not(:has(thead th:nth-child(3)))
+    :is(th, td):last-child:not(:where(.not-content *)) {
+    width: 30%;
 }
 
 html[data-has-sidebar]
     .sl-markdown-content
     table:not(:has(thead th:nth-child(3)))
-    td:first-child:not(:has(code)):not(:where(.not-content *)) {
+    td:first-child:not(:where(.not-content *)) {
     font-weight: 500;
     color: var(--cs-ink);
-    white-space: nowrap;
+    white-space: normal;
 }
 
 html[data-has-sidebar] .sl-markdown-content table
@@ -1031,9 +1031,374 @@ html[data-theme='light'] {
     --button-spacing: 0.5rem !important;
 }
 
-/* Hide terminal/editor chrome; keep the copy control */
-.expressive-code .frame > .header {
+/* Hide empty editor chrome; keep file titles + terminal bars + copy */
+.expressive-code .frame:not(.has-title):not(.is-terminal) > .header {
     display: none !important;
+}
+
+/*
+ * Minimal window chrome (splash-style dots) + active file tab.
+ * Kill EC’s editor-tab / terminal-dot defaults — we draw our own.
+ * Transparent titlebar; outer + header-separator borders share one color.
+ */
+.expressive-code .frame.has-title,
+.expressive-code .frame.has-title:not(.is-terminal),
+.expressive-code .frame.is-terminal {
+    /* Was the titlebar fill — now the frame/separator border (dark + light) */
+    --cs-code-border: #000;
+    --code-background: var(--cs-code-bg) !important;
+    /* Keep copy control inside the chrome bar (EC’s titled default pushes it into the code) */
+    --button-spacing: 0.38rem !important;
+    position: relative;
+    background: var(--cs-code-bg) !important;
+    border: 1px solid var(--cs-code-border) !important;
+    border-radius: 0.55rem !important;
+    overflow: hidden;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+html[data-theme='light'] .expressive-code .frame.has-title,
+html[data-theme='light'] .expressive-code .frame.is-terminal {
+    /* Dark mode uses #000; light needs a real edge against --cs-code-bg */
+    --cs-code-border: hsl(228, 14%, 72%);
+}
+
+.expressive-code .frame.has-title > .header,
+.expressive-code .frame.is-terminal > .header {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 0.55rem !important;
+    position: relative !important;
+    z-index: 1;
+    margin: 0 !important;
+    padding: 0.35rem 0.45rem 0.35rem 0.7rem !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--cs-code-border) !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    min-height: 2.25rem !important;
+    font-weight: inherit !important;
+    letter-spacing: normal !important;
+}
+
+/* Kill EC editor/terminal header overlays — we own the chrome */
+.expressive-code .frame.has-title > .header::before,
+.expressive-code .frame.has-title > .header::after,
+.expressive-code .frame.is-terminal > .header::before,
+.expressive-code .frame.is-terminal > .header::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/*
+ * Window dots — one mask, same on bash + TS.
+ * (EC’s terminal/editor frames used different chrome; this replaces both.)
+ */
+.expressive-code .cs-code-dots {
+    --cs-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'%3E%3Ccircle cx='5' cy='5' r='4' fill='black'/%3E%3Ccircle cx='20' cy='5' r='4' fill='black'/%3E%3Ccircle cx='35' cy='5' r='4' fill='black'/%3E%3C/svg%3E");
+    display: block;
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1.85rem;
+    height: 0.45rem;
+    margin: 0;
+    background: hsl(228 10% 48%);
+    -webkit-mask: var(--cs-dots) center / contain no-repeat;
+    mask: var(--cs-dots) center / contain no-repeat;
+}
+
+html[data-theme='light'] .expressive-code .cs-code-dots {
+    background: hsl(228 12% 42%);
+}
+
+/* Active tab */
+.expressive-code .frame.has-title .title,
+.expressive-code .frame.is-terminal .title {
+    position: static !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    align-self: center !important;
+    gap: 0.35rem;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: min(100%, 36rem);
+    margin: 0 !important;
+    padding: 0.28rem 0.6rem !important;
+    border: 0 !important;
+    border-radius: 0.35rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-family: var(--sl-font-mono, ui-monospace, monospace) !important;
+    font-size: 0.74rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em;
+    line-height: 1.25 !important;
+    color: var(--cs-muted) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.expressive-code .frame.is-terminal .title {
+    color: color-mix(in srgb, var(--cs-cyan) 75%, var(--ec-codeFg, #d4d8e4)) !important;
+}
+
+html[data-theme='light'] .expressive-code .frame.has-title .title {
+    color: hsl(228, 14%, 30%) !important;
+}
+
+html[data-theme='light'] .expressive-code .frame.is-terminal .title {
+    /* Bright cyan washes out on light panels — use inked teal */
+    color: hsl(188, 72%, 28%) !important;
+}
+
+.expressive-code .frame.has-title .title::before,
+.expressive-code .frame.is-terminal .title::before,
+.expressive-code .frame.has-title .title::after,
+.expressive-code .frame.is-terminal .title::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Path + filename share one flex item — no gap after "/" */
+.expressive-code .cs-code-name {
+    display: inline;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+/* Compact lang chip — same shape for TS/JS/JSON/…; color via data-kind */
+.expressive-code .frame.has-title .cs-code-kind {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 1.15rem;
+    height: 1rem;
+    padding: 0 0.22rem;
+    border-radius: 0.18rem;
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: #fff;
+    background: #3178c6; /* TS / TSX default */
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='JS'],
+.expressive-code .frame.has-title .cs-code-kind[data-kind='JSX'] {
+    background: #c4a000;
+    color: #111;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='JSON'] {
+    background: #8a8a2a;
+    color: #f5f5d0;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='MD'] {
+    background: #555b6e;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='CSS'] {
+    background: #2b6cb0;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='PY'] {
+    background: #3776ab;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='GO'] {
+    background: #007d9c;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='RS'] {
+    background: #b7410e;
+}
+
+.expressive-code .frame.has-title .cs-code-kind[data-kind='YML'] {
+    background: #6b7280;
+}
+
+.expressive-code .cs-code-path {
+    color: color-mix(in srgb, var(--cs-muted) 65%, transparent);
+    font-weight: 400;
+}
+
+html[data-theme='light'] .expressive-code .cs-code-path {
+    color: hsl(228, 10%, 42%);
+}
+
+.expressive-code .cs-code-file {
+    color: var(--ec-codeFg, #d4d8e4);
+    font-weight: 600;
+}
+
+html[data-theme='light'] .expressive-code .cs-code-file {
+    color: var(--cs-ink);
+}
+
+.expressive-code .frame.has-title > pre,
+.expressive-code .frame.is-terminal > pre {
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+
+/*
+ * Copy control — app-frontend Code / useCopyToClipboard behavior:
+ * idle: icon + “Copy”; copied: green pill + check + “Copied!” for 1.5s.
+ * Kill EC’s floating tooltip — we own the feedback UI.
+ */
+.expressive-code .frame.has-title > .header > .copy,
+.expressive-code .frame.is-terminal > .header > .copy {
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    flex: 0 0 auto !important;
+    margin: 0 0 0 auto !important;
+    padding: 0 !important;
+    inset: auto !important;
+    z-index: 3;
+}
+
+.expressive-code .frame.has-title > .header > .copy > [aria-live],
+.expressive-code .frame.is-terminal > .header > .copy > [aria-live] {
+    display: none !important;
+}
+
+.expressive-code .frame.has-title .copy button.cs-copy-btn,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn,
+.expressive-code .frame.has-title .copy button.cs-copy-btn:not(:hover),
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn:not(:hover),
+.expressive-code .frame.has-title:not(:hover) .copy button.cs-copy-btn,
+.expressive-code .frame.is-terminal:not(:hover) .copy button.cs-copy-btn {
+    opacity: 1 !important;
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0.28rem 0.55rem !important;
+    border: 0 !important;
+    border-radius: 0.3rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    color: color-mix(in srgb, var(--ec-codeFg, #d4d8e4) 72%, transparent) !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+}
+
+.expressive-code .frame.has-title .copy button.cs-copy-btn > div,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn > div {
+    display: none !important;
+}
+
+.expressive-code .frame.has-title .copy button.cs-copy-btn::before,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn::before,
+.expressive-code .frame.has-title .copy button.cs-copy-btn::after,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+}
+
+.expressive-code .frame.has-title .copy button.cs-copy-btn .cs-copy-icon,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn .cs-copy-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 0.9rem;
+    height: 0.9rem;
+    overflow: visible;
+}
+
+.expressive-code .frame.has-title .copy button.cs-copy-btn .cs-copy-glyph,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn .cs-copy-glyph {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.expressive-code .frame.has-title .copy button.cs-copy-btn:hover,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn:hover {
+    color: var(--ec-codeFg, #d4d8e4) !important;
+    background: color-mix(in srgb, var(--ec-codeFg, #d4d8e4) 8%, transparent) !important;
+}
+
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn,
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn,
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn:not(:hover),
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn:not(:hover),
+html[data-theme='light'] .expressive-code .frame.has-title:not(:hover) .copy button.cs-copy-btn,
+html[data-theme='light'] .expressive-code .frame.is-terminal:not(:hover) .copy button.cs-copy-btn {
+    /* Avoid translucent mixes — they read as washed-out on light panels */
+    color: hsl(228, 14%, 30%) !important;
+}
+
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn:hover,
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn:hover {
+    color: var(--cs-ink) !important;
+    background: color-mix(in srgb, var(--cs-ink) 6%, transparent) !important;
+}
+
+/* app-frontend Code.module.scss `.copied` — success green wins over hover */
+.expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied,
+.expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:hover,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied:hover,
+.expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:focus,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied:focus,
+.expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:active,
+.expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied:active,
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied,
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied,
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:hover,
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied:hover,
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:focus,
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied:focus,
+html[data-theme='light'] .expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:active,
+html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied:active {
+    color: #000 !important;
+    background: #7bee7b !important;
+    box-shadow: none !important;
 }
 
 .expressive-code pre {

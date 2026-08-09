@@ -1,0 +1,52 @@
+# Builtin errors
+
+Every route’s client Result includes these codes automatically — plus any domain codes you declare with `defineErrors`. Branch on **`result.code`** when `!result.ok`. Do **not** re-declare builtin codes on route `errors:`.
+
+Design / mountSpec catch path: [Error handling](./error-handling.md).
+
+## Return from handlers
+
+Use `import {err} from 'callspec'` (or your `defineErrors` handle — builtins are always merged in). **Return** failures; don’t throw for expected outcomes.
+
+| Code | HTTP | Typical use | Optional `data` |
+|------|------|-------------|-----------------|
+| `NOT_FOUND` | 404 | Resource missing | `message?`, `description?` |
+| `FORBIDDEN` | 403 | Authenticated but not allowed | `message?`, `description?` |
+| `CONFLICT` | 409 | State conflict (duplicate, version) | `message?`, `description?` |
+| `TOO_MANY_REQUESTS` | 429 | Rate limit / quota | `title?`, `message?` |
+| `SERVICE_UNAVAILABLE` | 503 | Dependency down, try later | `message?`, `description?` |
+
+```typescript
+import {err} from 'callspec';
+
+if (!found) return err.NOT_FOUND({message: 'Unknown sku'});
+if (taken) return err.CONFLICT();
+```
+
+`NOT_FOUND` (handler) ≠ `ROUTE_NOT_FOUND` (unknown RPC method) — both are HTTP 404; the **code** is the contract.
+
+## Produced by mountSpec
+
+You usually do **not** return these from handlers. The framework puts them on the wire; the client still switches on the same `result.code`.
+
+| Code | HTTP | When |
+|------|------|------|
+| `VALIDATION_ERROR` | 400 | Input fails the route `input` pred — `data` is field → message map |
+| `UNAUTHORIZED` | 401 | Bearer/auth required and missing or invalid |
+| `ROUTE_NOT_FOUND` | 404 | RPC method path not in the mounted spec — `data.route` |
+| `INTERNAL_ERROR` | 500 | Unhandled throw / rejected promise in the handler (or anything not mapped by `handleUnhandledError`) |
+
+Bare `throw new Error(…)` → `INTERNAL_ERROR`. Expected failures should **`return err.*`**.
+
+## Client-only (never on the wire from your handler)
+
+Always in every generated `*Result` union. You cannot `return` these from a server handler — the SDK synthesizes them.
+
+| Code | `status` | When | `data` |
+|------|----------|------|--------|
+| `NETWORK_ERROR` | `0` | `fetch` failed before any HTTP response (DNS, offline, abort, …) | `{ message, name? }` from the thrown `Error` when available |
+| `UNKNOWN_ERROR` | HTTP status of the response | Response outside the route contract (proxy HTML, undeclared `{ error }`, invalid domain payload, …) | `{ body, headers? }` — **debug only; do not show to end users** |
+
+Copy-paste **exhaustive** client helper (every code above filled in): [Client usage](./client-usage.md#exhaustive-call-template).
+
+Normalization details (status fallbacks, fuzzy body match): [Client error normalization](./error-handling.md#client-error-normalization).

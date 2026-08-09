@@ -14,6 +14,7 @@
   "entry": [
     "src/callspec-ui/ui/main.ts",
     "src/cs-pagefind/pagefind.ts",
+    "src/components/codeBlockTitles.ts",
     "src/demo/chirpDemoApi.ts",
     "src/**/*.spec.ts",
     "src/typecheck/**/*.ts",

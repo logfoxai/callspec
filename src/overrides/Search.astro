@@ -25,13 +25,11 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		data-open-modal
 		disabled
 		aria-label={Astro.locals.t('search.label')}
-		aria-keyshortcuts="Control+K"
+		aria-keyshortcuts="/"
 	>
 		<Icon name="magnifier" />
 		<span class="sl-hidden md:sl-block" aria-hidden="true">{Astro.locals.t('search.label')}</span>
-		<kbd class="sl-hidden md:sl-flex" style="display: none;">
-			<kbd>{Astro.locals.t('search.ctrlKey')}</kbd><kbd>K</kbd>
-		</kbd>
+		<kbd class="sl-hidden md:sl-flex">/</kbd>
 	</button>
 
 	<dialog style="padding:0" aria-label={Astro.locals.t('search.label')}>
@@ -65,27 +63,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		</div>
 	</dialog>
 </site-search>
-
-{
-	/**
-	 * This is intentionally inlined to avoid briefly showing an invalid shortcut.
-	 * Purposely using the deprecated `navigator.platform` property to detect Apple devices, as the
-	 * user agent is spoofed by some browsers when opening the devtools.
-	 */
-}
-<script is:inline>
-	(() => {
-		const openBtn = document.querySelector('button[data-open-modal]');
-		const shortcut = openBtn?.querySelector('kbd');
-		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
-		const platformKey = shortcut.querySelector('kbd');
-		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
-			platformKey.textContent = '⌘';
-			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
-		}
-		shortcut.style.display = '';
-	})();
-</script>
 
 <script>
 	import {pagefindUserConfig} from 'virtual:starlight/pagefind-config';
@@ -133,12 +110,23 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 				window.removeEventListener('click', onClick);
 			});
 
-			// Listen for `ctrl + k` and `cmd + k` keyboard shortcuts.
+			// `/` opens search (GitHub-style). Skip when typing in a field or when the modal is open.
 			window.addEventListener('keydown', (e) => {
-				if ((e.metaKey === true || e.ctrlKey === true) && e.key === 'k') {
-					dialog.open ? closeModal() : openModal();
-					e.preventDefault();
+				if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+				if (dialog.open) return;
+				const el = e.target;
+				if (!(el instanceof HTMLElement)) return;
+				const tag = el.tagName;
+				if (
+					tag === 'INPUT' ||
+					tag === 'TEXTAREA' ||
+					tag === 'SELECT' ||
+					el.isContentEditable
+				) {
+					return;
 				}
+				e.preventDefault();
+				openModal();
 			});
 
 			let translations = {};
