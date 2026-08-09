@@ -4,7 +4,7 @@ Callspec’s own TypeScript client is generated from **`callspec.json`** ([SDK g
 
 ## Export OpenAPI
 
-From a running server (swap host, **port**, and mount for yours — `3000` and `/v1` match the getting-started example):
+From a running server (replace the host, port, and mount with yours):
 
 ```bash
 curl -fsS http://127.0.0.1:3000/v1/openapi.json -o openapi.json
