@@ -14,6 +14,77 @@ const THEME_TO_CSS_VAR = {
 
 type ThemeColorKey = keyof typeof THEME_TO_CSS_VAR;
 
+/** Match built-in UI palettes so brand surfaces stay readable in both modes. */
+const LIGHT_TEXT = {
+    '--text': '#1c1917',
+    '--text-secondary': '#6b6560',
+    '--text-tertiary': '#9c958c',
+} as const;
+
+const DARK_TEXT = {
+    '--text': '#fafafa',
+    '--text-secondary': '#a3a3a3',
+    '--text-tertiary': '#737373',
+} as const;
+
+function parseHexColor(value: string): {r: number, g: number, b: number} | undefined {
+
+    const hex = value.trim().replace(/^#/, '');
+
+    if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+
+        return {
+            r: parseInt(hex[0] + hex[0], 16),
+            g: parseInt(hex[1] + hex[1], 16),
+            b: parseInt(hex[2] + hex[2], 16),
+        };
+
+    }
+
+    if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+
+        return {
+            r: parseInt(hex.slice(0, 2), 16),
+            g: parseInt(hex.slice(2, 4), 16),
+            b: parseInt(hex.slice(4, 6), 16),
+        };
+
+    }
+
+    return undefined;
+
+}
+
+function relativeLuminance({r, g, b}: {r: number, g: number, b: number}): number {
+
+    const channel = (c: number): number => {
+
+        const s = c / 255;
+
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+
+    };
+
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+
+}
+
+/** When brand background/surface pin both modes, pick readable text tokens. */
+function textTokensForSurface(color: string): Record<string, string> | undefined {
+
+    const rgb = parseHexColor(color);
+
+    if (!rgb) {
+
+        return undefined;
+
+    }
+
+    // WCAG-ish midpoint: dark surfaces get light text.
+    return relativeLuminance(rgb) < 0.4 ? {...DARK_TEXT} : {...LIGHT_TEXT};
+
+}
+
 /** Pure: map branding theme fields to CSS custom properties (no DOM). */
 export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme {
 
@@ -32,6 +103,20 @@ export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme
         if (typeof value === 'string' && value.length > 0) {
 
             cssVars[THEME_TO_CSS_VAR[key]] = value;
+
+        }
+
+    }
+
+    const surfaceForContrast = theme.background ?? theme.surface;
+
+    if (typeof surfaceForContrast === 'string' && surfaceForContrast.length > 0) {
+
+        const textVars = textTokensForSurface(surfaceForContrast);
+
+        if (textVars) {
+
+            Object.assign(cssVars, textVars);
 
         }
 

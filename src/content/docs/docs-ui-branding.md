@@ -41,7 +41,7 @@ export const api = spec({
 | `website` | Outbound link on home |
 | `logo.light` / `logo.dark` | Header + home mark (`dark` falls back to `light`) |
 | `favicon` | Docs tab icon (defaults to `logo.light` when omitted) |
-| `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]` |
+| `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. |
 | `navbarLinks` | Top header links (`label`, `href`, optional `external`) |
 | `footer.poweredBy` | Show “Powered by callspec” (default `true` when omitted) |
 | `authHint` | Copy in the MCP connect panel when bearer tools exist |

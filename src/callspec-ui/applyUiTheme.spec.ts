@@ -14,12 +14,14 @@ test('applyUiTheme: maps theme keys to CSS vars and returns fontUrls', (assert) 
         ],
     });
 
-    assert.equal(result.cssVars, {
-        '--accent': '#0ea5e9',
-        '--bg': '#0f172a',
-        '--surface': '#1e293b',
-        '--sans': '"IBM Plex Sans", system-ui, sans-serif',
-    });
+    assert.equal(result.cssVars['--accent'], '#0ea5e9');
+    assert.equal(result.cssVars['--bg'], '#0f172a');
+    assert.equal(result.cssVars['--surface'], '#1e293b');
+    assert.equal(result.cssVars['--sans'], '"IBM Plex Sans", system-ui, sans-serif');
+    // Dark brand surfaces pin both color modes — derive light text for contrast.
+    assert.equal(result.cssVars['--text'], '#fafafa');
+    assert.equal(result.cssVars['--text-secondary'], '#a3a3a3');
+    assert.equal(result.cssVars['--text-tertiary'], '#737373');
     assert.equal(result.fontUrls, [
         'https://fonts.example/plex.css',
         'https://fonts.example/plex-mono.css',
@@ -27,7 +29,22 @@ test('applyUiTheme: maps theme keys to CSS vars and returns fontUrls', (assert) 
 
 });
 
-test('applyUiTheme: omits unset keys and defaults fontUrls to []', (assert) => {
+test('applyUiTheme: light background derives dark text tokens', (assert) => {
+
+    const result = applyUiTheme({
+        background: '#f7f9f9',
+        surface: '#ffffff',
+    });
+
+    assert.equal(result.cssVars['--bg'], '#f7f9f9');
+    assert.equal(result.cssVars['--surface'], '#ffffff');
+    assert.equal(result.cssVars['--text'], '#1c1917');
+    assert.equal(result.cssVars['--text-secondary'], '#6b6560');
+    assert.equal(result.cssVars['--text-tertiary'], '#9c958c');
+
+});
+
+test('applyUiTheme: accent-only does not pin background or text (light/dark stay intact)', (assert) => {
 
     const result = applyUiTheme({accent: '#111'});
 
