@@ -1,6 +1,17 @@
 # Server layout
 
-Callspec doesn't care about your folders. A single file is fine — see [Single-file server example](./single-file-server-example.md). When the API grows, this split keeps routes, shared preds, and the registry easy to find.
+Callspec doesn't care about your folders. A single file is fine for demos — see [Single-file server example](./single-file-server-example.md). When the API grows (or you're past a toy), **split** so each route, shared pred, and the registry stay easy to find and test.
+
+## Best practice (split layout)
+
+1. **One route per file** — `server/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
+2. **Always call `route()`** — `spec({ routes })` values must be **wired routes** from `route({ …, handler })`. Do not hand-build the wired object (`__callspecWired`, merged `errors`, defaults).
+3. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([Handlers](./api-reference/handlers.md)).
+4. **Shared domain preds** live under `server/schemas/` and are imported by routes (`output: product`). Infer TS types with `Infer<typeof product>` when local data (e.g. fixtures) should match. Route-only wire shapes (`{ id }`, filters) stay in the route file.
+5. **`routes.ts` is only the registry** — `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
+6. **`index.ts` only mounts** — Express + `mountSpec`. No route logic.
+
+Test handlers with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
 
 ```text
 my-api/
@@ -21,8 +32,6 @@ my-api/
 └── package.json
 ```
 
-Test handlers with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
-
 ## What goes where
 
 | Kind | Put it | Example |
@@ -30,6 +39,8 @@ Test handlers with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit
 | Shared domain entity | One schema module, imported by routes | `Product`, `User` |
 | Route-only wire shape | In the route file | `{ id }` input; list wrappers |
 | Frontend form/filter pred | Schema module + `spec({ exports })` | `product` — [Shared validation](./shared-validation.md) |
+| Wired route | Own file under `routes/`, via `route()` | `export const getProductById = route({…})` |
+| Registry | `routes.ts` only | `spec({ routes: { getProductById } })` |
 
 Share domain preds. Keep ID/filter/pagination shapes with the route unless they're reused.
 
@@ -37,13 +48,14 @@ Share domain preds. Keep ID/filter/pagination shapes with the route unless they'
 
 ```typescript
 // server/schemas/product.ts
-import {predicates as p} from 'runtyp';
+import {predicates as p, Infer} from 'runtyp';
 
 export const product = p.object({
     id: p.string(),
     name: p.string(),
     priceCents: p.number(),
 });
+export type Product = Infer<typeof product>;
 
 export const productList = p.object({
     items: p.array(product),
@@ -57,13 +69,14 @@ export const productList = p.object({
 // server/routes/getProductById.ts
 import {route, err} from 'callspec';
 import {predicates as p} from 'runtyp';
-import {product} from '../schemas/product';
+import {product, type Product} from '../schemas/product';
 
-const products = [
+const products: Product[] = [
     {id: 'sku-1', name: 'Widget', priceCents: 999},
     {id: 'sku-2', name: 'Gadget', priceCents: 1299},
 ];
 
+// handler stays inline — types flow from the preds
 export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,

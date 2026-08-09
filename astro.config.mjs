@@ -1,4 +1,5 @@
 import {defineConfig} from 'astro/config';
+import {unified} from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
 import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
@@ -10,7 +11,9 @@ export default defineConfig({
     prefetch: isDev ? false : {prefetchAll: true, defaultStrategy: 'hover'},
     devToolbar: {enabled: false},
     markdown: {
-        remarkPlugins: [remarkStarlightMdLinks],
+        processor: unified({
+            remarkPlugins: [remarkStarlightMdLinks],
+        }),
     },
     site: 'https://logfoxai.github.io/callspec',
     outDir: './docs-site',

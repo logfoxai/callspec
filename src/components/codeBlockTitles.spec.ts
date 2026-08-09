@@ -2,8 +2,11 @@ import {test} from 'kizu';
 import {
     COPY_FEEDBACK_MS,
     copyButtonContent,
+    defaultTitleFromLang,
     ecDataCodeToText,
     fileKindFromName,
+    isFilePathTitle,
+    kindFromTitle,
     tryCopyText,
 } from './codeBlockTitles';
 
@@ -32,6 +35,30 @@ test('tryCopyText returns true only when write succeeds', async (assert) => {
         false,
     );
     assert.equal(await tryCopyText('', {writeText: async () => undefined}), false);
+});
+
+test('defaultTitleFromLang maps fence langs to tab labels', (assert) => {
+    assert.equal(defaultTitleFromLang('typescript'), 'typescript');
+    assert.equal(defaultTitleFromLang('tsx'), 'tsx');
+    assert.equal(defaultTitleFromLang('javascript'), 'javascript');
+    assert.equal(defaultTitleFromLang('json'), 'json');
+    assert.equal(defaultTitleFromLang('text'), 'text');
+    assert.equal(defaultTitleFromLang(''), 'code');
+});
+
+test('isFilePathTitle distinguishes filenames from bare lang titles', (assert) => {
+    assert.equal(isFilePathTitle('server/routes.ts'), true);
+    assert.equal(isFilePathTitle('getProductById.ts'), true);
+    assert.equal(isFilePathTitle('typescript'), false);
+    assert.equal(isFilePathTitle('bash'), false);
+    assert.equal(isFilePathTitle('SKILL.md'), true);
+});
+
+test('kindFromTitle maps langs and filenames to chips', (assert) => {
+    assert.equal(kindFromTitle('typescript'), 'TS');
+    assert.equal(kindFromTitle('tsx'), 'TSX');
+    assert.equal(kindFromTitle('server/app.ts'), 'TS');
+    assert.equal(kindFromTitle('text'), null);
 });
 
 test('fileKindFromName maps common extensions', (assert) => {

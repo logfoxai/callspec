@@ -1,6 +1,10 @@
 # Unit testing
 
-Test route **business logic** without HTTP, Express, or `mountSpec`. Each wired route exposes the same handler production uses at **`.handler(input, ctx)`** — typed input in, success value or `RouteFailure` out.
+This is one of the main reasons to use Callspec instead of naked Express or frameworks that bury logic inside HTTP handlers.
+
+Every wired route exposes the **same** function production runs — **`.handler(input, ctx)`** — with typed input in and a success value or `RouteFailure` out. You call that handler and assert on the return value. No Express app, no `supertest`, no injecting `req`/`res`/`next`. **No mocks** unless *you* introduced hard-to-reach deps (singletons, ambient globals, etc.).
+
+That makes **100% code coverage** realistic on route modules: line (**statement**), **branch**, and **function** coverage — ordinary unit tests, not an integration suite bolted on later.
 
 Split-file layout makes this natural: one route module, one test file. See [Server layout](./server-layout.md).
 
@@ -11,46 +15,39 @@ Examples use [kizu](https://github.com/mhweiner/kizu) — same runner callspec u
 ```typescript
 // server/routes/getProductById.spec.ts
 import {test} from 'kizu';
-import {isRouteFailure} from 'callspec';
+import {err} from 'callspec';
 import {getProductById} from './getProductById';
 
 test('getProductById: NOT_FOUND for unknown sku', async (assert) => {
-
-    const result = await getProductById.handler({id: 'missing'}, undefined);
-
-    assert.equal(isRouteFailure(result), true);
-    assert.equal(isRouteFailure(result) && result.code, 'NOT_FOUND');
-
+    assert.equal(
+        await getProductById.handler({id: 'covfefe'}, undefined),
+        err.NOT_FOUND(),
+    );
 });
 
 test('getProductById: returns product', async (assert) => {
-
-    const result = await getProductById.handler({id: 'sku-1'}, undefined);
-
-    assert.equal(isRouteFailure(result), false);
-    assert.equal(result, {id: 'sku-1', name: 'Widget', priceCents: 999});
-
+    assert.equal(
+        await getProductById.handler({id: 'sku-1'}, undefined),
+        {id: 'sku-1', name: 'Widget', priceCents: 999},
+    );
 });
 ```
 
-Use `isRouteFailure` from `callspec` to narrow failures vs success before reading `code` or `data`.
+Compare the handler result directly to `err.CODE()` or the success value — same objects production returns.
 
 ## Domain errors
 
-Handlers return failures with `return err.NOT_FOUND()` / `return registerErr.SOME_CODE({ … })` — not throws. Assert on `code` (and `data` when present):
+Handlers return failures with `return err.NOT_FOUND()` / `return registerErr.SOME_CODE({ … })` — not throws. Assert against the same failer:
 
 ```typescript
 import {test} from 'kizu';
-import {isRouteFailure} from 'callspec';
-import {createUser} from './createUser';
+import {createUser, registerErr} from './createUser';
 
 test('createUser: USER_EXISTS when email taken', async (assert) => {
-
-    const result = await createUser.handler({email: 'taken@example.com'}, undefined);
-
-    assert.equal(isRouteFailure(result), true);
-    assert.equal(isRouteFailure(result) && result.code, 'USER_EXISTS');
-
+    assert.equal(
+        await createUser.handler({email: 'taken@example.com'}, undefined),
+        registerErr.USER_EXISTS({email: 'taken@example.com'}),
+    );
 });
 ```
 
@@ -66,15 +63,12 @@ import type {Ctx} from '../auth';
 import {listOrders} from './listOrders';
 
 test('listOrders: scopes to tenant', async (assert) => {
-
     const orders = await listOrders.handler(
         {status: 'open'},
         {userId: 'user_1', tenantId: 'acme'} satisfies Ctx,
     );
 
-    assert.equal(isRouteFailure(orders), false);
-    // …
-
+    assert.equal(orders, [/* … */]);
 });
 ```
 
@@ -101,4 +95,3 @@ npx kizu -f 'server/**/*.spec.ts'
 ```
 
 Add kizu to devDependencies and wire a `"test"` script in your app — callspec itself uses `c8 kizu -f 'src/**/*.spec.ts'` for coverage.
-
