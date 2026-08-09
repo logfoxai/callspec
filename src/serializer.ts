@@ -21,25 +21,7 @@ export function parseIsoDateTimeString(s: string): Date | undefined {
 
 }
 
-function isLegacyDateWire(value: unknown): value is {__type: 'Date', value: string} {
-
-    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-
-        return false;
-
-    }
-
-    if (!('__type' in value) || !('value' in value)) {
-
-        return false;
-
-    }
-
-    return value.__type === 'Date' && typeof value.value === 'string';
-
-}
-
-/** Coerce a known `p.date()` leaf from ISO string or legacy wrapper. */
+/** Coerce a known `p.date()` leaf from an ISO date-time string. */
 function coerceDateLeaf(value: unknown): unknown {
 
     if (value instanceof Date) return value;
@@ -47,14 +29,6 @@ function coerceDateLeaf(value: unknown): unknown {
     if (typeof value === 'string') {
 
         return parseIsoDateTimeString(value) ?? value;
-
-    }
-
-    if (isLegacyDateWire(value)) {
-
-        const d = new Date(value.value);
-
-        return Number.isNaN(d.getTime()) ? value : d;
 
     }
 
@@ -117,18 +91,14 @@ function mapObject(
 }
 
 /**
- * Revive dates using a runtyp pred: coerce ISO / legacy wrappers only at `p.date()` leaves.
+ * Revive dates using a runtyp pred: coerce ISO strings only at `p.date()` leaves.
  * String fields that look like ISO stay strings.
  */
 export function deserializeWithPred(data: unknown, pred: Pred<unknown>): unknown {
 
     const meta = getPredMeta(pred);
 
-    if (!meta) {
-
-        return deserializeLegacyOnly(data);
-
-    }
+    if (!meta) return data;
 
     switch (meta.kind) {
 
@@ -196,49 +166,13 @@ export function deserializeWithPred(data: unknown, pred: Pred<unknown>): unknown
 
             }
 
-            return deserializeLegacyOnly(data);
+            return data;
         }
 
         default:
-            // string | number | boolean | enum | literal | any | unknown — no ISO revive
             return data;
 
     }
-
-}
-
-/** Deep-walk: revive legacy `{ __type: 'Date' }` only (no bare ISO coercion). */
-function deserializeLegacyOnly(data: unknown): unknown {
-
-    if (data === null || data === undefined) return data;
-
-    if (typeof data !== 'object') return data;
-
-    if (isLegacyDateWire(data)) {
-
-        const d = new Date(data.value);
-
-        return Number.isNaN(d.getTime()) ? data : d;
-
-    }
-
-    if (Array.isArray(data)) {
-
-        return mapArray(data, deserializeLegacyOnly);
-
-    }
-
-    return mapObject(data as Record<string, unknown>, (_key, value) => deserializeLegacyOnly(value));
-
-}
-
-/**
- * Schema-free revive for clients without an output pred.
- * Only legacy Date wrappers — bare ISO strings stay strings (pass `output` pred for ISO→Date).
- */
-export function deserializeResponse(data: unknown): unknown {
-
-    return deserializeLegacyOnly(data);
 
 }
 

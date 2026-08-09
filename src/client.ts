@@ -1,4 +1,4 @@
-import {deserializeResponse, deserializeWithPred} from './serializer';
+import {deserializeWithPred} from './serializer';
 
 export type {
     BuiltinErrorCode,
@@ -137,7 +137,7 @@ async function parseResponseBody(
 
         }
 
-        return deserializeResponse(parsed);
+        return parsed;
 
     } catch {
 
@@ -188,7 +188,7 @@ export class CallspecClient {
 
         }
 
-        // Success: schema-guided date revive. Errors: legacy-only — output pred must not
+        // Success: schema-guided ISO→Date revive. Errors: raw JSON — output pred must not
         // rewrite domain error `data` before JSON Schema validation.
         const body = await parseResponseBody(
             resp,

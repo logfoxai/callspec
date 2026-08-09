@@ -110,7 +110,9 @@ JSON has no `Date` type. On the wire, dates are **ISO 8601 strings** (`2024-01-1
 
 Coercion is **schema-guided** (only at `p.date()` leaves). ISO-shaped strings in `p.string()` fields stay strings.
 
-- **Server:** `executeRoute` revives ISO / legacy wrappers using the route’s **input** pred before validation.
+- **Server:** `executeRoute` revives ISO strings using the route’s **input** pred before validation.
 - **Generated clients:** pass the route **output** pred into `callResult`, so `result.value` gets `Date` where the schema says date.
-- **Bare `CallspecClient.callResult` without `output`:** only legacy `{ __type: 'Date', value: '…' }` is revived; bare ISO strings stay strings.
+- **Bare `CallspecClient.callResult` without `output`:** dates stay ISO strings (pass `output` to revive).
 - **Requests:** pass `Date` in input objects; `JSON.stringify` sends ISO strings.
+
+Breaking vs callspec 2.x: responses no longer use `{ __type: 'Date', value }`. Wire format is plain ISO only.

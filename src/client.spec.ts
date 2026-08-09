@@ -52,36 +52,6 @@ test('CallspecClient POSTs JSON to endpoint/method', async (assert) => {
 
 });
 
-test('CallspecClient deserializes legacy Date wire format', async (assert) => {
-
-    const originalFetch = globalThis.fetch;
-
-    globalThis.fetch = (async () => new Response(JSON.stringify({
-        at: {__type: 'Date', value: '2026-07-28T12:00:00.000Z'},
-    }), {status: 200})) as typeof fetch;
-
-    try {
-
-        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult<{at: Date}>('getTime', {});
-
-        assert.equal(isCallspecOk(result), true);
-
-        if (result.ok) {
-
-            assert.equal(result.value.at instanceof Date, true);
-            assert.equal(result.value.at.toISOString(), '2026-07-28T12:00:00.000Z');
-
-        }
-
-    } finally {
-
-        globalThis.fetch = originalFetch;
-
-    }
-
-});
-
 test('CallspecClient deserializes ISO date-time strings with output pred', async (assert) => {
 
     const originalFetch = globalThis.fetch;

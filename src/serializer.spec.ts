@@ -1,7 +1,6 @@
 import {test} from 'kizu';
 import {predicates as p} from 'runtyp';
 import {
-    deserializeResponse,
     deserializeWithPred,
     parseIsoDateTimeString,
     serializeResponse,
@@ -41,18 +40,6 @@ test('deserializeWithPred coerces ISO only at p.date() leaves', (assert) => {
     assert.equal(out.time.toISOString(), ISO);
     assert.equal(out.label, ISO);
     assert.equal(typeof out.label, 'string');
-
-});
-
-test('deserializeWithPred accepts legacy Date wire at p.date() leaves', (assert) => {
-
-    const pred = p.object({at: p.date()});
-    const out = deserializeWithPred({
-        at: {__type: 'Date', value: ISO},
-    }, pred) as {at: Date};
-
-    assert.equal(out.at instanceof Date, true);
-    assert.equal(out.at.toISOString(), ISO);
 
 });
 
@@ -120,22 +107,14 @@ test('deserializeWithPred union prefers branch that validates after coerce', (as
 
 });
 
-test('deserializeResponse without pred only revives legacy Date wrappers', (assert) => {
+test('deserializeWithPred does not revive legacy __type Date wrappers', (assert) => {
 
-    const legacy = deserializeResponse({at: {__type: 'Date', value: ISO}}) as {at: Date};
-    const bare = deserializeResponse({at: ISO}) as {at: string};
+    const pred = p.object({at: p.date()});
+    const wire = {at: {__type: 'Date', value: ISO}};
+    const out = deserializeWithPred(wire, pred) as {at: unknown};
 
-    assert.equal(legacy.at instanceof Date, true);
-    assert.equal(bare.at, ISO);
-    assert.equal(typeof bare.at, 'string');
-
-});
-
-test('deserializeResponse leaves non-date payloads by reference', (assert) => {
-
-    const input = {id: 'sku-1', label: 'hello', n: 3, ok: true, nil: null};
-
-    assert.equal(deserializeResponse(input), input);
+    assert.equal(out.at instanceof Date, false);
+    assert.equal(out, wire);
 
 });
 
@@ -167,16 +146,8 @@ test('deserializeWithPred returns same reference when nothing changes', (assert)
         a: p.string(),
         b: p.number(),
     });
-    const payload: Record<string, unknown> = {a: 'x', b: 1};
-
-    for (let i = 0; i < 1_000; i++) {
-
-        payload[`k${i}`] = `value-${i}`;
-
-    }
-
-    // Pred only knows a/b — unknown keys stay as-is; no date leaves → same ref for known walk
     const small = {a: 'x', b: 1};
+
     assert.equal(deserializeWithPred(small, pred), small);
 
 });

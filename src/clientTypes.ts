@@ -82,7 +82,7 @@ export type CallResultOptions = {
     domainErrors?: Readonly<Record<string, DomainErrorContract>>
     /**
      * Output pred for schema-guided date revive (ISO → Date only at `p.date()` leaves).
-     * Generated clients pass this automatically. Without it, only legacy `{ __type: 'Date' }` is revived.
+     * Generated clients pass this automatically. Without it, dates stay ISO strings.
      */
     output?: Pred<unknown>
 };
