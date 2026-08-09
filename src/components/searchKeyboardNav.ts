@@ -97,6 +97,23 @@ export function markAwaitingFreshResults(state: KeyboardNavState): KeyboardNavSt
 }
 
 /**
+ * After Pagefind’s debounce window, accept the current rows even if their href
+ * fingerprint matches the previous query (same hits after an edit).
+ */
+export function settleAwaitingResults(
+	state: KeyboardNavState,
+	fingerprint: string,
+	itemCount: number,
+): KeyboardNavState {
+	if (!state.awaitingFreshResults) return state;
+	return {
+		selectedIndex: itemCount > 0 ? 0 : -1,
+		lastFingerprint: fingerprint,
+		awaitingFreshResults: false,
+	};
+}
+
+/**
  * Updates selection when the dialog mode / result list fingerprint changes.
  * While awaitingFreshResults and the fingerprint is unchanged, selection stays cleared
  * so Enter cannot open stale debounced rows. Fingerprint changes from hydration alone

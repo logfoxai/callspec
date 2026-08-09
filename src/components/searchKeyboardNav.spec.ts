@@ -1,10 +1,11 @@
 import {test} from 'kizu';
-import {
+	import {
 	applySelection,
 	handleSearchKey,
 	markAwaitingFreshResults,
 	nextIndex,
 	resolveKeyboardSelection,
+	settleAwaitingResults,
 	type KeyboardNavState,
 } from './searchKeyboardNav.js';
 
@@ -92,6 +93,18 @@ test('hydration fingerprint changes keep the current selection', (assert) => {
 	const hydrated = resolveKeyboardSelection(state, 'results', 'results:a\0b', 2);
 	assert.equal(hydrated.selectedIndex, 1);
 	assert.equal(hydrated.awaitingFreshResults, false);
+});
+
+test('settleAwaitingResults unlocks nav when href fingerprint is unchanged', (assert) => {
+	const awaiting = markAwaitingFreshResults({
+		selectedIndex: 0,
+		lastFingerprint: 'results:a',
+		awaitingFreshResults: false,
+	});
+	const settled = settleAwaitingResults(awaiting, 'results:a', 2);
+	assert.equal(settled.awaitingFreshResults, false);
+	assert.equal(settled.selectedIndex, 0);
+	assert.equal(settled.lastFingerprint, 'results:a');
 });
 
 function stubEl(): {
