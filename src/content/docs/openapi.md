@@ -1,31 +1,39 @@
 # OpenAPI
 
-**Quick facts**
+Callspec emits **OpenAPI 3.1** from the same `routes` object as your RPC server — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern).
 
-| | |
-|--|--|
-| URL | `{mount}/openapi.json` (fixed path when `docs: true`) |
-| Version | OpenAPI 3.1 |
-| Source | Same `routes` object as RPC — **not** derived from `callspec.json` |
-| Use for | Gateways, mocking, contract tests, Fern / multi-lang SDKs |
-| **Not for** | Callspec TypeScript SDK codegen (use `callspec.json`) |
-| Omitted | `scope: 'private'` routes; Bearer security auto-derived from `auth` |
+It is a **projection for the ecosystem**, not the source of truth for Callspec’s TypeScript client. For `npx callspec` / `ApiClient`, use **`callspec.json`**, not OpenAPI.
 
-**OpenAPI 3.1** at **`/openapi.json`** — a projection from the same `routes` object as your RPC server. RPC methods appear as `POST` paths; errors grouped by HTTP status.
+## When to use which
 
-Use for gateways, mocking, contract tests, and **public DX tools** — e.g. [Fern](./using-fern-with-callspec.md) for multi-language SDKs and public docs while Callspec stays the runtime.
+| Need | Use |
+|------|-----|
+| TypeScript SDK + Result errors + `schemas` | `callspec.json` → [SDK generation](./sdk-generation.md) |
+| Gateway, Postman, Pact, OpenAPI lint | `/openapi.json` or `emitOpenApi` |
+| Public multi-lang SDKs / hosted docs | OpenAPI → [Fern](./using-fern-with-callspec.md) (or similar) |
+| Try methods in the browser | [Docs UI](./docs-ui.md) |
 
-See [Auth and scope](./api-reference/auth-and-scope.md) for `scope` and Bearer behavior.
+## What’s in the document
+
+- Each public RPC method as a `POST` path
+- Request/response schemas from route preds
+- Errors grouped by HTTP status (builtins + route domain errors)
+- Bearer security when `auth: 'bearer'`
+- `scope: 'private'` routes **omitted**
+
+Auth/scope details: [Auth and scope](./api-reference/auth-and-scope.md).
 
 ## Fetch from a running server
+
+Served at **`{mount}/openapi.json`** whenever `docs` is enabled (default). Disabled with `mountSpec(router, api, {docs: false})` — same switch as the docs UI and `callspec.json`.
 
 ```bash
 curl -fsS http://127.0.0.1:3000/v1/openapi.json -o openapi.json
 ```
 
-## Emit from TypeScript
+## Emit without HTTP
 
-Same document `mountSpec` serves — no HTTP required:
+Same document `mountSpec` would serve — for CI or offline packaging:
 
 ```typescript
 import {writeFileSync} from 'fs';
@@ -49,5 +57,10 @@ writeFileSync(
 );
 ```
 
-`emitOpenApi` lives in `callspec/document` alongside other document helpers for server tooling and tests.
+`emitOpenApi` is exported from `callspec/document`.
 
+## Related
+
+- [SDK generation](./sdk-generation.md) — TypeScript from `callspec.json`
+- [Using Fern with Callspec](./using-fern-with-callspec.md) — OpenAPI for public DX, Callspec for runtime
+- [Docs UI](./docs-ui.md) — human explorer alongside the JSON exports

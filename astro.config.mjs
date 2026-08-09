@@ -1,5 +1,6 @@
 import {defineConfig} from 'astro/config';
 import starlight from '@astrojs/starlight';
+import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
 import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -15,12 +16,14 @@ export default defineConfig({
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)
     publicDir: './assets',
-    // Dev server only (sec-fetch middleware): allow IDE embedded browsers (Cursor, etc.)
-    // that load localhost with Sec-Fetch-Site: cross-site. Not used by static builds.
+    // Dev server only: Origin-bearing cross-site requests (proxies / some IDE previews).
+    // Cursor Simple Browser often sends cross-site no-cors *without* Origin — that
+    // path is handled by devServerNoisePlugin (allowedDomains cannot match missing Origin).
     security: {
         allowedDomains: [{}],
     },
     vite: {
+        plugins: [devServerNoisePlugin()],
         // Vite 8 defaults cssMinify to lightningcss, which drops unprefixed
         // backdrop-filter when -webkit- is present — Chromium then skips frost.
         // https://github.com/vitejs/vite/issues/22649
@@ -66,41 +69,9 @@ export default defineConfig({
                     label: 'Introduction',
                     items: [
                         {label: 'Getting started', slug: 'getting-started'},
-                        {label: 'Coding agents', slug: 'coding-agents'},
                         {label: 'Server layout', slug: 'server-layout'},
                         {label: 'Unit testing', slug: 'unit-testing'},
                         {label: 'Single-file server example', slug: 'single-file-server-example'},
-                    ],
-                },
-                {
-                    label: 'Server',
-                    items: [
-                        {label: 'Authentication', slug: 'authentication'},
-                        {label: 'Request context', slug: 'request-context'},
-                        {label: 'Error handling', slug: 'error-handling'},
-                    ],
-                },
-                {
-                    label: 'Client',
-                    items: [
-                        {label: 'SDK generation', slug: 'sdk-generation'},
-                        {label: 'Client usage', slug: 'client-usage'},
-                        {label: 'Shared validation', slug: 'shared-validation'},
-                    ],
-                },
-                {
-                    label: 'Surfaces',
-                    items: [
-                        {label: 'Docs UI', slug: 'docs-ui'},
-                        {label: 'MCP', slug: 'mcp'},
-                        {label: 'OpenAPI', slug: 'openapi'},
-                        {label: 'Callspec + Fern', slug: 'using-fern-with-callspec'},
-                    ],
-                },
-                {
-                    label: 'Project',
-                    items: [
-                        {label: 'Development', slug: 'development'},
                     ],
                 },
                 {
@@ -115,6 +86,55 @@ export default defineConfig({
                             label: 'Surfaces & exports',
                             slug: 'api-reference/surfaces-and-exports',
                         },
+                    ],
+                },
+                {
+                    label: 'Working with Coding Agents',
+                    items: [
+                        {label: 'Skill & prompts', slug: 'coding-agents'},
+                    ],
+                },
+                {
+                    label: 'Server',
+                    items: [
+                        {label: 'Authentication', slug: 'authentication'},
+                        {label: 'Request context', slug: 'request-context'},
+                        {label: 'Error handling', slug: 'error-handling'},
+                        {label: 'Builtin errors', slug: 'builtin-errors'},
+                    ],
+                },
+                {
+                    label: 'Client',
+                    items: [
+                        {label: 'SDK generation', slug: 'sdk-generation'},
+                        {label: 'Client usage', slug: 'client-usage'},
+                        {label: 'Shared validation', slug: 'shared-validation'},
+                    ],
+                },
+                {
+                    label: 'Docs UI',
+                    items: [
+                        {label: 'Overview', slug: 'docs-ui'},
+                        {label: 'Branding', slug: 'docs-ui-branding'},
+                    ],
+                },
+                {
+                    label: 'MCP Server',
+                    items: [
+                        {label: 'Overview', slug: 'mcp'},
+                    ],
+                },
+                {
+                    label: 'OpenAPI',
+                    items: [
+                        {label: 'Overview', slug: 'openapi'},
+                        {label: 'Callspec + Fern', slug: 'using-fern-with-callspec'},
+                    ],
+                },
+                {
+                    label: 'Project',
+                    items: [
+                        {label: 'Development', slug: 'development'},
                     ],
                 },
             ],

@@ -42,10 +42,10 @@ Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictiona
 
 ## Contents
 
-For coding agents, use [SKILL.md](skills/callspec/SKILL.md).
+For coding agents: [Working with Coding Agents](src/content/docs/coding-agents.md) (copy-paste skill + prompts). Skill file: [SKILL.md](skills/callspec/SKILL.md).
 
 - [Getting started](src/content/docs/getting-started.md)
-- [Coding agents](src/content/docs/coding-agents.md)
+- [Working with Coding Agents](src/content/docs/coding-agents.md)
 - [Server layout](src/content/docs/server-layout.md)
 - [Unit testing](src/content/docs/unit-testing.md)
 - [Single-file server example](src/content/docs/single-file-server-example.md)
@@ -53,11 +53,13 @@ For coding agents, use [SKILL.md](skills/callspec/SKILL.md).
 - [Request context](src/content/docs/request-context.md)
 - [API reference](src/content/docs/api-reference.md)
 - [Error handling](src/content/docs/error-handling.md)
+- [Builtin errors](src/content/docs/builtin-errors.md)
 - [SDK generation](src/content/docs/sdk-generation.md)
 - [Client usage](src/content/docs/client-usage.md)
 - [Shared validation](src/content/docs/shared-validation.md)
 - [Docs UI](src/content/docs/docs-ui.md)
-- [MCP](src/content/docs/mcp.md)
+- [Docs UI branding](src/content/docs/docs-ui-branding.md)
+- [MCP Server](src/content/docs/mcp.md)
 - [OpenAPI](src/content/docs/openapi.md)
 - [Callspec + Fern](src/content/docs/using-fern-with-callspec.md)
 - [Development](src/content/docs/development.md)

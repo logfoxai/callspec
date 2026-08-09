@@ -2,9 +2,15 @@
 export default {
     // Inline theme CSS in the first block — avoids a body <link> that FOUCs on navigation.
     emitExternalStylesheet: false,
-    // Flat panels (no terminal/editor chrome) — keep copy + other frame features
+    // Flat panels by default; shell langs get a terminal frame + bash title
     defaultProps: {
         frame: 'none',
+        overridesByLang: {
+            'bash,sh,shell,zsh,shellscript,shellsession,console': {
+                frame: 'terminal',
+                title: 'bash',
+            },
+        },
     },
     frames: {
         showCopyToClipboardButton: true,

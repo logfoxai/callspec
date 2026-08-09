@@ -1,5 +1,6 @@
 ---
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import CodeBlockTitles from '../components/CodeBlockTitles.astro';
 import SearchModalPolish from '../components/SearchModalPolish.astro';
 
 const {head} = Astro.locals.starlightRoute;
@@ -8,4 +9,5 @@ const {head} = Astro.locals.starlightRoute;
 {head.map(({tag: Tag, attrs, content}) => <Tag {...attrs} set:html={content} />)}
 
 <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin="anonymous" />
+<CodeBlockTitles />
 <SearchModalPolish />

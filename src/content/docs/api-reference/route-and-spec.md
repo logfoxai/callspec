@@ -110,7 +110,7 @@ If `dark` is omitted, the light logo is used in both themes.
 | Title, intro, logo, website | `spec({ meta: { … } })` |
 | Per-route summaries and tags | `route({ meta: { summary, tags, … } })` |
 
-More: [Docs UI](../docs-ui.md) · [`mountSpec`](./mount-spec.md)
+More: [Docs UI](../docs-ui.md) · [Branding](../docs-ui-branding.md) · [`mountSpec`](./mount-spec.md)
 
 ### Exports
 

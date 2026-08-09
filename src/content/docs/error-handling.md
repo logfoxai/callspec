@@ -88,19 +88,7 @@ Import **`err`** (builtins-only handle) or your domain handle — do not confuse
 
 ### Builtin codes
 
-| Code | Typical HTTP status | Source |
-|------|---------------------|--------|
-| `VALIDATION_ERROR` | 400 | mountSpec (input validation) |
-| `UNAUTHORIZED` | 401 | mountSpec (missing/invalid auth) |
-| `ROUTE_NOT_FOUND` | 404 | mountSpec (unknown RPC method) |
-| `NOT_FOUND` | 404 | handler (`return err.NOT_FOUND()`) |
-| `FORBIDDEN` | 403 | handler or middleware |
-| `CONFLICT` | 409 | handler |
-| `TOO_MANY_REQUESTS` | 429 | rate-limit middleware |
-| `SERVICE_UNAVAILABLE` | 503 | handler or middleware |
-| `INTERNAL_ERROR` | 500 | mountSpec (unhandled throw or rejected promise in handler) |
-
-`ROUTE_NOT_FOUND` and `NOT_FOUND` both use HTTP 404 but mean different things — the **`code`** is the contract; status is a transport hint.
+Full tables (handler `err.*`, mountSpec-produced, client-only `NETWORK_ERROR` / `UNKNOWN_ERROR`): **[Builtin errors](./builtin-errors.md)**.
 
 ## Wire format and HTTP status
 
