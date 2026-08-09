@@ -88,78 +88,105 @@ export type KeyboardNavMode = 'idle' | 'results' | 'other';
 export type KeyboardNavState = {
 	selectedIndex: number;
 	lastFingerprint: string;
-	/** True after the query changes until a new results fingerprint arrives. */
+	/** True after the query changes until fresh results are accepted. */
 	awaitingFreshResults: boolean;
+	/** True if Pagefind showed a searching state while awaiting. */
+	sawSearchingWhileAwaiting: boolean;
 };
 
 export function markAwaitingFreshResults(state: KeyboardNavState): KeyboardNavState {
-	return {...state, awaitingFreshResults: true, selectedIndex: -1};
-}
-
-/**
- * After Pagefind’s debounce window, accept the current rows even if their href
- * fingerprint matches the previous query (same hits after an edit).
- */
-export function settleAwaitingResults(
-	state: KeyboardNavState,
-	fingerprint: string,
-	itemCount: number,
-): KeyboardNavState {
-	if (!state.awaitingFreshResults) return state;
 	return {
-		selectedIndex: itemCount > 0 ? 0 : -1,
-		lastFingerprint: fingerprint,
-		awaitingFreshResults: false,
+		...state,
+		awaitingFreshResults: true,
+		selectedIndex: -1,
+		sawSearchingWhileAwaiting: false,
 	};
 }
 
 /**
  * Updates selection when the dialog mode / result list fingerprint changes.
- * While awaitingFreshResults and the fingerprint is unchanged, selection stays cleared
- * so Enter cannot open stale debounced rows. Fingerprint changes from hydration alone
- * clamp the current index instead of forcing row 0.
+ * While awaiting, selection stays cleared until either the href fingerprint changes
+ * or a searching→idle cycle completes (same hits after an edit).
  */
 export function resolveKeyboardSelection(
 	state: KeyboardNavState,
 	mode: KeyboardNavMode,
 	fingerprint: string,
 	itemCount: number,
+	isSearching: boolean,
 ): KeyboardNavState {
 	if (mode === 'other') {
-		return {selectedIndex: -1, lastFingerprint: fingerprint, awaitingFreshResults: false};
+		return {
+			selectedIndex: -1,
+			lastFingerprint: fingerprint,
+			awaitingFreshResults: false,
+			sawSearchingWhileAwaiting: false,
+		};
 	}
 
 	if (mode === 'idle') {
 		if (fingerprint !== state.lastFingerprint) {
-			return {selectedIndex: -1, lastFingerprint: fingerprint, awaitingFreshResults: false};
+			return {
+				selectedIndex: -1,
+				lastFingerprint: fingerprint,
+				awaitingFreshResults: false,
+				sawSearchingWhileAwaiting: false,
+			};
 		}
 		return {
 			...state,
 			awaitingFreshResults: false,
+			sawSearchingWhileAwaiting: false,
 			selectedIndex: clampIndex(state.selectedIndex, itemCount),
 		};
 	}
 
-	// results
+	const sawSearching =
+		state.sawSearchingWhileAwaiting || (state.awaitingFreshResults && isSearching);
+
+	// results (including in-flight querying, which still uses this mode)
 	if (fingerprint !== state.lastFingerprint) {
 		if (state.awaitingFreshResults) {
 			return {
 				selectedIndex: itemCount > 0 ? 0 : -1,
 				lastFingerprint: fingerprint,
 				awaitingFreshResults: false,
+				sawSearchingWhileAwaiting: false,
 			};
 		}
 		let selectedIndex = state.selectedIndex;
 		if (selectedIndex < 0 && itemCount > 0) selectedIndex = 0;
 		else selectedIndex = clampIndex(selectedIndex, itemCount);
-		return {selectedIndex, lastFingerprint: fingerprint, awaitingFreshResults: false};
+		return {
+			selectedIndex,
+			lastFingerprint: fingerprint,
+			awaitingFreshResults: false,
+			sawSearchingWhileAwaiting: false,
+		};
 	}
 
 	if (state.awaitingFreshResults) {
-		return {...state, selectedIndex: -1};
+		// Same hrefs after a completed search cycle → accept (same-hit query edit).
+		if (sawSearching && !isSearching) {
+			return {
+				selectedIndex: itemCount > 0 ? 0 : -1,
+				lastFingerprint: fingerprint,
+				awaitingFreshResults: false,
+				sawSearchingWhileAwaiting: false,
+			};
+		}
+		return {
+			...state,
+			selectedIndex: -1,
+			sawSearchingWhileAwaiting: sawSearching,
+		};
 	}
 
-	return {...state, selectedIndex: clampIndex(state.selectedIndex, itemCount)};
+	return {
+		...state,
+		selectedIndex: clampIndex(state.selectedIndex, itemCount),
+		sawSearchingWhileAwaiting: false,
+	};
 }
 
 function clampIndex(selectedIndex: number, itemCount: number): number {

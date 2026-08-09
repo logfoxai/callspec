@@ -45,13 +45,9 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		markAwaitingFreshResults,
 		resolveKeyboardSelection,
 		resultLinkForRow,
-		settleAwaitingResults,
 		type KeyboardNavMode,
 		type KeyboardNavState,
 	} from './searchKeyboardNav';
-
-	/** Slightly above PagefindUI debounceTimeoutMs (150) so settled rows are accepted. */
-	const SEARCH_NAV_SETTLE_MS = 200;
 
 	function ensureIdlePanel(frame: Element): HTMLElement | null {
 		const existing = frame.querySelector<HTMLElement>('[data-cs-search-idle]');
@@ -178,13 +174,14 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			selectedIndex: -1,
 			lastFingerprint: '',
 			awaitingFreshResults: false,
+			sawSearchingWhileAwaiting: false,
 		};
-		let settleTimer: ReturnType<typeof setTimeout> | undefined;
 
 		const navMode = (): KeyboardNavMode => {
 			const mode = dialog?.dataset.csSearch;
 			if (mode === 'idle') return 'idle';
-			if (mode === 'results') return 'results';
+			// Keep result-nav state across querying/searching so awaiting is not cleared.
+			if (mode === 'results' || mode === 'searching' || mode === 'querying') return 'results';
 			return 'other';
 		};
 
@@ -202,34 +199,26 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			return [];
 		};
 
-		const paintSelection = (mode: KeyboardNavMode, rows: HTMLElement[], chips: HTMLElement[]) => {
-			const items = selectableItems(mode, rows, chips);
-			applySelection(rows, -1);
-			applySelection(chips, -1);
-			applySelection(items, navState.selectedIndex);
-		};
-
 		const syncSelection = () => {
 			syncPanels(root, idle);
 			const mode = navMode();
 			const rows = collectResultRows(root);
 			const chips = collectSuggestionChips(idle);
 			const fp = fingerprintFor(mode, rows, chips);
-			navState = resolveKeyboardSelection(navState, mode, fp, mode === 'idle' ? chips.length : rows.length);
-			paintSelection(mode, rows, chips);
-		};
-
-		const scheduleAwaitingSettle = () => {
-			clearTimeout(settleTimer);
-			settleTimer = setTimeout(() => {
-				if (!navState.awaitingFreshResults) return;
-				const mode = navMode();
-				const rows = collectResultRows(root);
-				const chips = collectSuggestionChips(idle);
-				const fp = fingerprintFor(mode, rows, chips);
-				navState = settleAwaitingResults(navState, fp, rows.length);
-				paintSelection(mode, rows, chips);
-			}, SEARCH_NAV_SETTLE_MS);
+			const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
+			const isSearching =
+				dialog?.dataset.csSearch === 'searching' || /searching/i.test(message);
+			navState = resolveKeyboardSelection(
+				navState,
+				mode,
+				fp,
+				mode === 'idle' ? chips.length : rows.length,
+				isSearching,
+			);
+			const items = selectableItems(mode, rows, chips);
+			applySelection(rows, -1);
+			applySelection(chips, -1);
+			applySelection(items, navState.selectedIndex);
 		};
 
 		idle.addEventListener('click', (event) => {
@@ -258,18 +247,17 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		root.addEventListener('input', () => {
 			navState = markAwaitingFreshResults(navState);
 			syncSelection();
-			scheduleAwaitingSettle();
 		});
 		root.addEventListener('keyup', sync);
 
 		if (dialog) {
 			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
 			dialog.addEventListener('close', () => {
-				clearTimeout(settleTimer);
 				navState = {
 					selectedIndex: -1,
 					lastFingerprint: '',
 					awaitingFreshResults: false,
+					sawSearchingWhileAwaiting: false,
 				};
 				syncSelection();
 			});

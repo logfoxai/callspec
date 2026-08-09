@@ -1,11 +1,10 @@
 import {test} from 'kizu';
-	import {
+import {
 	applySelection,
 	handleSearchKey,
 	markAwaitingFreshResults,
 	nextIndex,
 	resolveKeyboardSelection,
-	settleAwaitingResults,
 	type KeyboardNavState,
 } from './searchKeyboardNav.js';
 
@@ -66,20 +65,31 @@ test('handleSearchKey moves selection with arrows and activates on Enter', (asse
 	});
 });
 
-test('awaiting fresh results clears selection until fingerprint changes', (assert) => {
+test('awaiting stays blocked until fingerprint changes or search cycle completes', (assert) => {
 	const afterType = markAwaitingFreshResults({
 		selectedIndex: 0,
 		lastFingerprint: 'results:a',
 		awaitingFreshResults: false,
+		sawSearchingWhileAwaiting: false,
 	});
 	assert.equal(afterType.selectedIndex, -1);
 	assert.equal(afterType.awaitingFreshResults, true);
 
-	const stillStale = resolveKeyboardSelection(afterType, 'results', 'results:a', 2);
+	const stillStale = resolveKeyboardSelection(afterType, 'results', 'results:a', 2, false);
 	assert.equal(stillStale.selectedIndex, -1);
 	assert.equal(stillStale.awaitingFreshResults, true);
 
-	const fresh = resolveKeyboardSelection(stillStale, 'results', 'results:b', 2);
+	const searching = resolveKeyboardSelection(stillStale, 'results', 'results:a', 2, true);
+	assert.equal(searching.awaitingFreshResults, true);
+	assert.equal(searching.sawSearchingWhileAwaiting, true);
+	assert.equal(searching.selectedIndex, -1);
+
+	const sameHits = resolveKeyboardSelection(searching, 'results', 'results:a', 2, false);
+	assert.equal(sameHits.awaitingFreshResults, false);
+	assert.equal(sameHits.selectedIndex, 0);
+
+	const afterType2 = markAwaitingFreshResults(sameHits);
+	const fresh = resolveKeyboardSelection(afterType2, 'results', 'results:b', 2, false);
 	assert.equal(fresh.selectedIndex, 0);
 	assert.equal(fresh.awaitingFreshResults, false);
 });
@@ -89,22 +99,11 @@ test('hydration fingerprint changes keep the current selection', (assert) => {
 		selectedIndex: 1,
 		lastFingerprint: 'results:a',
 		awaitingFreshResults: false,
+		sawSearchingWhileAwaiting: false,
 	};
-	const hydrated = resolveKeyboardSelection(state, 'results', 'results:a\0b', 2);
+	const hydrated = resolveKeyboardSelection(state, 'results', 'results:a\0b', 2, false);
 	assert.equal(hydrated.selectedIndex, 1);
 	assert.equal(hydrated.awaitingFreshResults, false);
-});
-
-test('settleAwaitingResults unlocks nav when href fingerprint is unchanged', (assert) => {
-	const awaiting = markAwaitingFreshResults({
-		selectedIndex: 0,
-		lastFingerprint: 'results:a',
-		awaitingFreshResults: false,
-	});
-	const settled = settleAwaitingResults(awaiting, 'results:a', 2);
-	assert.equal(settled.awaitingFreshResults, false);
-	assert.equal(settled.selectedIndex, 0);
-	assert.equal(settled.lastFingerprint, 'results:a');
 });
 
 function stubEl(): {
