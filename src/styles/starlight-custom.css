@@ -270,10 +270,13 @@ html[data-has-sidebar] .sl-markdown-content .cs-table-scroll > table:not(:where(
     margin-block: 0;
     border: 0;
     border-radius: 0;
-    min-width: 40rem;
-    /* Honor <colgroup> widths on dense HTML tables */
-    table-layout: fixed;
     background: transparent;
+}
+
+/* Dense HTML tables with <colgroup> — fixed columns + room to scroll */
+html[data-has-sidebar] .sl-markdown-content .cs-table-scroll > table:has(colgroup):not(:where(.not-content *)) {
+    min-width: 40rem;
+    table-layout: fixed;
 }
 
 /* Header/footer fills on cells so they follow the rounded frame */
@@ -334,18 +337,6 @@ html[data-has-sidebar] .sl-markdown-content tbody tr:hover:not(:where(.not-conte
     background: var(--cs-table-row-hover);
 }
 
-/* Narrow index / Step column on 4-column grids */
-html[data-has-sidebar]
-    .sl-markdown-content
-    table:has(thead th:nth-child(4)):not(:has(td:first-child code))
-    :is(th, td):first-child:not(:where(.not-content *)) {
-    width: 1%;
-    white-space: nowrap;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    color: var(--cs-muted);
-}
-
 /* Option tables (name | default | …) — first cell is <code> */
 html[data-has-sidebar]
     .sl-markdown-content
@@ -386,7 +377,7 @@ html[data-has-sidebar]
     color: var(--cs-ink);
 }
 
-/* Keep tokens intact; scroll wrapper handles overflow */
+/* Keep tokens intact; .cs-table-scroll provides overflow-x */
 html[data-has-sidebar] .sl-markdown-content table
     code:not(:where(pre *, .expressive-code *, .frame *)) {
     font-size: 0.9em;
