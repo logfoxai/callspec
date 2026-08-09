@@ -108,9 +108,9 @@ See [Authentication](./authentication.md) for Bearer headers and [Error handling
 
 JSON has no `Date` type. On the wire, dates are **ISO 8601 strings** (`2024-01-15T12:00:00.000Z`) — matching OpenAPI `format: date-time`.
 
-`CallspecClient` converts automatically:
+Coercion is **schema-guided** (only at `p.date()` leaves). ISO-shaped strings in `p.string()` fields stay strings.
 
+- **Server:** `executeRoute` revives ISO / legacy wrappers using the route’s **input** pred before validation.
+- **Generated clients:** pass the route **output** pred into `callResult`, so `result.value` gets `Date` where the schema says date.
+- **Bare `CallspecClient.callResult` without `output`:** only legacy `{ __type: 'Date', value: '…' }` is revived; bare ISO strings stay strings.
 - **Requests:** pass `Date` in input objects; `JSON.stringify` sends ISO strings.
-- **Responses:** ISO strings in JSON are revived to `Date` before `result.value` is returned.
-
-Legacy responses using `{ __type: 'Date', value: '…' }` are still accepted on read. Handlers keep using `p.date()`; coercion runs at the RPC boundary before validation.

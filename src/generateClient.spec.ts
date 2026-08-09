@@ -418,5 +418,9 @@ test('generateClientSource: escapes malicious route names in runtime.call', (ass
         generated.includes("this.runtime.callResult<EvilThrowNewErrorPwnOutput, EvilThrowNewErrorPwnError>(\"evil'); throw new Error('pwn\", input, { allowedErrorCodes:"),
         true,
     );
+    assert.equal(
+        generated.includes('output: schemas.'),
+        true,
+    );
 
 });

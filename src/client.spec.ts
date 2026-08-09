@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {test} from 'kizu';
+import {predicates as p} from 'runtyp';
 import {BUILTIN_ERROR, CLIENT_ERROR, CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
 
 test('client bundle is fetch-only (no node server imports)', (assert) => {
@@ -81,7 +82,45 @@ test('CallspecClient deserializes legacy Date wire format', async (assert) => {
 
 });
 
-test('CallspecClient deserializes ISO date-time strings', async (assert) => {
+test('CallspecClient deserializes ISO date-time strings with output pred', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        at: '2026-07-28T12:00:00.000Z',
+        label: '2026-07-28T12:00:00.000Z',
+    }), {status: 200})) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult<{at: Date, label: string}>('getTime', {}, {
+            output: p.object({
+                at: p.date(),
+                label: p.string(),
+            }),
+        });
+
+        assert.equal(isCallspecOk(result), true);
+
+        if (result.ok) {
+
+            assert.equal(result.value.at instanceof Date, true);
+            assert.equal(result.value.at.toISOString(), '2026-07-28T12:00:00.000Z');
+            assert.equal(result.value.label, '2026-07-28T12:00:00.000Z');
+            assert.equal(typeof result.value.label, 'string');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient without output pred leaves bare ISO strings as strings', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
@@ -92,14 +131,14 @@ test('CallspecClient deserializes ISO date-time strings', async (assert) => {
     try {
 
         const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult<{at: Date}>('getTime', {});
+        const result = await runtime.callResult<{at: string}>('getTime', {});
 
         assert.equal(isCallspecOk(result), true);
 
         if (result.ok) {
 
-            assert.equal(result.value.at instanceof Date, true);
-            assert.equal(result.value.at.toISOString(), '2026-07-28T12:00:00.000Z');
+            assert.equal(result.value.at, '2026-07-28T12:00:00.000Z');
+            assert.equal(typeof result.value.at, 'string');
 
         }
 

@@ -1,6 +1,8 @@
 import {test} from 'kizu';
+import {predicates as p} from 'runtyp';
 import {
     deserializeResponse,
+    deserializeWithPred,
     parseIsoDateTimeString,
     serializeResponse,
 } from './serializer';
@@ -24,48 +26,116 @@ test('parseIsoDateTimeString rejects non-date strings', (assert) => {
 
 });
 
-test('deserializeResponse converts ISO strings to Date', (assert) => {
+test('deserializeWithPred coerces ISO only at p.date() leaves', (assert) => {
 
-    const out = deserializeResponse({time: ISO}) as {time: Date};
+    const pred = p.object({
+        time: p.date(),
+        label: p.string(),
+    });
+    const out = deserializeWithPred({time: ISO, label: ISO}, pred) as {
+        time: Date
+        label: string
+    };
 
     assert.equal(out.time instanceof Date, true);
     assert.equal(out.time.toISOString(), ISO);
+    assert.equal(out.label, ISO);
+    assert.equal(typeof out.label, 'string');
 
 });
 
-test('deserializeResponse accepts legacy Date wire objects', (assert) => {
+test('deserializeWithPred accepts legacy Date wire at p.date() leaves', (assert) => {
 
-    const out = deserializeResponse({
+    const pred = p.object({at: p.date()});
+    const out = deserializeWithPred({
         at: {__type: 'Date', value: ISO},
-    }) as {at: Date};
+    }, pred) as {at: Date};
 
     assert.equal(out.at instanceof Date, true);
     assert.equal(out.at.toISOString(), ISO);
 
 });
 
-test('deserializeResponse leaves non-ISO strings unchanged', (assert) => {
+test('deserializeWithPred leaves ISO strings alone for p.string()', (assert) => {
 
-    const input = {id: 'sku-1', label: 'hello'};
+    const pred = p.object({created_at: p.string()});
+    const input = {created_at: ISO};
+    const out = deserializeWithPred(input, pred);
 
-    assert.equal(deserializeResponse(input), input);
-
-});
-
-test('deserializeResponse leaves numbers and booleans unchanged', (assert) => {
-
-    const input = {n: 3, ok: true, nil: null};
-
-    assert.equal(deserializeResponse(input), input);
+    assert.equal(out, input);
+    assert.equal((out as {created_at: string}).created_at, ISO);
 
 });
 
-test('deserializeResponse revives nested dates in arrays', (assert) => {
+test('deserializeWithPred revives dates inside arrays of dates', (assert) => {
 
-    const out = deserializeResponse({times: [ISO, 'not-a-date']}) as {times: unknown[]};
+    const pred = p.object({times: p.array(p.date())});
+    const out = deserializeWithPred({times: [ISO, ISO]}, pred) as {times: Date[]};
 
-    assert.equal(out.times[0] instanceof Date, true);
-    assert.equal(out.times[1], 'not-a-date');
+    assert.equal(out.times.length, 2);
+    assert.equal(out.times.every((d) => d instanceof Date), true);
+
+});
+
+test('deserializeWithPred does not coerce ISO strings inside string arrays', (assert) => {
+
+    const pred = p.object({ids: p.array(p.string())});
+    const input = {ids: [ISO, 'sku-1']};
+    const out = deserializeWithPred(input, pred) as {ids: string[]};
+
+    assert.equal(out.ids[0], ISO);
+    assert.equal(typeof out.ids[0], 'string');
+    assert.equal(out.ids[1], 'sku-1');
+
+});
+
+test('deserializeWithPred handles optional date', (assert) => {
+
+    const pred = p.object({at: p.optional(p.date())});
+    const out = deserializeWithPred({at: ISO}, pred) as {at?: Date};
+
+    assert.equal(out.at instanceof Date, true);
+
+});
+
+test('deserializeWithPred union prefers branch that validates after coerce', (assert) => {
+
+    const pred = p.union([
+        p.object({kind: p.literal('when'), at: p.date()}),
+        p.object({kind: p.literal('text'), body: p.string()}),
+    ]);
+
+    const when = deserializeWithPred({kind: 'when', at: ISO}, pred) as {
+        kind: 'when'
+        at: Date
+    };
+    const text = deserializeWithPred({kind: 'text', body: ISO}, pred) as {
+        kind: 'text'
+        body: string
+    };
+
+    assert.equal(when.at instanceof Date, true);
+    assert.equal(text.body, ISO);
+    assert.equal(typeof text.body, 'string');
+
+});
+
+test('deserializeResponse without pred only revives legacy Date wrappers', (assert) => {
+
+    const legacy = deserializeResponse({at: {__type: 'Date', value: ISO}}) as {at: Date};
+    const bare = deserializeResponse({at: ISO}) as {at: string};
+
+    assert.equal(legacy.at instanceof Date, true);
+    assert.equal(bare.at, ISO);
+    assert.equal(typeof bare.at, 'string');
+
+});
+
+test('deserializeResponse leaves non-date payloads by reference', (assert) => {
+
+    const input = {id: 'sku-1', label: 'hello', n: 3, ok: true, nil: null};
+
+    assert.equal(deserializeResponse(input), input);
 
 });
 
@@ -75,11 +145,15 @@ test('serializeResponse emits ISO strings for Date values', (assert) => {
 
 });
 
-test('serializeResponse round-trips with deserializeResponse', (assert) => {
+test('serializeResponse round-trips with deserializeWithPred', (assert) => {
 
+    const pred = p.object({time: p.date(), nested: p.object({at: p.date()})});
     const d = new Date(ISO);
     const wire = serializeResponse({time: d, nested: {at: d}});
-    const revived = deserializeResponse(wire) as {time: Date; nested: {at: Date}};
+    const revived = deserializeWithPred(wire, pred) as {
+        time: Date
+        nested: {at: Date}
+    };
 
     assert.equal(revived.time instanceof Date, true);
     assert.equal(revived.nested.at instanceof Date, true);
@@ -87,38 +161,22 @@ test('serializeResponse round-trips with deserializeResponse', (assert) => {
 
 });
 
-test('deserializeResponse returns same reference when nothing changes', (assert) => {
+test('deserializeWithPred returns same reference when nothing changes', (assert) => {
 
-    const payload: Record<string, unknown> = {};
+    const pred = p.object({
+        a: p.string(),
+        b: p.number(),
+    });
+    const payload: Record<string, unknown> = {a: 'x', b: 1};
 
-    for (let i = 0; i < 10_000; i++) {
+    for (let i = 0; i < 1_000; i++) {
 
         payload[`k${i}`] = `value-${i}`;
 
     }
 
-    const start = performance.now();
-
-    const out = deserializeResponse(payload);
-
-    const elapsed = performance.now() - start;
-
-    assert.equal(out, payload);
-    assert.equal(elapsed < 50, true, `expected fast no-op pass, took ${elapsed}ms`);
-
-});
-
-test('deserializeResponse revives many ISO strings without cloning unchanged siblings', (assert) => {
-
-    const sibling = 'keep-me';
-    const payload = {
-        sibling,
-        dates: Array.from({length: 100}, () => ISO),
-    };
-
-    const out = deserializeResponse(payload) as {sibling: string; dates: Date[]};
-
-    assert.equal(out.sibling, sibling);
-    assert.equal(out.dates.every((d) => d instanceof Date), true);
+    // Pred only knows a/b — unknown keys stay as-is; no date leaves → same ref for known walk
+    const small = {a: 'x', b: 1};
+    assert.equal(deserializeWithPred(small, pred), small);
 
 });

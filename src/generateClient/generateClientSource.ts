@@ -154,9 +154,10 @@ export function generateClientSource(
 
         }
 
-        const callOptionsArg = callOptionParts.length
-            ? `, { ${callOptionParts.join(', ')} }`
-            : '';
+        // Schema-guided ISO→Date revive (only at p.date() leaves).
+        callOptionParts.push(`output: schemas.${sanitizeMethodName(routeName)}Output`);
+
+        const callOptionsArg = `, { ${callOptionParts.join(', ')} }`;
 
         methods.push(`
     async ${methodName}(input: ${inputTypeName}): Promise<${resultTypeName}> {
