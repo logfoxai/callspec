@@ -1,6 +1,6 @@
 # OpenAPI
 
-Callspec emits **OpenAPI 3.1** from the same `routes` object as your RPC server — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern, Kiota).
+Callspec emits **OpenAPI 3.1** — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern, Kiota).
 
 It is a **projection for the ecosystem**, not the source of truth for Callspec’s TypeScript client. For `npx callspec` / `ApiClient`, use **`callspec.json`**, not OpenAPI.
 
