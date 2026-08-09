@@ -1,3 +1,9 @@
+import type {
+    CallspecNavbarLink,
+    CallspecUiFooter,
+    CallspecUiTheme,
+} from '../types';
+
 export type CallspecUiBranding = {
     /** Display name; defaults to OpenAPI info.title */
     name?: string
@@ -11,6 +17,14 @@ export type CallspecUiBranding = {
     logoUrl?: string
     /** Dark-mode logo; falls back to logoUrl */
     logoUrlDark?: string
+    /** Favicon URL; defaults from meta.favicon or logo light */
+    favicon?: string
+    /** CSS variable overrides + optional webfont URLs */
+    theme?: CallspecUiTheme
+    /** Persistent top-nav links (Dashboard, GitHub, …) */
+    navbarLinks?: CallspecNavbarLink[]
+    /** Footer options; poweredBy defaults to true when omitted */
+    footer?: CallspecUiFooter
 };
 
 export type CallspecUiMcp = {

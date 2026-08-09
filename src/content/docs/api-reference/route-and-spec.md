@@ -60,9 +60,13 @@ Only routes with `scope: 'public'` appear in `callspec.json`, OpenAPI, SDK codeg
 |-------|---------|---------|-------------|
 | `title` | `'Callspec API'` | Docs UI header, OpenAPI `info.title`, MCP server name | Display name for your API. |
 | `version` | `'0.0.0'` | OpenAPI `info.version`, MCP server version | Semver or build id — your choice. |
-| `intro` | — | Docs UI home (required to show it), OpenAPI `info.description` | Welcome paragraph under the title. Without `intro`, the UI opens on the route list — no home page or MCP connect panel. |
+| `intro` | — | Docs UI home blurb, OpenAPI `info.description` | Optional welcome paragraph. Home (title, counts, Browse API, MCP panel) is always on. |
 | `website` | — | Docs UI home link | `{ url, label? }` — `label` defaults to the hostname or “Learn more”. |
 | `logo` | — | Docs UI header + home | `{ light, dark? }` — image URLs; see [Logo URLs](#logo-urls). |
+| `favicon` | `logo.light` | Docs UI tab icon | Explicit favicon URL; falls back to `logo.light`. |
+| `theme` | — | Docs UI CSS variables | `{ accent?, background?, surface?, fontFamily?, fontUrls? }` — injected at boot. |
+| `navbarLinks` | — | Docs UI top header | `{ label, href, external? }[]` — product links next to the brand. |
+| `footer` | `{ poweredBy: true }` | Docs UI footer | `{ poweredBy?: boolean }` — set `poweredBy: false` to hide “Powered by callspec”. |
 | `authHint` | auto | Docs UI MCP connect panel (home page) | Prose about Bearer tokens shown in the connect UI. Auto-set when bearer routes exist unless you override. |
 | `mcpInstructions` | — | MCP server `instructions` field | Agent-facing server description returned by MCP `initialize` — not shown in the docs UI connect panel. |
 
@@ -78,6 +82,15 @@ const meta = {
         light: './brand/mark-light.png',
         dark: './brand/mark-dark.png',
     },
+    theme: {
+        accent: '#1d9bf0',
+        background: '#f7f9f9',
+        surface: '#ffffff',
+    },
+    navbarLinks: [
+        {label: 'chirp.social', href: 'https://chirp.social', external: true},
+        {label: 'GitHub', href: 'https://github.com/logfoxai/callspec', external: true},
+    ],
     authHint: 'Use Authorization: Bearer <token> for private routes.',
     mcpInstructions: 'Chirp API — use Bearer demo in this sandbox.',
 };
@@ -107,7 +120,7 @@ If `dark` is omitted, the light logo is used in both themes.
 |---------------|-------------------|
 | Turn docs/OpenAPI/`callspec.json` off | `mountSpec(…, {docs: false})` |
 | Change docs path only | `mountSpec(…, {docsPath: '/explorer'})` — contract paths stay `/callspec.json` and `/openapi.json` |
-| Title, intro, logo, website | `spec({ meta: { … } })` |
+| Title, intro, logo, theme, navbar, footer | `spec({ meta: { … } })` |
 | Per-route summaries and tags | `route({ meta: { summary, tags, … } })` |
 
 More: [Docs UI](../docs-ui.md) · [Branding](../docs-ui-branding.md) · [`mountSpec`](./mount-spec.md)

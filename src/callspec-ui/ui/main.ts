@@ -1,4 +1,5 @@
 import './styles.css';
+import {applyUiThemeToDocument} from '../applyUiTheme';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
 import {callspecDocumentToUiSpec} from '../toUiSpec';
 import type {CallspecUiRoute} from '../types';
@@ -29,6 +30,8 @@ const config: CallspecUiConfig = window.__CALLSPEC_UI__ ?? {
 
 let theme: Theme = initTheme();
 
+applyUiThemeToDocument(config.branding?.theme);
+
 function escapeHtml(text: string): string {
 
     return text
@@ -39,9 +42,10 @@ function escapeHtml(text: string): string {
 
 }
 
-function hasHomePage(branding: CallspecUiBranding | undefined): boolean {
+/** Home is always available; intro is an optional blurb only. */
+function hasHomePage(): boolean {
 
-    return Boolean(branding?.intro);
+    return true;
 
 }
 
@@ -107,6 +111,49 @@ function renderLogo(title: string, branding: CallspecUiBranding | undefined): st
     if (mark) return mark;
 
     return renderLetterMark(displayName(title, branding), 'intro-logo');
+
+}
+
+function renderNavbarLinks(branding: CallspecUiBranding | undefined): string {
+
+    const links = branding?.navbarLinks;
+
+    if (!links?.length) return '';
+
+    const items = links.map((link) => {
+
+        const external = link.external
+            ? ' target="_blank" rel="noopener"'
+            : '';
+
+        return `<a class="top-nav-link" href="${escapeHtml(link.href)}"${external}>${escapeHtml(link.label)}</a>`;
+
+    }).join('');
+
+    return `<nav class="top-nav" aria-label="Product">${items}</nav>`;
+
+}
+
+function renderTopHeader(
+    title: string,
+    branding: CallspecUiBranding | undefined,
+): string {
+
+    const name = displayName(title, branding);
+
+    return `
+        <header class="top-header">
+            <button type="button" class="top-brand" data-view="home">
+                ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
+                <span class="top-brand-text">${escapeHtml(name)}</span>
+            </button>
+            ${renderNavbarLinks(branding)}
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
+                <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
+                <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
+            </button>
+        </header>
+    `;
 
 }
 
@@ -375,12 +422,16 @@ function renderHome(
         ? `<a class="intro-link" href="${escapeHtml(branding.websiteUrl)}" target="_blank" rel="noopener">${escapeHtml(websiteLabel(branding))} ↗</a>`
         : '';
 
+    const intro = branding.intro?.trim()
+        ? `<p class="intro-text">${escapeHtml(branding.intro)}</p>`
+        : '';
+
     return `
         <div class="intro">
             ${renderLogo(title, branding)}
             <h1 class="intro-title">${escapeHtml(name)}</h1>
             <p class="intro-version">v${escapeHtml(version)} · ${routes.length} routes${mcpCount ? ` · ${mcpCount} MCP tools` : ''}</p>
-            <p class="intro-text">${escapeHtml(branding.intro ?? '')}</p>
+            ${intro}
             <div class="intro-actions">
                 <button type="button" class="btn btn-primary" data-view="routes">Browse API →</button>
                 ${website}
@@ -627,8 +678,8 @@ async function boot(): Promise<void> {
         const parsed = parseUiCallspecDocument(doc);
         const title = config.title ?? parsed.info.title;
         const version = parsed.info.version;
-        const branding = config.branding;
-        const showHome = hasHomePage(branding);
+        const branding = config.branding ?? {};
+        const showHome = hasHomePage();
         const routes = callspecDocumentToUiSpec(parsed).routes;
 
         let view: View = viewFromHash(routes, showHome);
@@ -669,16 +720,13 @@ async function boot(): Promise<void> {
 
             app.className = '';
             app.innerHTML = `
+                ${renderTopHeader(title, branding)}
                 <aside class="sidebar">
                     <div class="sidebar-head">
                         <div class="sidebar-head-row">
-                            <button type="button" class="sidebar-title" data-view="${showHome ? 'home' : 'routes'}">
+                            <button type="button" class="sidebar-title" data-view="home">
                                 ${renderBrandMark(branding, {wrapClass: 'sidebar-mark'}) || renderLetterMark(sidebarName, 'sidebar-mark')}
                                 <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
-                            </button>
-                            <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
-                                <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
-                                <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
                             </button>
                         </div>
                         <p>v${escapeHtml(version)} · ${routes.length} routes</p>
@@ -692,7 +740,7 @@ async function boot(): Promise<void> {
 
             const main = document.getElementById('main');
 
-            if (main && view.kind === 'home' && branding) {
+            if (main && view.kind === 'home') {
 
                 main.innerHTML = renderHome(title, version, routes, branding);
                 bindMcpConnect(main);

@@ -197,6 +197,13 @@ const meta = {
     intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
     website: {url: 'https://chirp.social', label: 'chirp.social'},
     logo: {light: './brand/mark.png', dark: './brand/mark.png'},
+    theme: {
+        accent: '#1d9bf0',
+    },
+    navbarLinks: [
+        {label: 'chirp.social', href: 'https://chirp.social', external: true},
+        {label: 'GitHub', href: 'https://github.com/logfoxai/callspec', external: true},
+    ],
     authHint: 'Use Authorization: Bearer demo for private tools in this demo.',
     mcpInstructions: 'Chirp API v2 — Twitter-shaped demo. Use Bearer demo for authenticated tools.',
 };
