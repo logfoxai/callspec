@@ -134,7 +134,7 @@ export default defineConfig({
                     label: 'OpenAPI',
                     items: [
                         {label: 'Overview', slug: 'openapi'},
-                        {label: 'Callspec + Fern', slug: 'using-fern-with-callspec'},
+                        {label: 'Multi-language SDKs', slug: 'multi-language-sdks'},
                     ],
                 },
                 {

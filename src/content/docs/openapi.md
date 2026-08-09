@@ -1,6 +1,6 @@
 # OpenAPI
 
-Callspec emits **OpenAPI 3.1** from the same `routes` object as your RPC server — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern).
+Callspec emits **OpenAPI 3.1** from the same `routes` object as your RPC server — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern, Kiota).
 
 It is a **projection for the ecosystem**, not the source of truth for Callspec’s TypeScript client. For `npx callspec` / `ApiClient`, use **`callspec.json`**, not OpenAPI.
 
@@ -10,7 +10,7 @@ It is a **projection for the ecosystem**, not the source of truth for Callspec�
 |------|-----|
 | TypeScript SDK + Result errors + `schemas` | `callspec.json` → [SDK generation](./sdk-generation.md) |
 | Gateway, Postman, Pact, OpenAPI lint | `/openapi.json` or `emitOpenApi` |
-| Public multi-lang SDKs / hosted docs | OpenAPI → [Fern](./using-fern-with-callspec.md) (or similar) |
+| Public multi-lang SDKs / hosted docs | OpenAPI → [multi-language SDKs](./multi-language-sdks.md) (Fern, Kiota, …) |
 | Try methods in the browser | [Docs UI](./docs-ui.md) |
 
 ## What’s in the document
@@ -62,5 +62,5 @@ writeFileSync(
 ## Related
 
 - [SDK generation](./sdk-generation.md) — TypeScript from `callspec.json`
-- [Using Fern with Callspec](./using-fern-with-callspec.md) — OpenAPI for public DX, Callspec for runtime
+- [Multi-language SDKs](./multi-language-sdks.md) — OpenAPI → Fern, Kiota, and similar tools
 - [Docs UI](./docs-ui.md) — human explorer alongside the JSON exports
