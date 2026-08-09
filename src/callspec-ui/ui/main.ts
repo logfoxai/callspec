@@ -1,6 +1,14 @@
 import './styles.css';
 import {applyUiThemeToDocument} from '../applyUiTheme';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
+import {openApiPathFromSpecUrl} from '../contractPaths';
+import {
+    applyRouteFilters,
+    groupRoutesByTag,
+    neighborsInTagGroup,
+    type AuthFilter,
+    type RouteFilters,
+} from '../filterRoutes';
 import {callspecDocumentToUiSpec} from '../toUiSpec';
 import type {CallspecUiRoute} from '../types';
 import {CallspecDocumentError} from '../../callspecDocumentTypes';
@@ -9,7 +17,7 @@ import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {themeMoonIcon, themeSunIcon} from './icons';
+import {closeIcon, menuIcon, themeMoonIcon, themeSunIcon} from './icons';
 
 type View =
     | {kind: 'home'}
@@ -114,60 +122,109 @@ function renderLogo(title: string, branding: CallspecUiBranding | undefined): st
 
 }
 
-function renderNavbarLinks(branding: CallspecUiBranding | undefined): string {
+function renderNavbarLinkItems(
+    branding: CallspecUiBranding | undefined,
+    linkClass: string,
+): string {
 
     const links = branding?.navbarLinks;
 
     if (!links?.length) return '';
 
-    const items = links.map((link) => {
+    return links.map((link) => {
 
         const external = link.external
             ? ' target="_blank" rel="noopener"'
             : '';
 
-        return `<a class="top-nav-link" href="${escapeHtml(link.href)}"${external}>${escapeHtml(link.label)}</a>`;
+        return `<a class="${linkClass}" href="${escapeHtml(link.href)}"${external}>${escapeHtml(link.label)}</a>`;
 
     }).join('');
 
+}
+
+function renderNavbarLinks(branding: CallspecUiBranding | undefined): string {
+
+    const items = renderNavbarLinkItems(branding, 'top-nav-link');
+
+    if (!items) return '';
+
     return `<nav class="top-nav" aria-label="Product">${items}</nav>`;
+
+}
+
+function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): string {
+
+    const items = renderNavbarLinkItems(branding, 'drawer-nav-link');
+
+    if (!items) return '';
+
+    return `<nav class="drawer-nav" aria-label="Product">${items}</nav>`;
+
+}
+
+function renderThemeToggle(id: string): string {
+
+    return `
+        <button type="button" class="theme-toggle" id="${id}" aria-label="Toggle color theme" title="Toggle color theme">
+            <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
+            <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
+        </button>
+    `;
 
 }
 
 function renderTopHeader(
     title: string,
     branding: CallspecUiBranding | undefined,
+    searchText: string,
 ): string {
 
     const name = displayName(title, branding);
 
     return `
         <header class="top-header">
+            <button type="button" class="nav-menu-btn" id="nav-menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="nav-drawer">
+                ${menuIcon()}
+            </button>
             <button type="button" class="top-brand" data-view="home">
                 ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
                 <span class="top-brand-text">${escapeHtml(name)}</span>
             </button>
             ${renderNavbarLinks(branding)}
-            <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Toggle color theme">
-                <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
-                <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
-            </button>
+            <label class="header-search">
+                <span class="sr-only">Search routes</span>
+                <input
+                    id="header-search"
+                    class="search header-search-input"
+                    type="search"
+                    placeholder="Search routes"
+                    value="${escapeHtml(searchText)}"
+                    aria-label="Search routes"
+                >
+                <kbd class="header-search-kbd" aria-hidden="true">/</kbd>
+            </label>
+            ${renderThemeToggle('theme-toggle')}
         </header>
     `;
 
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+
+}
+
 function exampleFromSchema(schema: unknown, key?: string): unknown {
 
-    if (!schema || typeof schema !== 'object') return {};
+    if (!isPlainObject(schema)) return {};
 
-    const s = schema as Record<string, unknown>;
+    if (Array.isArray(schema.enum) && schema.enum.length) return schema.enum[0];
 
-    if (Array.isArray(s.enum) && s.enum.length) return s.enum[0];
+    if (schema.const !== undefined) return schema.const;
 
-    if (s.const !== undefined) return s.const;
-
-    const type = s.type;
+    const type = schema.type;
 
     if (type === 'string') {
 
@@ -183,16 +240,18 @@ function exampleFromSchema(schema: unknown, key?: string): unknown {
 
     if (type === 'array') {
 
-        const items = s.items;
+        const items = schema.items;
 
         return items ? [exampleFromSchema(items)] : [];
 
     }
 
-    if (type === 'object' || s.properties) {
+    if (type === 'object' || schema.properties) {
 
-        const props = s.properties as Record<string, unknown> | undefined;
-        const required = Array.isArray(s.required) ? s.required as string[] : [];
+        const props = isPlainObject(schema.properties) ? schema.properties : undefined;
+        const required = Array.isArray(schema.required)
+            ? schema.required.filter((item): item is string => typeof item === 'string')
+            : [];
         const out: Record<string, unknown> = {};
 
         if (props) {
@@ -217,43 +276,6 @@ function exampleFromSchema(schema: unknown, key?: string): unknown {
 
 }
 
-function groupByTag(routes: CallspecUiRoute[]): Map<string, CallspecUiRoute[]> {
-
-    const groups = new Map<string, CallspecUiRoute[]>();
-
-    for (const route of routes) {
-
-        const tags = route.tags.length ? route.tags : ['routes'];
-
-        for (const tag of tags) {
-
-            const list = groups.get(tag) ?? [];
-            list.push(route);
-            groups.set(tag, list);
-
-        }
-
-    }
-
-    for (const list of groups.values()) {
-
-        list.sort((a, b) => a.name.localeCompare(b.name));
-
-    }
-
-    return new Map([...groups.entries()].sort(([a], [b]) => a.localeCompare(b)));
-
-}
-
-type AuthFilter = 'all' | 'none' | 'bearer';
-
-type RouteFilters = {
-    text: string
-    auth: AuthFilter
-    tag: string | null
-    mcpOnly: boolean
-};
-
 function uniqueTags(routes: CallspecUiRoute[]): string[] {
 
     const tags = new Set<string>();
@@ -272,44 +294,15 @@ function uniqueTags(routes: CallspecUiRoute[]): string[] {
 
 }
 
-function applyFilters(routes: CallspecUiRoute[], filters: RouteFilters): CallspecUiRoute[] {
+function parseAuthFilter(value: string | undefined): AuthFilter {
 
-    const needle = filters.text.trim().toLowerCase();
+    if (value === 'none' || value === 'bearer' || value === 'all') {
 
-    return routes.filter((route) => {
+        return value;
 
-        if (filters.auth !== 'all' && route.auth !== filters.auth) {
+    }
 
-            return false;
-
-        }
-
-        if (filters.mcpOnly && !route.mcp) {
-
-            return false;
-
-        }
-
-        if (filters.tag && !route.tags.includes(filters.tag)) {
-
-            return false;
-
-        }
-
-        if (needle && !(
-            route.name.toLowerCase().includes(needle)
-            || route.summary.toLowerCase().includes(needle)
-            || route.description.toLowerCase().includes(needle)
-            || route.tags.some((tag) => tag.toLowerCase().includes(needle))
-        )) {
-
-            return false;
-
-        }
-
-        return true;
-
-    });
+    return 'all';
 
 }
 
@@ -335,6 +328,12 @@ function viewFromHash(routes: CallspecUiRoute[], showHome: boolean): View {
     if (raw === 'routes') {
 
         return {kind: 'routes'};
+
+    }
+
+    if (raw === 'mcp-connect' || raw.startsWith('mcp-connect')) {
+
+        return showHome ? {kind: 'home'} : {kind: 'routes'};
 
     }
 
@@ -378,7 +377,7 @@ function renderSidebar(
     showHome: boolean,
 ): string {
 
-    const groups = groupByTag(routes);
+    const groups = groupRoutesByTag(routes);
     let html = '';
 
     if (showHome) {
@@ -409,6 +408,24 @@ function renderSidebar(
 
 }
 
+function renderSdkInstall(branding: CallspecUiBranding): string {
+
+    const cmd = branding.sdkInstall?.trim();
+
+    if (!cmd) return '';
+
+    return `
+        <div class="sdk-install">
+            <span class="sdk-install-label">Install SDK</span>
+            <div class="sdk-install-field">
+                <code class="sdk-install-cmd">${escapeHtml(cmd)}</code>
+                <button type="button" class="sdk-install-copy" data-copy="${escapeHtml(cmd)}" aria-label="Copy install command">Copy</button>
+            </div>
+        </div>
+    `;
+
+}
+
 function renderHome(
     title: string,
     version: string,
@@ -432,6 +449,7 @@ function renderHome(
             <h1 class="intro-title">${escapeHtml(name)}</h1>
             <p class="intro-version">v${escapeHtml(version)} · ${routes.length} routes${mcpCount ? ` · ${mcpCount} MCP tools` : ''}</p>
             ${intro}
+            ${renderSdkInstall(branding)}
             <div class="intro-actions">
                 <button type="button" class="btn btn-primary" data-view="routes">Browse API →</button>
                 ${website}
@@ -450,7 +468,7 @@ function renderOverview(
 ): string {
 
     const tags = uniqueTags(allRoutes);
-    const groups = groupByTag(filtered);
+    const groups = groupRoutesByTag(filtered);
     let groupsHtml = '';
 
     for (const [tag, list] of groups) {
@@ -501,7 +519,6 @@ function renderOverview(
                 <p class="overview-count">${filtered.length} of ${allRoutes.length}</p>
             </div>
             <div class="filters">
-                <input class="search overview-search" type="search" placeholder="Search routes" value="${escapeHtml(filters.text)}" aria-label="Search routes">
                 <div class="filter-row">
                     <span class="filter-label">Auth</span>
                     <div class="filter-pills">
@@ -528,14 +545,96 @@ function renderOverview(
 
 }
 
-function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean): string {
+function renderErrors(route: CallspecUiRoute): string {
 
-    const back = showHome
-        ? `<button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>`
-        : `<button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>`;
+    const entries = route.errors ? Object.entries(route.errors) : [];
+
+    if (!entries.length) return '';
+
+    const rows = entries
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([code, def]) => {
+
+            const schema = def.data
+                ? codeBlock(JSON.stringify(def.data, null, 2))
+                : '<p class="error-schema-empty">No data payload</p>';
+
+            return `
+                <div class="error-card">
+                    <div class="error-card-head">
+                        <code class="error-code">${escapeHtml(code)}</code>
+                        <span class="error-status">HTTP ${def.status}</span>
+                        ${def.dataRequired === false ? '<span class="error-optional">data optional</span>' : ''}
+                    </div>
+                    ${schema}
+                </div>
+            `;
+
+        }).join('');
 
     return `
-        <nav class="breadcrumb">${back}</nav>
+        <div class="section">
+            <h3 class="section-title">Errors</h3>
+            <div class="error-list">${rows}</div>
+        </div>
+    `;
+
+}
+
+function renderRouteActions(route: CallspecUiRoute): string {
+
+    const callspecHref = config.specUrl;
+    const openapiHref = openApiPathFromSpecUrl(config.specUrl);
+    const mcpLink = route.mcp
+        ? `<a class="action-link" href="#/mcp-connect">MCP tool <code>${escapeHtml(route.name)}</code></a>`
+        : '';
+
+    return `
+        <div class="route-actions">
+            <button type="button" class="btn btn-ghost" id="copy-curl">Copy curl</button>
+            <a class="action-link" href="${escapeHtml(callspecHref)}" target="_blank" rel="noopener">callspec.json</a>
+            <a class="action-link" href="${escapeHtml(openapiHref)}" target="_blank" rel="noopener">openapi.json</a>
+            ${mcpLink}
+        </div>
+    `;
+
+}
+
+function renderPrevNext(routeName: string, routes: CallspecUiRoute[]): string {
+
+    const {tag, prev, next} = neighborsInTagGroup(routes, routeName);
+
+    if (!prev && !next) return '';
+
+    const tagLabel = tag ? `<span class="route-nav-tag">${escapeHtml(tag)}</span>` : '';
+
+    return `
+        <nav class="route-nav" aria-label="Adjacent routes">
+            ${tagLabel}
+            <div class="route-nav-links">
+                ${prev
+        ? `<button type="button" class="breadcrumb-link" data-route="${escapeHtml(prev)}">← ${escapeHtml(prev)}</button>`
+        : '<span class="route-nav-placeholder"></span>'}
+                ${next
+        ? `<button type="button" class="breadcrumb-link" data-route="${escapeHtml(next)}">${escapeHtml(next)} →</button>`
+        : '<span class="route-nav-placeholder"></span>'}
+            </div>
+        </nav>
+    `;
+
+}
+
+function renderRoute(
+    route: CallspecUiRoute,
+    bodyJson: string,
+    allRoutes: CallspecUiRoute[],
+    authToken: string,
+): string {
+
+    return `
+        <nav class="breadcrumb">
+            <button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>
+        </nav>
         <div class="route-endpoint">
             <span class="method">POST</span>
             <h2 class="route-name">${escapeHtml(route.name)}</h2>
@@ -543,32 +642,41 @@ function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean
         </div>
         <p class="route-summary">${escapeHtml(route.summary)}</p>
         ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
-        <div class="section">
-            <h3 class="section-title">Request</h3>
-            ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
-        </div>
-        <div class="section">
-            <h3 class="section-title">Response</h3>
-            ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
-        </div>
-        <div class="section">
-            <h3 class="section-title">Try it</h3>
-            <div class="try-block">
-                ${route.auth === 'bearer' ? `
-                <div class="field">
-                    <label for="auth">Authorization</label>
-                    <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false">
+        ${renderRouteActions(route)}
+        ${renderPrevNext(route.name, allRoutes)}
+        <div class="route-layout">
+            <div class="route-docs">
+                <div class="section">
+                    <h3 class="section-title">Request</h3>
+                    ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
                 </div>
-                ` : ''}
-                <div class="field">
-                    <label for="body">Body</label>
-                    ${jsonEditorHtml('body', bodyJson)}
+                <div class="section">
+                    <h3 class="section-title">Response</h3>
+                    ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
                 </div>
-                <div class="actions">
-                    <button type="button" class="btn btn-primary" id="send">Send</button>
-                    <button type="button" class="btn btn-ghost" id="copy-curl">Copy curl</button>
+                ${renderErrors(route)}
+            </div>
+            <div class="route-try">
+                <div class="section try-section">
+                    <h3 class="section-title">Try it</h3>
+                    <div class="try-block">
+                        ${route.auth === 'bearer' ? `
+                        <div class="field">
+                            <label for="auth">Authorization</label>
+                            <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" value="${escapeHtml(authToken)}">
+                        </div>
+                        ` : ''}
+                        <div class="field">
+                            <label for="body">Body</label>
+                            ${jsonEditorHtml('body', bodyJson)}
+                        </div>
+                        <div class="actions">
+                            <button type="button" class="btn btn-primary" id="send">Send</button>
+                            <button type="button" class="btn btn-ghost" id="copy-curl-try">Copy curl</button>
+                        </div>
+                        <div class="response" id="response"></div>
+                    </div>
                 </div>
-                <div class="response" id="response"></div>
             </div>
         </div>
     `;
@@ -577,17 +685,17 @@ function renderRoute(route: CallspecUiRoute, bodyJson: string, showHome: boolean
 
 async function sendRequest(route: CallspecUiRoute): Promise<void> {
 
-    const bodyEl = document.getElementById('body') as HTMLTextAreaElement | null;
-    const authEl = document.getElementById('auth') as HTMLInputElement | null;
+    const bodyEl = document.getElementById('body');
+    const authEl = document.getElementById('auth');
     const responseEl = document.getElementById('response');
 
-    if (!bodyEl || !responseEl) return;
+    if (!(bodyEl instanceof HTMLTextAreaElement) || !responseEl) return;
 
     const rpcBase = config.rpcBase.replace(/\/$/, '');
     const url = `${rpcBase}/${route.name}`.replace(/\/{2,}/g, '/');
     const headers: Record<string, string> = {'Content-Type': 'application/json'};
 
-    if (authEl?.value.trim()) {
+    if (authEl instanceof HTMLInputElement && authEl.value.trim()) {
 
         headers.Authorization = authEl.value.trim();
 
@@ -643,14 +751,14 @@ async function sendRequest(route: CallspecUiRoute): Promise<void> {
 
 function copyCurl(route: CallspecUiRoute): void {
 
-    const bodyEl = document.getElementById('body') as HTMLTextAreaElement | null;
-    const authEl = document.getElementById('auth') as HTMLInputElement | null;
+    const bodyEl = document.getElementById('body');
+    const authEl = document.getElementById('auth');
     const rpcBase = config.rpcBase.replace(/\/$/, '');
     const url = new URL(`${rpcBase}/${route.name}`.replace(/\/{2,}/g, '/'), window.location.href).href;
-    const body = bodyEl?.value ?? '{}';
+    const body = bodyEl instanceof HTMLTextAreaElement ? bodyEl.value : '{}';
     let cmd = `curl -X POST '${url}' \\\n  -H 'Content-Type: application/json'`;
 
-    if (authEl?.value.trim()) {
+    if (authEl instanceof HTMLInputElement && authEl.value.trim()) {
 
         cmd += ` \\\n  -H 'Authorization: ${authEl.value.trim()}'`;
 
@@ -659,6 +767,32 @@ function copyCurl(route: CallspecUiRoute): void {
     cmd += ` \\\n  -d '${body.replace(/'/g, "'\\''")}'`;
 
     void navigator.clipboard.writeText(cmd);
+
+}
+
+function focusableIn(root: HTMLElement): HTMLElement[] {
+
+    return [...root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )].filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+
+}
+
+function bindCopyButtons(root: ParentNode): void {
+
+    root.querySelectorAll('[data-copy]').forEach((btn) => {
+
+        btn.addEventListener('click', () => {
+
+            if (!(btn instanceof HTMLElement)) return;
+
+            const value = btn.dataset.copy;
+
+            if (value) void navigator.clipboard.writeText(value);
+
+        });
+
+    });
 
 }
 
@@ -674,7 +808,7 @@ async function boot(): Promise<void> {
 
         if (!resp.ok) throw new Error(`Could not load spec (${resp.status})`);
 
-        const doc = await resp.json() as unknown;
+        const doc: unknown = await resp.json();
         const parsed = parseUiCallspecDocument(doc);
         const title = config.title ?? parsed.info.title;
         const version = parsed.info.version;
@@ -689,6 +823,9 @@ async function boot(): Promise<void> {
             tag: null,
             mcpOnly: false,
         };
+        let navOpen = false;
+        let drawerCleanup: (() => void) | null = null;
+        let authToken = '';
         const bodies = new Map<string, string>();
 
         for (const route of routes) {
@@ -697,41 +834,199 @@ async function boot(): Promise<void> {
 
         }
 
-        const navigate = (next: View): void => {
+        const persistRouteDraft = (): void => {
 
-            const bodyEl = document.getElementById('body') as HTMLTextAreaElement | null;
+            const bodyEl = document.getElementById('body');
 
-            if (view.kind === 'route' && bodyEl) {
+            if (view.kind === 'route' && bodyEl instanceof HTMLTextAreaElement) {
 
                 bodies.set(view.name, bodyEl.value);
 
             }
 
+            const authEl = document.getElementById('auth');
+
+            if (authEl instanceof HTMLInputElement) {
+
+                authToken = authEl.value;
+
+            }
+
+        };
+
+        const closeNav = (): void => {
+
+            navOpen = false;
+            drawerCleanup?.();
+            drawerCleanup = null;
+            const drawer = document.getElementById('nav-drawer');
+
+            drawer?.classList.remove('open');
+            drawer?.removeAttribute('role');
+            drawer?.removeAttribute('aria-modal');
+            document.getElementById('nav-overlay')?.classList.remove('open');
+            document.body.classList.remove('nav-open');
+            const menuBtn = document.getElementById('nav-menu-btn');
+
+            if (menuBtn instanceof HTMLButtonElement) {
+
+                menuBtn.setAttribute('aria-expanded', 'false');
+                menuBtn.setAttribute('aria-label', 'Open navigation');
+
+            }
+
+        };
+
+        const trapFocus = (drawer: HTMLElement): (() => void) => {
+
+            const onKeyDown = (event: KeyboardEvent): void => {
+
+                if (event.key === 'Escape') {
+
+                    event.preventDefault();
+                    closeNav();
+                    document.getElementById('nav-menu-btn')?.focus();
+                    return;
+
+                }
+
+                if (event.key !== 'Tab') return;
+
+                const focusable = focusableIn(drawer);
+
+                if (!focusable.length) return;
+
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+
+                if (!first || !last) return;
+
+                if (event.shiftKey && document.activeElement === first) {
+
+                    event.preventDefault();
+                    last.focus();
+
+                } else if (!event.shiftKey && document.activeElement === last) {
+
+                    event.preventDefault();
+                    first.focus();
+
+                }
+
+            };
+
+            document.addEventListener('keydown', onKeyDown);
+
+            const focusable = focusableIn(drawer);
+
+            (focusable[0] ?? drawer).focus();
+
+            return () => document.removeEventListener('keydown', onKeyDown);
+
+        };
+
+        const openNav = (): void => {
+
+            navOpen = true;
+            const drawer = document.getElementById('nav-drawer');
+            const overlay = document.getElementById('nav-overlay');
+            const menuBtn = document.getElementById('nav-menu-btn');
+
+            drawer?.classList.add('open');
+            overlay?.classList.add('open');
+            document.body.classList.add('nav-open');
+
+            if (drawer) {
+
+                drawer.setAttribute('role', 'dialog');
+                drawer.setAttribute('aria-modal', 'true');
+
+            }
+
+            if (menuBtn instanceof HTMLButtonElement) {
+
+                menuBtn.setAttribute('aria-expanded', 'true');
+                menuBtn.setAttribute('aria-label', 'Close navigation');
+
+            }
+
+            if (drawer) {
+
+                drawerCleanup = trapFocus(drawer);
+
+            }
+
+        };
+
+        const navigate = (next: View): void => {
+
+            persistRouteDraft();
             view = next;
             setViewHash(next);
+            closeNav();
             render();
+
+            if (location.hash.includes('mcp-connect')) {
+
+                queueMicrotask(() => {
+
+                    document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
+
+                });
+
+            }
 
         };
 
         const render = (): void => {
 
-            const filtered = applyFilters(routes, filters);
+            drawerCleanup?.();
+            drawerCleanup = null;
+
+            const textFiltered = applyRouteFilters(routes, {
+                text: filters.text,
+                auth: 'all',
+                tag: null,
+                mcpOnly: false,
+            });
+            const filtered = applyRouteFilters(routes, filters);
             const sidebarName = displayName(title, branding);
+            const sidebarRoutes = textFiltered;
 
             app.className = '';
             app.innerHTML = `
-                ${renderTopHeader(title, branding)}
-                <aside class="sidebar">
+                ${renderTopHeader(title, branding, filters.text)}
+                <div class="nav-overlay" id="nav-overlay"></div>
+                <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
                     <div class="sidebar-head">
                         <div class="sidebar-head-row">
                             <button type="button" class="sidebar-title" data-view="home">
                                 ${renderBrandMark(branding, {wrapClass: 'sidebar-mark'}) || renderLetterMark(sidebarName, 'sidebar-mark')}
                                 <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
                             </button>
+                            <button type="button" class="nav-close-btn" id="nav-close-btn" aria-label="Close navigation">
+                                ${closeIcon()}
+                            </button>
                         </div>
                         <p>v${escapeHtml(version)} · ${routes.length} routes</p>
+                        <label class="drawer-search">
+                            <span class="sr-only">Search routes</span>
+                            <input
+                                id="drawer-search"
+                                class="search drawer-search-input"
+                                type="search"
+                                placeholder="Search routes"
+                                value="${escapeHtml(filters.text)}"
+                                aria-label="Search routes"
+                            >
+                        </label>
+                        <div class="drawer-theme">
+                            ${renderThemeToggle('theme-toggle-drawer')}
+                            <span class="drawer-theme-label">Theme</span>
+                        </div>
+                        ${renderDrawerNavbarLinks(branding)}
                     </div>
-                    <div class="route-list">${renderSidebar(routes, view, showHome)}</div>
+                    <div class="route-list">${renderSidebar(sidebarRoutes, view, showHome)}</div>
                 </aside>
                 <div class="content">
                     <main class="main" id="main"></main>
@@ -744,12 +1039,23 @@ async function boot(): Promise<void> {
 
                 main.innerHTML = renderHome(title, version, routes, branding);
                 bindMcpConnect(main);
+                bindCopyButtons(main);
                 main.querySelector('[data-mcp-routes]')?.addEventListener('click', () => {
 
                     filters = {...filters, mcpOnly: true};
                     navigate({kind: 'routes'});
 
                 });
+
+                if (location.hash.includes('mcp-connect')) {
+
+                    queueMicrotask(() => {
+
+                        document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
+
+                    });
+
+                }
 
             } else if (main && view.kind === 'routes') {
 
@@ -762,7 +1068,12 @@ async function boot(): Promise<void> {
 
                 if (route) {
 
-                    main.innerHTML = renderRoute(route, bodies.get(route.name) ?? '{}', showHome);
+                    main.innerHTML = renderRoute(
+                        route,
+                        bodies.get(route.name) ?? '{}',
+                        routes,
+                        authToken,
+                    );
 
                     document.getElementById('send')?.addEventListener('click', () => {
 
@@ -770,11 +1081,10 @@ async function boot(): Promise<void> {
 
                     });
 
-                    document.getElementById('copy-curl')?.addEventListener('click', () => {
+                    const onCopyCurl = (): void => copyCurl(route);
 
-                        copyCurl(route);
-
-                    });
+                    document.getElementById('copy-curl')?.addEventListener('click', onCopyCurl);
+                    document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
 
                     initJsonEditor('body');
 
@@ -786,17 +1096,62 @@ async function boot(): Promise<void> {
 
             }
 
-            document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            const onThemeClick = (): void => {
 
                 theme = toggleTheme(theme);
 
+            };
+
+            document.getElementById('theme-toggle')?.addEventListener('click', onThemeClick);
+            document.getElementById('theme-toggle-drawer')?.addEventListener('click', onThemeClick);
+
+            const bindSearchInput = (id: string): void => {
+
+                const input = document.getElementById(id);
+
+                if (!(input instanceof HTMLInputElement)) return;
+
+                input.addEventListener('input', () => {
+
+                    persistRouteDraft();
+                    filters = {...filters, text: input.value};
+                    render();
+                    const restored = document.getElementById(id);
+
+                    if (restored instanceof HTMLInputElement) {
+
+                        restored.focus();
+                        const len = restored.value.length;
+                        restored.setSelectionRange(len, len);
+
+                    }
+
+                });
+
+            };
+
+            bindSearchInput('header-search');
+            bindSearchInput('drawer-search');
+
+            document.getElementById('nav-menu-btn')?.addEventListener('click', () => {
+
+                if (navOpen) closeNav();
+                else openNav();
+
             });
+
+            document.getElementById('nav-close-btn')?.addEventListener('click', closeNav);
+            document.getElementById('nav-overlay')?.addEventListener('click', closeNav);
+
+            if (navOpen) openNav();
 
             app.querySelectorAll('[data-view]').forEach((btn) => {
 
                 btn.addEventListener('click', () => {
 
-                    const target = (btn as HTMLElement).dataset.view;
+                    if (!(btn instanceof HTMLElement)) return;
+
+                    const target = btn.dataset.view;
 
                     if (target === 'home') navigate({kind: 'home'});
                     else if (target === 'routes') navigate({kind: 'routes'});
@@ -809,7 +1164,9 @@ async function boot(): Promise<void> {
 
                 btn.addEventListener('click', () => {
 
-                    navigate({kind: 'route', name: (btn as HTMLElement).dataset.route ?? ''});
+                    if (!(btn instanceof HTMLElement)) return;
+
+                    navigate({kind: 'route', name: btn.dataset.route ?? ''});
 
                 });
 
@@ -819,20 +1176,15 @@ async function boot(): Promise<void> {
 
         const bindOverviewFilters = (main: HTMLElement): void => {
 
-            main.querySelector('.overview-search')?.addEventListener('input', (event) => {
-
-                filters = {...filters, text: (event.target as HTMLInputElement).value};
-                render();
-
-            });
-
             main.querySelectorAll('[data-auth]').forEach((btn) => {
 
                 btn.addEventListener('click', () => {
 
+                    if (!(btn instanceof HTMLElement)) return;
+
                     filters = {
                         ...filters,
-                        auth: (btn as HTMLElement).dataset.auth as AuthFilter,
+                        auth: parseAuthFilter(btn.dataset.auth),
                     };
                     render();
 
@@ -844,7 +1196,9 @@ async function boot(): Promise<void> {
 
                 btn.addEventListener('click', () => {
 
-                    const tag = (btn as HTMLElement).dataset.tag ?? '';
+                    if (!(btn instanceof HTMLElement)) return;
+
+                    const tag = btn.dataset.tag ?? '';
 
                     filters = {...filters, tag: tag || null};
                     render();
@@ -855,7 +1209,11 @@ async function boot(): Promise<void> {
 
             main.querySelector('#mcp-only')?.addEventListener('change', (event) => {
 
-                filters = {...filters, mcpOnly: (event.target as HTMLInputElement).checked};
+                const target = event.target;
+
+                if (!(target instanceof HTMLInputElement)) return;
+
+                filters = {...filters, mcpOnly: target.checked};
                 render();
 
             });
@@ -866,6 +1224,44 @@ async function boot(): Promise<void> {
 
             view = viewFromHash(routes, showHome);
             render();
+
+            if (location.hash.includes('mcp-connect')) {
+
+                queueMicrotask(() => {
+
+                    document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
+
+                });
+
+            }
+
+        });
+
+        window.addEventListener('keydown', (event) => {
+
+            if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+
+            const active = document.activeElement;
+
+            if (
+                active instanceof HTMLInputElement
+                || active instanceof HTMLTextAreaElement
+                || (active instanceof HTMLElement && active.isContentEditable)
+            ) {
+
+                return;
+
+            }
+
+            event.preventDefault();
+            const input = document.getElementById('header-search');
+
+            if (input instanceof HTMLInputElement) {
+
+                input.focus();
+                input.select();
+
+            }
 
         });
 

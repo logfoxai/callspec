@@ -296,7 +296,7 @@ export function renderMcpConnect(
     const toolLabel = `${mcpRoutes.length} MCP tool${mcpRoutes.length === 1 ? '' : 's'}`;
 
     return `
-        <section class="mcp-connect">
+        <section class="mcp-connect" id="mcp-connect">
             <div class="mcp-connect-head">
                 <div>
                     <h3 class="mcp-connect-title">Connect MCP</h3>

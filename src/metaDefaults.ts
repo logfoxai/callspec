@@ -39,6 +39,7 @@ export function metaBrandingFromCallspecMeta(
         theme: meta.theme,
         navbarLinks: meta.navbarLinks,
         footer: meta.footer,
+        sdkInstall: meta.sdkInstall,
         ...(authHint ? {mcp: {authHint}} : {}),
     };
 

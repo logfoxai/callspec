@@ -13,6 +13,7 @@ export function callspecDocumentToUiSpec(doc: CallspecDocument): CallspecUiSpec 
             mcp: route.mcp.enabled,
             inputSchema: route.input,
             outputSchema: route.output,
+            ...(route.errors ? {errors: route.errors} : {}),
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 

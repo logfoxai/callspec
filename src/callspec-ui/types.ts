@@ -1,4 +1,5 @@
 import type {RouteAuth} from '../types';
+import type {JsonSchema} from '../callspecDocumentTypes';
 
 export type CallspecUiRoute = {
     name: string
@@ -9,6 +10,11 @@ export type CallspecUiRoute = {
     mcp: boolean
     inputSchema: unknown
     outputSchema: unknown
+    errors?: Record<string, {
+        status: number
+        data?: JsonSchema
+        dataRequired?: boolean
+    }>
 };
 
 export type CallspecUiSpec = {

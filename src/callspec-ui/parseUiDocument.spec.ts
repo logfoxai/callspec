@@ -32,3 +32,41 @@ test('parseUiCallspecDocument: rejects missing info', (assert) => {
     );
 
 });
+
+test('parseUiCallspecDocument: coerces domain error codes', (assert) => {
+
+    const doc = parseUiCallspecDocument({
+        callspec: '2.0',
+        info: {title: 'Demo', version: '1.0.0'},
+        routes: {
+            getUser: {
+                name: 'getUser',
+                path: '/getUser',
+                summary: 'Get user',
+                tags: ['users'],
+                auth: 'bearer',
+                input: {type: 'object'},
+                output: {type: 'object'},
+                errors: {
+                    USER_LOCKED: {
+                        status: 403,
+                        data: {type: 'object', properties: {until: {type: 'string'}}},
+                        dataRequired: true,
+                    },
+                    NOT_READY: {status: 400},
+                },
+                mcp: {enabled: false},
+            },
+        },
+    });
+
+    assert.equal(doc.routes.getUser.errors, {
+        USER_LOCKED: {
+            status: 403,
+            data: {type: 'object', properties: {until: {type: 'string'}}},
+            dataRequired: true,
+        },
+        NOT_READY: {status: 400},
+    });
+
+});
