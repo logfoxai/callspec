@@ -44,8 +44,37 @@ spec({
 | Errors | Same codes as HTTP / the generated SDK (`NOT_FOUND`, domain errors, …) |
 | Auth | Per-route `auth` — bearer tools reject missing/invalid tokens like private HTTP |
 
+## Observability
+
+HTTP access logs (`logRequest` on the mount) still cover `POST /mcp` as one request line.
+
+Separately, each MCP **`tools/call`** emits a structured **call** event (jsout `info` by default when `logging` is on):
+
+| Field | Meaning |
+|-------|---------|
+| `surface` | `'mcp'` |
+| `route` | Route key (or tool name when unknown) |
+| `durationMs` | Handler wall time |
+| `outcome` | `'ok'` or `'error'` |
+| `code` | Builtin/domain code (or synthetic `TOOL_NOT_FOUND`, …) when `outcome` is `'error'` |
+
+This is **not** the HTTP access log — it is one event per tool invocation so you can meter agents without parsing MCP JSON-RPC bodies.
+
+```typescript
+import {mountSpec, type CallEvent} from 'callspec';
+
+mountSpec(router, api, {
+    onCall: (event: CallEvent) => {
+        // Forward to Logfox / your sink later
+        console.log(event);
+    },
+});
+```
+
+Pass `onCall: () => {}` to keep HTTP access logs but silence call events. Pass `logging: false` to silence both (tests).
+
 ## Related
 
 - [Docs UI](./docs-ui.md) — connect panel and try-it for humans
-- [`mountSpec` options](./api-reference/mount-spec.md) — `mcpPath`, `docs`
+- [`mountSpec` options](./api-reference/mount-spec.md) — `mcpPath`, `docs`, `onCall`
 - [Builtin errors](./builtin-errors.md) — codes tools and clients share
