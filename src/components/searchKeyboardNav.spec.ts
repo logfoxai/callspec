@@ -2,7 +2,10 @@ import {test} from 'kizu';
 import {
 	applySelection,
 	handleSearchKey,
+	markAwaitingFreshResults,
 	nextIndex,
+	resolveKeyboardSelection,
+	type KeyboardNavState,
 } from './searchKeyboardNav.js';
 
 test('nextIndex clamps without wrapping', (assert) => {
@@ -60,6 +63,35 @@ test('handleSearchKey moves selection with arrows and activates on Enter', (asse
 		selectedIndex: 1,
 		activate: false,
 	});
+});
+
+test('awaiting fresh results clears selection until fingerprint changes', (assert) => {
+	const afterType = markAwaitingFreshResults({
+		selectedIndex: 0,
+		lastFingerprint: 'results:a',
+		awaitingFreshResults: false,
+	});
+	assert.equal(afterType.selectedIndex, -1);
+	assert.equal(afterType.awaitingFreshResults, true);
+
+	const stillStale = resolveKeyboardSelection(afterType, 'results', 'results:a', 2);
+	assert.equal(stillStale.selectedIndex, -1);
+	assert.equal(stillStale.awaitingFreshResults, true);
+
+	const fresh = resolveKeyboardSelection(stillStale, 'results', 'results:b', 2);
+	assert.equal(fresh.selectedIndex, 0);
+	assert.equal(fresh.awaitingFreshResults, false);
+});
+
+test('hydration fingerprint changes keep the current selection', (assert) => {
+	const state: KeyboardNavState = {
+		selectedIndex: 1,
+		lastFingerprint: 'results:a',
+		awaitingFreshResults: false,
+	};
+	const hydrated = resolveKeyboardSelection(state, 'results', 'results:a\0b', 2);
+	assert.equal(hydrated.selectedIndex, 1);
+	assert.equal(hydrated.awaitingFreshResults, false);
 });
 
 function stubEl(): {

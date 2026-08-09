@@ -42,7 +42,11 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		collectResultRows,
 		collectSuggestionChips,
 		handleSearchKey,
+		markAwaitingFreshResults,
+		resolveKeyboardSelection,
 		resultLinkForRow,
+		type KeyboardNavMode,
+		type KeyboardNavState,
 	} from './searchKeyboardNav';
 
 	function ensureIdlePanel(frame: Element): HTMLElement | null {
@@ -166,39 +170,44 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		if (!idle) return;
 
 		const dialog = siteSearch.querySelector('dialog');
-		let selectedIndex = -1;
-		let lastFingerprint = '';
-
-		const selectableItems = (): HTMLElement[] => {
-			const mode = dialog?.dataset.csSearch;
-			if (mode === 'idle') return collectSuggestionChips(idle);
-			if (mode === 'results') return collectResultRows(root);
-			return [];
+		let navState: KeyboardNavState = {
+			selectedIndex: -1,
+			lastFingerprint: '',
+			awaitingFreshResults: false,
 		};
 
-		const fingerprint = (items: HTMLElement[]): string => {
-			const mode = dialog?.dataset.csSearch ?? '';
+		const navMode = (): KeyboardNavMode => {
+			const mode = dialog?.dataset.csSearch;
+			if (mode === 'idle') return 'idle';
+			if (mode === 'results') return 'results';
+			return 'other';
+		};
+
+		const fingerprintFor = (mode: KeyboardNavMode, rows: HTMLElement[], chips: HTMLElement[]): string => {
 			if (mode === 'results') {
-				return `results:${items.map((row) => resultLinkForRow(row)?.href ?? '').join('\0')}`;
+				return `results:${rows.map((row) => resultLinkForRow(row)?.href ?? '').join('\0')}`;
 			}
-			if (mode === 'idle') return `idle:${items.length}`;
+			if (mode === 'idle') return `idle:${chips.length}`;
 			return mode;
+		};
+
+		const selectableItems = (mode: KeyboardNavMode, rows: HTMLElement[], chips: HTMLElement[]): HTMLElement[] => {
+			if (mode === 'idle') return chips;
+			if (mode === 'results' && !navState.awaitingFreshResults) return rows;
+			return [];
 		};
 
 		const syncSelection = () => {
 			syncPanels(root, idle);
-			const items = selectableItems();
-			const fp = fingerprint(items);
-			if (fp !== lastFingerprint) {
-				lastFingerprint = fp;
-				selectedIndex =
-					dialog?.dataset.csSearch === 'results' && items.length > 0 ? 0 : -1;
-			} else if (selectedIndex >= items.length) {
-				selectedIndex = items.length > 0 ? items.length - 1 : -1;
-			}
-			applySelection(collectResultRows(root), -1);
-			applySelection(collectSuggestionChips(idle), -1);
-			applySelection(items, selectedIndex);
+			const mode = navMode();
+			const rows = collectResultRows(root);
+			const chips = collectSuggestionChips(idle);
+			const fp = fingerprintFor(mode, rows, chips);
+			navState = resolveKeyboardSelection(navState, mode, fp, mode === 'idle' ? chips.length : rows.length);
+			const items = selectableItems(mode, rows, chips);
+			applySelection(rows, -1);
+			applySelection(chips, -1);
+			applySelection(items, navState.selectedIndex);
 		};
 
 		idle.addEventListener('click', (event) => {
@@ -224,32 +233,41 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			attributeFilter: ['data-cs-search-ready'],
 		});
 
-		root.addEventListener('input', sync);
+		root.addEventListener('input', () => {
+			navState = markAwaitingFreshResults(navState);
+			syncSelection();
+		});
 		root.addEventListener('keyup', sync);
 
 		if (dialog) {
 			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
 			dialog.addEventListener('close', () => {
-				selectedIndex = -1;
-				lastFingerprint = '';
+				navState = {
+					selectedIndex: -1,
+					lastFingerprint: '',
+					awaitingFreshResults: false,
+				};
 				syncSelection();
 			});
 			dialog.addEventListener(
 				'keydown',
 				(event) => {
 					if (!dialog.open) return;
-					const items = selectableItems();
-					const result = handleSearchKey(event.key, selectedIndex, items.length);
+					const mode = navMode();
+					const rows = collectResultRows(root);
+					const chips = collectSuggestionChips(idle);
+					const items = selectableItems(mode, rows, chips);
+					const result = handleSearchKey(event.key, navState.selectedIndex, items.length);
 					if (result.preventDefault) event.preventDefault();
-					if (result.selectedIndex !== selectedIndex) {
-						selectedIndex = result.selectedIndex;
-						applySelection(items, selectedIndex);
-						items[selectedIndex]?.scrollIntoView({block: 'nearest'});
+					if (result.selectedIndex !== navState.selectedIndex) {
+						navState = {...navState, selectedIndex: result.selectedIndex};
+						applySelection(items, navState.selectedIndex);
+						items[navState.selectedIndex]?.scrollIntoView({block: 'nearest'});
 					}
 					if (!result.activate) return;
-					const item = items[selectedIndex];
+					const item = items[navState.selectedIndex];
 					if (!item) return;
-					if (dialog.dataset.csSearch === 'idle') {
+					if (mode === 'idle') {
 						const query = item.dataset.csSearchSuggestion;
 						if (query) setQuery(root, query);
 						return;
