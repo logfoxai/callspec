@@ -38,6 +38,8 @@ test('exportCallspecUi writes index.html and assets for S3 upload', (assert) => 
     assert.equal(fs.existsSync(htmlPath), true);
     assert.equal(html.includes('"specUrl":"https://api.example.com/v1/callspec.json"'), true);
     assert.equal(html.includes('"rpcBase":"https://api.example.com/v1"'), true);
+    // Absolute rpcBase → MCP defaults to the API host, not the CDN docs origin.
+    assert.equal(html.includes('"mcpPath":"https://api.example.com/v1/mcp"'), true);
 
     const assetsDir = path.join(outDir, 'assets');
 

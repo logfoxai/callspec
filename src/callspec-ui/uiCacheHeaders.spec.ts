@@ -28,3 +28,12 @@ test('non-hashed UI assets use a shorter public max-age', (assert) => {
     );
 
 });
+
+test('static index.html shell is no-cache (un-injected template)', (assert) => {
+
+    assert.equal(
+        cacheControlForUiAsset('/tmp/ui/index.html'),
+        'no-cache',
+    );
+
+});

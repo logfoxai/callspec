@@ -50,6 +50,8 @@ callspec export-docs-ui --out ./docs-ui-dist \
 
 Absolute `specUrl`, `rpcBase`, and `mcp.url` are plain strings — the browser `fetch` / `URL` APIs accept them as-is.
 
+When `--rpc-base` is an `http(s)` URL and you omit `--mcp-path` / `--mcp-url`, export defaults `mcpPath` to `{rpcBase}/mcp` so MCP does not resolve against the CDN docs origin.
+
 ### Pattern C — Same distribution as a marketing SPA
 
 Extend your static frontend CloudFront (or Pages) map:

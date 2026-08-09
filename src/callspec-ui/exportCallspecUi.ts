@@ -13,6 +13,24 @@ export type ExportCallspecUiOptions = {
     mcp?: CallspecUiMcp
 };
 
+function defaultMcpPath(rpcBase: string, mcpPath: string | undefined): string {
+
+    if (typeof mcpPath === 'string' && mcpPath.length > 0) {
+
+        return mcpPath;
+
+    }
+
+    if (/^https?:\/\//i.test(rpcBase)) {
+
+        return `${rpcBase.replace(/\/$/, '')}/mcp`;
+
+    }
+
+    return '../mcp';
+
+}
+
 /** Write a deployable Docs UI folder (baked config + assets) for S3 / Pages. */
 export function exportCallspecUi(options: ExportCallspecUiOptions): void {
 
@@ -25,7 +43,7 @@ export function exportCallspecUi(options: ExportCallspecUiOptions): void {
         rpcBase: options.rpcBase,
         title: options.title,
         branding: options.branding,
-        mcpPath: options.mcpPath ?? '../mcp',
+        mcpPath: defaultMcpPath(options.rpcBase, options.mcpPath),
         mcp: options.mcp,
     });
 

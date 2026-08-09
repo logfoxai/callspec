@@ -3,10 +3,16 @@ export const UI_HTML_CACHE_CONTROL = 'no-cache';
 
 const HASHED_ASSET_RE = /\.[a-f0-9]{8}\.(js|css)$/i;
 
-/** Cache-Control for files under the Docs UI assets directory. */
+/** Cache-Control for files under the Docs UI directory (including shell index.html). */
 export function cacheControlForUiAsset(filePath: string): string {
 
     const base = filePath.split(/[/\\]/).pop() ?? '';
+
+    if (base === 'index.html') {
+
+        return UI_HTML_CACHE_CONTROL;
+
+    }
 
     if (HASHED_ASSET_RE.test(base)) {
 
