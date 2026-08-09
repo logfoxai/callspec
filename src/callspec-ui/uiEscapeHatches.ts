@@ -14,16 +14,60 @@ export function sanitizeCustomCss(css: string): string {
 }
 
 /**
+ * Decode common HTML entities so scheme/handler checks see the browser value.
+ * Intentionally limited — this is a trusted-server escape hatch, not a browser.
+ */
+function decodeBasicHtmlEntities(value: string): string {
+
+    let out = value;
+
+    for (let i = 0; i < 3; i += 1) {
+
+        const next = out
+            .replace(/&#x([0-9a-fA-F]+);?/g, (_m, hex: string) => {
+
+                const code = Number.parseInt(hex, 16);
+
+                return Number.isFinite(code) ? String.fromCodePoint(code) : '';
+
+            })
+            .replace(/&#(\d+);?/g, (_m, dec: string) => {
+
+                const code = Number.parseInt(dec, 10);
+
+                return Number.isFinite(code) ? String.fromCodePoint(code) : '';
+
+            })
+            .replace(/&amp;/gi, '&')
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>')
+            .replace(/&quot;/gi, '"')
+            .replace(/&apos;/gi, "'");
+
+        if (next === out) break;
+        out = next;
+
+    }
+
+    return out;
+
+}
+
+/**
  * Basic sanitizer for trusted-server `headerHtml` only.
- * Strips `<script>`, `on*` handlers, and `javascript:` URLs — not a full HTML allowlist.
+ * Strips `<script>`, `<base>`, `on*` handlers, and `javascript:` URLs — not a full HTML allowlist.
  */
 export function sanitizeHeaderHtml(html: string): string {
 
-    let out = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    let out = decodeBasicHtmlEntities(html);
 
+    out = out.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
     out = out.replace(/<script\b[^>]*\/?>/gi, '');
+    out = out.replace(/<base\b[^>]*\/?>/gi, '');
+    // `/onload=…` (no whitespace) and normal ` onclick=…`
+    out = out.replace(/\/on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
     out = out.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-    out = out.replace(/javascript:/gi, '');
+    out = out.replace(/javascript\s*:/gi, '');
 
     return out;
 

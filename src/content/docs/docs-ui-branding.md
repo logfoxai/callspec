@@ -76,7 +76,7 @@ Use these only when theme vars + `navbarLinks` are not enough. Callspec UI is a 
 | `theme.customCssUrl` | `meta.theme` | Injects `<link rel="stylesheet" href="…">` (href escaped). |
 | Mount `customCssUrl` | `mountCallspecUi({ customCssUrl })` | Same link injection; **wins over** `meta.theme.customCssUrl`. |
 | `theme.customCss` | `meta.theme` | Small inline `<style>` (capped at 8KB UTF-8; `</style` sequences stripped). |
-| `headerHtml` | `meta` | Trusted HTML snippet above `#app`, wrapped in `.callspec-ui-header-html`. Prefer `navbarLinks`. Basic stripping of `<script>`, `on*`, and `javascript:` — not a full HTML sanitizer. |
+| `headerHtml` | `meta` | Trusted HTML snippet above `#app`, wrapped in `.callspec-ui-header-html`. Prefer `navbarLinks`. Basic stripping of `<script>`, `<base>`, `on*` (including `/onload=`), and `javascript:` (including common HTML-entity encodings) — not a full HTML sanitizer. |
 
 ### When not to use them
 

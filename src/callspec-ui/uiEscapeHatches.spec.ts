@@ -54,6 +54,25 @@ test('sanitizeHeaderHtml: strips on* event attributes', (assert) => {
 
 });
 
+test('sanitizeHeaderHtml: strips on* handlers without leading whitespace', (assert) => {
+
+    const html = '<svg/onload=alert(1)><img/src/onerror=alert(2)>';
+    const out = sanitizeHeaderHtml(html);
+
+    assert.equal(/on\w+\s*=/i.test(out), false);
+
+});
+
+test('sanitizeHeaderHtml: strips base tags that would hijack relative fetches', (assert) => {
+
+    const html = '<base href="https://evil.example/"><nav>Acme</nav>';
+    const out = sanitizeHeaderHtml(html);
+
+    assert.equal(/<base\b/i.test(out), false);
+    assert.equal(out.includes('<nav>Acme</nav>'), true);
+
+});
+
 test('sanitizeHeaderHtml: strips javascript: URLs', (assert) => {
 
     const html = '<a href="javascript:alert(1)">x</a><a href="HTTPS://ok.example">y</a>';
@@ -61,5 +80,16 @@ test('sanitizeHeaderHtml: strips javascript: URLs', (assert) => {
 
     assert.equal(/javascript:/i.test(out), false);
     assert.equal(out.includes('HTTPS://ok.example'), true);
+
+});
+
+test('sanitizeHeaderHtml: strips entity-encoded javascript: URLs', (assert) => {
+
+    const html = '<a href="&#106;avascript:alert(1)">x</a><a href="&#x6A;avascript:alert(2)">y</a>';
+    const out = sanitizeHeaderHtml(html);
+
+    assert.equal(/javascript:/i.test(out), false);
+    assert.equal(/&#x?0*106;?avascript/i.test(out), false);
+    assert.equal(/&#x?0*6a;?avascript/i.test(out), false);
 
 });
