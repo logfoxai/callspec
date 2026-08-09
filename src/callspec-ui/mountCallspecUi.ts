@@ -4,6 +4,35 @@ import type {RequestHandler, Router} from 'express';
 import express from 'express';
 import type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
 import {cacheControlForUiAsset, UI_HTML_CACHE_CONTROL} from './uiCacheHeaders';
+import {sanitizeCustomCss, sanitizeHeaderHtml} from './uiEscapeHatches';
+
+/** Sanitize escape-hatch fields before baking into HTML / client config. */
+function sanitizeBrandingEscapeHatches(
+    branding: CallspecUiBranding | undefined,
+): CallspecUiBranding | undefined {
+
+    if (!branding) {
+
+        return undefined;
+
+    }
+
+    const theme = branding.theme;
+    const customCss = theme?.customCss;
+    const headerHtml = branding.headerHtml;
+    const nextTheme = theme && typeof customCss === 'string'
+        ? {...theme, customCss: sanitizeCustomCss(customCss)}
+        : theme;
+
+    return {
+        ...branding,
+        theme: nextTheme,
+        headerHtml: typeof headerHtml === 'string'
+            ? sanitizeHeaderHtml(headerHtml)
+            : headerHtml,
+    };
+
+}
 
 export type MountCallspecUiOptions = {
     /** Mount path for the UI. Default `/docs`. */
@@ -16,6 +45,11 @@ export type MountCallspecUiOptions = {
     title?: string
     /** Whitelabel home page content */
     branding?: CallspecUiBranding
+    /**
+     * Stylesheet URL for a `<link rel="stylesheet">` in the docs HTML shell.
+     * When set, wins over `branding.theme.customCssUrl` / `meta.theme.customCssUrl`.
+     */
+    customCssUrl?: string
     /** Relative path from docs to MCP endpoint. Default `../mcp` */
     mcpPath?: string
     mcp?: CallspecUiMcp
@@ -65,12 +99,13 @@ function escapeHtmlAttr(value: string): string {
 
 }
 
-/** Inject config, favicon, and optional footer into the built docs UI shell. */
+/** Inject config, favicon, escape hatches, and optional footer into the built docs UI shell. */
 export function renderCallspecUiPage(config: CallspecUiConfig): string {
 
     let html = readIndexHtml();
-    const branding = config.branding;
-    const script = `<script>window.__CALLSPEC_UI__=${JSON.stringify(config)};</script>`;
+    const branding = sanitizeBrandingEscapeHatches(config.branding);
+    const baked: CallspecUiConfig = {...config, branding};
+    const script = `<script>window.__CALLSPEC_UI__=${JSON.stringify(baked)};</script>`;
 
     if (html.includes(CONFIG_PLACEHOLDER)) {
 
@@ -87,6 +122,36 @@ export function renderCallspecUiPage(config: CallspecUiConfig): string {
         const favicon = `<link rel="icon" href="${escapeHtmlAttr(branding.favicon)}">`;
 
         html = html.replace('</head>', `${favicon}</head>`);
+
+    }
+
+    const customCssUrl = baked.customCssUrl ?? branding?.theme?.customCssUrl;
+
+    if (typeof customCssUrl === 'string' && customCssUrl.length > 0) {
+
+        const link = `<link rel="stylesheet" href="${escapeHtmlAttr(customCssUrl)}">`;
+
+        html = html.replace('</head>', `${link}</head>`);
+
+    }
+
+    const customCss = branding?.theme?.customCss;
+
+    if (typeof customCss === 'string' && customCss.length > 0) {
+
+        const style = `<style data-callspec-ui-custom-css>${customCss}</style>`;
+
+        html = html.replace('</head>', `${style}</head>`);
+
+    }
+
+    const headerHtml = branding?.headerHtml;
+
+    if (typeof headerHtml === 'string' && headerHtml.length > 0) {
+
+        const block = `<div class="callspec-ui-header-html">${headerHtml}</div>`;
+
+        html = html.replace(/<div id="app"/, `${block}<div id="app"`);
 
     }
 
@@ -124,6 +189,7 @@ export function mountCallspecUi(router: Router, options: MountCallspecUiOptions 
             rpcBase,
             title: options.title,
             branding: options.branding,
+            customCssUrl: options.customCssUrl,
             mcpPath: options.mcpPath ?? '../mcp',
             mcp: options.mcp,
         }));

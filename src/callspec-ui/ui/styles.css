@@ -88,6 +88,11 @@ html, body {
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+/* Wrapper for trusted-server `headerHtml` (above the app shell). */
+.callspec-ui-header-html {
+    display: block;
+}
+
 #app {
     display: grid;
     grid-template-columns: var(--sidebar) 1fr;

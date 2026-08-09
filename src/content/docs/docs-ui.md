@@ -17,7 +17,7 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 | Pin the Callspec contract | `{mount}/callspec.json` — what `npx callspec` reads for the TypeScript SDK. |
 | Install a client SDK | Optional `meta.sdkInstall` string on the home page with a copy button. |
 
-**Home is always on** — title, version, route/MCP counts, optional SDK install hint, Browse API, and the MCP connect panel. Optional `meta.intro` is only the welcome blurb. Theme colors, top navbar links, favicon, and footer: [Branding](./docs-ui-branding.md). Route list is grouped by `tags`.
+**Home is always on** — title, version, route/MCP counts, optional SDK install hint, Browse API, and the MCP connect panel. Optional `meta.intro` is only the welcome blurb. Theme colors, top navbar links, favicon, footer, and last-resort CSS/`headerHtml` escape hatches: [Branding](./docs-ui-branding.md). Route list is grouped by `tags`.
 
 ## Minimal setup
 
@@ -38,7 +38,7 @@ mountSpec(router, api, {docsPath: '/explorer'});
 
 The UI always fetches **`../callspec.json` relative to the docs path** — renaming `docsPath` does not rename the contract URL. Full options: [`mountSpec`](./api-reference/mount-spec.md).
 
-Title, logo, theme, navbar, footer, and MCP hints: **[Branding](./docs-ui-branding.md)**.
+Title, logo, theme, navbar, footer, MCP hints, and escape hatches: **[Branding](./docs-ui-branding.md)**.
 
 ## Hide in production
 
@@ -58,7 +58,7 @@ Routes with `auth: 'bearer'` need a token in the UI session (same `Authorization
 
 ## Related
 
-- [Branding](./docs-ui-branding.md) — `meta` title, logo, theme, navbar, footer, auth/MCP hints
+- [Branding](./docs-ui-branding.md) — `meta` title, logo, theme, navbar, footer, escape hatches, auth/MCP hints
 - [Hosting (CloudFront / Pages)](./hosting-cloudfront-pages.md) — reverse proxy vs static export
 - [MCP](./mcp.md) — `mcp: true` on routes, connect from the home panel
 - [OpenAPI](./openapi.md) — `/openapi.json` for gateways and multi-lang tools
