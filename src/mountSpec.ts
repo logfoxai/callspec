@@ -29,6 +29,7 @@ import {
 } from './metaDefaults';
 import type {Callspec, RouteFailure} from './types';
 import {mountCallspecUi} from './callspec-ui/mountCallspecUi';
+import {defaultLogCall, type OnCall} from './callObservability';
 import {defaultLogUnhandledError, logRequest} from './mountSpecLogging';
 
 export type MountSpecOptions = {
@@ -47,6 +48,12 @@ export type MountSpecOptions = {
      * Default true — pass `false` in tests to silence output.
      */
     logging?: boolean
+    /**
+     * Structured per-call events (MCP `tools/call` today). Default: jsout `call` info
+     * when `logging` is enabled. Pass a custom sink for Logfox, or `() => {}` to disable
+     * call events while keeping HTTP access logs.
+     */
+    onCall?: OnCall
     /**
      * Map unexpected throws to intentional `RouteFailure` responses before log +
      * `INTERNAL_ERROR`. Return undefined to fall through to the default path.
@@ -184,6 +191,8 @@ export function mountSpec<Ctx>(
 
     if (listMcpTools(routes).length > 0) {
 
+        const onCall = options.onCall ?? (loggingEnabled ? defaultLogCall : undefined);
+
         mountMcp(router, routes, spec.authenticate, {
             path: joinMountPath(basePath, mcpSubPath),
             serverInfo: {
@@ -191,6 +200,7 @@ export function mountSpec<Ctx>(
                 version: resolvedMeta.version,
             },
             instructions: resolvedMeta.mcpInstructions,
+            onCall,
         });
 
     }

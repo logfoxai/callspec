@@ -1,4 +1,5 @@
 import type {RequestHandler, Router} from 'express';
+import {notifyCall, type CallOutcome, type OnCall} from './callObservability';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
@@ -14,6 +15,8 @@ export type InternalMountMcpOptions = {
     path?: string
     serverInfo: { name: string, version: string }
     instructions?: string
+    /** Structured per-tool call events (MCP `tools/call`). */
+    onCall?: OnCall
 };
 
 function toolError(message: string): { content: Array<{ type: 'text', text: string }>, isError: true } {
@@ -85,10 +88,15 @@ export function mountMcp<Ctx>(
 
             if (body?.method === 'tools/call') {
 
+                const startedAt = performance.now();
                 const toolName = body.params?.name;
+                const emit = (route: string, outcome: CallOutcome): void => {
+                    notifyCall(options.onCall, {surface: 'mcp', route, startedAt, outcome});
+                };
 
                 if (!toolName) {
 
+                    emit('(missing)', {ok: false, code: 'TOOL_NAME_MISSING'});
                     respond(toolError('Missing tool name'));
                     return;
 
@@ -100,15 +108,17 @@ export function mountMcp<Ctx>(
 
                 if (!routeEntry) {
 
+                    emit(toolName, {ok: false, code: 'TOOL_NOT_FOUND'});
                     respond(toolError(`Unknown tool: ${toolName}`));
                     return;
 
                 }
 
-                const [, route] = routeEntry;
+                const [routeKey, route] = routeEntry;
 
                 if (!isMcpEnabled(route)) {
 
+                    emit(routeKey, {ok: false, code: 'TOOL_NOT_EXPOSED'});
                     respond(toolError(`Tool not exposed: ${toolName}`));
                     return;
 
@@ -121,11 +131,13 @@ export function mountMcp<Ctx>(
 
                     if (isRouteFailure(result)) {
 
+                        emit(routeKey, {ok: false, code: result.code});
                         respond(toolError(JSON.stringify(formatRouteFailureBody(result))));
                         return;
 
                     }
 
+                    emit(routeKey, {ok: true});
                     respond({
                         content: [{type: 'text', text: JSON.stringify(result, null, 2)}],
                         structuredContent: result,
@@ -136,6 +148,7 @@ export function mountMcp<Ctx>(
 
                     if (isRouteFailure(err)) {
 
+                        emit(routeKey, {ok: false, code: err.code});
                         respond(toolError(JSON.stringify(formatRouteFailureBody(err))));
                         return;
 
@@ -143,6 +156,7 @@ export function mountMcp<Ctx>(
 
                     if (err instanceof CallspecUnauthorizedError) {
 
+                        emit(routeKey, {ok: false, code: 'UNAUTHORIZED'});
                         respond(toolError('Unauthorized — Bearer token required'));
                         return;
 
@@ -150,11 +164,13 @@ export function mountMcp<Ctx>(
 
                     if (err instanceof CallspecValidationError) {
 
+                        emit(routeKey, {ok: false, code: 'VALIDATION_ERROR'});
                         respond(toolError(JSON.stringify(err.errors)));
                         return;
 
                     }
 
+                    emit(routeKey, {ok: false, code: 'INTERNAL_ERROR'});
                     throw err;
 
                 }

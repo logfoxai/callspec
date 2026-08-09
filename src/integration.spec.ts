@@ -915,6 +915,68 @@ test('integration: MCP tools/call uses spec.authenticate', async (assert) => {
 
 });
 
+test('integration: MCP tools/call emits structured onCall events', async (assert) => {
+
+    const events: Array<{surface: string, route: string, outcome: string}> = [];
+
+    const api = spec({
+        meta: {title: 'Call log API', version: '1.0.0'},
+        routes: {
+            greet: route({
+                input: p.object({name: p.string()}),
+                output: p.object({hello: p.string()}),
+                meta: {summary: 'Greet', description: 'Greet', tags: ['mcp']},
+                auth: 'none',
+                mcp: true,
+                handler: (input, _ctx) => ({hello: input.name}),
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {
+        logging: false,
+        onCall: (event) => {
+            events.push({surface: event.surface, route: event.route, outcome: event.outcome});
+        },
+    });
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+    try {
+
+        const res = await fetch(`http://127.0.0.1:${addr.port}/v1/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'tools/call',
+                params: {name: 'greet', arguments: {name: 'callspec'}},
+            }),
+        });
+
+        assert.equal(res.status, 200);
+        assert.equal(events, [{surface: 'mcp', route: 'greet', outcome: 'ok'}]);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
 test('integration: no MCP when routes do not opt in', async (assert) => {
 
     const noMcpSpec = spec({
