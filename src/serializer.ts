@@ -1,68 +1,201 @@
-export function serializeResponse(data: unknown): unknown {
+import {getPredMeta, type Pred} from 'runtyp';
 
-    if (data === null || data === undefined) return data;
+const ISO_DATE_TIME =
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/;
 
-    if (data instanceof Date) {
+export function parseIsoDateTimeString(s: string): Date | undefined {
 
-        return {
-            __type: 'Date',
-            value: data.toISOString(),
-        };
+    const len = s.length;
 
-    }
+    if (len < 20 || len > 35) return undefined;
 
-    if (Array.isArray(data)) return data.map(serializeResponse);
+    if (s[4] !== '-' || s[7] !== '-' || s[10] !== 'T') return undefined;
 
-    if (typeof data === 'object') {
+    if (s[13] !== ':' || s[16] !== ':') return undefined;
 
-        const serialized: Record<string, unknown> = {};
+    if (!ISO_DATE_TIME.test(s)) return undefined;
 
-        for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    const d = new Date(s);
 
-            serialized[key] = serializeResponse(value);
-
-        }
-
-        return serialized;
-
-    }
-
-    return data;
+    return Number.isNaN(d.getTime()) ? undefined : d;
 
 }
 
-export function deserializeResponse(data: unknown): unknown {
+/** Coerce a known `p.date()` leaf from an ISO date-time string. */
+function coerceDateLeaf(value: unknown): unknown {
 
-    if (data === null || data === undefined) return data;
+    if (value instanceof Date) return value;
 
-    if (
-        typeof data === 'object'
-        && data !== null
-        && '__type' in data
-        && (data as { __type: string }).__type === 'Date'
-        && 'value' in data
-    ) {
+    if (typeof value === 'string') {
 
-        return new Date((data as { value: string }).value);
+        return parseIsoDateTimeString(value) ?? value;
 
     }
 
-    if (Array.isArray(data)) return data.map(deserializeResponse);
+    return value;
 
-    if (typeof data === 'object') {
+}
 
-        const deserialized: Record<string, unknown> = {};
+function mapArray(
+    data: unknown[],
+    mapChild: (child: unknown) => unknown,
+): unknown {
 
-        for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    let out: unknown[] | undefined;
 
-            deserialized[key] = deserializeResponse(value);
+    for (let i = 0; i < data.length; i++) {
+
+        const next = mapChild(data[i]);
+
+        if (next !== data[i]) {
+
+            if (!out) out = data.slice(0, i);
+
+            out.push(next);
+
+        } else if (out) {
+
+            out.push(data[i]);
 
         }
 
-        return deserialized;
+    }
+
+    return out ?? data;
+
+}
+
+function mapObject(
+    data: Record<string, unknown>,
+    mapEntry: (key: string, value: unknown) => unknown,
+): unknown {
+
+    let out: Record<string, unknown> | undefined;
+
+    for (const [key, value] of Object.entries(data)) {
+
+        const next = mapEntry(key, value);
+
+        if (next !== value) {
+
+            if (!out) out = {...data};
+
+            out[key] = next;
+
+        }
 
     }
 
-    return data;
+    return out ?? data;
+
+}
+
+/**
+ * Revive dates using a runtyp pred: coerce ISO strings only at `p.date()` leaves.
+ * String fields that look like ISO stay strings.
+ */
+export function deserializeWithPred(data: unknown, pred: Pred<unknown>): unknown {
+
+    const meta = getPredMeta(pred);
+
+    if (!meta) return data;
+
+    switch (meta.kind) {
+
+        case 'date':
+            return coerceDateLeaf(data);
+
+        case 'optional':
+            if (data === undefined) return data;
+            return deserializeWithPred(data, meta.inner);
+
+        case 'array': {
+            if (!Array.isArray(data)) return data;
+
+            return mapArray(data, (child) => deserializeWithPred(child, meta.item));
+        }
+
+        case 'object': {
+            if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+
+                return data;
+
+            }
+
+            const record = data as Record<string, unknown>;
+            const schema = meta.schema ?? {};
+
+            return mapObject(record, (key, value) => {
+
+                const fieldPred = schema[key];
+
+                if (!fieldPred) return value;
+
+                return deserializeWithPred(value, fieldPred);
+
+            });
+        }
+
+        case 'union': {
+            for (const branch of meta.predicates) {
+
+                const candidate = deserializeWithPred(data, branch);
+                const result = branch(candidate);
+
+                if (result.isValid) return candidate;
+
+            }
+
+            return data;
+        }
+
+        case 'chain': {
+            for (const inner of meta.predicates) {
+
+                const innerMeta = getPredMeta(inner);
+
+                if (
+                    innerMeta
+                    && innerMeta.kind !== 'unknown'
+                    && innerMeta.kind !== 'any'
+                ) {
+
+                    return deserializeWithPred(data, inner);
+
+                }
+
+            }
+
+            return data;
+        }
+
+        default:
+            return data;
+
+    }
+
+}
+
+function serializeChild(value: unknown): unknown {
+
+    if (value === null || value === undefined) return value;
+
+    if (value instanceof Date) return value.toISOString();
+
+    if (typeof value !== 'object') return value;
+
+    if (Array.isArray(value)) {
+
+        return mapArray(value, serializeChild);
+
+    }
+
+    return mapObject(value as Record<string, unknown>, (_key, child) => serializeChild(child));
+
+}
+
+export function serializeResponse(data: unknown): unknown {
+
+    return serializeChild(data);
 
 }

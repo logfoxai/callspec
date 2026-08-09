@@ -81,6 +81,46 @@ test('executeRoute validation error', async (assert) => {
 
 });
 
+test('executeRoute coerces ISO date input and serializes Date output', async (assert) => {
+
+    const iso = '2024-01-15T12:00:00.000Z';
+    const r = route({
+        input: p.object({time: p.date()}),
+        output: p.object({time: p.date()}),
+        meta: {summary: 'x', description: 'x', tags: ['t']},
+        auth: 'none',
+        handler: async (input: {time: Date}, _ctx: unknown) => ({time: input.time}),
+    });
+
+    const out = await executeRoute(r, {time: iso}, undefined) as {time: string};
+
+    assert.equal(typeof out.time, 'string');
+    assert.equal(out.time, iso);
+
+});
+
+test('executeRoute does not coerce ISO strings for p.string() fields', async (assert) => {
+
+    const iso = '2024-01-15T12:00:00.000Z';
+    const r = route({
+        input: p.object({created_at: p.string()}),
+        output: p.object({created_at: p.string()}),
+        meta: {summary: 'x', description: 'x', tags: ['t']},
+        auth: 'none',
+        handler: async (input: {created_at: string}, _ctx: unknown) => {
+
+            assert.equal(typeof input.created_at, 'string');
+            return input;
+
+        },
+    });
+
+    const out = await executeRoute(r, {created_at: iso}, undefined) as {created_at: string};
+
+    assert.equal(out.created_at, iso);
+
+});
+
 test('spec wires meta and routes', (assert) => {
 
     const api = spec({

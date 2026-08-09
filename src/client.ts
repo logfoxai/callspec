@@ -1,4 +1,4 @@
-import {deserializeResponse} from './serializer';
+import {deserializeWithPred} from './serializer';
 
 export type {
     BuiltinErrorCode,
@@ -118,7 +118,10 @@ async function resolveHeaders(
 
 }
 
-async function parseResponseBody(resp: Response): Promise<unknown> {
+async function parseResponseBody(
+    resp: Response,
+    output?: CallResultOptions['output'],
+): Promise<unknown> {
 
     const data = await resp.text();
 
@@ -126,7 +129,15 @@ async function parseResponseBody(resp: Response): Promise<unknown> {
 
     try {
 
-        return deserializeResponse(JSON.parse(data));
+        const parsed: unknown = JSON.parse(data);
+
+        if (output) {
+
+            return deserializeWithPred(parsed, output);
+
+        }
+
+        return parsed;
 
     } catch {
 
@@ -177,7 +188,12 @@ export class CallspecClient {
 
         }
 
-        const body = await parseResponseBody(resp);
+        // Success: schema-guided ISO→Date revive. Errors: raw JSON — output pred must not
+        // rewrite domain error `data` before JSON Schema validation.
+        const body = await parseResponseBody(
+            resp,
+            resp.ok ? options?.output : undefined,
+        );
 
         if (resp.ok) {
 

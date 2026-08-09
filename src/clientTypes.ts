@@ -1,3 +1,4 @@
+import type {Pred} from 'runtyp';
 import {BUILTIN_ERROR, type OptionalBuiltinContext} from './builtinErrors';
 import type {DomainErrorContract} from './clientErrorDataValidation';
 
@@ -79,4 +80,9 @@ export type CallResultOptions = {
     allowedErrorCodes?: readonly string[]
     /** Per-code payload schemas from callspec.json — required for validated domain error parsing. */
     domainErrors?: Readonly<Record<string, DomainErrorContract>>
+    /**
+     * Output pred for schema-guided date revive (ISO → Date only at `p.date()` leaves).
+     * Generated clients pass this automatically. Without it, dates stay ISO strings.
+     */
+    output?: Pred<unknown>
 };

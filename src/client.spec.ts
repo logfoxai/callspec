@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {test} from 'kizu';
+import {predicates as p} from 'runtyp';
 import {BUILTIN_ERROR, CLIENT_ERROR, CallspecClient, isCallspecOk, joinCallspecUrl} from './client';
 
 test('client bundle is fetch-only (no node server imports)', (assert) => {
@@ -51,18 +52,24 @@ test('CallspecClient POSTs JSON to endpoint/method', async (assert) => {
 
 });
 
-test('CallspecClient deserializes Date wire format', async (assert) => {
+test('CallspecClient deserializes ISO date-time strings with output pred', async (assert) => {
 
     const originalFetch = globalThis.fetch;
 
     globalThis.fetch = (async () => new Response(JSON.stringify({
-        at: {__type: 'Date', value: '2026-07-28T12:00:00.000Z'},
+        at: '2026-07-28T12:00:00.000Z',
+        label: '2026-07-28T12:00:00.000Z',
     }), {status: 200})) as typeof fetch;
 
     try {
 
         const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult<{at: Date}>('getTime', {});
+        const result = await runtime.callResult<{at: Date, label: string}>('getTime', {}, {
+            output: p.object({
+                at: p.date(),
+                label: p.string(),
+            }),
+        });
 
         assert.equal(isCallspecOk(result), true);
 
@@ -70,6 +77,38 @@ test('CallspecClient deserializes Date wire format', async (assert) => {
 
             assert.equal(result.value.at instanceof Date, true);
             assert.equal(result.value.at.toISOString(), '2026-07-28T12:00:00.000Z');
+            assert.equal(result.value.label, '2026-07-28T12:00:00.000Z');
+            assert.equal(typeof result.value.label, 'string');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient without output pred leaves bare ISO strings as strings', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        at: '2026-07-28T12:00:00.000Z',
+    }), {status: 200})) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult<{at: string}>('getTime', {});
+
+        assert.equal(isCallspecOk(result), true);
+
+        if (result.ok) {
+
+            assert.equal(result.value.at, '2026-07-28T12:00:00.000Z');
+            assert.equal(typeof result.value.at, 'string');
 
         }
 
@@ -260,6 +299,56 @@ test('CallspecClient.callResult preserves declared domain error bodies', async (
             assert.equal(result.status, 409);
             assert.equal(result.code, 'USER_EXISTS');
             assert.equal((result as {data?: {email: string}}).data?.email, 'taken@example.com');
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
+test('CallspecClient does not apply output pred date revive to error bodies', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+    const iso = '2024-01-15T12:00:00.000Z';
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+        error: 'SLOT_TAKEN',
+        data: {at: iso},
+    }), {
+        status: 409,
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult('book', {}, {
+            // Same shape as success output — must not coerce error data.at to Date.
+            output: p.object({
+                data: p.object({at: p.date()}),
+            }),
+            allowedErrorCodes: ['SLOT_TAKEN'],
+            domainErrors: {
+                SLOT_TAKEN: {
+                    dataRequired: true,
+                    data: {
+                        type: 'object',
+                        properties: {at: {type: 'string'}},
+                        required: ['at'],
+                    },
+                },
+            },
+        });
+
+        assert.equal(result.ok, false);
+
+        if (!result.ok) {
+
+            assert.equal(result.code, 'SLOT_TAKEN');
+            assert.equal((result as {data?: {at: string}}).data?.at, iso);
 
         }
 
