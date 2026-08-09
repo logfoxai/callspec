@@ -880,7 +880,8 @@ html[data-theme='light'] .cs-search-loading__field {
 }
 
 .cs-search-idle__chips button:hover,
-.cs-search-idle__chips button:focus-visible {
+.cs-search-idle__chips button:focus-visible,
+.cs-search-idle__chips button[data-cs-search-selected='true'] {
     border-color: color-mix(in srgb, var(--cs-cyan) 55%, var(--sl-color-gray-5));
     background: color-mix(in srgb, var(--cs-cyan) 14%, var(--sl-color-black));
     color: #fff;

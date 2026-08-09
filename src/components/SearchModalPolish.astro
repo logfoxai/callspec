@@ -1,8 +1,8 @@
 ---
 /**
  * Idle / empty / in-flight polish for Starlight’s Pagefind search dialog.
- * Injects suggestion chips when idle, Discord help on zero results, and a
- * shimmer skeleton while a query is running.
+ * Injects suggestion chips when idle, Discord help on zero results, a
+ * shimmer skeleton while a query is running, and arrow/Enter keyboard nav.
  */
 const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 ---
@@ -37,6 +37,13 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 <script>
 	import {isSearchIdle} from './searchIdleState';
+	import {
+		applySelection,
+		collectResultRows,
+		collectSuggestionChips,
+		handleSearchKey,
+		resultLinkForRow,
+	} from './searchKeyboardNav';
 
 	function ensureIdlePanel(frame: Element): HTMLElement | null {
 		const existing = frame.querySelector<HTMLElement>('[data-cs-search-idle]');
@@ -158,6 +165,42 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		const idle = ensureIdlePanel(frame);
 		if (!idle) return;
 
+		const dialog = siteSearch.querySelector('dialog');
+		let selectedIndex = -1;
+		let lastFingerprint = '';
+
+		const selectableItems = (): HTMLElement[] => {
+			const mode = dialog?.dataset.csSearch;
+			if (mode === 'idle') return collectSuggestionChips(idle);
+			if (mode === 'results') return collectResultRows(root);
+			return [];
+		};
+
+		const fingerprint = (items: HTMLElement[]): string => {
+			const mode = dialog?.dataset.csSearch ?? '';
+			if (mode === 'results') {
+				return `results:${items.map((row) => resultLinkForRow(row)?.href ?? '').join('\0')}`;
+			}
+			if (mode === 'idle') return `idle:${items.length}`;
+			return mode;
+		};
+
+		const syncSelection = () => {
+			syncPanels(root, idle);
+			const items = selectableItems();
+			const fp = fingerprint(items);
+			if (fp !== lastFingerprint) {
+				lastFingerprint = fp;
+				selectedIndex =
+					dialog?.dataset.csSearch === 'results' && items.length > 0 ? 0 : -1;
+			} else if (selectedIndex >= items.length) {
+				selectedIndex = items.length > 0 ? items.length - 1 : -1;
+			}
+			applySelection(collectResultRows(root), -1);
+			applySelection(collectSuggestionChips(idle), -1);
+			applySelection(items, selectedIndex);
+		};
+
 		idle.addEventListener('click', (event) => {
 			const target = event.target;
 			if (!(target instanceof HTMLElement)) return;
@@ -165,10 +208,10 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			const query = suggestion?.dataset.csSearchSuggestion;
 			if (!query) return;
 			setQuery(root, query);
-			syncPanels(root, idle);
+			syncSelection();
 		});
 
-		const sync = () => syncPanels(root, idle);
+		const sync = () => syncSelection();
 		const observer = new MutationObserver(sync);
 		observer.observe(root, {
 			subtree: true,
@@ -184,10 +227,37 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		root.addEventListener('input', sync);
 		root.addEventListener('keyup', sync);
 
-		const dialog = siteSearch.querySelector('dialog');
 		if (dialog) {
 			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
-			dialog.addEventListener('close', sync);
+			dialog.addEventListener('close', () => {
+				selectedIndex = -1;
+				lastFingerprint = '';
+				syncSelection();
+			});
+			dialog.addEventListener(
+				'keydown',
+				(event) => {
+					if (!dialog.open) return;
+					const items = selectableItems();
+					const result = handleSearchKey(event.key, selectedIndex, items.length);
+					if (result.preventDefault) event.preventDefault();
+					if (result.selectedIndex !== selectedIndex) {
+						selectedIndex = result.selectedIndex;
+						applySelection(items, selectedIndex);
+						items[selectedIndex]?.scrollIntoView({block: 'nearest'});
+					}
+					if (!result.activate) return;
+					const item = items[selectedIndex];
+					if (!item) return;
+					if (dialog.dataset.csSearch === 'idle') {
+						const query = item.dataset.csSearchSuggestion;
+						if (query) setQuery(root, query);
+						return;
+					}
+					resultLinkForRow(item)?.click();
+				},
+				true,
+			);
 		}
 		siteSearch.querySelector('[data-open-modal]')?.addEventListener('click', () => {
 			requestAnimationFrame(sync);
