@@ -4,7 +4,7 @@
     <source srcset="assets/callspec-lockup-light.svg?cb=4" media="(prefers-color-scheme: light)" />
     <img src="assets/callspec-lockup-light.svg?cb=4" alt="callspec" />
   </picture>
-  <h4 align="center">Stop maintaining five APIs.<br/>One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h4>
+  <h4 align="center">Stop duct-taping your API stack.<br/>One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h4>
   <p align="center">
     <a href="https://callspec.logfox.ai"><strong>callspec.logfox.ai</strong></a>
     ·

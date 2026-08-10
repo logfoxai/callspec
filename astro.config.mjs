@@ -42,7 +42,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Callspec',
-            description: 'Stop maintaining five APIs. One TypeScript route → typed SDK, docs, OpenAPI, and MCP.',
+            description: 'Stop duct-taping your API stack. One TypeScript route → typed SDK, docs, OpenAPI, and MCP.',
             logo: {
                 light: './assets/callspec-lockup-light.svg',
                 dark: './assets/callspec-lockup-dark.svg',
