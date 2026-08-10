@@ -10,7 +10,7 @@
 ::backdrop {
     --sl-font: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --sl-font-mono: ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
-    --cs-font-heading: var(--sl-font);
+    --cs-font-heading: 'Space Grotesk', var(--sl-font);
 
     --sl-color-accent-low: hsl(270, 45%, 22%);
     --sl-color-accent: hsl(270, 90%, 68%);

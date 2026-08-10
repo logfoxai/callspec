@@ -1,6 +1,6 @@
 ---
 /**
- * Homepage pillars — after How it works, the non-obvious wins.
+ * After How it works — the reasons first-principles engineers switch.
  */
 
 const icons = {
@@ -13,33 +13,33 @@ const icons = {
 const features = [
 	{
 		tone: 'amber',
-		title: 'Test the handler',
-		copy: 'Call .handler(input, ctx) — no HTTP, no req/res mocks.',
+		title: 'Test the real handler',
+		copy: 'No HTTP. No req/res. Call .handler(input, ctx) and cover the domain.',
 		icon: 'test',
 	},
 	{
 		tone: 'violet',
-		title: 'Result-typed errors',
-		copy: 'Exhaustive error codes from handler → SDK → MCP.',
+		title: 'Errors you can switch on',
+		copy: 'Result codes from handler → SDK → OpenAPI → MCP. Exhaustive. Typed.',
 		icon: 'shield',
 	},
 	{
 		tone: 'cyan',
-		title: 'MCP for free',
-		copy: 'Same routes, auth, and errors as Cursor/Claude tools.',
+		title: 'MCP isn’t a rewrite',
+		copy: 'Flip mcp: true. Cursor and Claude get the same routes and auth.',
 		icon: 'mcp',
 	},
 	{
 		tone: 'blue',
-		title: 'No package dance',
-		copy: 'Codegen the SDK — the frontend never imports your server.',
+		title: 'No server package in the client',
+		copy: 'npx callspec → generated SDK. Frontend never imports Express.',
 		icon: 'sync',
 	},
 ] as const;
 ---
 
 <section class="splash-features" aria-labelledby="splash-features-title">
-	<h2 id="splash-features-title" class="splash-features__heading">Why it wins</h2>
+	<h2 id="splash-features-title" class="splash-features__heading">The parts that usually suck</h2>
 	<ul class="splash-features__list">
 		{
 			features.map(({tone, title, copy, icon}) => (

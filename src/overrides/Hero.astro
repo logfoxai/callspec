@@ -1,28 +1,26 @@
 ---
 /**
- * Splash hero — brand in nav lockup; typewriter h2 + supporting lead.
- * Guide pages use Starlight’s PageTitle, not this override.
+ * Splash hero — brand, brutal promise, CTAs, and the pile as the first-viewport visual.
  */
 import {LinkButton} from '@astrojs/starlight/components';
+import SplashPile from '../components/SplashPile.astro';
 
 const PAGE_TITLE_ID = '_top';
 const {data} = Astro.locals.starlightRoute.entry;
 const {title = data.title, tagline, actions = []} = data.hero || {};
 const headline = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
-const typeSteps = Math.max([...headline].length, 1);
 
 const lead =
-	'Typed RPC without tRPC’s weight — and without duct-taping OpenAPI, docs, and MCP yourself.';
+	'YAML, Orval, swagger-ui, error maps, a bolted-on MCP server — five tools, three auth paths, constant drift. One TypeScript route replaces the pile.';
 ---
 
 <section class="splash-hero">
+	<p class="splash-hero__brand" aria-hidden="true">callspec</p>
 	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
 	{
 		headline && (
 			<>
-				<h2 class="splash-hero__headline" style={`--type-steps: ${typeSteps}`}>
-					{headline}
-				</h2>
+				<h2 class="splash-hero__headline">{headline}</h2>
 				<p class="splash-hero__lead">{lead}</p>
 			</>
 		)
@@ -52,6 +50,9 @@ const lead =
 			</div>
 		)
 	}
+	<div class="splash-hero__visual">
+		<SplashPile />
+	</div>
 </section>
 
 <script>

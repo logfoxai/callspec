@@ -1,26 +1,30 @@
 ---
 /**
- * Homepage scar: the OpenAPI/tooling pile vs one Callspec route.
- * Outcome only here — the `route()` code lives in How it works.
+ * Hero scar visual: the OpenAPI/tooling pile vs one Callspec route.
  */
 
 const pile = [
-	{name: 'openapi.yaml', note: 'hand-written or drifted'},
-	{name: 'Orval / openapi-generator', note: 'SDK of uneven quality'},
-	{name: 'swagger-ui', note: 'another package, another theme'},
-	{name: 'error mapping', note: 'status codes → guesswork'},
-	{name: 'custom MCP server', note: 'second API surface'},
-	{name: 'auth wiring × N', note: 'docs, client, agents disagree'},
+	{name: 'openapi.yaml', note: 'hand-written · drifts from code'},
+	{name: 'Orval / openapi-generator', note: 'SDK quality is a coin flip'},
+	{name: 'swagger-ui', note: 'yet another theme to fight'},
+	{name: 'error mapping', note: 'status codes → tribal knowledge'},
+	{name: 'custom MCP server', note: 'a second API you maintain'},
+	{name: 'auth × N', note: 'docs, client, agents disagree'},
 ] as const;
 
-const surfaces = ['Typed SDK', 'Docs UI', 'OpenAPI', 'MCP', 'Result errors'] as const;
+const surfaces = [
+	{label: 'Typed SDK', tone: 'cyan'},
+	{label: 'Docs UI', tone: 'orange'},
+	{label: 'OpenAPI', tone: 'green'},
+	{label: 'MCP', tone: 'violet'},
+	{label: 'Result errors', tone: 'amber'},
+] as const;
 ---
 
 <section class="splash-pile" aria-label="The pile versus one route">
-	<p class="splash-pile__kicker">The problem</p>
 	<div class="splash-pile__grid">
 		<div class="splash-pile__pane splash-pile__pane--mess">
-			<p class="splash-pile__label">The usual pile</p>
+			<p class="splash-pile__label">What you maintain today</p>
 			<ul class="splash-pile__stack">
 				{
 					pile.map(({name, note}, i) => (
@@ -32,21 +36,25 @@ const surfaces = ['Typed SDK', 'Docs UI', 'OpenAPI', 'MCP', 'Result errors'] as 
 				}
 			</ul>
 			<p class="splash-pile__aside">
-				Code-first OpenAPI helps a bit — you still stitch SDKs, docs, errors, and MCP yourself.
+				Code-first OpenAPI doesn’t save you — you still stitch the rest by hand.
 			</p>
 		</div>
 
-		<div class="splash-pile__pane splash-pile__pane--one">
-			<p class="splash-pile__label">With Callspec</p>
+		<div class="splash-pile__pane splash-pile__pane--one" data-reveal>
+			<p class="splash-pile__label">What Callspec is</p>
 			<p class="splash-pile__one-line">
 				One TypeScript <code>route()</code>
 			</p>
 			<p class="splash-pile__arrow" aria-hidden="true">↓</p>
 			<ul class="splash-pile__gets" aria-label="What you get">
-				{surfaces.map((label) => <li>{label}</li>)}
+				{
+					surfaces.map(({label, tone}) => (
+						<li data-tone={tone}>{label}</li>
+					))
+				}
 			</ul>
 			<p class="splash-pile__aside splash-pile__aside--one">
-				Same auth. Same errors. Same methods for your app and for agents.
+				Same methods. Same auth. Same errors — for your app and for agents.
 			</p>
 		</div>
 	</div>
