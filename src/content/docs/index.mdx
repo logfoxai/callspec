@@ -1,24 +1,23 @@
 ---
 title: Home
-description: Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.
+description: One TypeScript route → typed SDK, docs, OpenAPI, and MCP. No second source of truth.
 template: splash
 hero:
   title: Callspec
-  tagline: Write once. Ship everything.
+  tagline: One route. Every surface.
   actions:
+    - text: Open Chirp explorer
+      link: /demo/
+      icon: right-arrow
     - text: Get started
       link: /getting-started/
-      icon: right-arrow
-    - text: View on GitHub
-      link: https://github.com/logfoxai/callspec
-      icon: github
       variant: secondary
-      attrs:
-        target: _blank
-        rel: noopener noreferrer
+      icon: right-arrow
 ---
 
 import SplashStyles from '../../components/SplashStyles.astro';
+import SplashProof from '../../components/SplashProof.astro';
+import SplashBeforeAfter from '../../components/SplashBeforeAfter.astro';
 import SplashFlow from '../../components/SplashFlow.astro';
 import SplashFeatures from '../../components/SplashFeatures.astro';
 import SplashDemo from '../../components/SplashDemo.astro';
@@ -26,6 +25,8 @@ import SplashDemo from '../../components/SplashDemo.astro';
 <SplashStyles />
 
 <div class="splash-page not-content">
+  <SplashProof />
+  <SplashBeforeAfter />
   <SplashFlow />
   <SplashFeatures />
   <SplashDemo />

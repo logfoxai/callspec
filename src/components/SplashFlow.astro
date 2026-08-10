@@ -24,10 +24,10 @@ const surfaceIcons = {
 } as const;
 
 const surfaces = [
+	{tone: 'violet', label: 'MCP', path: '/mcp', icon: 'mcp'},
 	{tone: 'teal', label: 'HTTP RPC', path: '/v1/*', icon: 'globe'},
 	{tone: 'orange', label: 'Docs UI', path: '/docs', icon: 'doc'},
 	{tone: 'green', label: 'OpenAPI', path: '/openapi.json', icon: 'api'},
-	{tone: 'violet', label: 'MCP', path: '/mcp', icon: 'mcp'},
 ] as const;
 
 const langs = [
@@ -51,7 +51,7 @@ const langs = [
 
 		<li class="splash-flow__step" style="--step: 1">
 			<header class="splash-flow__head">
-				<h2 class="splash-flow__title">Serve it all</h2>
+				<h2 class="splash-flow__title">Every surface</h2>
 			</header>
 			<div class="splash-flow__body">
 				<ul class="splash-flow__surfaces">

@@ -1,0 +1,38 @@
+---
+/**
+ * Homepage scar → payoff: the 10-second reason to care.
+ */
+
+const beforeCode = `<span class="tok-cm">// hand-rolled client + status codes</span>
+<span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(\`/tweets/\${id}\`)
+<span class="tok-kw">if</span> (res.status === <span class="tok-str">404</span>) { <span class="tok-cm">/* ? */</span> }
+<span class="tok-cm">// OpenAPI drifted last sprint</span>
+<span class="tok-cm">// MCP tools? separate server…</span>`;
+
+const afterCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">getTweet</span>({id})
+
+<span class="tok-kw">if</span> (!result.ok) {
+  <span class="tok-kw">switch</span> (result.code) {
+    <span class="tok-kw">case</span> <span class="tok-str">'NOT_FOUND'</span>:
+      <span class="tok-cm">// typed — SDK, OpenAPI, MCP agree</span>
+  }
+}
+
+<span class="tok-cm">// Same method is an MCP tool in Cursor</span>`;
+---
+
+<section class="splash-contrast" aria-label="Before and after Callspec">
+	<div class="splash-contrast__grid">
+		<div class="splash-contrast__pane splash-contrast__pane--before">
+			<p class="splash-contrast__label">Without Callspec</p>
+			<pre class="splash-contrast__code" tabindex="0"><code set:html={beforeCode} /></pre>
+		</div>
+		<div class="splash-contrast__pane splash-contrast__pane--after">
+			<p class="splash-contrast__label">With Callspec</p>
+			<pre class="splash-contrast__code" tabindex="0"><code set:html={afterCode} /></pre>
+		</div>
+	</div>
+	<p class="splash-contrast__punch">
+		One TypeScript route. Typed client, docs, OpenAPI, and MCP — no second source of truth.
+	</p>
+</section>
