@@ -379,59 +379,23 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     z-index: 1;
 }
 
-/* ─── Social proof ───────────────────────────────────────────────────────── */
+/* ─── How it works ───────────────────────────────────────────────────────── */
 
-.splash-proof {
-    margin: -0.5rem 0 0;
-    padding: 0;
+.splash-how {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    margin: 0;
 
-    .splash-proof__list {
-        list-style: none;
+    .splash-how__title {
         margin: 0;
-        padding: 0;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem 1.75rem;
-    }
-
-    li {
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.15rem;
-        min-width: 5.5rem;
-    }
-
-    .splash-proof__link {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.15rem;
-        text-decoration: none;
-        color: inherit;
-
-        &:hover .splash-proof__value {
-            color: var(--sl-color-text-accent);
-        }
-    }
-
-    .splash-proof__value {
+        text-align: center;
         font-family: var(--cs-font-heading);
-        font-size: 1.05rem;
+        font-size: clamp(1.35rem, 2.5vw, 1.75rem);
         font-weight: 600;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
         color: var(--cs-ink);
-        transition: color 0.15s ease;
-    }
-
-    .splash-proof__label {
-        font-size: 0.75rem;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--cs-muted);
     }
 }
 
@@ -510,18 +474,6 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         .tok-fn { color: #8ecfd9; }
         .tok-cm { color: #6b7280; }
         .tok-str { color: #86efac; }
-    }
-
-    .splash-contrast__punch {
-        margin: 0;
-        text-align: center;
-        font-family: var(--cs-font-heading);
-        font-size: clamp(1.05rem, 2vw, 1.25rem);
-        font-weight: 500;
-        letter-spacing: -0.02em;
-        line-height: 1.4;
-        text-wrap: balance;
-        color: var(--cs-ink);
     }
 }
 
