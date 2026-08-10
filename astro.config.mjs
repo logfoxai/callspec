@@ -17,7 +17,7 @@ export default defineConfig({
             rehypePlugins: [rehypeWrapTables],
         }),
     },
-    site: 'https://logfoxai.github.io/callspec',
+    site: 'https://callspec.logfox.ai',
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)
     publicDir: './assets',

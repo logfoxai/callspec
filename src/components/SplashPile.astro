@@ -1,61 +1,14 @@
 ---
 /**
- * Hero scar visual: the OpenAPI/tooling pile vs one Callspec route.
+ * Hero graphic: Figma pile-of-tech.svg (publicDir → /pile-of-tech.svg).
  */
-
-const pile = [
-	{name: 'OpenAPI spec', note: 'hand-written · drifts from code'},
-	{name: 'SDK generator', note: 'another toolchain, uneven quality'},
-	{name: 'Docs UI', note: 'yet another package to theme'},
-	{name: 'Error mapping', note: 'status codes → tribal knowledge'},
-	{name: 'MCP server', note: 'a second API you maintain'},
-	{name: 'Auth × N', note: 'docs, client, agents disagree'},
-] as const;
-
-const surfaces = [
-	{label: 'Typed SDK', tone: 'cyan'},
-	{label: 'Docs UI', tone: 'orange'},
-	{label: 'OpenAPI', tone: 'green'},
-	{label: 'MCP', tone: 'violet'},
-	{label: 'Result errors', tone: 'amber'},
-] as const;
 ---
 
-<section class="splash-pile" aria-label="The pile versus one route">
-	<div class="splash-pile__grid">
-		<div class="splash-pile__pane splash-pile__pane--mess">
-			<p class="splash-pile__label">What you maintain today</p>
-			<ul class="splash-pile__stack">
-				{
-					pile.map(({name, note}, i) => (
-						<li class="splash-pile__chip" style={`--i: ${i}`}>
-							<span class="splash-pile__chip-name">{name}</span>
-							<span class="splash-pile__chip-note">{note}</span>
-						</li>
-					))
-				}
-			</ul>
-			<p class="splash-pile__aside">
-				Code-first OpenAPI doesn’t save you — you still stitch the rest by hand.
-			</p>
-		</div>
-
-		<div class="splash-pile__pane splash-pile__pane--one" data-reveal>
-			<p class="splash-pile__label">What Callspec is</p>
-			<p class="splash-pile__one-line">
-				One TypeScript <code>route()</code>
-			</p>
-			<p class="splash-pile__arrow" aria-hidden="true">↓</p>
-			<ul class="splash-pile__gets" aria-label="What you get">
-				{
-					surfaces.map(({label, tone}) => (
-						<li data-tone={tone}>{label}</li>
-					))
-				}
-			</ul>
-			<p class="splash-pile__aside splash-pile__aside--one">
-				Same methods. Same auth. Same errors — for your app and for agents.
-			</p>
-		</div>
-	</div>
-</section>
+<img
+	class="splash-pile-img"
+	src="/pile-of-tech.svg"
+	alt="A pile of API tools replaced by one route call"
+	width="1446"
+	height="474"
+	decoding="async"
+/>

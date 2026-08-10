@@ -155,7 +155,6 @@ html[data-has-sidebar] .content-panel:first-of-type h1,
 html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, h4),
 html[data-has-hero]:not([data-has-sidebar]) .splash-hero__headline,
 html[data-has-hero]:not([data-has-sidebar]) .splash-how__title,
-html[data-has-hero]:not([data-has-sidebar]) .splash-features__heading,
 html[data-has-hero]:not([data-has-sidebar]) .splash-features__title,
 html[data-has-hero]:not([data-has-sidebar]) .splash-demo__title {
     font-family: var(--cs-font-heading);

@@ -67,7 +67,7 @@
     "astro:dev": "node scripts/build-chirp-static-demo.cjs && astro dev",
     "astro:build": "node scripts/build-chirp-static-demo.cjs && astro build && node scripts/write-cs-pagefind-shim.mjs",
     "astro:preview": "npm run astro:build && astro preview",
-    "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run astro:build && node scripts/assert-prod-css-backdrop.mjs && node scripts/assert-chirp-static-demo.mjs"
+    "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run astro:build && node scripts/assert-prod-css-backdrop.mjs && node scripts/assert-chirp-static-demo.mjs && node scripts/assert-404-page.mjs"
   },
   "dependencies": {
     "highlight.js": "11.11.1",

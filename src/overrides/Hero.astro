@@ -1,27 +1,42 @@
 ---
 /**
- * Splash hero — brand, brutal promise, CTAs, and the pile as the first-viewport visual.
+ * Splash hero — marketing home (lead + pile) or a clean 404 / other splash.
  */
 import {LinkButton} from '@astrojs/starlight/components';
 import SplashPile from '../components/SplashPile.astro';
+import {shouldShowMarketingPile} from '../splashHeroMode';
 
 const PAGE_TITLE_ID = '_top';
-const {data} = Astro.locals.starlightRoute.entry;
+const {entry} = Astro.locals.starlightRoute;
+const {data} = entry;
 const {title = data.title, tagline, actions = []} = data.hero || {};
 const headline = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
+const showPile = shouldShowMarketingPile(entry.id);
 
-const lead =
-	'OpenAPI specs, client generators, docs UIs, error maps, a bolted-on MCP server — usually separate tools that drift apart. One TypeScript route replaces the pile.';
+const homePitch = 'One TypeScript route → typed SDK, docs, OpenAPI, and MCP.';
+
+const homeLead =
+	'The expensive part isn’t writing the API — it’s the pile around it. Specs drift from code. Clients go stale. You stop trusting the types and start programming defensively. One contract keeps it simple: skip the glue, keep the guarantees.';
+
+const notFoundLead =
+	'That URL isn’t part of the Callspec docs. Head home, or jump into getting started.';
 ---
 
-<section class="splash-hero">
-	<p class="splash-hero__brand" aria-hidden="true">callspec</p>
-	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
+<section class:list={['splash-hero', !showPile && 'splash-hero--not-found']}>
 	{
-		headline && (
+		showPile ? (
 			<>
-				<h2 class="splash-hero__headline">{headline}</h2>
-				<p class="splash-hero__lead">{lead}</p>
+				<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
+				{headline && <h2 class="splash-hero__headline">{headline}</h2>}
+				<p class="splash-hero__pitch">{homePitch}</p>
+			</>
+		) : (
+			<>
+				<p class="splash-hero__code" aria-hidden="true">{title}</p>
+				<h1 id={PAGE_TITLE_ID} class="splash-hero__headline" data-page-title>
+					{headline || title}
+				</h1>
+				<p class="splash-hero__lead splash-hero__lead--solo">{notFoundLead}</p>
 			</>
 		)
 	}
@@ -50,9 +65,16 @@ const lead =
 			</div>
 		)
 	}
-	<div class="splash-hero__visual">
-		<SplashPile />
-	</div>
+	{
+		showPile && (
+			<div class="splash-hero__stage">
+				<p class="splash-hero__lead">{homeLead}</p>
+				<div class="splash-hero__visual">
+					<SplashPile />
+				</div>
+			</div>
+		)
+	}
 </section>
 
 <script>
