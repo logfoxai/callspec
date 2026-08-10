@@ -117,7 +117,7 @@ Related: [SDK generation](./sdk-generation.md) · [Shared validation](./shared-v
 
 ## 6. Call from your app
 
-Each method returns a **Result** — check `result.ok`, then `switch` on `result.code`. The failure union is exhaustive; TypeScript flags a missing `case`.
+Each method returns a **Result** — check `result.ok`, handle the codes that matter for that UI, and send the rest through a shared helper (you do **not** need a giant `switch` at every call site).
 
 ```typescript title="src/app/getProductById.ts" frame="code"
 import {ApiClient} from '../generated/api';
@@ -130,9 +130,6 @@ export async function fetchProduct(id: string) {
     const result = await api.getProductById({id});
 
     if (!result.ok) {
-        // Switch on result.code — TypeScript flags a missing case.
-        // Full exhaustive template (every builtin + NETWORK_ERROR / UNKNOWN_ERROR):
-        // see Client usage.
         if (result.code === 'NOT_FOUND') {
             console.error(`Unknown sku ${id}`);
             return null;
@@ -148,6 +145,6 @@ const product = await fetchProduct('sku-1');
 console.log(product?.name, product?.priceCents);
 ```
 
-Full copy-paste template (every builtin + `NETWORK_ERROR` / `UNKNOWN_ERROR`): **[Client usage](./client-usage.md)**.
+Shared helper + optional exhaustive `switch`: **[Client usage](./client-usage.md)**.
 
 Related: [Client usage](./client-usage.md) · [Builtin errors](./builtin-errors.md) · [Authentication](./authentication.md)

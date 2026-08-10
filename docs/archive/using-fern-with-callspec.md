@@ -1,3 +1,5 @@
+> **Archived** — not linked from the docs site. Kept for reference. Current guide: [Multi-language SDKs](../../src/content/docs/multi-language-sdks.md).
+
 # Callspec + Fern
 
 Callspec is your **TypeScript runtime** — server, integrated TS SDK, in-process MCP, docs, and `/openapi.json` from one `route()` registry. [Fern](https://buildwithfern.com/) is an optional **public DX layer** — multi-language SDKs and hosted docs for external developers.

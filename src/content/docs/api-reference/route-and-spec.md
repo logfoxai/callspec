@@ -14,7 +14,7 @@ route({ input, output, meta, handler, … })
 | `output` | — | Runtyp pred for a successful response. |
 | `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
 | `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |
-| `errors` | — | Domain error codes from `defineErrors()`. Builtins (`NOT_FOUND`, `UNAUTHORIZED`, …) are always available — never declare those. |
+| `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
 | `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
 | `scope` | `'public'` | `'public'` — included in docs, OpenAPI, SDK codegen, MCP `tools/list`. `'private'` — server-only; omitted from exports. |
 | `mcp` | — | Expose as an MCP tool. `true`, or `{ name?, annotations? }` to override the tool name or MCP annotations. |

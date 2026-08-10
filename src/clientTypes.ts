@@ -34,7 +34,6 @@ export type CallspecBuiltinClientError =
     | CallspecRouteNotFoundClientError
     | {code: typeof BUILTIN_ERROR.NOT_FOUND, data?: OptionalBuiltinContext}
     | {code: typeof BUILTIN_ERROR.FORBIDDEN, data?: OptionalBuiltinContext}
-    | {code: typeof BUILTIN_ERROR.CONFLICT, data?: OptionalBuiltinContext}
     | CallspecTooManyRequestsClientError
     | {code: typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE, data?: OptionalBuiltinContext};
 

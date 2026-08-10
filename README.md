@@ -63,5 +63,5 @@ For coding agents: [Working with Coding Agents](src/content/docs/coding-agents.m
 - [Hosting Docs UI (CloudFront / Pages)](src/content/docs/hosting-cloudfront-pages.md)
 - [MCP Server](src/content/docs/mcp.md)
 - [OpenAPI](src/content/docs/openapi.md)
-- [Callspec + Fern](src/content/docs/using-fern-with-callspec.md)
+- [Multi-language SDKs](src/content/docs/multi-language-sdks.md)
 - [Development](src/content/docs/development.md)

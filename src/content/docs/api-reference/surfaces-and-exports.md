@@ -2,9 +2,7 @@
 
 ## Errors
 
-Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md).
-
-Builtin codes (automatic on every route — never declare): `VALIDATION_ERROR`, `UNAUTHORIZED`, `ROUTE_NOT_FOUND`, `NOT_FOUND`, `FORBIDDEN`, `CONFLICT`, `TOO_MANY_REQUESTS`, `SERVICE_UNAVAILABLE`, `INTERNAL_ERROR`. Client-only: `NETWORK_ERROR`, `UNKNOWN_ERROR`.
+Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md). Builtin and client-only codes: [Builtin errors](../builtin-errors.md).
 
 ## Native Callspec document
 

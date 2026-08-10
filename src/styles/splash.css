@@ -421,7 +421,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
             align-items: stretch;
         }
 
-        @media (min-width: 72rem) {
+        @media (min-width: 68rem) {
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 1.5rem;
             align-items: stretch;
@@ -486,12 +486,10 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
             padding: 1rem;
         }
 
-        &.splash-flow__body--fern {
+        &.splash-flow__body--openapi {
             justify-content: center;
             gap: 1.15rem;
             padding: 1.15rem 1rem;
-            container-type: inline-size;
-            container-name: fern;
         }
     }
 
@@ -698,36 +696,28 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         color: var(--flow-muted);
     }
 
-    .splash-flow__fern-hero {
+    .splash-flow__openapi-hero {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.55rem;
         flex: 0 1 auto;
         padding: 0.25rem 0.35rem 0;
         text-align: center;
     }
 
-    .splash-flow__fern-logo {
-        display: block;
-        height: 1.35rem;
-        width: auto;
-        max-width: 5.25rem;
-        object-fit: contain;
-    }
-
-    .splash-flow__fern-logo--light {
-        display: none;
-    }
-
-    .splash-flow__fern-copy {
+    .splash-flow__openapi-copy {
         margin: 0;
-        max-width: 16rem;
-        font-size: 0.78rem;
+        max-width: 18.5rem;
+        font-size: 0.82rem;
         line-height: 1.45;
         color: var(--flow-muted);
         text-wrap: balance;
+
+        .splash-flow__path {
+            font-size: 0.78em;
+            vertical-align: 0.05em;
+        }
     }
 
     .splash-flow__langs {
@@ -788,14 +778,6 @@ html[data-theme='light'] .splash-flow {
     .splash-flow__body {
         background: var(--flow-soft);
         box-shadow: inset 0 0 0 1px hsl(228 14% 90%);
-    }
-
-    .splash-flow__fern-logo--dark {
-        display: none;
-    }
-
-    .splash-flow__fern-logo--light {
-        display: block;
     }
 
     .splash-flow__code {

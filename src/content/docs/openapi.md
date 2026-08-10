@@ -1,6 +1,6 @@
 # OpenAPI
 
-Callspec emits **OpenAPI 3.1** from the same `routes` object as your RPC server — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern).
+Callspec emits **OpenAPI 3.1** — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern, Kiota).
 
 It is a **projection for the ecosystem**, not the source of truth for Callspec’s TypeScript client. For `npx callspec` / `ApiClient`, use **`callspec.json`**, not OpenAPI.
 
@@ -10,7 +10,7 @@ It is a **projection for the ecosystem**, not the source of truth for Callspec�
 |------|-----|
 | TypeScript SDK + Result errors + `schemas` | `callspec.json` → [SDK generation](./sdk-generation.md) |
 | Gateway, Postman, Pact, OpenAPI lint | `/openapi.json` or `emitOpenApi` |
-| Public multi-lang SDKs / hosted docs | OpenAPI → [Fern](./using-fern-with-callspec.md) (or similar) |
+| Public multi-lang SDKs / hosted docs | OpenAPI → [multi-language SDKs](./multi-language-sdks.md) (Fern, Kiota, …) |
 | Try methods in the browser | [Docs UI](./docs-ui.md) |
 
 ## What’s in the document
@@ -26,6 +26,8 @@ Auth/scope details: [Auth and scope](./api-reference/auth-and-scope.md).
 ## Fetch from a running server
 
 Served at **`{mount}/openapi.json`** whenever `docs` is enabled (default). Disabled with `mountSpec(router, api, {docs: false})` — same switch as the docs UI and `callspec.json`.
+
+Replace the host (`127.0.0.1`), port (`3000`), and mount (`/v1`) with yours:
 
 ```bash
 curl -fsS http://127.0.0.1:3000/v1/openapi.json -o openapi.json
@@ -62,5 +64,5 @@ writeFileSync(
 ## Related
 
 - [SDK generation](./sdk-generation.md) — TypeScript from `callspec.json`
-- [Using Fern with Callspec](./using-fern-with-callspec.md) — OpenAPI for public DX, Callspec for runtime
+- [Multi-language SDKs](./multi-language-sdks.md) — OpenAPI → Fern, Kiota, and similar tools
 - [Docs UI](./docs-ui.md) — human explorer alongside the JSON exports
