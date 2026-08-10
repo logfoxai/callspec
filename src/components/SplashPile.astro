@@ -1,0 +1,57 @@
+---
+/**
+ * Homepage scar: the OpenAPI/tooling pile vs one Callspec route.
+ */
+
+const pile = [
+	{name: 'openapi.yaml', note: 'hand-written or drifted'},
+	{name: 'Orval / openapi-generator', note: 'SDK of uneven quality'},
+	{name: 'swagger-ui', note: 'another package, another theme'},
+	{name: 'error mapping', note: 'status codes → guesswork'},
+	{name: 'custom MCP server', note: 'second API surface'},
+	{name: 'auth wiring × N', note: 'docs, client, agents disagree'},
+] as const;
+
+const routeCode = `<span class="tok-kw">export const</span> <span class="tok-fn">getTweet</span> = <span class="tok-fn">route</span>({
+  input: p.object({ id: p.string() }),
+  output: tweet,
+  meta: { summary: <span class="tok-str">'Get a tweet'</span> },
+  mcp: <span class="tok-kw">true</span>,
+  handler: <span class="tok-kw">async</span> (input, ctx) => {
+    <span class="tok-cm">/* your logic — Result errors included */</span>
+  },
+})`;
+---
+
+<section class="splash-pile" aria-label="The pile versus one route">
+	<div class="splash-pile__grid">
+		<div class="splash-pile__pane splash-pile__pane--mess">
+			<p class="splash-pile__label">The usual pile</p>
+			<ul class="splash-pile__stack">
+				{
+					pile.map(({name, note}, i) => (
+						<li class="splash-pile__chip" style={`--i: ${i}`}>
+							<span class="splash-pile__chip-name">{name}</span>
+							<span class="splash-pile__chip-note">{note}</span>
+						</li>
+					))
+				}
+			</ul>
+			<p class="splash-pile__aside">
+				Code-first OpenAPI helps a bit — you still stitch SDKs, docs, errors, and MCP yourself.
+			</p>
+		</div>
+
+		<div class="splash-pile__pane splash-pile__pane--one">
+			<p class="splash-pile__label">One Callspec route</p>
+			<pre class="splash-pile__code" tabindex="0"><code set:html={routeCode} /></pre>
+			<ul class="splash-pile__gets" aria-label="What you get">
+				<li>Typed SDK</li>
+				<li>Docs UI</li>
+				<li>OpenAPI</li>
+				<li>MCP</li>
+				<li>Result errors</li>
+			</ul>
+		</div>
+	</div>
+</section>
