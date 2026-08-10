@@ -1,6 +1,6 @@
 ---
 /**
- * Homepage highlight strip — non-obvious product pillars.
+ * Homepage pillars — after How it works, the non-obvious wins.
  */
 
 const icons = {
@@ -25,20 +25,21 @@ const features = [
 	},
 	{
 		tone: 'cyan',
-		title: 'MCP from the same routes',
-		copy: 'Your TypeScript API is also a Cursor/Claude tool server.',
+		title: 'MCP for free',
+		copy: 'Same routes, auth, and errors as Cursor/Claude tools.',
 		icon: 'mcp',
 	},
 	{
 		tone: 'blue',
-		title: 'No second source of truth',
-		copy: 'One route definition. Client, docs, and OpenAPI stay in sync.',
+		title: 'No package dance',
+		copy: 'Codegen the SDK — the frontend never imports your server.',
 		icon: 'sync',
 	},
 ] as const;
 ---
 
-<section class="splash-features" aria-label="Highlights">
+<section class="splash-features" aria-labelledby="splash-features-title">
+	<h2 id="splash-features-title" class="splash-features__heading">Why it wins</h2>
 	<ul class="splash-features__list">
 		{
 			features.map(({tone, title, copy, icon}) => (
@@ -51,7 +52,7 @@ const features = [
 							set:html={icons[icon]}
 						/>
 					</span>
-					<h2 class="splash-features__title">{title}</h2>
+					<h3 class="splash-features__title">{title}</h3>
 					<p class="splash-features__copy">{copy}</p>
 				</li>
 			))
