@@ -1,41 +1,53 @@
 ---
 /**
- * Irresistible try path — hosted Chirp explorer.
+ * Try path — hosted Chirp explorer.
  */
 ---
 
-<section class="splash-demo">
-	<div class="splash-demo__grid">
-		<figure class="splash-demo__shot">
-			<a href="/demo/" class="splash-demo__shot-link">
-				<img
-					src="/chirp-demo.png"
-					alt="Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config"
-					width="1600"
-					height="1000"
-					loading="lazy"
-				/>
+<section class="splash-demo" aria-labelledby="splash-demo-title">
+	<header class="splash-demo__intro">
+		<h2 id="splash-demo-title" class="splash-demo__title">Try it</h2>
+		<p class="splash-demo__lede">
+			Chirp is a fictional Twitter-shaped API on Callspec — browse routes, schemas, and MCP
+			configs for Cursor and Claude. No clone. No install.
+		</p>
+		<div class="splash-demo__actions">
+			<a class="splash-demo__btn splash-demo__btn--primary" href="/demo/">
+				Open Chirp explorer
+				<span aria-hidden="true">→</span>
 			</a>
-		</figure>
-
-		<div class="splash-demo__copy">
-			<p class="splash-demo__kicker">Don’t take our word for it</p>
-			<h2 class="splash-demo__title">Click into a real API surface</h2>
-			<p class="splash-demo__lede">
-				Chirp is a fictional Twitter-shaped API on Callspec — browse routes, schemas, and MCP
-				connect configs for Cursor and Claude. No clone. No install.
-			</p>
-			<div class="splash-demo__actions">
-				<a class="splash-demo__btn splash-demo__btn--primary" href="/demo/">
-					Open Chirp explorer
-					<span aria-hidden="true">→</span>
-				</a>
-			</div>
-			<p class="splash-demo__hint">
-				Want live try-it + MCP against a running server?
-				<code>npm run serve:chirp-demo</code>
-				<span class="splash-demo__token">Bearer <code>demo</code></span>
-			</p>
 		</div>
-	</div>
+	</header>
+
+	<figure class="splash-demo__shot">
+		<a href="/demo/" class="splash-demo__shot-link">
+			<img
+				src="/chirp-demo.png"
+				alt="Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config"
+				width="1600"
+				height="1000"
+				loading="lazy"
+			/>
+		</a>
+	</figure>
+
+	<aside class="splash-demo__local" aria-label="Run Chirp locally">
+		<p class="splash-demo__local-label">Want live try-it + MCP against a running server?</p>
+		<div class="splash-demo__terminal" aria-label="Terminal">
+			<span class="splash-demo__chrome" aria-hidden="true">
+				<span></span><span></span><span></span>
+			</span>
+			<div class="splash-demo__cli-line">
+				<span class="splash-demo__prompt" aria-hidden="true">$</span>
+				<code>
+					<span class="splash-demo__tok-muted">npm run</span>
+					{' '}
+					<span class="splash-demo__tok-cmd">serve:chirp-demo</span>
+				</code>
+			</div>
+			<div class="splash-demo__cli-meta">
+				<span class="splash-demo__pill">Bearer <code>demo</code></span>
+			</div>
+		</div>
+	</aside>
 </section>

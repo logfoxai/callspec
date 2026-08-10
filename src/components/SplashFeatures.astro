@@ -53,7 +53,8 @@ const features = [
 ] as const;
 ---
 
-<section class="splash-features" aria-label="Highlights">
+<section class="splash-features" aria-labelledby="splash-features-title">
+	<h2 id="splash-features-title" class="splash-features__heading">Benefits</h2>
 	<ul class="splash-features__list">
 		{
 			features.map(({tone, title, copy, icon, wideOnly}) => (
