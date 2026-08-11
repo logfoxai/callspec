@@ -2,6 +2,7 @@
  * Callspec docs theme
  * Guide pages and splash home are scoped separately so splash never bleeds into guides.
  * Splash homepage styles live in splash.css.
+ * Shared page/sidebar/nav/code tokens: docs-shared.css (also used by Vite UI).
  */
 
 /* ─── Global tokens (unlayered so they beat Starlight props) ──────────────── */
@@ -13,12 +14,17 @@
     --cs-font-heading: 'Space Grotesk', var(--sl-font);
 
     --sl-color-accent-low: hsl(196, 45%, 18%);
-    --sl-color-accent: hsl(196, 90%, 58%);
+    --sl-color-accent: var(--docs-accent);
     --sl-color-accent-high: hsl(196, 100%, 78%);
     --sl-color-text-accent: hsl(196, 85%, 68%);
     --sl-color-bg-accent: hsl(196, 70%, 45%);
     --sl-color-text-invert: hsl(0, 0%, 100%);
     --sl-color-bg-inline-code: hsl(196, 18%, 18%);
+
+    /* Align Starlight chrome with shared docs palette (not default hue-224 greys). */
+    --sl-color-bg: var(--docs-bg);
+    --sl-color-bg-nav: var(--docs-nav);
+    --sl-color-bg-sidebar: var(--docs-sidebar);
 
     --cs-primary-bg: hsl(196, 92%, 62%);
     --cs-primary-fg: #061018;
@@ -29,17 +35,8 @@
     --cs-inline-code-border: transparent;
     --cs-inline-code-fg: hsl(228, 10%, 78%);
 
-    --cs-radius: 0.75rem;
-    --cs-ink: hsl(228, 20%, 98%);
-    --cs-muted: hsl(228, 12%, 68%);
-    --cs-line: hsl(228, 12%, 22%);
-    --cs-surface: hsl(228, 18%, 9%);
-    --cs-cyan: hsl(196, 92%, 62%);
-
-    /* MCP accent — one purple everywhere (icons, badges, borders). */
-    --cs-mcp: #c084fc;
-    --cs-mcp-bg: color-mix(in srgb, var(--cs-mcp) 14%, hsl(228, 18%, 9%));
-    --cs-mcp-border: color-mix(in srgb, var(--cs-mcp) 38%, hsl(228, 12%, 22%));
+    --cs-mcp-bg: color-mix(in srgb, var(--cs-mcp) 14%, var(--docs-surface));
+    --cs-mcp-border: color-mix(in srgb, var(--cs-mcp) 38%, var(--docs-border));
 
     --cs-table-bg: hsl(228, 16%, 10%);
     --cs-table-head-bg: hsl(228, 14%, 14%);
@@ -48,53 +45,19 @@
     --cs-table-code-bg: hsl(228, 12%, 16%);
 }
 
-/*
- * Body scale — mobile-first html font-size only.
- * Everything in rem inherits these breakpoints; do not clamp individual text sizes.
- */
-html {
-    font-size: 0.875rem;
-}
-
-@media (min-width: 40em) {
-    html {
-        font-size: 0.9375rem;
-    }
-}
-
-@media (min-width: 50em) {
-    html {
-        font-size: 1rem;
-    }
-}
-
-@media (min-width: 72rem) {
-    html {
-        font-size: 1.03125rem;
-    }
-}
-
-@media (min-width: 90rem) {
-    html {
-        font-size: 1.0625rem;
-    }
-}
-
-@media (min-width: 120rem) {
-    html {
-        font-size: 1.075rem;
-    }
-}
-
 :root[data-theme='light'],
 [data-theme='light'] ::backdrop {
     --sl-color-accent-low: hsl(196, 60%, 92%);
-    --sl-color-accent: hsl(196, 100%, 40%);
+    --sl-color-accent: var(--docs-accent);
     --sl-color-accent-high: hsl(196, 95%, 28%);
     --sl-color-text-accent: hsl(196, 100%, 34%);
-    --sl-color-bg-accent: hsl(196, 100%, 40%);
+    --sl-color-bg-accent: var(--docs-accent);
     --sl-color-text-invert: hsl(0, 0%, 100%);
     --sl-color-bg-inline-code: hsl(196, 40%, 94%);
+
+    --sl-color-bg: var(--docs-bg);
+    --sl-color-bg-nav: var(--docs-nav);
+    --sl-color-bg-sidebar: var(--docs-sidebar);
 
     --cs-primary-bg: hsl(196, 100%, 42%);
     --cs-primary-fg: #f8fafc;
@@ -104,22 +67,15 @@ html {
     --cs-inline-code-bg: hsl(228, 14%, 93%);
     --cs-inline-code-border: transparent;
     --cs-inline-code-fg: hsl(228, 16%, 34%);
-    --cs-ink: hsl(228, 25%, 12%);
-    --cs-muted: hsl(228, 10%, 40%);
-    --cs-line: hsl(228, 16%, 88%);
-    --cs-surface: hsl(228, 30%, 98%);
+
+    --cs-mcp-bg: color-mix(in srgb, var(--cs-mcp) 10%, var(--docs-surface));
+    --cs-mcp-border: color-mix(in srgb, var(--cs-mcp) 24%, var(--docs-border));
 
     --cs-table-bg: hsl(0, 0%, 100%);
     --cs-table-head-bg: hsl(228, 22%, 96%);
     --cs-table-row-alt: hsl(228, 24%, 98.5%);
     --cs-table-row-hover: hsl(228, 28%, 97%);
     --cs-table-code-bg: hsl(228, 16%, 94%);
-
-    --cs-cyan: hsl(196, 100%, 38%);
-
-    --cs-mcp: #9333ea;
-    --cs-mcp-bg: color-mix(in srgb, var(--cs-mcp) 10%, hsl(228, 30%, 98%));
-    --cs-mcp-border: color-mix(in srgb, var(--cs-mcp) 24%, hsl(228, 16%, 88%));
 }
 
 /* Primary CTAs — shared across splash hero, docs pages, and search idle chips */
@@ -427,7 +383,7 @@ html[data-has-sidebar] .sl-markdown-content table
 
 @layer starlight.core {
     html[data-has-sidebar] header.header {
-        background-color: color-mix(in srgb, var(--sl-color-bg-nav) 82%, transparent);
+        background-color: var(--docs-header-bg);
         backdrop-filter: blur(14px) saturate(1.25);
         -webkit-backdrop-filter: blur(14px) saturate(1.25);
     }
@@ -447,16 +403,10 @@ html[data-has-sidebar] .sl-markdown-content table
 
 /* Header: smaller lockup, balanced bar, search that doesn’t drift */
 :root {
-    --sl-nav-height: 3.5rem;
+    --sl-nav-height: var(--docs-header-height);
     --sl-nav-pad-y: 0.65rem;
-    --sl-nav-pad-x: 1.25rem;
+    --sl-nav-pad-x: var(--docs-header-pad-x);
     --sl-nav-gap: 1.25rem;
-}
-
-@media (min-width: 50rem) {
-    :root {
-        --sl-nav-pad-x: 1.5rem;
-    }
 }
 
 /* Nav lockup — inline mark + wordmark, mark and word optically balanced */
@@ -571,7 +521,7 @@ header.header {
     site-search > button {
         width: 100%;
         max-width: 22rem;
-        height: 2.25rem;
+        height: var(--docs-search-height);
         border-radius: 0.55rem;
         /* gray-6/5 — not black+gray-6 (black is near-white in light theme) */
         border: 1px solid var(--sl-color-gray-5);
@@ -1136,15 +1086,6 @@ html[data-has-sidebar] starlight-toc a[aria-current='true'] {
  * flat panel, no border, 0.5rem radius, --color-bg-dark1 panels (#191a20 / #e4e1ef).
  * Avoid CSS filter on blocks — filter forces a compositor layer per block and janks scroll/nav.
  */
-:root,
-html[data-theme='dark'] {
-    --cs-code-bg: hsl(228, 14%, 15%);
-}
-
-html[data-theme='light'] {
-    --cs-code-bg: hsl(228, 16%, 92%);
-}
-
 .expressive-code {
     box-sizing: border-box;
     width: 100%;

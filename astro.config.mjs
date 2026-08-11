@@ -53,6 +53,7 @@ export default defineConfig({
             expressiveCode: true,
             customCss: [
                 './src/styles/fonts.css',
+                './src/styles/docs-shared.css',
                 './src/styles/starlight-custom.css',
             ],
             components: {

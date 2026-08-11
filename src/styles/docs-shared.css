@@ -1,0 +1,137 @@
+/*
+ * Shared docs chrome tokens — Astro/Starlight guides + Vite callspec-ui.
+ * Splash stays separate (splash.css). Keep this file the single source of truth
+ * for page/sidebar/nav/code colors and header metrics.
+ *
+ * :root defaults to light (avoids dark FOUC before theme JS). Dark is
+ * html[data-theme='dark'] / [data-theme='dark'] only.
+ */
+
+/* Mobile-first html scale — both surfaces inherit rem from this. */
+html {
+    font-size: 0.875rem;
+}
+
+@media (min-width: 40em) {
+    html {
+        font-size: 0.9375rem;
+    }
+}
+
+@media (min-width: 50em) {
+    html {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 72rem) {
+    html {
+        font-size: 1.03125rem;
+    }
+}
+
+@media (min-width: 90rem) {
+    html {
+        font-size: 1.0625rem;
+    }
+}
+
+@media (min-width: 120rem) {
+    html {
+        font-size: 1.075rem;
+    }
+}
+
+:root,
+::backdrop,
+html[data-theme='light'],
+[data-theme='light'],
+[data-theme='light'] ::backdrop {
+    color-scheme: light;
+
+    --docs-bg: hsl(228, 24%, 97%);
+    --docs-surface: #ffffff;
+    /* Match Starlight light sidebar: same plane as page, not a grey rail. */
+    --docs-sidebar: var(--docs-bg);
+    --docs-nav: #ffffff;
+    --docs-border: hsl(228, 16%, 88%);
+    --docs-border-strong: hsl(228, 14%, 78%);
+    --docs-text: hsl(228, 25%, 12%);
+    --docs-text-secondary: hsl(228, 10%, 40%);
+    --docs-text-tertiary: hsl(228, 8%, 52%);
+    --docs-accent: hsl(196, 100%, 40%);
+    --docs-accent-soft: color-mix(in srgb, var(--docs-accent) 14%, var(--docs-bg));
+    --docs-code-bg: hsl(228, 16%, 92%);
+    --docs-mcp: #9333ea;
+    --docs-radius: 0.75rem;
+    --docs-header-height: 3.5rem;
+    --docs-header-pad-x: 1.25rem;
+    --docs-search-height: 2.25rem;
+    --docs-header-bg: color-mix(in srgb, var(--docs-nav) 82%, transparent);
+}
+
+html[data-theme='dark'],
+[data-theme='dark'],
+[data-theme='dark'] ::backdrop {
+    color-scheme: dark;
+
+    --docs-bg: hsl(228, 22%, 6%);
+    --docs-surface: hsl(228, 18%, 9%);
+    --docs-sidebar: hsl(228, 16%, 11%);
+    --docs-nav: hsl(228, 18%, 9%);
+    --docs-border: hsl(228, 12%, 22%);
+    --docs-border-strong: hsl(228, 10%, 32%);
+    --docs-text: hsl(228, 20%, 98%);
+    --docs-text-secondary: hsl(228, 12%, 68%);
+    --docs-text-tertiary: hsl(228, 10%, 52%);
+    --docs-accent: hsl(196, 90%, 58%);
+    --docs-accent-soft: color-mix(in srgb, var(--docs-accent) 22%, var(--docs-surface));
+    --docs-code-bg: hsl(228, 14%, 15%);
+    --docs-mcp: #c084fc;
+    --docs-header-bg: color-mix(in srgb, var(--docs-nav) 82%, transparent);
+}
+
+@media (min-width: 50em) {
+    :root {
+        --docs-header-pad-x: 1.5rem;
+    }
+}
+
+/* Aliases — Starlight / cs-* + Vite callspec-ui */
+:root,
+::backdrop,
+html[data-theme='dark'],
+html[data-theme='light'],
+[data-theme='dark'],
+[data-theme='light'] {
+    --cs-radius: var(--docs-radius);
+    --cs-ink: var(--docs-text);
+    --cs-muted: var(--docs-text-secondary);
+    --cs-line: var(--docs-border);
+    --cs-surface: var(--docs-surface);
+    --cs-mcp: var(--docs-mcp);
+    --cs-code-bg: var(--docs-code-bg);
+    --cs-cyan: var(--docs-accent);
+
+    --bg: var(--docs-bg);
+    --surface: var(--docs-surface);
+    --sidebar-bg: var(--docs-sidebar);
+    --border: var(--docs-border);
+    --border-strong: var(--docs-border-strong);
+    --text: var(--docs-text);
+    --text-secondary: var(--docs-text-secondary);
+    --text-tertiary: var(--docs-text-tertiary);
+    --accent: var(--docs-accent);
+    --accent-soft: var(--docs-accent-soft);
+    --hljs-bg: var(--docs-code-bg);
+    --radius: var(--docs-radius);
+    --header-height: var(--docs-header-height);
+    --header-pad-x: var(--docs-header-pad-x);
+}
+
+/* Shared frosted header treatment (guides + explorer). */
+.docs-frosted-header {
+    background: var(--docs-header-bg);
+    backdrop-filter: blur(14px) saturate(1.25);
+    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+}

@@ -1,7 +1,9 @@
 /*
- * Callspec docs design tokens — keep Chirp demo / exported UI aligned with Starlight site.
- * Mirrors starlight-custom.css body scale + cs-* palette.
+ * Callspec docs design tokens — shared palette + Inter face for Vite UI.
+ * Colors/scale live in src/styles/docs-shared.css (Astro + Vite).
  */
+
+@import '../../styles/docs-shared.css';
 
 @font-face {
     font-family: 'Inter';
@@ -14,39 +16,4 @@
     unicode-range:
         U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
         U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Mobile-first html scale — same breakpoints as callspec docs */
-html {
-    font-size: 0.875rem;
-}
-
-@media (min-width: 40em) {
-    html {
-        font-size: 0.9375rem;
-    }
-}
-
-@media (min-width: 50em) {
-    html {
-        font-size: 1rem;
-    }
-}
-
-@media (min-width: 72rem) {
-    html {
-        font-size: 1.03125rem;
-    }
-}
-
-@media (min-width: 90rem) {
-    html {
-        font-size: 1.0625rem;
-    }
-}
-
-@media (min-width: 120rem) {
-    html {
-        font-size: 1.075rem;
-    }
 }
