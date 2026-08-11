@@ -24,6 +24,7 @@ import {
 } from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
 import {chevronLeftIcon, chevronRightIcon, closeIcon, menuIcon} from './icons';
+import {renderRouteBadges} from './routeBadges';
 
 type View =
     | {kind: 'home'}
@@ -290,15 +291,6 @@ function parseAuthFilter(value: string | undefined): AuthFilter {
 
 }
 
-function renderBadges(route: CallspecUiRoute): string {
-
-    return [
-        `<span class="badge auth-${route.auth}">${route.auth}</span>`,
-        route.mcp ? '<span class="badge mcp">MCP</span>' : '',
-    ].filter(Boolean).join('');
-
-}
-
 function viewFromHash(routes: CallspecUiRoute[], showHome: boolean): View {
 
     const raw = location.hash.replace(/^#\/?/, '');
@@ -517,7 +509,7 @@ function renderOverview(
                     <div class="route-card-head">
                         <span class="method">POST</span>
                         <span class="route-card-name">${escapeHtml(route.name)}</span>
-                        <span class="route-card-badges">${renderBadges(route)}</span>
+                        <span class="route-card-badges">${renderRouteBadges(route)}</span>
                     </div>
                     <p class="route-card-summary">${escapeHtml(route.summary)}</p>
                 </button>
@@ -697,7 +689,7 @@ function renderRoute(
                 <div class="route-endpoint">
                     <span class="method">POST</span>
                     <h2 class="route-name">${escapeHtml(route.name)}</h2>
-                    <div class="badges">${renderBadges(route)}</div>
+                    <div class="badges">${renderRouteBadges(route)}</div>
                 </div>
                 <p class="route-summary">${escapeHtml(route.summary)}</p>
                 ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
@@ -705,11 +697,11 @@ function renderRoute(
                 ${renderPrevNext(route.name, allRoutes)}
                 <div class="route-docs">
                     <div class="section">
-                        <h3 class="section-title">Request</h3>
+                        <h3 class="section-title">Request schema</h3>
                         ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
                     </div>
                     <div class="section">
-                        <h3 class="section-title">Response</h3>
+                        <h3 class="section-title">Response schema</h3>
                         ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
                     </div>
                     ${renderErrors(route)}

@@ -82,7 +82,9 @@
     --footer-height: 2.75rem;
     --header-height: 3.5rem;
     --header-pad-x: 1.25rem;
-    --content-width: 62.5rem; /* 1000px — docs column + try-it column share this max */
+    --content-width: 57.5rem; /* 920px — each route page column */
+    --route-page-gap: 3.5rem;
+    --route-page-width: calc(var(--content-width) * 2 + var(--route-page-gap));
     --content-pad-x: 1.25rem;
 }
 
@@ -486,7 +488,6 @@ html, body {
     margin: 0.15rem 0 0;
     padding: 0 0 0 0.5rem;
     margin-inline-start: 0.65rem;
-    border-inline-start: 0.0625rem solid color-mix(in srgb, var(--border) 85%, transparent);
 }
 
 .sidebar-group-list > li + li {
@@ -735,14 +736,54 @@ html, body {
     color: var(--text);
 }
 
+.badges,
 .route-card-badges {
     display: flex;
-    gap: 0.375rem;
-    margin-left: auto;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0.625rem;
+    flex-wrap: wrap;
 }
 
-.route-card-badges .badge {
-    margin: 0;
+.route-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--text-secondary);
+}
+
+.route-badge__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+}
+
+.route-badge__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.route-badge__label {
+    white-space: nowrap;
+}
+
+.route-badge--none {
+    color: var(--green);
+}
+
+.route-badge--mcp {
+    color: var(--cs-mcp);
+}
+
+.route-card-badges {
+    margin-left: auto;
 }
 
 .route-card-summary {
@@ -858,7 +899,7 @@ html, body {
     padding: 0 0.4375rem;
     border-radius: 0.25rem;
     background: var(--accent);
-    color: var(--surface);
+    color: var(--nav-active-fg);
 }
 
 .route-name {
@@ -867,40 +908,6 @@ html, body {
     font-weight: 500;
     margin: 0;
     min-width: 0;
-}
-
-.badges {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    gap: 0.375rem;
-    flex-wrap: wrap;
-}
-
-.badge {
-    font-size: 0.75rem;
-    padding: 0.15rem 0.55rem;
-    border-radius: 62.4375rem;
-    border: 0.0625rem solid var(--border);
-    color: var(--text-secondary);
-}
-
-.badge.auth-none {
-    border-color: var(--badge-public-border);
-    color: var(--green);
-    background: var(--badge-public-bg);
-}
-
-.badge.auth-bearer {
-    border-color: var(--badge-private-border);
-    color: var(--amber);
-    background: var(--badge-private-bg);
-}
-
-.badge.mcp {
-    border-color: var(--badge-mcp-border);
-    color: var(--cs-mcp);
-    background: var(--badge-mcp-bg);
 }
 
 .route-summary {
@@ -1009,15 +1016,15 @@ html, body {
 .route-page {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 2rem;
+    gap: var(--route-page-gap);
     width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
 }
 
 .route-page__content,
 .route-try {
     width: 100%;
-    max-width: var(--content-width);
     min-width: 0;
 }
 
@@ -1026,27 +1033,22 @@ html, body {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         align-items: start;
-        column-gap: 2rem;
+        column-gap: var(--route-page-gap);
         row-gap: 0;
         width: 100%;
-        max-width: none;
-        margin-inline: 0;
+        max-width: var(--route-page-width);
+        margin-inline: auto;
     }
 
     .route-page__content {
         grid-column: 1;
-        max-width: var(--content-width);
-        width: 100%;
     }
 
     .route-try {
         grid-column: 2;
-        max-width: var(--content-width);
-        width: 100%;
         position: sticky;
         top: 1rem;
         align-self: start;
-        padding-top: 2.25rem;
         padding-bottom: 2rem;
     }
 }
@@ -1379,7 +1381,7 @@ html, body {
 
 .btn-primary {
     background: var(--accent);
-    color: var(--surface);
+    color: var(--nav-active-fg);
     border: none;
 }
 
@@ -1622,18 +1624,33 @@ html, body {
 }
 
 .mcp-connect-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
     margin-bottom: 1.25rem;
 }
 
 .mcp-connect-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin: 0 0 0.25rem;
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text);
+}
+
+.mcp-connect-title__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.625rem;
+    height: 1.625rem;
+    color: var(--cs-mcp);
+}
+
+.mcp-connect-title__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .mcp-connect-lead {
@@ -1641,11 +1658,6 @@ html, body {
     font-size: 0.875rem;
     line-height: 1.5;
     color: var(--text-secondary);
-}
-
-.mcp-connect-badge {
-    flex-shrink: 0;
-    margin-top: 0.125rem;
 }
 
 .mcp-endpoint {
