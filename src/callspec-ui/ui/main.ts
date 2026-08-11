@@ -302,7 +302,7 @@ function renderSidebarLink(
     label: string,
     active: boolean,
     attrs: Record<string, string>,
-    options: {mono?: boolean, top?: boolean} = {},
+    options: {mono?: boolean, top?: boolean, badges?: string} = {},
 ): string {
 
     const attrStr = Object.entries(attrs)
@@ -310,11 +310,19 @@ function renderSidebarLink(
         .join('');
     const monoClass = options.mono ? ' sidebar-link--mono' : '';
     const topClass = options.top ? ' sidebar-link--top' : '';
+    const content = options.badges
+        ? `
+            <span class="sidebar-link__inner">
+                <span class="sidebar-link__label">${escapeHtml(label)}</span>
+                <span class="sidebar-link__badges">${options.badges}</span>
+            </span>
+        `.trim()
+        : escapeHtml(label);
 
     return `
         <li>
             <button type="button" class="sidebar-link${active ? ' sidebar-link--active' : ''}${monoClass}${topClass}"${attrStr}>
-                ${escapeHtml(label)}
+                ${content}
             </button>
         </li>
     `;
@@ -348,7 +356,10 @@ function renderSidebar(
 
             const active = view.kind === 'route' && route.name === view.name;
 
-            routeLinks += renderSidebarLink(route.name, active, {'data-route': route.name}, {mono: true});
+            routeLinks += renderSidebarLink(route.name, active, {'data-route': route.name}, {
+                mono: true,
+                badges: renderRouteBadges(route, {labels: false}),
+            });
 
         }
 

@@ -43,6 +43,7 @@ test('renderRouteErrorsSection: groups built-in and domain errors', (assert) => 
     assert.equal(html.includes('error-group-title">Domain'), true);
     assert.equal(html.includes('class="section errors-section"'), true);
     assert.equal(html.includes('<details class="error-card">'), true);
+    assert.equal(html.includes('error-card-caret'), true);
     assert.equal(html.includes('error-card" open'), false);
     assert.equal(html.includes('INTERNAL_ERROR'), true);
     assert.equal(html.includes('NETWORK_ERROR'), true);

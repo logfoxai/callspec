@@ -4,6 +4,12 @@ import {exampleFromSchema} from './exampleFromSchema';
 import type {CatalogRouteError} from './routeErrorsCatalog';
 import {partitionRouteErrors} from './routeErrorsCatalog';
 
+const ERROR_CARD_CARET = `
+    <svg class="error-card-caret" width="1rem" height="1rem" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/>
+    </svg>
+`.trim();
+
 function escapeHtml(text: string): string {
 
     return text
@@ -95,21 +101,26 @@ function renderCatalogErrorCard(entry: CatalogRouteError): string {
     return `
         <details class="error-card">
             <summary class="error-card-head">
-                <code class="error-code">${escapeHtml(entry.code)}</code>
-                <span class="error-kind error-kind--${entry.kind}">${kindLabel}</span>
-                <span class="error-status">${entry.clientOnly ? 'Client Result' : `HTTP ${entry.status}`}</span>
-                ${entry.dataRequired === false ? '<span class="error-optional">data optional</span>' : ''}
+                <span class="error-card-head__content">
+                    <code class="error-code">${escapeHtml(entry.code)}</code>
+                    <span class="error-kind error-kind--${entry.kind}">${kindLabel}</span>
+                    <span class="error-status">${entry.clientOnly ? 'Client Result' : `HTTP ${entry.status}`}</span>
+                    ${entry.dataRequired === false ? '<span class="error-optional">data optional</span>' : ''}
+                </span>
+                ${ERROR_CARD_CARET}
             </summary>
             <div class="error-card-body">
                 <p class="error-summary">${escapeHtml(entry.summary)}</p>
-                <div class="error-card-tools">
-                    ${renderViewToggle(panelId)}
+                <div class="error-card-schema">
+                    <div class="error-card-schema__toggle">
+                        ${renderViewToggle(panelId)}
+                    </div>
+                    ${renderSchemaPanelViews(
+                        panelId,
+                        codeBlock(jsonPreview(entry.schema)),
+                        codeBlock(jsonPreview(entry.example)),
+                    )}
                 </div>
-                ${renderSchemaPanelViews(
-                    panelId,
-                    codeBlock(jsonPreview(entry.schema)),
-                    codeBlock(jsonPreview(entry.example)),
-                )}
             </div>
         </details>
     `;
