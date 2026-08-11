@@ -1127,29 +1127,26 @@ html[data-theme='light'] .splash-features__icon {
     .splash-demo__shot-link {
         display: block;
         border-radius: 0.65rem;
-        transition: opacity 0.15s ease, transform 0.2s ease;
 
         img {
             display: block;
             width: 100%;
             height: auto;
             border-radius: inherit;
+            border: 1px solid #ffffff17;
             box-shadow:
-                0 1px 2px hsl(0 0% 0% / 0.24),
-                0 20px 48px -12px hsl(0 0% 0% / 0.62),
-                0 40px 80px -24px hsl(0 0% 0% / 0.35);
-        }
-
-        &:hover {
-            opacity: 0.97;
-            transform: translateY(-1px);
+                0 -5px 5px hsl(0 0% 0% / 0.24),
+                0 5px 15px 4px hsl(0 0% 0% / 0.62),
+                0 20px 20px -20px hsl(0 0% 0% / 0.41);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         &:hover img {
+            border-color: color-mix(in srgb, var(--cs-cyan) 22%, #ffffff17);
             box-shadow:
-                0 2px 4px hsl(0 0% 0% / 0.28),
-                0 24px 52px -12px hsl(0 0% 0% / 0.66),
-                0 44px 88px -24px hsl(0 0% 0% / 0.38);
+                0 -5px 6px hsl(0 0% 0% / 0.26),
+                0 6px 16px 4px hsl(0 0% 0% / 0.64),
+                0 22px 22px -20px hsl(0 0% 0% / 0.43);
         }
 
         &:focus-visible {
@@ -1270,17 +1267,15 @@ html[data-theme='light'] .splash-features__icon {
 
 html[data-theme='light'] .splash-demo {
     .splash-demo__shot-link img {
-        box-shadow:
-            0 1px 3px hsl(228 30% 20% / 0.1),
-            0 16px 40px -10px hsl(228 35% 22% / 0.2),
-            0 32px 64px -20px hsl(228 30% 25% / 0.12);
+        border-color: hsl(228 25% 18% / 0.14);
     }
 
     .splash-demo__shot-link:hover img {
+        border-color: color-mix(in srgb, var(--cs-primary-bg) 20%, hsl(228 25% 18% / 0.14));
         box-shadow:
-            0 2px 6px hsl(228 30% 20% / 0.12),
-            0 20px 44px -10px hsl(228 35% 22% / 0.22),
-            0 36px 72px -20px hsl(228 30% 25% / 0.14);
+            0 -5px 6px hsl(228 30% 20% / 0.12),
+            0 6px 16px 4px hsl(228 35% 22% / 0.18),
+            0 22px 22px -20px hsl(228 30% 25% / 0.12);
     }
 
     .splash-demo__terminal {
