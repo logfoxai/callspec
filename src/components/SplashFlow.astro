@@ -4,9 +4,9 @@
  */
 
 const defineCode = `<span class="tok-kw">export const</span> <span class="tok-fn">searchPosts</span> = <span class="tok-fn">route</span>({
-  input: query,
-  output: results,
-  handler: <span class="tok-kw">async</span> (input, ctx) => {
+  input,
+  output,
+  handler: <span class="tok-kw">async</span> (inp, ctx) => {
     <span class="tok-cm">// your logic</span>
   },
 })
@@ -24,7 +24,7 @@ const surfaceIcons = {
 } as const;
 
 const surfaces = [
-	{tone: 'violet', label: 'MCP', path: '/mcp', icon: 'mcp'},
+	{tone: 'mcp', label: 'MCP', path: '/mcp', icon: 'mcp'},
 	{tone: 'teal', label: 'HTTP RPC', path: '/v1/*', icon: 'globe'},
 	{tone: 'orange', label: 'Docs UI', path: '/docs', icon: 'doc'},
 	{tone: 'green', label: 'OpenAPI', path: '/openapi.json', icon: 'api'},

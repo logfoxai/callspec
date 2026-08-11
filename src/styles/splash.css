@@ -712,6 +712,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         &[data-tone='orange'] { color: #fb923c; }
         &[data-tone='green'] { color: #a3e635; }
         &[data-tone='violet'] { color: #c084fc; }
+        &[data-tone='mcp'] { color: var(--cs-mcp); }
     }
 
     .splash-flow__surface-label {
@@ -951,6 +952,7 @@ html[data-theme='light'] .splash-flow {
         &[data-tone='orange'] { color: #ea580c; }
         &[data-tone='green'] { color: #65a30d; }
         &[data-tone='violet'] { color: #9333ea; }
+        &[data-tone='mcp'] { color: var(--cs-mcp); }
     }
 }
 
@@ -1063,6 +1065,7 @@ html[data-theme='light'] .splash-flow {
 
         &[data-tone='amber'] { --feature-tone: #fbbf24; }
         &[data-tone='violet'] { --feature-tone: #c084fc; }
+        &[data-tone='mcp'] { --feature-tone: var(--cs-mcp); }
         &[data-tone='blue'] { --feature-tone: #60a5fa; }
         &[data-tone='cyan'] { --feature-tone: #22d3ee; }
         &[data-tone='green'] { --feature-tone: #a3e635; }
@@ -1097,6 +1100,7 @@ html[data-theme='light'] .splash-flow {
 html[data-theme='light'] .splash-features__icon {
     &[data-tone='amber'] { --feature-tone: #d97706; }
     &[data-tone='violet'] { --feature-tone: #9333ea; }
+    &[data-tone='mcp'] { --feature-tone: var(--cs-mcp); }
     &[data-tone='blue'] { --feature-tone: #2563eb; }
     &[data-tone='cyan'] { --feature-tone: #0891b2; }
     &[data-tone='green'] { --feature-tone: #65a30d; }

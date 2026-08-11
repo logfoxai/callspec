@@ -203,9 +203,7 @@ const meta = {
     website: {url: 'https://chirp.social', label: 'chirp.social'},
     logo: {light: './brand/mark.png', dark: './brand/mark.png'},
     theme: {
-        accent: '#1d9bf0',
-        // Tiny escape-hatch demo (prefer theme vars; see docs-ui-branding.md).
-        customCss: '.top-header { border-bottom-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }',
+        accent: '#0f766e',
     },
     navbarLinks: [
         {label: 'chirp.social', href: 'https://chirp.social', external: true},

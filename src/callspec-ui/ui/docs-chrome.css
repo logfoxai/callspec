@@ -1,0 +1,203 @@
+/*
+ * Docs chrome shared with Callspec Starlight site (Search.astro trigger + ThemeSelect.astro).
+ * Route explorer keeps an inline filter input inside the search shell.
+ */
+
+.cs-docs-search {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    flex: 0 1 22rem;
+    max-width: 22rem;
+    height: 2.5rem;
+    margin-left: auto;
+    padding-inline: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--surface) 92%, var(--bg));
+    color: var(--text-secondary);
+    cursor: text;
+}
+
+.cs-docs-search:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+}
+
+.cs-docs-search:focus-within {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border-strong));
+    color: var(--text);
+}
+
+.cs-docs-search__icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: inherit;
+    opacity: 0.88;
+}
+
+.cs-docs-search__icon svg {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.cs-docs-search__input {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9375rem;
+    outline: none;
+}
+
+.cs-docs-search__input::placeholder {
+    color: var(--text-secondary);
+}
+
+.cs-docs-search__kbd {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    padding: 0.15rem 0.4rem;
+    border: 0;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--border) 55%, transparent);
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+[data-theme='light'] .cs-docs-search {
+    background: #ffffff;
+    box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
+}
+
+[data-theme='light'] .cs-docs-search__kbd {
+    background: var(--accent-soft);
+}
+
+/* Theme slider — ThemeSelect.astro */
+.cs-theme-slider {
+    --ts-track: color-mix(in srgb, var(--border) 88%, var(--text-secondary));
+    --ts-thumb: #ffffff;
+    --ts-ink: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+    --ts-ink-on-thumb: #1a1b20;
+    display: grid;
+    place-items: center;
+    width: auto;
+    height: 2.5rem;
+    margin: 0;
+    padding-inline: 0.15rem;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    flex-shrink: 0;
+}
+
+.cs-theme-slider__shell {
+    position: relative;
+    width: 3.35rem;
+    height: 1.65rem;
+    border-radius: 999px;
+    background: var(--ts-track);
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cs-theme-slider:hover .cs-theme-slider__shell {
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.cs-theme-slider:focus-visible {
+    outline: none;
+}
+
+.cs-theme-slider:focus-visible .cs-theme-slider__shell {
+    outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    outline-offset: 2px;
+}
+
+.cs-theme-slider__icon {
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    transform: translateY(-50%);
+    color: var(--ts-ink);
+    opacity: 1;
+    pointer-events: none;
+    transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.cs-theme-slider__icon--sun {
+    left: 0.22rem;
+}
+
+.cs-theme-slider__icon--moon {
+    right: 0.22rem;
+}
+
+.cs-theme-slider__icon svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: currentColor;
+}
+
+.cs-theme-slider__thumb {
+    position: absolute;
+    top: 50%;
+    left: 0.18rem;
+    z-index: 2;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 50%;
+    background: var(--ts-thumb);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
+    transform: translate(0, -50%);
+    transition: transform 0.18s ease;
+    pointer-events: none;
+}
+
+[data-theme='dark'] .cs-theme-slider__thumb {
+    transform: translate(1.7rem, -50%);
+}
+
+[data-theme='light'] .cs-theme-slider__icon--sun,
+[data-theme='dark'] .cs-theme-slider__icon--moon {
+    z-index: 3;
+    color: var(--ts-ink-on-thumb);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cs-theme-slider__thumb,
+    .cs-theme-slider__icon,
+    .cs-theme-slider__shell {
+        transition: none;
+    }
+}
+
+@media (max-width: 50rem) {
+    .cs-docs-search {
+        flex: 1 1 auto;
+        max-width: none;
+        margin-left: 0;
+    }
+
+    .cs-docs-search__kbd {
+        display: none;
+    }
+}

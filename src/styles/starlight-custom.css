@@ -36,6 +36,11 @@
     --cs-surface: hsl(228, 18%, 9%);
     --cs-cyan: hsl(196, 92%, 62%);
 
+    /* MCP accent — one purple everywhere (icons, badges, borders). */
+    --cs-mcp: #c084fc;
+    --cs-mcp-bg: color-mix(in srgb, var(--cs-mcp) 14%, hsl(228, 18%, 9%));
+    --cs-mcp-border: color-mix(in srgb, var(--cs-mcp) 38%, hsl(228, 12%, 22%));
+
     --cs-table-bg: hsl(228, 16%, 10%);
     --cs-table-head-bg: hsl(228, 14%, 14%);
     --cs-table-row-alt: hsl(228, 14%, 11.5%);
@@ -111,6 +116,10 @@ html {
     --cs-table-code-bg: hsl(228, 16%, 94%);
 
     --cs-cyan: hsl(198, 90%, 38%);
+
+    --cs-mcp: #9333ea;
+    --cs-mcp-bg: color-mix(in srgb, var(--cs-mcp) 10%, hsl(228, 30%, 98%));
+    --cs-mcp-border: color-mix(in srgb, var(--cs-mcp) 24%, hsl(228, 16%, 88%));
 }
 
 /* Primary CTAs — shared across splash hero, docs pages, and search idle chips */
@@ -453,7 +462,6 @@ html[data-has-sidebar] .sl-markdown-content table
 /* Nav lockup — inline mark + wordmark, mark and word optically balanced */
 .cs-lockup {
     --cs-mark: var(--cs-cyan);
-    --cs-mark-hover: #67e8f9;
     --cs-word: #f5f6fa;
     display: inline-flex;
     align-items: center;
@@ -464,7 +472,6 @@ html[data-has-sidebar] .sl-markdown-content table
 
 html[data-theme='light'] .cs-lockup {
     --cs-mark: var(--cs-primary-bg);
-    --cs-mark-hover: var(--cs-primary-hover-bg);
     --cs-word: #10131a;
 }
 
@@ -496,10 +503,6 @@ html[data-theme='light'] .cs-lockup {
 }
 
 @media (hover: hover) {
-    .cs-lockup:hover .cs-lockup__mark {
-        color: var(--cs-mark-hover);
-    }
-
     /* The spec re-types itself: equals bars wipe in left→right, staggered. */
     .cs-lockup:hover .cs-eq--top {
         animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) both;

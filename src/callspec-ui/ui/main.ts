@@ -16,8 +16,14 @@ import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
+import {
+    renderDocsSearchField,
+    renderDocsThemeSlider,
+    renderUiNotice,
+    syncAllDocsThemeSliders,
+} from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {closeIcon, menuIcon, themeMoonIcon, themeSunIcon} from './icons';
+import {closeIcon, menuIcon} from './icons';
 
 type View =
     | {kind: 'home'}
@@ -163,17 +169,6 @@ function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): stri
 
 }
 
-function renderThemeToggle(id: string): string {
-
-    return `
-        <button type="button" class="theme-toggle" id="${id}" aria-label="Toggle color theme" title="Toggle color theme">
-            <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
-            <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
-        </button>
-    `;
-
-}
-
 function renderTopHeader(
     title: string,
     branding: CallspecUiBranding | undefined,
@@ -192,19 +187,8 @@ function renderTopHeader(
                 <span class="top-brand-text">${escapeHtml(name)}</span>
             </button>
             ${renderNavbarLinks(branding)}
-            <label class="header-search">
-                <span class="sr-only">Search routes</span>
-                <input
-                    id="header-search"
-                    class="search header-search-input"
-                    type="search"
-                    placeholder="Search routes"
-                    value="${escapeHtml(searchText)}"
-                    aria-label="Search routes"
-                >
-                <kbd class="header-search-kbd" aria-hidden="true">/</kbd>
-            </label>
-            ${renderThemeToggle('theme-toggle')}
+            ${renderDocsSearchField({id: 'header-search', value: searchText})}
+            ${renderDocsThemeSlider('theme-toggle')}
         </header>
     `;
 
@@ -371,6 +355,35 @@ function setViewHash(view: View): void {
 
 }
 
+const SIDEBAR_CARET_SVG = `
+    <svg class="sidebar-caret" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/>
+    </svg>
+`.trim();
+
+function renderSidebarLink(
+    label: string,
+    active: boolean,
+    attrs: Record<string, string>,
+    options: {mono?: boolean, top?: boolean} = {},
+): string {
+
+    const attrStr = Object.entries(attrs)
+        .map(([key, value]) => ` ${key}="${escapeHtml(value)}"`)
+        .join('');
+    const monoClass = options.mono ? ' sidebar-link--mono' : '';
+    const topClass = options.top ? ' sidebar-link--top' : '';
+
+    return `
+        <li>
+            <button type="button" class="sidebar-link${active ? ' sidebar-link--active' : ''}${monoClass}${topClass}"${attrStr}>
+                ${escapeHtml(label)}
+            </button>
+        </li>
+    `;
+
+}
+
 function renderSidebar(
     routes: CallspecUiRoute[],
     view: View,
@@ -378,33 +391,55 @@ function renderSidebar(
 ): string {
 
     const groups = groupRoutesByTag(routes);
-    let html = '';
+    let topLinks = '';
 
     if (showHome) {
 
-        html += `<button type="button" class="route-btn nav-btn${view.kind === 'home' ? ' active' : ''}" data-view="home">Home</button>`;
+        topLinks += renderSidebarLink('Home', view.kind === 'home', {'data-view': 'home'}, {top: true});
 
     }
 
-    html += `<button type="button" class="route-btn nav-btn${view.kind === 'routes' ? ' active' : ''}" data-view="routes">Routes</button>`;
+    topLinks += renderSidebarLink('Routes', view.kind === 'routes', {'data-view': 'routes'}, {top: true});
+
+    let groupHtml = '';
 
     for (const [tag, list] of groups) {
 
-        html += `<div class="tag-group"><div class="tag-label">${escapeHtml(tag)}</div>`;
+        let routeLinks = '';
 
         for (const route of list) {
 
-            const active = view.kind === 'route' && route.name === view.name ? ' active' : '';
+            const active = view.kind === 'route' && route.name === view.name;
 
-            html += `<button type="button" class="route-btn${active}" data-route="${escapeHtml(route.name)}">${escapeHtml(route.name)}</button>`;
+            routeLinks += renderSidebarLink(route.name, active, {'data-route': route.name}, {mono: true});
 
         }
 
-        html += '</div>';
+        groupHtml += `
+            <li class="sidebar-group">
+                <details open>
+                    <summary>
+                        <span class="sidebar-group-label">${escapeHtml(tag)}</span>
+                        ${SIDEBAR_CARET_SVG}
+                    </summary>
+                    <ul class="sidebar-group-list">${routeLinks}</ul>
+                </details>
+            </li>
+        `;
 
     }
 
-    return html || '<div class="empty-state"><p>No routes</p></div>';
+    if (!topLinks && !groupHtml) {
+
+        return '<div class="empty-state"><p>No routes</p></div>';
+
+    }
+
+    return `
+        <nav class="sidebar-nav" aria-label="Sidebar">
+            <ul class="sidebar-top-level">${topLinks}${groupHtml}</ul>
+        </nav>
+    `;
 
 }
 
@@ -990,43 +1025,34 @@ async function boot(): Promise<void> {
                 mcpOnly: false,
             });
             const filtered = applyRouteFilters(routes, filters);
-            const sidebarName = displayName(title, branding);
             const sidebarRoutes = textFiltered;
+            const hasNotice = Boolean(branding?.notice?.message);
 
-            app.className = '';
+            app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
                 ${renderTopHeader(title, branding, filters.text)}
+                ${renderUiNotice(branding?.notice)}
                 <div class="nav-overlay" id="nav-overlay"></div>
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
-                    <div class="sidebar-head">
-                        <div class="sidebar-head-row">
-                            <button type="button" class="sidebar-title" data-view="home">
-                                ${renderBrandMark(branding, {wrapClass: 'sidebar-mark'}) || renderLetterMark(sidebarName, 'sidebar-mark')}
-                                <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
-                            </button>
+                    <div class="sidebar-drawer-chrome">
+                        <div class="sidebar-drawer-head">
+                            <p class="sidebar-meta">v${escapeHtml(version)} · ${routes.length} routes</p>
                             <button type="button" class="nav-close-btn" id="nav-close-btn" aria-label="Close navigation">
                                 ${closeIcon()}
                             </button>
                         </div>
-                        <p>v${escapeHtml(version)} · ${routes.length} routes</p>
-                        <label class="drawer-search">
-                            <span class="sr-only">Search routes</span>
-                            <input
-                                id="drawer-search"
-                                class="search drawer-search-input"
-                                type="search"
-                                placeholder="Search routes"
-                                value="${escapeHtml(filters.text)}"
-                                aria-label="Search routes"
-                            >
-                        </label>
+                        ${renderDocsSearchField({
+                            id: 'drawer-search',
+                            value: filters.text,
+                            className: 'cs-docs-search--drawer',
+                        })}
                         <div class="drawer-theme">
-                            ${renderThemeToggle('theme-toggle-drawer')}
+                            ${renderDocsThemeSlider('theme-toggle-drawer')}
                             <span class="drawer-theme-label">Theme</span>
                         </div>
                         ${renderDrawerNavbarLinks(branding)}
                     </div>
-                    <div class="route-list">${renderSidebar(sidebarRoutes, view, showHome)}</div>
+                    <div class="sidebar-scroll">${renderSidebar(sidebarRoutes, view, showHome)}</div>
                 </aside>
                 <div class="content">
                     <main class="main" id="main"></main>
@@ -1099,11 +1125,13 @@ async function boot(): Promise<void> {
             const onThemeClick = (): void => {
 
                 theme = toggleTheme(theme);
+                syncAllDocsThemeSliders(theme);
 
             };
 
             document.getElementById('theme-toggle')?.addEventListener('click', onThemeClick);
             document.getElementById('theme-toggle-drawer')?.addEventListener('click', onThemeClick);
+            syncAllDocsThemeSliders(theme);
 
             const bindSearchInput = (id: string): void => {
 

@@ -1,6 +1,7 @@
 export type Theme = 'light' | 'dark';
 
-const STORAGE_KEY = 'callspec-ui-theme';
+/** Same key as Starlight ThemeSelect — docs + demo stay in sync on one origin. */
+const STORAGE_KEY = 'starlight-theme';
 
 function getPreferredTheme(): Theme {
 

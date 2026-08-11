@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const demoDir = path.join(root, 'docs-site', 'demo');
-const required = ['index.html', 'callspec.json', 'openapi.json', 'brand/mark.svg'];
+const required = ['index.html', 'callspec.json', 'openapi.json', 'brand/mark.png', 'brand/mark-dark.svg'];
 
 for (const rel of required) {
 	const full = path.join(demoDir, rel);
@@ -20,6 +20,11 @@ for (const rel of required) {
 const html = fs.readFileSync(path.join(demoDir, 'index.html'), 'utf8');
 if (!html.includes('Hosted explorer') || !html.includes('./callspec.json')) {
 	console.error('assert-chirp-static-demo: demo index.html missing expected baked config');
+	process.exit(1);
+}
+
+if (!html.includes('<base href="/demo/">')) {
+	console.error('assert-chirp-static-demo: demo index.html missing <base href="/demo/">');
 	process.exit(1);
 }
 

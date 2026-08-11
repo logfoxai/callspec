@@ -108,6 +108,20 @@ export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme
 
     }
 
+    if (typeof theme.accent === 'string' && theme.accent.length > 0) {
+
+        cssVars['--nav-active-bg'] = theme.accent;
+
+        const onAccent = textTokensForSurface(theme.accent);
+
+        if (onAccent) {
+
+            cssVars['--nav-active-fg'] = onAccent['--text'];
+
+        }
+
+    }
+
     const surfaceForContrast = theme.background ?? theme.surface;
 
     if (typeof surfaceForContrast === 'string' && surfaceForContrast.length > 0) {

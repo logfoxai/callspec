@@ -17,7 +17,7 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 | Pin the Callspec contract | `{mount}/callspec.json` — what `npx callspec` reads for the TypeScript SDK. |
 | Install a client SDK | Optional `meta.sdkInstall` string on the home page with a copy button. |
 
-**Home is always on** — title, version, route/MCP counts, optional SDK install hint, Browse API, and the MCP connect panel. Optional `meta.intro` is only the welcome blurb. Theme colors, top navbar links, favicon, footer, and last-resort CSS/`headerHtml` escape hatches: [Branding](./docs-ui-branding.md). Route list is grouped by `tags`.
+**Home is always on** — title, version, route/MCP counts, optional SDK install hint, Browse API, and the MCP connect panel. Optional `meta.intro` is only the welcome blurb. Theme colors, navbar links, favicon, footer, and optional plain-text `notice`: [Branding](./docs-ui-branding.md). Route list is grouped by `tags`.
 
 ## Minimal setup
 

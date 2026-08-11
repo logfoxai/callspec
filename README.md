@@ -63,7 +63,7 @@ For coding agents: [Working with Coding Agents](src/content/docs/coding-agents.m
 - [Client usage](src/content/docs/client-usage.md)
 - [Shared validation](src/content/docs/shared-validation.md)
 - [Docs UI](src/content/docs/docs-ui.md)
-- [Docs UI branding](src/content/docs/docs-ui-branding.md) (theme vars; last-resort CSS / `headerHtml`)
+- [Docs UI branding](src/content/docs/docs-ui-branding.md) (theme vars, logos, links, notice)
 - [Hosting Docs UI (CloudFront / Pages)](src/content/docs/hosting-cloudfront-pages.md)
 - [MCP Server](src/content/docs/mcp.md)
 - [OpenAPI](src/content/docs/openapi.md)

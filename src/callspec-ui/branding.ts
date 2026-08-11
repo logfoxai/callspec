@@ -1,6 +1,7 @@
 import type {
     CallspecNavbarLink,
     CallspecUiFooter,
+    CallspecUiNotice,
     CallspecUiTheme,
 } from '../types';
 
@@ -25,11 +26,8 @@ export type CallspecUiBranding = {
     navbarLinks?: CallspecNavbarLink[]
     /** Footer options; poweredBy defaults to true when omitted */
     footer?: CallspecUiFooter
-    /**
-     * Trusted-server HTML above the app shell (last resort; prefer `navbarLinks`).
-     * Sanitized at render time — never from request params.
-     */
-    headerHtml?: string
+    /** Plain-text notice below the top header (no custom HTML). */
+    notice?: CallspecUiNotice
     /** Static SDK install command shown on the home page */
     sdkInstall?: string
 };
@@ -46,10 +44,6 @@ export type CallspecUiConfig = {
     rpcBase: string
     title?: string
     branding?: CallspecUiBranding
-    /**
-     * Mount-level stylesheet URL. When set, wins over `branding.theme.customCssUrl`.
-     */
-    customCssUrl?: string
     /** Relative path from docs to MCP endpoint. Default `../mcp` */
     mcpPath?: string
     mcp?: CallspecUiMcp

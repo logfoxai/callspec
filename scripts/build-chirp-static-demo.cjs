@@ -2,10 +2,38 @@
  * Bake a browseable Chirp Docs UI into assets/demo/ (Astro publicDir → /demo/).
  * Spec JSON is static; try-it / MCP need `npm run serve:chirp-demo` (banner explains).
  *
- * Requires `npm run build` first (dist + callspec-ui assets).
+ * Runs `npm run build` when dist is missing (e.g. fresh clone before `astro:dev`).
  */
+const {spawnSync} = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+const root = path.resolve(__dirname, '..');
+
+const DIST_MARKERS = [
+    path.join(root, 'dist', 'demo', 'chirpDemoApi.js'),
+    path.join(root, 'dist', 'callspec-ui', 'ui', 'assets', 'style.css'),
+];
+
+function ensureDistBuilt() {
+    if (DIST_MARKERS.every((file) => fs.existsSync(file))) {
+        return;
+    }
+
+    console.log('dist missing or incomplete — running npm run build…');
+    const result = spawnSync('npm', ['run', 'build'], {
+        cwd: root,
+        stdio: 'inherit',
+        env: process.env,
+    });
+
+    if (result.status !== 0) {
+        process.exit(result.status ?? 1);
+    }
+}
+
+ensureDistBuilt();
+
 const {api} = require('../dist/demo/chirpDemoApi');
 const {emitCallspec} = require('../dist/emitCallspec');
 const {emitOpenApi} = require('../dist/openapi');
@@ -16,7 +44,6 @@ const {
     resolveCallspecMeta,
 } = require('../dist/metaDefaults');
 
-const root = path.resolve(__dirname, '..');
 const outDir = path.join(root, 'assets', 'demo');
 const brandSrc = path.join(root, 'assets', 'chirp');
 
@@ -58,19 +85,27 @@ exportCallspecUi({
     mcp,
     branding: {
         ...branding,
-        logoUrl: './brand/mark.svg',
-        logoUrlDark: './brand/mark-dark.svg',
-        favicon: './brand/mark.svg',
-        headerHtml: [
-            '<div class="cs-demo-banner" style="margin:0;padding:0.65rem 1rem;font-size:0.875rem;line-height:1.4;',
-            'background:color-mix(in srgb, var(--accent, #1d9bf0) 14%, transparent);',
-            'border-bottom:1px solid color-mix(in srgb, var(--accent, #1d9bf0) 35%, var(--border, #333));">',
-            '<strong>Hosted explorer</strong> — browse routes, schemas, and MCP connect snippets. ',
-            'For live try-it and MCP, run <code style="font-size:0.9em">npm run serve:chirp-demo</code> locally.',
-            '</div>',
-        ].join(''),
+        logoUrl: './brand/mark.png',
+        logoUrlDark: './brand/mark.png',
+        favicon: './brand/mark.png',
+        notice: {
+            title: 'Hosted explorer',
+            message: 'Browse routes, schemas, and MCP connect snippets. For live try-it and MCP, run',
+            command: 'npm run serve:chirp-demo',
+        },
     },
 });
+
+const demoIndexPath = path.join(outDir, 'index.html');
+const demoHtml = fs.readFileSync(demoIndexPath, 'utf8');
+
+if (!demoHtml.includes('<base href="/demo/">')) {
+    fs.writeFileSync(
+        demoIndexPath,
+        demoHtml.replace('<head>', '<head>\n    <base href="/demo/">'),
+        'utf8',
+    );
+}
 
 fs.cpSync(brandSrc, path.join(outDir, 'brand'), {recursive: true});
 
