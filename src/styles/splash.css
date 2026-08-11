@@ -28,7 +28,8 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #f4f6fb;
         --cs-muted: #9aa3b5;
         --cs-line: #2a2f3c;
-        --splash-pattern-ring: color-mix(in srgb, var(--cs-cyan) 14%, transparent);
+        /* Outline-only hex tile — stroke baked in so one layer stays quiet. */
+        --splash-hex-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'%3E%3Cg fill='none' stroke='%2338d9f5' stroke-opacity='0.2' stroke-width='0.55'%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z'/%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z' transform='translate(42,73)'/%3E%3C/g%3E%3C/svg%3E");
         color-scheme: dark;
 
         /* Flat base scrolls; fixed top bloom so the transparent nav sees the hero glow. */
@@ -67,7 +68,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #10131a;
         --cs-muted: #5a6170;
         --cs-line: #dde1ea;
-        --splash-pattern-ring: color-mix(in srgb, var(--cs-cyan) 10%, transparent);
+        --splash-hex-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'%3E%3Cg fill='none' stroke='%230891b2' stroke-opacity='0.15' stroke-width='0.55'%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z'/%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z' transform='translate(42,73)'/%3E%3C/g%3E%3C/svg%3E");
         color-scheme: light;
 
         &,
@@ -218,29 +219,23 @@ html[data-has-hero]:not([data-has-sidebar]) {
         margin-left: -50vw;
         pointer-events: none;
         z-index: -1;
-        background-image: repeating-radial-gradient(
-            circle at 50% 118%,
-            transparent 0,
-            transparent 64px,
-            var(--splash-pattern-ring) 64px,
-            transparent 65px
-        );
-        background-size: 100% 100%;
+        background-image: var(--splash-hex-tile);
+        background-size: 84px 146px;
         mask-image: linear-gradient(
             180deg,
             transparent 0%,
-            rgb(0 0 0 / 0.18) 10%,
-            rgb(0 0 0 / 0.55) 28%,
-            rgb(0 0 0 / 0.62) 58%,
-            rgb(0 0 0 / 0.45) 100%
+            rgb(0 0 0 / 0.1) 14%,
+            rgb(0 0 0 / 0.28) 34%,
+            rgb(0 0 0 / 0.38) 58%,
+            rgb(0 0 0 / 0.22) 100%
         );
         -webkit-mask-image: linear-gradient(
             180deg,
             transparent 0%,
-            rgb(0 0 0 / 0.18) 10%,
-            rgb(0 0 0 / 0.55) 28%,
-            rgb(0 0 0 / 0.62) 58%,
-            rgb(0 0 0 / 0.45) 100%
+            rgb(0 0 0 / 0.1) 14%,
+            rgb(0 0 0 / 0.28) 34%,
+            rgb(0 0 0 / 0.38) 58%,
+            rgb(0 0 0 / 0.22) 100%
         );
     }
 
