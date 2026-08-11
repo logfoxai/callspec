@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source srcset="assets/callspec-lockup-dark.svg?cb=4" media="(prefers-color-scheme: dark)" />
-    <source srcset="assets/callspec-lockup-light.svg?cb=4" media="(prefers-color-scheme: light)" />
-    <img src="assets/callspec-lockup-light.svg?cb=4" alt="callspec" />
+    <source srcset="assets/callspec-lockup-dark.svg?cb=13" media="(prefers-color-scheme: dark)" />
+    <source srcset="assets/callspec-lockup-light.svg?cb=13" media="(prefers-color-scheme: light)" />
+    <img src="assets/callspec-lockup-light.svg?cb=13" alt="callspec" />
   </picture>
   <h4 align="center">Stop duct-taping your API stack.<br/>One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h4>
   <p align="center">

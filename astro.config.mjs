@@ -61,6 +61,7 @@ export default defineConfig({
                 Search: './src/overrides/Search.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
+                SiteTitle: './src/overrides/SiteTitle.astro',
             },
             social: [
                 {

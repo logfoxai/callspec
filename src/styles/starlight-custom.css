@@ -12,13 +12,18 @@
     --sl-font-mono: ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
     --cs-font-heading: 'Space Grotesk', var(--sl-font);
 
-    --sl-color-accent-low: hsl(270, 45%, 22%);
-    --sl-color-accent: hsl(270, 90%, 68%);
-    --sl-color-accent-high: hsl(270, 100%, 88%);
-    --sl-color-text-accent: hsl(270, 90%, 78%);
-    --sl-color-bg-accent: hsl(270, 70%, 52%);
+    --sl-color-accent-low: hsl(196, 45%, 18%);
+    --sl-color-accent: hsl(196, 90%, 58%);
+    --sl-color-accent-high: hsl(196, 100%, 78%);
+    --sl-color-text-accent: hsl(196, 85%, 68%);
+    --sl-color-bg-accent: hsl(196, 70%, 45%);
     --sl-color-text-invert: hsl(0, 0%, 100%);
-    --sl-color-bg-inline-code: hsl(270, 18%, 18%);
+    --sl-color-bg-inline-code: hsl(196, 18%, 18%);
+
+    --cs-primary-bg: hsl(196, 92%, 62%);
+    --cs-primary-fg: #061018;
+    --cs-primary-hover-bg: #7dd3fc;
+    --cs-primary-hover-fg: #061018;
 
     --cs-inline-code-bg: hsl(228, 12%, 16%);
     --cs-inline-code-border: transparent;
@@ -29,7 +34,7 @@
     --cs-muted: hsl(228, 12%, 68%);
     --cs-line: hsl(228, 12%, 22%);
     --cs-surface: hsl(228, 18%, 9%);
-    --cs-cyan: hsl(188, 90%, 58%);
+    --cs-cyan: hsl(196, 92%, 62%);
 
     --cs-table-bg: hsl(228, 16%, 10%);
     --cs-table-head-bg: hsl(228, 14%, 14%);
@@ -78,13 +83,18 @@ html {
 
 :root[data-theme='light'],
 [data-theme='light'] ::backdrop {
-    --sl-color-accent-low: hsl(270, 55%, 92%);
-    --sl-color-accent: hsl(270, 80%, 48%);
-    --sl-color-accent-high: hsl(270, 80%, 28%);
-    --sl-color-text-accent: hsl(270, 80%, 40%);
-    --sl-color-bg-accent: hsl(270, 80%, 48%);
+    --sl-color-accent-low: hsl(198, 55%, 92%);
+    --sl-color-accent: hsl(198, 92%, 40%);
+    --sl-color-accent-high: hsl(198, 80%, 28%);
+    --sl-color-text-accent: hsl(198, 90%, 34%);
+    --sl-color-bg-accent: hsl(198, 92%, 40%);
     --sl-color-text-invert: hsl(0, 0%, 100%);
-    --sl-color-bg-inline-code: hsl(270, 35%, 94%);
+    --sl-color-bg-inline-code: hsl(198, 35%, 94%);
+
+    --cs-primary-bg: #0284c7;
+    --cs-primary-fg: #f8fafc;
+    --cs-primary-hover-bg: #0369a1;
+    --cs-primary-hover-fg: #ffffff;
 
     --cs-inline-code-bg: hsl(228, 14%, 93%);
     --cs-inline-code-border: transparent;
@@ -99,6 +109,21 @@ html {
     --cs-table-row-alt: hsl(228, 24%, 98.5%);
     --cs-table-row-hover: hsl(228, 28%, 97%);
     --cs-table-code-bg: hsl(228, 16%, 94%);
+
+    --cs-cyan: hsl(198, 90%, 38%);
+}
+
+/* Primary CTAs — shared across splash hero, docs pages, and search idle chips */
+.sl-link-button.primary {
+    background: var(--cs-primary-bg);
+    border-color: var(--cs-primary-bg);
+    color: var(--cs-primary-fg);
+}
+
+.sl-link-button.primary:hover {
+    background: var(--cs-primary-hover-bg);
+    border-color: var(--cs-primary-hover-bg);
+    color: var(--cs-primary-hover-fg);
 }
 
 /* ─── Guide pages: readable type + real breathing room ────────────────────── */
@@ -425,9 +450,87 @@ html[data-has-sidebar] .sl-markdown-content table
     }
 }
 
-.site-title img {
-    height: 1.35rem;
-    width: auto;
+/* Nav lockup — inline mark + wordmark, mark and word optically balanced */
+.cs-lockup {
+    --cs-mark: var(--cs-cyan);
+    --cs-mark-hover: #67e8f9;
+    --cs-word: #f5f6fa;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    text-decoration: none;
+    line-height: 1;
+}
+
+html[data-theme='light'] .cs-lockup {
+    --cs-mark: var(--cs-primary-bg);
+    --cs-mark-hover: var(--cs-primary-hover-bg);
+    --cs-word: #10131a;
+}
+
+.cs-lockup__mark {
+    flex: none;
+    width: 1.8rem;
+    height: 1.8rem;
+    color: var(--cs-mark);
+    transition: color 0.25s ease;
+}
+
+.cs-hex {
+    fill: currentColor;
+}
+
+/* Equals bars are mask holes — animatable while staying a true knockout. */
+.cs-eq {
+    transform-box: fill-box;
+    transform-origin: left center;
+}
+
+.cs-lockup__word {
+    font-family: var(--sl-font);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--cs-word);
+    transition: color 0.25s ease;
+}
+
+@media (hover: hover) {
+    .cs-lockup:hover .cs-lockup__mark {
+        color: var(--cs-mark-hover);
+    }
+
+    /* The spec re-types itself: equals bars wipe in left→right, staggered. */
+    .cs-lockup:hover .cs-eq--top {
+        animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) both;
+    }
+
+    .cs-lockup:hover .cs-eq--bottom {
+        animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) 0.09s both;
+    }
+}
+
+@keyframes cs-eq-type {
+    0% {
+        transform: scaleX(0);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+.cs-lockup:focus-visible {
+    outline: 2px solid var(--cs-mark);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cs-lockup:hover .cs-eq--top,
+    .cs-lockup:hover .cs-eq--bottom {
+        animation: none;
+    }
 }
 
 header.header {
@@ -513,7 +616,7 @@ header.header .social-icons a {
     height: 2.5rem;
     padding: 0;
     margin: 0;
-    /* Neutral — Starlight defaults social icons to accent (purple here). */
+    /* Neutral — Starlight defaults social icons to accent. */
     color: var(--sl-color-white);
 }
 
@@ -565,7 +668,7 @@ header.header .social-icons a svg {
 
 site-search dialog::backdrop {
     background:
-        radial-gradient(120% 80% at 50% 0%, hsl(270 40% 20% / 0.28), transparent 55%),
+        radial-gradient(120% 80% at 50% 0%, hsl(198 40% 20% / 0.28), transparent 55%),
         hsl(228 24% 4% / 0.72);
     -webkit-backdrop-filter: blur(6px) saturate(1.15);
     backdrop-filter: blur(6px) saturate(1.15);
@@ -906,13 +1009,13 @@ html[data-theme='light'] site-search dialog[open] {
         );
     border-color: var(--sl-color-gray-5);
     box-shadow:
-        0 0 0 1px hsl(270 40% 70% / 0.18),
+        0 0 0 1px hsl(198 40% 70% / 0.18),
         0 24px 60px hsl(228 30% 30% / 0.18);
 }
 
 html[data-theme='light'] site-search dialog::backdrop {
     background:
-        radial-gradient(120% 80% at 50% 0%, hsl(270 50% 70% / 0.18), transparent 55%),
+        radial-gradient(120% 80% at 50% 0%, hsl(198 50% 70% / 0.18), transparent 55%),
         hsl(228 20% 20% / 0.35);
 }
 
@@ -949,8 +1052,8 @@ html[data-theme='light'] #starlight__search .pagefind-ui__button:hover {
 @layer starlight.components {
     /* Sidebar: readable labels + clear active state */
     html[data-has-sidebar] #starlight__sidebar a[aria-current='page'] {
-        color: #fff;
-        background-color: hsl(270, 55%, 42%);
+        color: var(--cs-primary-fg);
+        background-color: var(--cs-primary-bg);
         border-radius: 0.45rem;
     }
 
