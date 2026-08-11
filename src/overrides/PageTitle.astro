@@ -1,8 +1,13 @@
 ---
 const PAGE_TITLE_ID = '_top';
+const {entry} = Astro.locals.starlightRoute;
 ---
 
-<h1 id={PAGE_TITLE_ID}>{Astro.locals.starlightRoute.entry.data.title}</h1>
+{
+	entry.id !== '404' && (
+		<h1 id={PAGE_TITLE_ID}>{entry.data.title}</h1>
+	)
+}
 
 <style>
 	@layer starlight.core {

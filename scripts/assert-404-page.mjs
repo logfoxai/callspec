@@ -19,11 +19,13 @@ const html = fs.readFileSync(htmlPath, 'utf8');
 
 const forbidden = [
 	'splash-heap',
-	'pile-of-tech.svg',
+	'duct-taped-tech-stack.svg',
 	'SplashPile',
 	'Zod × 2',
 	'swagger-ui',
 	'duct-taping a dozen tools',
+	'splash-hero__pitch',
+	'SplashHomeHero',
 ];
 for (const needle of forbidden) {
 	if (html.includes(needle)) {
@@ -35,8 +37,9 @@ for (const needle of forbidden) {
 const required = [
 	'Page not found',
 	'getting-started',
-	'splash-hero--not-found',
-	'splash-hero__code',
+	'not-found-page',
+	'not-found-hero',
+	'not-found-hero__code',
 ];
 for (const needle of required) {
 	if (!html.includes(needle)) {

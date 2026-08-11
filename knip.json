@@ -10,7 +10,8 @@
     "astro-expressive-code"
   ],
   "ignoreIssues": {
-    "src/defineErrors.ts": ["types"]
+    "src/defineErrors.ts": ["types"],
+    "src/splashHeroTypes.ts": ["types", "exports"]
   },
   "entry": [
     "src/callspec-ui/ui/main.ts",

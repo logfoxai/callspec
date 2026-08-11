@@ -1,81 +1,16 @@
 ---
 /**
- * Splash hero — marketing home (lead + pile) or a clean 404 / other splash.
+ * Splash homepage hero only (index.mdx). The 404 page is separate — see NotFoundPage.astro.
  */
-import {LinkButton} from '@astrojs/starlight/components';
-import SplashPile from '../components/SplashPile.astro';
-import {shouldShowMarketingPile} from '../splashHeroMode';
+import SplashHomeHero from '../components/SplashHomeHero.astro';
 
-const PAGE_TITLE_ID = '_top';
 const {entry} = Astro.locals.starlightRoute;
 const {data} = entry;
 const {title = data.title, tagline, actions = []} = data.hero || {};
 const headline = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
-const showPile = shouldShowMarketingPile(entry.id);
-
-const homePitch = 'One TypeScript route → typed SDK, docs, OpenAPI, and MCP.';
-
-const homeLead =
-	'Complexity is the devil. Stop wasting time gluing tools together and learning half a dozen stacks. TypeScript should be the single source of truth — natural, easy, unit-testable. Skip the REST bikeshedding. Ship MCP, docs, SDKs, and OpenAPI from one contract — no drift, no second source of truth.';
-
-const notFoundLead =
-	'That URL isn’t part of the Callspec docs. Head home, or jump into getting started.';
 ---
 
-<section class:list={['splash-hero', !showPile && 'splash-hero--not-found']}>
-	{
-		showPile ? (
-			<>
-				<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
-				{headline && <h2 class="splash-hero__headline">{headline}</h2>}
-				<p class="splash-hero__pitch">{homePitch}</p>
-			</>
-		) : (
-			<>
-				<p class="splash-hero__code" aria-hidden="true">{title}</p>
-				<h1 id={PAGE_TITLE_ID} class="splash-hero__headline" data-page-title>
-					{headline || title}
-				</h1>
-				<p class="splash-hero__lead splash-hero__lead--solo">{notFoundLead}</p>
-			</>
-		)
-	}
-	{
-		actions.length > 0 && (
-			<div class="splash-hero__actions">
-				{actions.map(
-					({attrs: {class: className, ...attrs} = {}, icon, link: href, text, variant}) => (
-						<LinkButton
-							{href}
-							{variant}
-							icon={icon?.name}
-							iconPlacement={icon?.name === 'github' ? 'start' : 'end'}
-							class:list={[
-								className,
-								icon?.name === 'right-arrow' && 'sl-link-button--forward',
-								icon?.name === 'left-arrow' && 'sl-link-button--back',
-							]}
-							{...attrs}
-						>
-							{text}
-							{icon?.html && <Fragment set:html={icon.html} />}
-						</LinkButton>
-					),
-				)}
-			</div>
-		)
-	}
-	{
-		showPile && (
-			<div class="splash-hero__stage">
-				<p class="splash-hero__lead">{homeLead}</p>
-				<div class="splash-hero__visual">
-					<SplashPile />
-				</div>
-			</div>
-		)
-	}
-</section>
+<SplashHomeHero title={title} headline={headline} actions={actions} />
 
 <script>
 	/** Frost the splash nav after a short scroll (class toggled for CSS). */

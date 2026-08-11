@@ -28,16 +28,21 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #f4f6fb;
         --cs-muted: #9aa3b5;
         --cs-line: #2a2f3c;
+        --splash-pattern-ring: color-mix(in srgb, var(--cs-cyan) 14%, transparent);
         color-scheme: dark;
 
-        /* Atmosphere — cool ink + cyan bloom (sized between prior full wash and the tighter cut) */
+        /* Flat base scrolls; fixed top bloom so the transparent nav sees the hero glow. */
         &,
         & body {
             background:
-                radial-gradient(ellipse 90% 55% at 50% 0%, hsl(210 80% 40% / 0.32), transparent 60%),
+                radial-gradient(
+                    ellipse min(92vw, 75rem) min(34vh, 22rem) at 50% 0%,
+                    hsl(210 80% 40% / 0.32),
+                    transparent 58%
+                ),
                 radial-gradient(ellipse 50% 36% at 100% 8%, hsl(198 55% 45% / 0.12), transparent 52%),
-                linear-gradient(180deg, #0a0c12 0%, #07080c 40%, #07080c 100%);
-            background-attachment: fixed;
+                linear-gradient(180deg, #0a0c12 0%, #07080c 42%, #06070a 100%);
+            background-attachment: fixed, fixed, scroll;
         }
     }
 
@@ -62,15 +67,20 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #10131a;
         --cs-muted: #5a6170;
         --cs-line: #dde1ea;
+        --splash-pattern-ring: color-mix(in srgb, var(--cs-cyan) 10%, transparent);
         color-scheme: light;
 
         &,
         & body {
             background:
-                radial-gradient(ellipse 90% 55% at 50% 0%, hsl(198 75% 55% / 0.18), transparent 60%),
-                radial-gradient(ellipse 50% 36% at 100% 8%, hsl(198 50% 55% / 0.08), transparent 52%),
-                #f3f5f9;
-            background-attachment: fixed;
+                radial-gradient(
+                    ellipse min(92vw, 75rem) min(34vh, 22rem) at 50% 0%,
+                    hsl(198 75% 55% / 0.18),
+                    transparent 58%
+                ),
+                radial-gradient(ellipse 50% 36% at 100% 6%, hsl(198 50% 55% / 0.1), transparent 52%),
+                linear-gradient(180deg, #f7f9fc 0%, #f3f5f9 48%, #eef1f7 100%);
+            background-attachment: fixed, fixed, scroll;
         }
     }
 
@@ -176,6 +186,77 @@ html[data-has-hero]:not([data-has-sidebar]) {
         padding-inline: var(--sl-content-pad-x);
     }
 
+    main {
+        position: relative;
+        isolation: isolate;
+    }
+
+    main::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 100vw;
+        height: 100%;
+        margin-left: -50vw;
+        pointer-events: none;
+        z-index: -2;
+        background:
+            radial-gradient(ellipse 55% 22% at 92% 22%, hsl(198 55% 45% / 0.1), transparent 58%),
+            radial-gradient(ellipse 50% 24% at 8% 48%, hsl(258 50% 52% / 0.08), transparent 58%),
+            radial-gradient(ellipse 60% 26% at 88% 68%, hsl(188 62% 46% / 0.09), transparent 58%),
+            radial-gradient(ellipse 85% 30% at 50% 100%, hsl(210 72% 42% / 0.14), transparent 62%);
+    }
+
+    main::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 100vw;
+        height: 100%;
+        margin-left: -50vw;
+        pointer-events: none;
+        z-index: -1;
+        background-image: repeating-radial-gradient(
+            circle at 50% 118%,
+            transparent 0,
+            transparent 64px,
+            var(--splash-pattern-ring) 64px,
+            transparent 65px
+        );
+        background-size: 100% 100%;
+        mask-image: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgb(0 0 0 / 0.18) 10%,
+            rgb(0 0 0 / 0.55) 28%,
+            rgb(0 0 0 / 0.62) 58%,
+            rgb(0 0 0 / 0.45) 100%
+        );
+        -webkit-mask-image: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgb(0 0 0 / 0.18) 10%,
+            rgb(0 0 0 / 0.55) 28%,
+            rgb(0 0 0 / 0.62) 58%,
+            rgb(0 0 0 / 0.45) 100%
+        );
+    }
+
+    &[data-theme='light'] main::before {
+        background:
+            radial-gradient(ellipse 55% 22% at 92% 22%, hsl(198 50% 55% / 0.07), transparent 58%),
+            radial-gradient(ellipse 50% 24% at 8% 48%, hsl(258 45% 58% / 0.06), transparent 58%),
+            radial-gradient(ellipse 60% 26% at 88% 68%, hsl(188 55% 48% / 0.07), transparent 58%),
+            radial-gradient(ellipse 85% 30% at 50% 100%, hsl(210 65% 50% / 0.1), transparent 62%);
+    }
+
+    .sl-container {
+        position: relative;
+        z-index: 1;
+    }
+
     .sl-container > .sl-markdown-content {
         margin-top: 0;
         padding-top: 0;
@@ -242,29 +323,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
         }
     }
 
-    &.splash-hero--not-found {
-        min-height: min(52vh, 28rem);
-        justify-content: center;
-        padding-block: clamp(4rem, 12vw, 7rem) clamp(3rem, 8vw, 5rem);
-
-        .splash-hero__headline {
-            max-width: min(22ch, 94vw);
-            font-size: clamp(1.85rem, 4vw, 2.6rem);
-        }
-
-        .splash-hero__lead--solo {
-            margin: 0.15rem auto 0;
-            max-width: 32rem;
-            text-align: center;
-            justify-self: center;
-            animation: splash-fade-up 0.6s ease 0.1s both;
-        }
-
-        .splash-hero__actions {
-            margin-block: 0.75rem 0;
-        }
-    }
-
     .splash-hero__actions {
         display: flex;
         flex-wrap: wrap;
@@ -321,7 +379,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         gap: 2rem;
         align-items: center;
         width: min(100%, 68rem);
-        margin: clamp(1.5rem, 3.5vw, 2.75rem) 0 0;
+        margin: clamp(2rem, 4.25vw, 3.25rem) 0 0;
         text-align: left;
         animation: splash-fade-up 0.7s ease 0.22s both;
 
@@ -335,14 +393,22 @@ html[data-has-hero]:not([data-has-sidebar]) {
     .splash-hero__lead {
         margin: 0;
         max-width: 34rem;
-        font-family: var(--sl-font);
-        font-size: clamp(0.98rem, 1.45vw, 1.08rem);
-        font-weight: 450;
-        letter-spacing: -0.012em;
-        line-height: 1.5;
-        text-wrap: pretty;
-        color: var(--cs-muted);
         justify-self: start;
+
+        p {
+            margin: 0;
+            font-family: var(--sl-font);
+            font-size: clamp(0.98rem, 1.45vw, 1.08rem);
+            font-weight: 450;
+            letter-spacing: -0.012em;
+            line-height: 1.5;
+            text-wrap: pretty;
+            color: var(--cs-muted);
+        }
+
+        p + p {
+            margin-top: 0.85rem;
+        }
 
         @media (max-width: 51.99rem) {
             text-align: center;
@@ -351,14 +417,16 @@ html[data-has-hero]:not([data-has-sidebar]) {
         }
     }
 
-    /* Home stage lead only — leave 404 `.lead--solo` alone */
+    /* Home stage lead only */
     .splash-hero__stage .splash-hero__lead {
         max-width: 28rem;
-        font-size: clamp(1.05rem, 1.6vw, 1.2rem);
-        font-weight: 450;
-        letter-spacing: -0.014em;
-        line-height: 1.6;
-        justify-self: start;
+
+        p {
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
+            font-weight: 450;
+            letter-spacing: -0.014em;
+            line-height: 1.6;
+        }
 
         @media (min-width: 52rem) {
             text-align: left;
@@ -368,11 +436,11 @@ html[data-has-hero]:not([data-has-sidebar]) {
     .splash-hero__visual {
         width: 100%;
         min-width: 0;
-        max-width: 36rem;
+        max-width: 28rem;
         justify-self: center;
 
         @media (min-width: 52rem) {
-            max-width: none;
+            max-width: 30rem;
             justify-self: end;
         }
     }
@@ -447,6 +515,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     flex-direction: column;
     gap: clamp(1.75rem, 3.5vw, 2.75rem);
     margin: clamp(0.5rem, 1.5vw, 1rem) 0 0;
+    position: relative;
 
     .splash-how__title {
         margin: 0;
@@ -461,7 +530,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
     }
 }
 
-/* ─── Tech pile graphic (Figma SVG) ──────────────────────────────────────── */
+/* ─── Duct-taped tech stack graphic ──────────────────────────────────────── */
 
 .splash-pile-img {
     display: block;
@@ -907,6 +976,7 @@ html[data-theme='light'] .splash-flow {
     --feature-title-lh: 1.25;
     --feature-gap: 0.55rem;
 
+    position: relative;
     margin: 0;
     padding: 0;
     display: flex;
@@ -993,11 +1063,7 @@ html[data-theme='light'] .splash-flow {
             display: block;
             width: 4rem;
             height: 4rem;
-        }
-
-        &[data-tone='green'] svg {
-            width: 3.55rem;
-            height: 3.55rem;
+            flex-shrink: 0;
         }
 
         &[data-tone='amber'] { --feature-tone: #fbbf24; }
@@ -1048,6 +1114,7 @@ html[data-theme='light'] .splash-features__icon {
     flex-direction: column;
     align-items: center;
     gap: clamp(1.35rem, 2.75vw, 1.85rem);
+    position: relative;
     margin: 0;
     padding: 0;
     background: transparent;

@@ -1,0 +1,42 @@
+---
+import {LinkButton} from '@astrojs/starlight/components';
+import type {SplashHeroAction, SplashHeroActionList} from '../splashHeroTypes';
+import {splashHeroIconName} from '../splashHeroTypes';
+
+interface Props {
+	actions: SplashHeroActionList;
+}
+
+const {actions = []} = Astro.props;
+---
+
+{
+	actions.length > 0 && (
+		<div class="splash-hero__actions">
+			{actions.map((action: SplashHeroAction) => {
+				const {text, link: href, variant, icon} = action;
+				const className = action.attrs?.class;
+				const attrs = {...(action.attrs ?? {})};
+				delete attrs.class;
+
+				return (
+					<LinkButton
+						{href}
+						{variant}
+						icon={splashHeroIconName(icon?.name)}
+						iconPlacement={icon?.name === 'github' ? 'start' : 'end'}
+						class:list={[
+							className,
+							icon?.name === 'right-arrow' && 'sl-link-button--forward',
+							icon?.name === 'left-arrow' && 'sl-link-button--back',
+						]}
+						{...attrs}
+					>
+						{text}
+						{icon?.html && <Fragment set:html={icon.html} />}
+					</LinkButton>
+				);
+			})}
+		</div>
+	)
+}
