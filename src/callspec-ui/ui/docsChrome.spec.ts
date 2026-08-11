@@ -3,6 +3,7 @@ import {
     renderDocsSearchField,
     renderDocsThemeSlider,
     renderHeaderContractButtons,
+    renderMcpOnlySlider,
     renderUiNotice,
 } from './docsChrome';
 
@@ -29,6 +30,18 @@ test('renderHeaderContractButtons: header contract file buttons', (assert) => {
     assert.equal(html.includes('href="../callspec.json"'), true);
     assert.equal(html.includes('href="../openapi.json"'), true);
     assert.equal(html.includes('target="_blank"'), true);
+
+});
+
+test('renderMcpOnlySlider: MCP filter slider shell', (assert) => {
+
+    const html = renderMcpOnlySlider('mcp-only', true);
+
+    assert.equal(html.includes('class="cs-mcp-slider"'), true);
+    assert.equal(html.includes('id="mcp-only"'), true);
+    assert.equal(html.includes('aria-pressed="true"'), true);
+    assert.equal(html.includes('cs-mcp-slider__thumb'), true);
+    assert.equal(html.includes('cs-mcp-slider__icon--mcp'), true);
 
 });
 

@@ -736,13 +736,15 @@ html, body {
     font-weight: 500;
 }
 
-.filter-check {
+.filter-mcp-toggle {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.filter-mcp-toggle__label {
     font-size: 0.8125rem;
     color: var(--text-secondary);
-    cursor: pointer;
 }
 
 .overview-group {

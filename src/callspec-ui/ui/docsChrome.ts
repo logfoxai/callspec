@@ -1,6 +1,6 @@
 import {openApiPathFromSpecUrl} from '../contractPaths';
 import type {CallspecUiNotice} from '../../types';
-import {callspecMarkIcon, openApiIcon, themeMoonIcon, themeSunIcon} from './icons';
+import {callspecMarkIcon, mcpIcon, openApiIcon, routesAllIcon, themeMoonIcon, themeSunIcon} from './icons';
 import type {Theme} from './theme';
 
 function escapeHtml(text: string): string {
@@ -94,6 +94,33 @@ export function syncAllDocsThemeSliders(theme: Theme): void {
 
     syncDocsThemeSlider('theme-toggle', theme);
     syncDocsThemeSlider('theme-toggle-drawer', theme);
+
+}
+
+/** MCP-only filter slider — same shell/thumb pattern as the theme slider. */
+export function renderMcpOnlySlider(id: string, mcpOnly: boolean): string {
+
+    const pressed = mcpOnly ? 'true' : 'false';
+    const title = mcpOnly
+        ? 'MCP only — click to show all routes'
+        : 'All routes — click to show MCP only';
+
+    return `
+        <button
+            type="button"
+            class="cs-mcp-slider"
+            id="${escapeHtml(id)}"
+            aria-label="MCP only filter"
+            aria-pressed="${pressed}"
+            title="${escapeHtml(title)}"
+        >
+            <span class="cs-mcp-slider__shell">
+                <span class="cs-mcp-slider__icon cs-mcp-slider__icon--all" aria-hidden="true">${routesAllIcon()}</span>
+                <span class="cs-mcp-slider__icon cs-mcp-slider__icon--mcp" aria-hidden="true">${mcpIcon()}</span>
+                <span class="cs-mcp-slider__thumb" aria-hidden="true"></span>
+            </span>
+        </button>
+    `;
 
 }
 

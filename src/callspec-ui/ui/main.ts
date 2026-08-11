@@ -20,6 +20,7 @@ import {
     renderHeaderContractButtons,
     renderDocsSearchField,
     renderDocsThemeSlider,
+    renderMcpOnlySlider,
     renderUiNotice,
     syncAllDocsThemeSliders,
 } from './docsChrome';
@@ -505,10 +506,13 @@ function renderOverview(
                         ${tagPills}
                     </div>
                 </div>
-                <label class="filter-check">
-                    <input type="checkbox" id="mcp-only"${filters.mcpOnly ? ' checked' : ''}>
-                    MCP only
-                </label>
+                <div class="filter-row filter-row--mcp">
+                    <span class="filter-label">MCP</span>
+                    <div class="filter-mcp-toggle">
+                        ${renderMcpOnlySlider('mcp-only', filters.mcpOnly)}
+                        <span class="filter-mcp-toggle__label">MCP only</span>
+                    </div>
+                </div>
             </div>
             ${groupsHtml || '<div class="empty-state"><p>No routes match these filters</p></div>'}
         </div>
@@ -1113,13 +1117,9 @@ async function boot(): Promise<void> {
 
             });
 
-            main.querySelector('#mcp-only')?.addEventListener('change', (event) => {
+            main.querySelector('#mcp-only')?.addEventListener('click', () => {
 
-                const target = event.target;
-
-                if (!(target instanceof HTMLInputElement)) return;
-
-                filters = {...filters, mcpOnly: target.checked};
+                filters = {...filters, mcpOnly: !filters.mcpOnly};
                 render();
 
             });
