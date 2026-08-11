@@ -1121,38 +1121,35 @@ html[data-theme='light'] .splash-features__icon {
         margin: 0.35rem 0 0;
         width: 100%;
         max-width: 64rem;
-        border-radius: 0.65rem;
-        overflow: hidden;
-        background: hsl(228 14% 10%);
-        box-shadow:
-            inset 0 0 0 1px hsl(0 0% 100% / 0.08),
-            0 0 0 1px hsl(198 55% 58% / 0.16),
-            0 14px 44px hsl(228 50% 2% / 0.55),
-            0 0 36px hsl(198 80% 58% / 0.14),
-            0 0 72px hsl(198 70% 50% / 0.09);
+        background: transparent;
+    }
 
-        &::after {
-            content: '';
-            position: absolute;
-            inset: auto 0 0;
-            height: 28%;
-            pointer-events: none;
-            background: linear-gradient(to top, hsl(228 18% 4% / 0.92), transparent);
-        }
+    .splash-demo__shot-link {
+        display: block;
+        border-radius: 0.65rem;
+        transition: opacity 0.15s ease, transform 0.2s ease;
 
         img {
             display: block;
             width: 100%;
             height: auto;
+            border-radius: inherit;
+            box-shadow:
+                0 1px 2px hsl(0 0% 0% / 0.24),
+                0 20px 48px -12px hsl(0 0% 0% / 0.62),
+                0 40px 80px -24px hsl(0 0% 0% / 0.35);
         }
-    }
-
-    .splash-demo__shot-link {
-        display: block;
-        transition: opacity 0.15s ease;
 
         &:hover {
-            opacity: 0.94;
+            opacity: 0.97;
+            transform: translateY(-1px);
+        }
+
+        &:hover img {
+            box-shadow:
+                0 2px 4px hsl(0 0% 0% / 0.28),
+                0 24px 52px -12px hsl(0 0% 0% / 0.66),
+                0 44px 88px -24px hsl(0 0% 0% / 0.38);
         }
 
         &:focus-visible {
@@ -1272,18 +1269,18 @@ html[data-theme='light'] .splash-features__icon {
 }
 
 html[data-theme='light'] .splash-demo {
-    .splash-demo__shot {
-        background: #ffffff;
+    .splash-demo__shot-link img {
         box-shadow:
-            inset 0 0 0 1px hsl(228 14% 88%),
-            0 0 0 1px hsl(198 70% 42% / 0.12),
-            0 10px 36px hsl(228 25% 35% / 0.14),
-            0 0 40px hsl(198 75% 48% / 0.16),
-            0 0 64px hsl(198 65% 45% / 0.1);
+            0 1px 3px hsl(228 30% 20% / 0.1),
+            0 16px 40px -10px hsl(228 35% 22% / 0.2),
+            0 32px 64px -20px hsl(228 30% 25% / 0.12);
+    }
 
-        &::after {
-            background: linear-gradient(to top, hsl(220 20% 96% / 0.95), transparent);
-        }
+    .splash-demo__shot-link:hover img {
+        box-shadow:
+            0 2px 6px hsl(228 30% 20% / 0.12),
+            0 20px 44px -10px hsl(228 35% 22% / 0.22),
+            0 36px 72px -20px hsl(228 30% 25% / 0.14);
     }
 
     .splash-demo__terminal {
