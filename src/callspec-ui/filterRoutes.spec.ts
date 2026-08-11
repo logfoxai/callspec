@@ -3,6 +3,7 @@ import {
     applyRouteFilters,
     groupRoutesByTag,
     neighborsInTagGroup,
+    routeNeighbors,
     type RouteFilterable,
     type RouteFilters,
 } from './filterRoutes';
@@ -112,6 +113,27 @@ test('neighborsInTagGroup: prev/next within primary tag, alphabetical', (assert)
     assert.equal(neighborsInTagGroup(routes, 'healthcheck'), {
         tag: 'system',
         prev: null,
+        next: null,
+    });
+
+});
+
+test('routeNeighbors: prev/next across tags in sidebar order', (assert) => {
+
+    assert.equal(routeNeighbors(routes, 'searchLogs'), {
+        prev: null,
+        next: 'healthcheck',
+    });
+    assert.equal(routeNeighbors(routes, 'healthcheck'), {
+        prev: 'searchLogs',
+        next: 'createUser',
+    });
+    assert.equal(routeNeighbors(routes, 'createUser'), {
+        prev: 'healthcheck',
+        next: 'getUser',
+    });
+    assert.equal(routeNeighbors(routes, 'getUser'), {
+        prev: 'createUser',
         next: null,
     });
 

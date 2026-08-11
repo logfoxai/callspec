@@ -1,5 +1,10 @@
 import {test} from 'kizu';
-import {renderDocsSearchField, renderDocsThemeSlider, renderUiNotice} from './docsChrome';
+import {
+    renderDocsSearchField,
+    renderDocsThemeSlider,
+    renderHeaderContractButtons,
+    renderUiNotice,
+} from './docsChrome';
 
 test('renderDocsSearchField: docs-style search shell', (assert) => {
 
@@ -10,6 +15,20 @@ test('renderDocsSearchField: docs-style search shell', (assert) => {
     assert.equal(html.includes('placeholder="Search"'), true);
     assert.equal(html.includes('cs-docs-search__icon'), true);
     assert.equal(html.includes('cs-docs-search__kbd'), true);
+
+});
+
+test('renderHeaderContractButtons: header contract file buttons', (assert) => {
+
+    const html = renderHeaderContractButtons('../callspec.json');
+
+    assert.equal(html.includes('class="header-contracts header-contracts--header-end"'), true);
+    assert.equal(html.includes('header-contract-btn__icon'), true);
+    assert.equal(html.includes('header-contract-btn--callspec'), true);
+    assert.equal(html.includes('header-contract-btn--openapi'), true);
+    assert.equal(html.includes('href="../callspec.json"'), true);
+    assert.equal(html.includes('href="../openapi.json"'), true);
+    assert.equal(html.includes('target="_blank"'), true);
 
 });
 

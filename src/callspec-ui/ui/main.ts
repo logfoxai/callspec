@@ -1,11 +1,9 @@
 import './styles.css';
 import {applyUiThemeToDocument} from '../applyUiTheme';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
-import {openApiPathFromSpecUrl} from '../contractPaths';
 import {
     applyRouteFilters,
     groupRoutesByTag,
-    neighborsInTagGroup,
     type AuthFilter,
     type RouteFilters,
 } from '../filterRoutes';
@@ -14,17 +12,21 @@ import type {CallspecUiRoute} from '../types';
 import {CallspecDocumentError} from '../../callspecDocumentTypes';
 import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
+import {exampleFromSchema} from './exampleFromSchema';
+import {bindSchemaPanels, renderRouteErrorsSection, renderSchemaExamplePanel} from './schemaPanel';
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {
+    renderHeaderContractButtons,
     renderDocsSearchField,
     renderDocsThemeSlider,
     renderUiNotice,
     syncAllDocsThemeSliders,
 } from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {chevronLeftIcon, chevronRightIcon, closeIcon, menuIcon} from './icons';
+import {chevronLeftIcon, closeIcon, menuIcon} from './icons';
 import {renderRouteBadges} from './routeBadges';
+import {renderRoutePaginationFooter} from './routePagination';
 
 type View =
     | {kind: 'home'}
@@ -174,6 +176,7 @@ function renderTopHeader(
     title: string,
     branding: CallspecUiBranding | undefined,
     searchText: string,
+    specUrl: string,
 ): string {
 
     const name = displayName(title, branding);
@@ -187,77 +190,18 @@ function renderTopHeader(
                 ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
                 <span class="top-brand-text">${escapeHtml(name)}</span>
             </button>
+            ${renderDocsSearchField({
+                id: 'header-search',
+                value: searchText,
+                className: 'cs-docs-search--header',
+            })}
             ${renderNavbarLinks(branding)}
-            ${renderDocsSearchField({id: 'header-search', value: searchText})}
-            ${renderDocsThemeSlider('theme-toggle')}
+            <div class="top-header__end">
+                ${renderHeaderContractButtons(specUrl)}
+                ${renderDocsThemeSlider('theme-toggle')}
+            </div>
         </header>
     `;
-
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-
-}
-
-function exampleFromSchema(schema: unknown, key?: string): unknown {
-
-    if (!isPlainObject(schema)) return {};
-
-    if (Array.isArray(schema.enum) && schema.enum.length) return schema.enum[0];
-
-    if (schema.const !== undefined) return schema.const;
-
-    const type = schema.type;
-
-    if (type === 'string') {
-
-        if (key?.toLowerCase().includes('id')) return '00000000-0000-0000-0000-000000000000';
-        if (key?.toLowerCase().includes('email')) return 'user@example.com';
-        return '';
-
-    }
-
-    if (type === 'number' || type === 'integer') return 0;
-
-    if (type === 'boolean') return false;
-
-    if (type === 'array') {
-
-        const items = schema.items;
-
-        return items ? [exampleFromSchema(items)] : [];
-
-    }
-
-    if (type === 'object' || schema.properties) {
-
-        const props = isPlainObject(schema.properties) ? schema.properties : undefined;
-        const required = Array.isArray(schema.required)
-            ? schema.required.filter((item): item is string => typeof item === 'string')
-            : [];
-        const out: Record<string, unknown> = {};
-
-        if (props) {
-
-            for (const [propKey, propSchema] of Object.entries(props)) {
-
-                if (required.includes(propKey) || Object.keys(out).length < 4) {
-
-                    out[propKey] = exampleFromSchema(propSchema, propKey);
-
-                }
-
-            }
-
-        }
-
-        return out;
-
-    }
-
-    return null;
 
 }
 
@@ -574,56 +518,7 @@ function renderOverview(
 
 function renderErrors(route: CallspecUiRoute): string {
 
-    const entries = route.errors ? Object.entries(route.errors) : [];
-
-    if (!entries.length) return '';
-
-    const rows = entries
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([code, def]) => {
-
-            const schema = def.data
-                ? codeBlock(JSON.stringify(def.data, null, 2))
-                : '<p class="error-schema-empty">No data payload</p>';
-
-            return `
-                <div class="error-card">
-                    <div class="error-card-head">
-                        <code class="error-code">${escapeHtml(code)}</code>
-                        <span class="error-status">HTTP ${def.status}</span>
-                        ${def.dataRequired === false ? '<span class="error-optional">data optional</span>' : ''}
-                    </div>
-                    ${schema}
-                </div>
-            `;
-
-        }).join('');
-
-    return `
-        <div class="section">
-            <h3 class="section-title">Errors</h3>
-            <div class="error-list">${rows}</div>
-        </div>
-    `;
-
-}
-
-function renderRouteActions(route: CallspecUiRoute): string {
-
-    const callspecHref = config.specUrl;
-    const openapiHref = openApiPathFromSpecUrl(config.specUrl);
-    const mcpLink = route.mcp
-        ? `<a class="action-link" href="#/mcp-connect">MCP tool <code>${escapeHtml(route.name)}</code></a>`
-        : '';
-
-    return `
-        <div class="route-actions">
-            <button type="button" class="btn btn-ghost" id="copy-curl">Copy curl</button>
-            <a class="action-link" href="${escapeHtml(callspecHref)}" target="_blank" rel="noopener">callspec.json</a>
-            <a class="action-link" href="${escapeHtml(openapiHref)}" target="_blank" rel="noopener">openapi.json</a>
-            ${mcpLink}
-        </div>
-    `;
+    return renderRouteErrorsSection(route);
 
 }
 
@@ -634,41 +529,6 @@ function backLink(label: string, attrs: string): string {
             <span class="breadcrumb-link__icon" aria-hidden="true">${chevronLeftIcon()}</span>
             <span class="breadcrumb-link__label">${escapeHtml(label)}</span>
         </button>
-    `;
-
-}
-
-function forwardLink(label: string, attrs: string): string {
-
-    return `
-        <button type="button" class="breadcrumb-link breadcrumb-link--forward" ${attrs}>
-            <span class="breadcrumb-link__label">${escapeHtml(label)}</span>
-            <span class="breadcrumb-link__icon" aria-hidden="true">${chevronRightIcon()}</span>
-        </button>
-    `;
-
-}
-
-function renderPrevNext(routeName: string, routes: CallspecUiRoute[]): string {
-
-    const {tag, prev, next} = neighborsInTagGroup(routes, routeName);
-
-    if (!prev && !next) return '';
-
-    const tagLabel = tag ? `<span class="route-nav-tag">${escapeHtml(tag)}</span>` : '';
-
-    return `
-        <nav class="route-nav" aria-label="Adjacent routes">
-            ${tagLabel}
-            <div class="route-nav-links">
-                ${prev
-        ? backLink(prev, `data-route="${escapeHtml(prev)}"`)
-        : '<span class="route-nav-placeholder"></span>'}
-                ${next
-        ? forwardLink(next, `data-route="${escapeHtml(next)}"`)
-        : '<span class="route-nav-placeholder"></span>'}
-            </div>
-        </nav>
     `;
 
 }
@@ -693,19 +553,20 @@ function renderRoute(
                 </div>
                 <p class="route-summary">${escapeHtml(route.summary)}</p>
                 ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
-                ${renderRouteActions(route)}
-                ${renderPrevNext(route.name, allRoutes)}
                 <div class="route-docs">
-                    <div class="section">
-                        <h3 class="section-title">Request schema</h3>
-                        ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
-                    </div>
-                    <div class="section">
-                        <h3 class="section-title">Response schema</h3>
-                        ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
-                    </div>
+                    ${renderSchemaExamplePanel({
+                        panelId: 'request',
+                        title: 'Request',
+                        schema: route.inputSchema,
+                    })}
+                    ${renderSchemaExamplePanel({
+                        panelId: 'response',
+                        title: 'Response',
+                        schema: route.outputSchema,
+                    })}
                     ${renderErrors(route)}
                 </div>
+                ${renderRoutePaginationFooter(route.name, allRoutes)}
             </div>
             <aside class="route-try" aria-label="Try it">
                 <div class="section try-section">
@@ -1047,7 +908,7 @@ async function boot(): Promise<void> {
             app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
                 ${renderUiNotice(branding?.notice)}
-                ${renderTopHeader(title, branding, filters.text)}
+                ${renderTopHeader(title, branding, filters.text, config.specUrl)}
                 <div class="nav-overlay" id="nav-overlay"></div>
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
                     <div class="sidebar-drawer-chrome">
@@ -1062,6 +923,7 @@ async function boot(): Promise<void> {
                             value: filters.text,
                             className: 'cs-docs-search--drawer',
                         })}
+                        ${renderHeaderContractButtons(config.specUrl, {variant: 'drawer'})}
                         <div class="drawer-theme">
                             ${renderDocsThemeSlider('theme-toggle-drawer')}
                             <span class="drawer-theme-label">Theme</span>
@@ -1125,10 +987,10 @@ async function boot(): Promise<void> {
 
                     const onCopyCurl = (): void => copyCurl(route);
 
-                    document.getElementById('copy-curl')?.addEventListener('click', onCopyCurl);
                     document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
 
                     initJsonEditor('body');
+                    bindSchemaPanels(main);
 
                 } else {
 

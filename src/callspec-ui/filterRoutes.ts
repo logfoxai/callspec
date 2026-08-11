@@ -18,11 +18,91 @@ export type RouteFilters = {
     mcpOnly: boolean
 };
 
-export type TagNeighbors = {
-    tag: string | null
+export type RouteNeighbors = {
     prev: string | null
     next: string | null
 };
+
+/** @deprecated Use {@link routeNeighbors}. Kept for older call sites/tests. */
+export type TagNeighbors = RouteNeighbors & {
+    tag: string | null
+};
+
+function orderedRoutesForNavigation<T extends RouteFilterable>(routes: readonly T[]): T[] {
+
+    const seen = new Set<string>();
+    const ordered: T[] = [];
+
+    for (const list of groupRoutesByTag(routes).values()) {
+
+        for (const route of list) {
+
+            if (seen.has(route.name)) continue;
+
+            seen.add(route.name);
+            ordered.push(route);
+
+        }
+
+    }
+
+    return ordered;
+
+}
+
+/** Prev/next route names in sidebar order — tag groups alphabetically, routes deduped. */
+export function routeNeighbors<T extends RouteFilterable>(
+    routes: readonly T[],
+    routeName: string,
+): RouteNeighbors {
+
+    const ordered = orderedRoutesForNavigation(routes);
+    const index = ordered.findIndex((item) => item.name === routeName);
+
+    if (index < 0) {
+
+        return {prev: null, next: null};
+
+    }
+
+    return {
+        prev: ordered[index - 1]?.name ?? null,
+        next: ordered[index + 1]?.name ?? null,
+    };
+
+}
+
+/** Prev/next within the primary tag only — prefer {@link routeNeighbors} for footer nav. */
+export function neighborsInTagGroup<T extends RouteFilterable>(
+    routes: readonly T[],
+    routeName: string,
+): TagNeighbors {
+
+    const route = routes.find((item) => item.name === routeName);
+
+    if (!route) {
+
+        return {tag: null, prev: null, next: null};
+
+    }
+
+    const tag = routeTags(route)[0] ?? 'routes';
+    const group = groupRoutesByTag(routes).get(tag) ?? [];
+    const index = group.findIndex((item) => item.name === routeName);
+
+    if (index < 0) {
+
+        return {tag, prev: null, next: null};
+
+    }
+
+    return {
+        tag,
+        prev: group[index - 1]?.name ?? null,
+        next: group[index + 1]?.name ?? null,
+    };
+
+}
 
 function routeTags(route: RouteFilterable): string[] {
 
@@ -99,37 +179,5 @@ export function groupRoutesByTag<T extends RouteFilterable>(
     }
 
     return new Map([...groups.entries()].sort(([a], [b]) => a.localeCompare(b)));
-
-}
-
-/** Prev/next route names within the primary tag (first tag), alphabetical. */
-export function neighborsInTagGroup<T extends RouteFilterable>(
-    routes: readonly T[],
-    routeName: string,
-): TagNeighbors {
-
-    const route = routes.find((item) => item.name === routeName);
-
-    if (!route) {
-
-        return {tag: null, prev: null, next: null};
-
-    }
-
-    const tag = routeTags(route)[0] ?? 'routes';
-    const group = groupRoutesByTag(routes).get(tag) ?? [];
-    const index = group.findIndex((item) => item.name === routeName);
-
-    if (index < 0) {
-
-        return {tag, prev: null, next: null};
-
-    }
-
-    return {
-        tag,
-        prev: group[index - 1]?.name ?? null,
-        next: group[index + 1]?.name ?? null,
-    };
 
 }

@@ -1,5 +1,6 @@
+import {openApiPathFromSpecUrl} from '../contractPaths';
 import type {CallspecUiNotice} from '../../types';
-import {themeMoonIcon, themeSunIcon} from './icons';
+import {callspecMarkIcon, openApiIcon, themeMoonIcon, themeSunIcon} from './icons';
 import type {Theme} from './theme';
 
 function escapeHtml(text: string): string {
@@ -93,6 +94,38 @@ export function syncAllDocsThemeSliders(theme: Theme): void {
 
     syncDocsThemeSlider('theme-toggle', theme);
     syncDocsThemeSlider('theme-toggle-drawer', theme);
+
+}
+
+type HeaderContractButtonsOptions = {
+    /** `header-end` — top bar beside theme; `drawer` — mobile nav drawer. */
+    variant?: 'header-end' | 'drawer'
+};
+
+/** Header buttons linking to callspec.json and openapi.json. */
+export function renderHeaderContractButtons(
+    specUrl: string,
+    options: HeaderContractButtonsOptions = {},
+): string {
+
+    const openapiHref = openApiPathFromSpecUrl(specUrl);
+    const variant = options.variant ?? 'header-end';
+    const className = variant === 'drawer'
+        ? 'header-contracts header-contracts--drawer'
+        : 'header-contracts header-contracts--header-end';
+
+    return `
+        <nav class="${className}" aria-label="Contract files">
+            <a class="btn btn-ghost header-contract-btn header-contract-btn--callspec" href="${escapeHtml(specUrl)}" target="_blank" rel="noopener">
+                <span class="header-contract-btn__icon">${callspecMarkIcon()}</span>
+                <span class="header-contract-btn__label">callspec.json</span>
+            </a>
+            <a class="btn btn-ghost header-contract-btn header-contract-btn--openapi" href="${escapeHtml(openapiHref)}" target="_blank" rel="noopener">
+                <span class="header-contract-btn__icon">${openApiIcon()}</span>
+                <span class="header-contract-btn__label">openapi.json</span>
+            </a>
+        </nav>
+    `;
 
 }
 

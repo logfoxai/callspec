@@ -13,7 +13,7 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 | Find a route | Header search filters the sidebar (and route list) by name, summary, description, and tags. Press `/` to focus. |
 | Browse on mobile | Hamburger opens a full nav drawer (routes, search, theme). |
 | Connect an agent | Home page **MCP connect** panel — endpoint URL + Cursor/Claude-style snippets (`authHint` when bearer tools exist). |
-| Hand someone OpenAPI | `{mount}/openapi.json` is served next to the UI when docs are on — also linked from each route’s action bar. |
+| Hand someone OpenAPI | `{mount}/openapi.json` is served next to the UI when docs are on — header buttons beside the theme toggle (and in the mobile nav drawer). |
 | Pin the Callspec contract | `{mount}/callspec.json` — what `npx callspec` reads for the TypeScript SDK. |
 | Install a client SDK | Optional `meta.sdkInstall` string on the home page with a copy button. |
 
