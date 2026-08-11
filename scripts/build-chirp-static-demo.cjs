@@ -89,9 +89,9 @@ exportCallspecUi({
         logoUrlDark: './brand/mark.png',
         favicon: './brand/mark.png',
         notice: {
-            title: 'Hosted explorer',
-            message: 'Browse routes, schemas, and MCP connect snippets. For live try-it and MCP, run',
-            command: 'npm run serve:chirp-demo',
+            title: 'Demo only',
+            message: 'Browse-only — no Send or live MCP.',
+            links: [{label: 'Setup guide', href: '/development/'}],
         },
     },
 });

@@ -426,7 +426,7 @@ html[data-has-sidebar] .sl-markdown-content table
 }
 
 @layer starlight.core {
-    header.header {
+    html[data-has-sidebar] header.header {
         background-color: color-mix(in srgb, var(--sl-color-bg-nav) 82%, transparent);
         backdrop-filter: blur(14px) saturate(1.25);
         -webkit-backdrop-filter: blur(14px) saturate(1.25);

@@ -77,10 +77,13 @@
     --sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --sidebar: 18.75rem;
     --sidebar-pad-x: 1.5rem;
+    --sidebar-bg: color-mix(in srgb, var(--surface) 72%, var(--bg));
     --radius: 0.75rem;
     --footer-height: 2.75rem;
     --header-height: 3.5rem;
     --header-pad-x: 1.25rem;
+    --content-width: 62.5rem; /* 1000px — docs column + try-it column share this max */
+    --content-pad-x: 1.25rem;
 }
 
 body.no-footer {
@@ -92,6 +95,7 @@ body.no-footer {
 html, body {
     margin: 0;
     height: 100%;
+    overflow: hidden;
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
@@ -101,15 +105,15 @@ html, body {
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* Plain-text notice below the top header (meta.notice / branding.notice). */
+/* Plain-text notice above the top header (meta.notice / branding.notice). */
 .cs-ui-notice {
     grid-column: 1 / -1;
+    grid-row: 1;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.35rem 0.5rem;
     padding: 0.65rem var(--header-pad-x);
-    border-bottom: 0.0625rem solid color-mix(in srgb, var(--accent) 35%, var(--border));
     background: color-mix(in srgb, var(--accent) 14%, transparent);
     color: var(--text-secondary);
     font-size: 0.875rem;
@@ -118,6 +122,33 @@ html, body {
 
 .cs-ui-notice__title {
     color: var(--text);
+}
+
+.cs-ui-notice__links {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cs-ui-notice__link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.65rem;
+    border-radius: 0.35rem;
+    border: 0.0625rem solid color-mix(in srgb, var(--accent) 50%, var(--border-strong));
+    background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+    color: var(--text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cs-ui-notice__link:hover {
+    background: color-mix(in srgb, var(--accent) 28%, var(--surface));
+    border-color: color-mix(in srgb, var(--accent) 65%, var(--border-strong));
+    text-decoration: none;
 }
 
 .cs-ui-notice__command {
@@ -132,13 +163,22 @@ html, body {
 #app {
     display: grid;
     grid-template-columns: var(--sidebar) 1fr;
-    grid-template-rows: var(--header-height) 1fr;
+    grid-template-rows: var(--header-height) minmax(0, 1fr);
     height: calc(100vh - var(--footer-height));
     min-height: calc(100vh - var(--footer-height));
+    overflow: hidden;
 }
 
 #app.has-notice {
-    grid-template-rows: var(--header-height) auto 1fr;
+    grid-template-rows: auto var(--header-height) minmax(0, 1fr);
+}
+
+#app.has-notice .top-header {
+    grid-row: 2;
+}
+
+#app.has-notice .sidebar {
+    max-height: none;
 }
 
 #app.loading {
@@ -168,18 +208,16 @@ html, body {
     gap: 1rem;
     height: var(--header-height);
     padding: 0 var(--header-pad-x);
-    border-bottom: 0.0625rem solid color-mix(in srgb, var(--accent) 40%, var(--border));
-    background: color-mix(in srgb, var(--surface) 82%, transparent);
-    backdrop-filter: blur(14px) saturate(1.25);
-    -webkit-backdrop-filter: blur(14px) saturate(1.25);
-    position: sticky;
-    top: 0;
+    border-top: none;
+    border-bottom: 0.0625rem solid var(--border);
+    background: color-mix(in srgb, var(--surface) 94%, var(--bg));
     z-index: 30;
 }
 
 @media (min-width: 50em) {
     :root {
         --header-pad-x: 1.5rem;
+        --content-pad-x: 1.75rem;
     }
 }
 
@@ -333,16 +371,12 @@ html, body {
 }
 
 .sidebar {
-    border-right: 0.0625rem solid color-mix(in srgb, var(--border) 85%, transparent);
-    background: var(--bg);
+    background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
-    position: sticky;
-    top: var(--header-height);
-    height: 100%;
     min-height: 0;
-    max-height: calc(100vh - var(--footer-height) - var(--header-height));
     overflow: hidden;
+    align-self: stretch;
 }
 
 .sidebar-drawer-chrome {
@@ -399,7 +433,7 @@ html, body {
 }
 
 .sidebar-top-level > li + li {
-    margin-top: 0.125rem;
+    margin-top: 0.35rem;
 }
 
 .sidebar-top-level > li + li.sidebar-group,
@@ -520,17 +554,46 @@ html, body {
 }
 
 .breadcrumb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     padding: 0;
     border: none;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-family: var(--sans);
+    font-size: 0.9375rem;
     font-weight: 500;
+    line-height: 1.4;
     cursor: pointer;
+}
+
+.breadcrumb-link__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--text-tertiary);
+}
+
+.breadcrumb-link__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .breadcrumb-link:hover {
     color: var(--text);
+}
+
+.breadcrumb-link:hover .breadcrumb-link__icon {
+    color: var(--text-secondary);
+}
+
+.breadcrumb-link--forward {
+    justify-content: flex-end;
 }
 
 .overview-head {
@@ -692,17 +755,23 @@ html, body {
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .main {
     flex: 1;
-    padding: 1.75rem 1.25rem 3rem;
-    max-width: 52rem;
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding: 1.75rem var(--content-pad-x) 3rem;
 }
 
-@media (min-width: 50em) {
-    .main {
-        padding: 1.75rem 1.75rem 3rem;
+@media (min-width: 64rem) {
+    .main:has(.route-page) {
+        max-width: none;
+        margin-inline: 0;
     }
 }
 
@@ -851,12 +920,12 @@ html, body {
 }
 
 .section-title {
-    font-size: 0.8125rem;
+    font-size: 1rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-tertiary);
-    margin: 0 0 0.625rem;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+    margin: 0 0 0.75rem;
 }
 
 .code-block {
@@ -928,31 +997,67 @@ html, body {
     gap: 1rem;
 }
 
+.route-nav-links .breadcrumb-link {
+    font-family: var(--mono);
+    font-size: 0.875rem;
+}
+
 .route-nav-placeholder {
     flex: 1;
 }
 
-.route-layout {
-    display: grid;
-    gap: 1.5rem;
+.route-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+}
+
+.route-page__content,
+.route-try {
+    width: 100%;
+    max-width: var(--content-width);
+    min-width: 0;
 }
 
 @media (min-width: 64rem) {
-    .main {
-        max-width: 72rem;
+    .route-page {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+        column-gap: 2rem;
+        row-gap: 0;
+        width: 100%;
+        max-width: none;
+        margin-inline: 0;
     }
 
-    .route-layout {
-        grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
-        align-items: start;
-        gap: 2rem;
+    .route-page__content {
+        grid-column: 1;
+        max-width: var(--content-width);
+        width: 100%;
     }
 
     .route-try {
+        grid-column: 2;
+        max-width: var(--content-width);
+        width: 100%;
         position: sticky;
-        top: calc(var(--header-height) + 1rem);
+        top: 1rem;
+        align-self: start;
+        padding-top: 2.25rem;
+        padding-bottom: 2rem;
     }
 }
+
+.route-try .try-block {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+}
+
 
 .error-list {
     display: flex;
@@ -1132,22 +1237,62 @@ html, body {
     color: var(--text);
 }
 
+.json-editor-shell {
+    display: flex;
+    flex-direction: column;
+}
+
 .json-editor-frame {
     display: flex;
+    height: 14rem;
     min-height: 10rem;
-    max-height: 20rem;
     border: 0.0625rem solid var(--border);
-    border-radius: 0.375rem;
+    border-bottom: none;
+    border-radius: 0.375rem 0.375rem 0 0;
     background: var(--hljs-bg);
     overflow: hidden;
 }
 
-.json-editor-frame:focus-within {
+.json-editor-shell:focus-within .json-editor-frame {
     border-color: var(--border-strong);
 }
 
-.json-editor.invalid .json-editor-frame {
+.json-editor.invalid .json-editor-frame,
+.json-editor.invalid .json-editor-resize {
     border-color: var(--red);
+}
+
+.json-editor-resize {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    width: 100%;
+    height: 0.625rem;
+    padding: 0;
+    border: 0.0625rem solid var(--border);
+    border-radius: 0 0 0.375rem 0.375rem;
+    background: color-mix(in srgb, var(--surface) 72%, var(--border));
+    cursor: ns-resize;
+    touch-action: none;
+}
+
+.json-editor-resize::before,
+.json-editor-resize::after {
+    content: '';
+    display: block;
+    width: 1.75rem;
+    height: 0.125rem;
+    border-radius: 999px;
+    background: var(--text-tertiary);
+}
+
+.json-editor-resize:hover,
+.json-editor-resize:focus-visible {
+    background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface));
+    border-color: var(--border-strong);
+    outline: none;
 }
 
 .json-editor-gutter {
@@ -1169,6 +1314,8 @@ html, body {
     position: relative;
     flex: 1;
     min-width: 0;
+    min-height: 0;
+    align-self: stretch;
 }
 
 .json-editor-highlight,
@@ -1187,7 +1334,7 @@ html, body {
     tab-size: 2;
     white-space: pre-wrap;
     word-break: break-word;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .json-editor-highlight {
@@ -1272,7 +1419,7 @@ html, body {
 @media (max-width: 50rem) {
     #app {
         grid-template-columns: 1fr;
-        grid-template-rows: var(--header-height) 1fr;
+        grid-template-rows: var(--header-height) minmax(0, 1fr);
     }
 
     .nav-menu-btn {
@@ -1333,7 +1480,6 @@ html, body {
         width: min(20rem, calc(100vw - 2.5rem));
         height: 100vh;
         max-height: none;
-        border-right: 0.0625rem solid var(--border);
         transform: translateX(-105%);
         transition: transform 0.2s ease;
         box-shadow: 0.25rem 0 1.5rem rgba(0, 0, 0, 0.18);
@@ -1354,12 +1500,8 @@ html, body {
     }
 
     .main {
-        padding: 1.25rem 1rem 2.5rem;
+        padding: 1.25rem var(--content-pad-x) 2.5rem;
         max-width: none;
-    }
-
-    .route-layout {
-        grid-template-columns: 1fr;
     }
 }
 

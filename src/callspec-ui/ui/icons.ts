@@ -25,3 +25,15 @@ export function closeIcon(): string {
     return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
 
 }
+
+export function chevronLeftIcon(): string {
+
+    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>`;
+
+}
+
+export function chevronRightIcon(): string {
+
+    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
+
+}

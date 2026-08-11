@@ -96,7 +96,7 @@ export function syncAllDocsThemeSliders(theme: Theme): void {
 
 }
 
-/** Plain-text notice bar below the top header. */
+/** Plain-text notice bar above the top header. */
 export function renderUiNotice(notice: CallspecUiNotice | undefined): string {
 
     if (!notice?.message) {
@@ -111,12 +111,21 @@ export function renderUiNotice(notice: CallspecUiNotice | undefined): string {
     const command = notice.command
         ? `<code class="cs-ui-notice__command">${escapeHtml(notice.command)}</code>`
         : '';
+    const links = notice.links?.length
+        ? `<span class="cs-ui-notice__links">${notice.links.map((link) => {
+            const attrs = link.external
+                ? ' target="_blank" rel="noopener noreferrer"'
+                : '';
+            return `<a class="cs-ui-notice__link" href="${escapeHtml(link.href)}"${attrs}>${escapeHtml(link.label)}</a>`;
+        }).join('')}</span>`
+        : '';
 
     return `
-        <div class="cs-ui-notice" role="status">
+        <div class="cs-ui-notice" role="note">
             ${title}
             <span class="cs-ui-notice__message">${escapeHtml(notice.message)}</span>
             ${command}
+            ${links}
         </div>
     `;
 

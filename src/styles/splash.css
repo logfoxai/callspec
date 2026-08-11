@@ -28,22 +28,30 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #f4f6fb;
         --cs-muted: #9aa3b5;
         --cs-line: #2a2f3c;
-        /* Outline-only hex tile — stroke baked in so one layer stays quiet. */
-        --splash-hex-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'%3E%3Cg fill='none' stroke='%2338d9f5' stroke-opacity='0.2' stroke-width='0.55'%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z'/%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z' transform='translate(42,73)'/%3E%3C/g%3E%3C/svg%3E");
+        --splash-demo-stripe: hsl(198 58% 52% / 0.055);
         color-scheme: dark;
 
-        /* Flat base scrolls; fixed top bloom so the transparent nav sees the hero glow. */
-        &,
-        & body {
+        /* Top bloom stays fixed under the transparent nav; base gradient scrolls. */
+        &::before {
+            content: '';
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: min(100vh, 42rem);
+            pointer-events: none;
+            z-index: -1;
             background:
                 radial-gradient(
                     ellipse min(92vw, 75rem) min(34vh, 22rem) at 50% 0%,
                     hsl(210 80% 40% / 0.32),
                     transparent 58%
                 ),
-                radial-gradient(ellipse 50% 36% at 100% 8%, hsl(198 55% 45% / 0.12), transparent 52%),
-                linear-gradient(180deg, #0a0c12 0%, #07080c 42%, #06070a 100%);
-            background-attachment: fixed, fixed, scroll;
+                radial-gradient(ellipse 50% 36% at 100% 8%, hsl(198 55% 45% / 0.12), transparent 52%);
+        }
+
+        &,
+        & body {
+            background: linear-gradient(180deg, #0a0c12 0%, #07080c 42%, #06070a 100%);
+            background-attachment: scroll;
         }
     }
 
@@ -68,30 +76,36 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #10131a;
         --cs-muted: #5a6170;
         --cs-line: #dde1ea;
-        --splash-hex-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'%3E%3Cg fill='none' stroke='%230891b2' stroke-opacity='0.15' stroke-width='0.55'%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z'/%3E%3Cpath d='M42 1 L81.5 23.8 V70.2 L42 93 L2.5 70.2 V23.8 Z' transform='translate(42,73)'/%3E%3C/g%3E%3C/svg%3E");
+        --splash-demo-stripe: hsl(198 45% 42% / 0.065);
         color-scheme: light;
 
-        &,
-        & body {
+        &::before {
+            content: '';
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: min(100vh, 42rem);
+            pointer-events: none;
+            z-index: -1;
             background:
                 radial-gradient(
                     ellipse min(92vw, 75rem) min(34vh, 22rem) at 50% 0%,
                     hsl(198 75% 55% / 0.18),
                     transparent 58%
                 ),
-                radial-gradient(ellipse 50% 36% at 100% 6%, hsl(198 50% 55% / 0.1), transparent 52%),
-                linear-gradient(180deg, #f7f9fc 0%, #f3f5f9 48%, #eef1f7 100%);
-            background-attachment: fixed, fixed, scroll;
+                radial-gradient(ellipse 50% 36% at 100% 6%, hsl(198 50% 55% / 0.1), transparent 52%);
+        }
+
+        &,
+        & body {
+            background: linear-gradient(180deg, #f7f9fc 0%, #f3f5f9 48%, #eef1f7 100%);
+            background-attachment: scroll;
         }
     }
 
-    /* Transparent at rest; frosted when .splash-nav-scrolled (toggled from Hero.astro).
-       Keep border width at 1px always — flipping 0→1px while border-color transitions
-       flashes the light computed color (looks like a bright white hairline). */
+    /* Transparent at rest; frosted when scrolled. Kill global header frost here (starlight-custom). */
     header.header {
         background-color: transparent;
         border-bottom: 1px solid transparent;
-        /* `none` — not blur(0); some engines drop blur(0) and leave Starlight’s frost */
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
         box-shadow: none;
@@ -105,9 +119,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
     site-search > button {
         border-color: color-mix(in srgb, var(--cs-ink) 14%, transparent);
-        background-color: color-mix(in srgb, var(--cs-ink) 6%, transparent);
-        backdrop-filter: blur(10px) saturate(1.2);
-        -webkit-backdrop-filter: blur(10px) saturate(1.2);
+        background-color: color-mix(in srgb, var(--cs-ink) 8%, transparent);
         box-shadow: none;
 
         &:hover {
@@ -128,8 +140,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
         background-color: #ffffff;
         color: var(--sl-color-gray-2);
         box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
 
         &:hover {
             border-color: var(--sl-color-gray-4);
@@ -147,8 +157,8 @@ html[data-has-hero]:not([data-has-sidebar]) {
         header.header {
             background-color: color-mix(in srgb, var(--sl-color-bg-nav) 58%, transparent);
             border-bottom-color: color-mix(in srgb, var(--cs-line) 75%, transparent);
-            backdrop-filter: blur(16px) saturate(1.35);
-            -webkit-backdrop-filter: blur(16px) saturate(1.35);
+            backdrop-filter: blur(12px) saturate(1.25);
+            -webkit-backdrop-filter: blur(12px) saturate(1.25);
             box-shadow: 0 8px 24px color-mix(in srgb, #000 18%, transparent);
         }
 
@@ -189,9 +199,9 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
     main {
         position: relative;
-        isolation: isolate;
     }
 
+    /* Soft color blooms — full page, behind content. */
     main::before {
         content: '';
         position: absolute;
@@ -207,36 +217,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
             radial-gradient(ellipse 50% 24% at 8% 48%, hsl(258 50% 52% / 0.08), transparent 58%),
             radial-gradient(ellipse 60% 26% at 88% 68%, hsl(188 62% 46% / 0.09), transparent 58%),
             radial-gradient(ellipse 85% 30% at 50% 100%, hsl(210 72% 42% / 0.14), transparent 62%);
-    }
-
-    main::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 100vw;
-        height: 100%;
-        margin-left: -50vw;
-        pointer-events: none;
-        z-index: -1;
-        background-image: var(--splash-hex-tile);
-        background-size: 84px 146px;
-        mask-image: linear-gradient(
-            180deg,
-            transparent 0%,
-            rgb(0 0 0 / 0.1) 14%,
-            rgb(0 0 0 / 0.28) 34%,
-            rgb(0 0 0 / 0.38) 58%,
-            rgb(0 0 0 / 0.22) 100%
-        );
-        -webkit-mask-image: linear-gradient(
-            180deg,
-            transparent 0%,
-            rgb(0 0 0 / 0.1) 14%,
-            rgb(0 0 0 / 0.28) 34%,
-            rgb(0 0 0 / 0.38) 58%,
-            rgb(0 0 0 / 0.22) 100%
-        );
     }
 
     &[data-theme='light'] main::before {
@@ -1115,9 +1095,67 @@ html[data-theme='light'] .splash-features__icon {
     gap: clamp(1.35rem, 2.75vw, 1.85rem);
     position: relative;
     margin: 0;
-    padding: 0;
+    padding: clamp(2.75rem, 5.5vw, 4rem) 0;
     background: transparent;
     box-shadow: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: clamp(-4rem, -8vw, -2.75rem);
+        bottom: clamp(-2rem, -4vw, -1.25rem);
+        left: 50%;
+        width: 100vw;
+        margin-left: -50vw;
+        pointer-events: none;
+        z-index: -1;
+        background-image: repeating-linear-gradient(
+            -12deg,
+            transparent 0,
+            transparent 13px,
+            var(--splash-demo-stripe) 13px,
+            var(--splash-demo-stripe) 14px
+        );
+        mask-image: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgb(0 0 0 / 0.25) 14%,
+            rgb(0 0 0 / 0.72) 26%,
+            rgb(0 0 0 / 1) 38%,
+            rgb(0 0 0 / 1) 62%,
+            rgb(0 0 0 / 0.72) 74%,
+            rgb(0 0 0 / 0.25) 86%,
+            transparent 100%
+        );
+        -webkit-mask-image: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgb(0 0 0 / 0.25) 14%,
+            rgb(0 0 0 / 0.72) 26%,
+            rgb(0 0 0 / 1) 38%,
+            rgb(0 0 0 / 1) 62%,
+            rgb(0 0 0 / 0.72) 74%,
+            rgb(0 0 0 / 0.25) 86%,
+            transparent 100%
+        );
+    }
+
+    .splash-demo__warn {
+        margin: 0;
+        padding: 0.65rem 1rem;
+        max-width: 40rem;
+        text-align: center;
+        font-size: 0.95rem;
+        line-height: 1.45;
+        color: var(--cs-muted);
+        border: 1px solid color-mix(in srgb, var(--cs-cyan) 22%, var(--cs-line));
+        border-radius: 0.55rem;
+        background: color-mix(in srgb, var(--cs-cyan) 8%, transparent);
+
+        strong {
+            color: var(--cs-ink);
+        }
+    }
 
     .splash-demo__intro {
         display: flex;
@@ -1182,6 +1220,18 @@ html[data-theme='light'] .splash-features__icon {
         }
     }
 
+    .splash-demo__btn--secondary {
+        background: transparent;
+        border: 1px solid var(--cs-line);
+        color: var(--cs-ink);
+        font-weight: 500;
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--cs-cyan) 35%, var(--cs-line));
+            color: var(--cs-cyan);
+        }
+    }
+
     .splash-demo__shot {
         position: relative;
         margin: 0.35rem 0 0;
@@ -1226,7 +1276,7 @@ html[data-theme='light'] .splash-features__icon {
         flex-direction: column;
         align-items: center;
         gap: 0.75rem;
-        width: min(100%, 28rem);
+        width: min(100%, 40rem);
         margin: 0.25rem 0 0;
     }
 
@@ -1236,6 +1286,16 @@ html[data-theme='light'] .splash-features__icon {
         font-size: 0.95rem;
         line-height: 1.4;
         color: var(--cs-muted);
+
+        a {
+            color: var(--cs-cyan);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     }
 
     .splash-demo__terminal {

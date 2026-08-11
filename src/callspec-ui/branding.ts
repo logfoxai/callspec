@@ -26,7 +26,7 @@ export type CallspecUiBranding = {
     navbarLinks?: CallspecNavbarLink[]
     /** Footer options; poweredBy defaults to true when omitted */
     footer?: CallspecUiFooter
-    /** Plain-text notice below the top header (no custom HTML). */
+    /** Plain-text notice above the top header (no custom HTML). */
     notice?: CallspecUiNotice
     /** Static SDK install command shown on the home page */
     sdkInstall?: string

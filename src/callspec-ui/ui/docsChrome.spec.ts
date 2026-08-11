@@ -23,16 +23,22 @@ test('renderDocsThemeSlider: theme slider shell', (assert) => {
 
 });
 
-test('renderUiNotice: plain-text notice bar', (assert) => {
+test('renderUiNotice: plain-text notice bar with links', (assert) => {
 
     const html = renderUiNotice({
-        title: 'Hosted explorer',
-        message: 'Browse routes.',
-        command: 'npm run demo',
+        title: 'Browse-only demo',
+        message: 'Static preview only.',
+        command: 'npm run serve:chirp-demo',
+        links: [
+            {label: 'Development setup', href: '/development/'},
+            {label: 'GitHub', href: 'https://github.com/logfoxai/callspec', external: true},
+        ],
     });
 
     assert.equal(html.includes('class="cs-ui-notice"'), true);
-    assert.equal(html.includes('Hosted explorer'), true);
-    assert.equal(html.includes('npm run demo'), true);
+    assert.equal(html.includes('Browse-only demo'), true);
+    assert.equal(html.includes('npm run serve:chirp-demo'), true);
+    assert.equal(html.includes('href="/development/"'), true);
+    assert.equal(html.includes('rel="noopener noreferrer"'), true);
 
 });

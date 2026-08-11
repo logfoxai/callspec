@@ -23,7 +23,7 @@ import {
     syncAllDocsThemeSliders,
 } from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {closeIcon, menuIcon} from './icons';
+import {chevronLeftIcon, chevronRightIcon, closeIcon, menuIcon} from './icons';
 
 type View =
     | {kind: 'home'}
@@ -543,7 +543,7 @@ function renderOverview(
     }).join('');
 
     const breadcrumb = showHome
-        ? `<nav class="breadcrumb"><button type="button" class="breadcrumb-link" data-view="home">← Home</button></nav>`
+        ? `<nav class="breadcrumb">${backLink('Home', 'data-view="home"')}</nav>`
         : '';
 
     return `
@@ -635,6 +635,28 @@ function renderRouteActions(route: CallspecUiRoute): string {
 
 }
 
+function backLink(label: string, attrs: string): string {
+
+    return `
+        <button type="button" class="breadcrumb-link" ${attrs}>
+            <span class="breadcrumb-link__icon" aria-hidden="true">${chevronLeftIcon()}</span>
+            <span class="breadcrumb-link__label">${escapeHtml(label)}</span>
+        </button>
+    `;
+
+}
+
+function forwardLink(label: string, attrs: string): string {
+
+    return `
+        <button type="button" class="breadcrumb-link breadcrumb-link--forward" ${attrs}>
+            <span class="breadcrumb-link__label">${escapeHtml(label)}</span>
+            <span class="breadcrumb-link__icon" aria-hidden="true">${chevronRightIcon()}</span>
+        </button>
+    `;
+
+}
+
 function renderPrevNext(routeName: string, routes: CallspecUiRoute[]): string {
 
     const {tag, prev, next} = neighborsInTagGroup(routes, routeName);
@@ -648,10 +670,10 @@ function renderPrevNext(routeName: string, routes: CallspecUiRoute[]): string {
             ${tagLabel}
             <div class="route-nav-links">
                 ${prev
-        ? `<button type="button" class="breadcrumb-link" data-route="${escapeHtml(prev)}">← ${escapeHtml(prev)}</button>`
+        ? backLink(prev, `data-route="${escapeHtml(prev)}"`)
         : '<span class="route-nav-placeholder"></span>'}
                 ${next
-        ? `<button type="button" class="breadcrumb-link" data-route="${escapeHtml(next)}">${escapeHtml(next)} →</button>`
+        ? forwardLink(next, `data-route="${escapeHtml(next)}"`)
         : '<span class="route-nav-placeholder"></span>'}
             </div>
         </nav>
@@ -667,31 +689,33 @@ function renderRoute(
 ): string {
 
     return `
-        <nav class="breadcrumb">
-            <button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>
-        </nav>
-        <div class="route-endpoint">
-            <span class="method">POST</span>
-            <h2 class="route-name">${escapeHtml(route.name)}</h2>
-            <div class="badges">${renderBadges(route)}</div>
-        </div>
-        <p class="route-summary">${escapeHtml(route.summary)}</p>
-        ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
-        ${renderRouteActions(route)}
-        ${renderPrevNext(route.name, allRoutes)}
-        <div class="route-layout">
-            <div class="route-docs">
-                <div class="section">
-                    <h3 class="section-title">Request</h3>
-                    ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
+        <div class="route-page">
+            <div class="route-page__content">
+                <nav class="breadcrumb">
+                    ${backLink('All routes', 'data-view="routes"')}
+                </nav>
+                <div class="route-endpoint">
+                    <span class="method">POST</span>
+                    <h2 class="route-name">${escapeHtml(route.name)}</h2>
+                    <div class="badges">${renderBadges(route)}</div>
                 </div>
-                <div class="section">
-                    <h3 class="section-title">Response</h3>
-                    ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
+                <p class="route-summary">${escapeHtml(route.summary)}</p>
+                ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
+                ${renderRouteActions(route)}
+                ${renderPrevNext(route.name, allRoutes)}
+                <div class="route-docs">
+                    <div class="section">
+                        <h3 class="section-title">Request</h3>
+                        ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
+                    </div>
+                    <div class="section">
+                        <h3 class="section-title">Response</h3>
+                        ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
+                    </div>
+                    ${renderErrors(route)}
                 </div>
-                ${renderErrors(route)}
             </div>
-            <div class="route-try">
+            <aside class="route-try" aria-label="Try it">
                 <div class="section try-section">
                     <h3 class="section-title">Try it</h3>
                     <div class="try-block">
@@ -712,7 +736,7 @@ function renderRoute(
                         <div class="response" id="response"></div>
                     </div>
                 </div>
-            </div>
+            </aside>
         </div>
     `;
 
@@ -1030,8 +1054,8 @@ async function boot(): Promise<void> {
 
             app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
-                ${renderTopHeader(title, branding, filters.text)}
                 ${renderUiNotice(branding?.notice)}
+                ${renderTopHeader(title, branding, filters.text)}
                 <div class="nav-overlay" id="nav-overlay"></div>
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
                     <div class="sidebar-drawer-chrome">

@@ -30,6 +30,7 @@ export const api = spec({
             title: 'Sandbox',
             message: 'Read-only preview — use a local server for live try-it.',
             command: 'npm run dev',
+            links: [{label: 'Development', href: '/development/'}],
         },
         sdkInstall: 'npm i @acme/sdk',
         authHint: 'Production keys from the developer portal. Header: Authorization: Bearer <key>.',
@@ -50,7 +51,7 @@ export const api = spec({
 | `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. |
 | `navbarLinks` | Top header links (`label`, `href`, optional `external`) |
 | `footer.poweredBy` | Show “Powered by callspec” (default `true` when omitted) |
-| `notice` | Optional plain-text banner below the top header (`title?`, `message`, `command?`) — no custom HTML |
+| `notice` | Optional plain-text banner above the top header (`title?`, `message`, `command?`, `links?`) — no custom HTML in message |
 | `sdkInstall` | Static install command on the home page (copy button) |
 | `authHint` | Copy in the MCP connect panel when bearer tools exist |
 | `mcpInstructions` | MCP `instructions` on `initialize` — **agents** see this, not the docs chrome |
@@ -80,7 +81,7 @@ Theme CSS variables (`--accent`, `--bg`, `--surface`, `--sans`, …) are the ove
 |------------|------|
 | `.top-header` | Sticky product header (logo, links, search, theme) |
 | `.top-nav` / `.top-nav-link` | Product links from `navbarLinks` |
-| `.cs-ui-notice` | Plain-text notice from `meta.notice` |
+| `.cs-ui-notice` | Plain-text notice from `meta.notice` (above header) |
 | `.sidebar` | Route navigation drawer / column |
 | `.footer` | “Powered by callspec” footer |
 | `#app` | App shell grid |

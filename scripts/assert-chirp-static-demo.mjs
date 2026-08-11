@@ -18,7 +18,7 @@ for (const rel of required) {
 }
 
 const html = fs.readFileSync(path.join(demoDir, 'index.html'), 'utf8');
-if (!html.includes('Hosted explorer') || !html.includes('./callspec.json')) {
+if (!html.includes('Chirp API v2') || !html.includes('./callspec.json')) {
 	console.error('assert-chirp-static-demo: demo index.html missing expected baked config');
 	process.exit(1);
 }
