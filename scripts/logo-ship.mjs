@@ -209,9 +209,15 @@ const interFontSrc = path.join(
     root,
     'node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
 );
+const spaceGroteskFontSrc = path.join(
+    root,
+    'node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2',
+);
 const interFontDest = path.join(assets, 'fonts/inter-latin-wght-normal.woff2');
+const spaceGroteskFontDest = path.join(assets, 'fonts/space-grotesk-latin-wght-normal.woff2');
 fs.mkdirSync(path.dirname(interFontDest), {recursive: true});
 fs.copyFileSync(interFontSrc, interFontDest);
+fs.copyFileSync(spaceGroteskFontSrc, spaceGroteskFontDest);
 
 fs.writeFileSync(path.join(assets, 'favicon.svg'), maker(true, ['fc', 'fL', 'fR'], true));
 fs.writeFileSync(path.join(assets, 'mark-dark.svg'), maker(true, ['mdc', 'mdL', 'mdR']));
