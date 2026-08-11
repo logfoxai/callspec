@@ -405,6 +405,13 @@ html[data-has-hero]:not([data-has-sidebar]) {
             margin-top: 0.85rem;
         }
 
+        code {
+            font-family: var(--sl-font-mono);
+            font-size: 0.92em;
+            font-weight: 500;
+            color: color-mix(in srgb, var(--cs-ink) 88%, var(--cs-cyan));
+        }
+
         @media (max-width: 51.99rem) {
             text-align: center;
             justify-self: center;

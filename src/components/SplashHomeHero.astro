@@ -27,15 +27,16 @@ const homePitch = 'One TypeScript route → typed SDK, docs, OpenAPI, and MCP.';
 	<div class="splash-hero__stage">
 		<div class="splash-hero__lead">
 			<p>
-				Most teams duct-tape the same API six ways: REST to bikeshed, hand-maintained OpenAPI,
-				a DIY client, duplicate validators, stale docs, and MCP bolted on last. One change breaks
-				three surfaces — overly complex, brittle, and time you could be spending building your
-				app.
+				Most teams maintain the same API in several places — OpenAPI, a hand-rolled client,
+				docs, validators, MCP — and every change risks breaking more than one surface.
+				That's brittle work that pulls you away from the product.
 			</p>
 			<p>
-				Instead, define each route once in TypeScript — inputs, outputs, and errors — and
-				Callspec ships the server, SDK, docs, OpenAPI, and MCP from that contract. One source
-				of truth, unit-testable, no drift.
+				Define each route once in TypeScript — inputs, outputs, and errors — then call{' '}
+				<code>api.getProductById({'{…}'})</code> and get a <strong>Result</strong>: success
+				or a typed error <code>code</code> you can switch on. Callspec ships the server, SDK,
+				docs, OpenAPI, and MCP from that one contract — same methods and types everywhere,
+				no drift.
 			</p>
 		</div>
 		<div class="splash-hero__visual">
