@@ -14,8 +14,8 @@ const id = process.argv[2] || 'spec';
 /** Keep in sync with --cs-primary-* / nav lockup in starlight-custom.css */
 const BRAND = {
     markDark: '#22D3EE',
-    markLight: '#0284C7',
-    favicon: '#0284C7',
+    markLight: '#0096D6',
+    favicon: '#0096D6',
 };
 
 const HEX =

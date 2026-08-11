@@ -25,7 +25,7 @@ import {
     syncAllDocsThemeSliders,
 } from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {chevronLeftIcon, closeIcon, menuIcon} from './icons';
+import {chevronLeftIcon, closeIcon, menuIcon, tagIcon} from './icons';
 import {renderRouteBadges} from './routeBadges';
 import {renderRoutePaginationFooter} from './routePagination';
 
@@ -298,6 +298,8 @@ const SIDEBAR_CARET_SVG = `
     </svg>
 `.trim();
 
+const SIDEBAR_TAG_ICON = `<span class="sidebar-group-icon">${tagIcon()}</span>`;
+
 function renderSidebarLink(
     label: string,
     active: boolean,
@@ -357,7 +359,6 @@ function renderSidebar(
             const active = view.kind === 'route' && route.name === view.name;
 
             routeLinks += renderSidebarLink(route.name, active, {'data-route': route.name}, {
-                mono: true,
                 badges: renderRouteBadges(route, {labels: false}),
             });
 
@@ -367,7 +368,10 @@ function renderSidebar(
             <li class="sidebar-group">
                 <details open>
                     <summary>
-                        <span class="sidebar-group-label">${escapeHtml(tag)}</span>
+                        <span class="sidebar-group-heading">
+                            ${SIDEBAR_TAG_ICON}
+                            <span class="sidebar-group-label">${escapeHtml(tag)}</span>
+                        </span>
                         ${SIDEBAR_CARET_SVG}
                     </summary>
                     <ul class="sidebar-group-list">${routeLinks}</ul>

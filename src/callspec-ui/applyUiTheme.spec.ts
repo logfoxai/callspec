@@ -40,9 +40,9 @@ test('applyUiTheme: light background derives dark text tokens', (assert) => {
 
     assert.equal(result.cssVars['--bg'], '#f7f9f9');
     assert.equal(result.cssVars['--surface'], '#ffffff');
-    assert.equal(result.cssVars['--text'], '#1c1917');
-    assert.equal(result.cssVars['--text-secondary'], '#6b6560');
-    assert.equal(result.cssVars['--text-tertiary'], '#9c958c');
+    assert.equal(result.cssVars['--text'], 'hsl(228, 25%, 12%)');
+    assert.equal(result.cssVars['--text-secondary'], 'hsl(228, 10%, 40%)');
+    assert.equal(result.cssVars['--text-tertiary'], 'hsl(228, 8%, 52%)');
 
 });
 

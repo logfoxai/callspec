@@ -19,14 +19,18 @@ function paginationButton(
 ): string {
 
     const icon = rel === 'prev' ? paginationLeftArrowIcon() : paginationRightArrowIcon();
-
-    return `
-        <button type="button" class="pagination-link" rel="${rel}" data-route="${escapeHtml(routeName)}">
-            ${icon}
+    const text = `
             <span>
                 ${label}<br>
                 <span class="link-title">${escapeHtml(routeName)}</span>
             </span>
+    `.trim();
+    // Prev: arrow then label (left). Next: label then arrow (right) — no row-reverse needed.
+    const content = rel === 'prev' ? `${icon}\n            ${text}` : `${text}\n            ${icon}`;
+
+    return `
+        <button type="button" class="pagination-link" rel="${rel}" data-route="${escapeHtml(routeName)}">
+            ${content}
         </button>
     `;
 

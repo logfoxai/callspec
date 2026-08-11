@@ -16,9 +16,9 @@ type ThemeColorKey = keyof typeof THEME_TO_CSS_VAR;
 
 /** Match built-in UI palettes so brand surfaces stay readable in both modes. */
 const LIGHT_TEXT = {
-    '--text': '#1c1917',
-    '--text-secondary': '#6b6560',
-    '--text-tertiary': '#9c958c',
+    '--text': 'hsl(228, 25%, 12%)',
+    '--text-secondary': 'hsl(228, 10%, 40%)',
+    '--text-tertiary': 'hsl(228, 8%, 52%)',
 } as const;
 
 const DARK_TEXT = {

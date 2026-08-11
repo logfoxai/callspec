@@ -2,12 +2,21 @@
 import {LinkButton} from '@astrojs/starlight/components';
 import type {SplashHeroAction, SplashHeroActionList} from '../splashHeroTypes';
 import {splashHeroIconName} from '../splashHeroTypes';
+import chirpMarkSvg from '../../assets/chirp/mark.svg?raw';
 
 interface Props {
 	actions: SplashHeroActionList;
 }
 
 const {actions = []} = Astro.props;
+
+/** Same Chirp mark.svg, minus only the teal badge rect. */
+const chirpBirdHtml = chirpMarkSvg
+	.replace(/\s*<rect\b[^/]*\/>/, '')
+	.replace(
+		'role="img" aria-label="Chirp"',
+		'class="splash-hero__chirp-mark" aria-hidden="true" focusable="false"',
+	);
 ---
 
 {
@@ -19,21 +28,29 @@ const {actions = []} = Astro.props;
 				const attrs = {...(action.attrs ?? {})};
 				delete attrs.class;
 
+				const htmlIcon =
+					icon?.html ?? (href === '/demo/' || href === '/demo' ? chirpBirdHtml : undefined);
+				const namedIcon = htmlIcon ? undefined : splashHeroIconName(icon?.name);
+				const iconPlacement =
+					htmlIcon || namedIcon === 'github' ? 'start' : 'end';
+
 				return (
 					<LinkButton
 						{href}
 						{variant}
-						icon={splashHeroIconName(icon?.name)}
-						iconPlacement={icon?.name === 'github' ? 'start' : 'end'}
+						icon={namedIcon}
+						iconPlacement={iconPlacement}
 						class:list={[
 							className,
 							icon?.name === 'right-arrow' && 'sl-link-button--forward',
 							icon?.name === 'left-arrow' && 'sl-link-button--back',
+							htmlIcon && 'sl-link-button--chirp',
 						]}
 						{...attrs}
 					>
+						{htmlIcon && iconPlacement === 'start' && <Fragment set:html={htmlIcon} />}
 						{text}
-						{icon?.html && <Fragment set:html={icon.html} />}
+						{htmlIcon && iconPlacement === 'end' && <Fragment set:html={htmlIcon} />}
 					</LinkButton>
 				);
 			})}

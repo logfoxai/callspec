@@ -67,6 +67,19 @@ test('renderRoutePagination: docs-style footer markup with prev and next', (asse
 
 });
 
+test('renderRoutePagination: next keeps label before arrow (right-aligned card)', (assert) => {
+
+    const html = renderRoutePagination('createUser', routes);
+    const nextStart = html.indexOf('rel="next"');
+    const nextHtml = html.slice(nextStart, html.indexOf('</button>', nextStart));
+    const titleAt = nextHtml.indexOf('class="link-title">getUser</span>');
+    const svgAt = nextHtml.indexOf('<svg');
+
+    assert.equal(titleAt >= 0 && svgAt >= 0, true);
+    assert.equal(titleAt < svgAt, true);
+
+});
+
 test('renderRoutePagination: previous route only', (assert) => {
 
     const html = renderRoutePagination('getUser', routes);
