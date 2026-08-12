@@ -17,24 +17,6 @@ export function themeMoonIcon(): string {
 
 }
 
-export function menuIcon(): string {
-
-    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`;
-
-}
-
-export function closeIcon(): string {
-
-    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
-
-}
-
-export function chevronLeftIcon(): string {
-
-    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>`;
-
-}
-
 export function paginationLeftArrowIcon(): string {
 
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg>`;
@@ -63,13 +45,6 @@ export function unlockIcon(): string {
 export function lockIcon(): string {
 
     return `<svg ${SVG_ATTRS} aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`;
-
-}
-
-/** Stacked routes list — “all routes” side of the MCP filter slider. */
-export function routesAllIcon(): string {
-
-    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/></svg>`;
 
 }
 
