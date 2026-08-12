@@ -1,5 +1,8 @@
 import {test} from 'kizu';
 import {
+    JSON_EDITOR_DEFAULT_HEIGHT_PX,
+    JSON_EDITOR_MAX_DRAG_HEIGHT_PX,
+    JSON_EDITOR_MIN_HEIGHT_PX,
     jsonEditorHtml,
     resolveJsonEditorFrameHeight,
     tryFormatJson,
@@ -10,13 +13,19 @@ test('resolveJsonEditorFrameHeight: user shrink below content height sticks', (a
     // ~4 lines of JSON → content taller than MIN; user dragged smaller.
     const lines = 8;
     const contentish = resolveJsonEditorFrameHeight({lines});
-    const shrunk = 160;
+    const shrunk = JSON_EDITOR_MIN_HEIGHT_PX;
 
     assert.equal(contentish > shrunk, true, 'default grows with content');
+    assert.equal(contentish >= JSON_EDITOR_DEFAULT_HEIGHT_PX, true);
     assert.equal(
         resolveJsonEditorFrameHeight({lines, userHeight: shrunk}),
         shrunk,
         'drag-smaller must not snap back to content height',
+    );
+    assert.equal(
+        resolveJsonEditorFrameHeight({lines, userHeight: JSON_EDITOR_MAX_DRAG_HEIGHT_PX + 100}),
+        JSON_EDITOR_MAX_DRAG_HEIGHT_PX,
+        'drag clamps to max',
     );
 
 });
