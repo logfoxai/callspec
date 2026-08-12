@@ -1,0 +1,142 @@
+---
+/**
+ * Header — on guide pages below 50rem: logo + Menu only.
+ * Search + theme live in the mobile drawer (MobileMenuFooter).
+ */
+import config from 'virtual:starlight/user-config';
+
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import MobileMenuToggle from 'virtual:starlight/components/MobileMenuToggle';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const {hasSidebar} = Astro.locals.starlightRoute;
+
+const shouldRenderSearch =
+	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="header">
+	<div class="title-wrapper sl-flex">
+		<SiteTitle />
+	</div>
+	{
+		shouldRenderSearch && (
+			<div class="print:hidden header-search">
+				<Search />
+			</div>
+		)
+	}
+	<div class="print:hidden header-tools">
+		<div class="social-icons">
+			<SocialIcons />
+		</div>
+		<ThemeSelect />
+		<LanguageSelect />
+		{hasSidebar && <MobileMenuToggle />}
+	</div>
+</div>
+
+<style>
+	@layer starlight.core {
+		.header {
+			--cs-header-gap: 0.75rem;
+			display: flex;
+			gap: var(--cs-header-gap);
+			justify-content: space-between;
+			align-items: center;
+			height: 100%;
+			width: 100%;
+			min-width: 0;
+		}
+
+		.title-wrapper {
+			overflow: clip;
+			padding: 0.25rem;
+			margin: -0.25rem;
+			min-width: 0;
+			flex: 0 1 auto;
+		}
+
+		.header-search {
+			display: flex;
+			flex: 1 1 auto;
+			min-width: 0;
+			justify-content: flex-end;
+		}
+
+		.header-tools {
+			display: flex;
+			align-items: center;
+			gap: var(--cs-header-gap);
+			flex-shrink: 0;
+		}
+
+		.social-icons {
+			display: flex;
+			gap: var(--cs-header-gap);
+			align-items: center;
+		}
+
+		.social-icons::after {
+			display: none;
+			content: none;
+		}
+
+		/* Guides <50rem: chrome moves into the Menu drawer. */
+		:global([data-has-sidebar]) .header-search,
+		:global([data-has-sidebar]) .header-tools :global(starlight-theme-select),
+		:global([data-has-sidebar]) .header-tools :global(starlight-lang-select),
+		:global([data-has-sidebar]) .social-icons {
+			display: none;
+		}
+
+		@media (min-width: 50rem) {
+			.header-search {
+				justify-content: center;
+			}
+
+			:global([data-has-sidebar]) .header-search {
+				display: flex;
+			}
+
+			:global([data-has-sidebar]) .header-tools :global(starlight-theme-select),
+			:global([data-has-sidebar]) .header-tools :global(starlight-lang-select) {
+				display: grid;
+			}
+
+			:global([data-has-sidebar]) .social-icons {
+				display: flex;
+			}
+
+			:global(:root[data-has-sidebar]) {
+				--__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+			}
+			:global(:root:not([data-has-toc])) {
+				--__toc-width: 0rem;
+			}
+			.header {
+				--__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+				--__main-column-fr: calc(
+					(
+							100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+								(2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+								var(--sl-content-width)
+						) / 2
+				);
+				display: grid;
+				grid-template-columns:
+					minmax(
+						calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
+						auto
+					)
+					1fr
+					auto;
+				align-content: center;
+				column-gap: var(--cs-header-gap);
+			}
+		}
+	}
+</style>

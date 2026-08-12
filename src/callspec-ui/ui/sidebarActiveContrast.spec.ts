@@ -23,3 +23,17 @@ test('sidebar top active links keep nav-active-fg (contrast on accent)', (assert
     );
 
 });
+
+test('sidebar active route badges inherit nav-active-fg (lock/MCP contrast)', (assert) => {
+
+    // .route-badge { color: var(--text-secondary) } otherwise stays grey on teal.
+    const activeBadgeRule = styles.match(
+        /\.sidebar-link--active \.route-badge[\s\S]*?\{[^}]*\}/,
+    )?.[0] ?? '';
+
+    assert.equal(activeBadgeRule.includes('color: inherit'), true);
+    // Override tinted variants too (green None / MCP purple).
+    assert.equal(activeBadgeRule.includes('.route-badge--none'), true);
+    assert.equal(activeBadgeRule.includes('.route-badge--mcp'), true);
+
+});

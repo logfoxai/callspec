@@ -76,10 +76,21 @@ import {Icon} from '@astrojs/starlight/components';
 
 	function onThemeChange(theme: Theme): void {
 		const resolved = resolveTheme(theme);
-		StarlightThemeProvider.updatePickers(theme);
-		document.documentElement.dataset.theme = resolved;
-		storeTheme(theme);
-		syncAllSliders(theme, resolved);
+		const commit = () => {
+			StarlightThemeProvider.updatePickers(theme);
+			document.documentElement.dataset.theme = resolved;
+			storeTheme(theme);
+			syncAllSliders(theme, resolved);
+		};
+		// Crossfade paints — avoids muddy CSS-variable background interpolation flicker.
+		if (
+			typeof document.startViewTransition === 'function' &&
+			!matchMedia('(prefers-reduced-motion: reduce)').matches
+		) {
+			document.startViewTransition(commit);
+			return;
+		}
+		commit();
 	}
 
 	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
@@ -111,9 +122,12 @@ import {Icon} from '@astrojs/starlight/components';
 	 * so it must not be used for the knob or the sun vanishes on a black thumb.
 	 */
 	.theme-slider {
-		--ts-track: color-mix(in srgb, var(--sl-color-gray-5) 88%, var(--sl-color-gray-2));
+		/* Greyscale chrome — not code-block / brand fill. */
+		--ts-track: color-mix(in srgb, #000 7%, var(--surface, var(--sl-color-bg-nav)));
+		--ts-edge: color-mix(in srgb, #000 14%, var(--surface, var(--sl-color-bg-nav)));
+		--ts-edge-hover: color-mix(in srgb, #000 40%, var(--surface, var(--sl-color-bg-nav)));
 		--ts-thumb: #ffffff;
-		--ts-ink: color-mix(in srgb, var(--sl-color-gray-2) 70%, transparent);
+		--ts-ink: color-mix(in srgb, #000 42%, transparent);
 		--ts-ink-on-thumb: #1a1b20;
 		display: grid;
 		place-items: center;
@@ -127,18 +141,27 @@ import {Icon} from '@astrojs/starlight/components';
 		color: inherit;
 	}
 
+	:global(html[data-theme='dark']) .theme-slider {
+		--ts-track: color-mix(in srgb, #fff 10%, var(--surface, var(--sl-color-bg-nav)));
+		--ts-edge: color-mix(in srgb, #fff 16%, var(--surface, var(--sl-color-bg-nav)));
+		--ts-edge-hover: color-mix(in srgb, #fff 42%, var(--surface, var(--sl-color-bg-nav)));
+		--ts-thumb: #f4f4f5;
+		--ts-ink: color-mix(in srgb, #fff 45%, transparent);
+		--ts-ink-on-thumb: #18181b;
+	}
+
 	.theme-slider__shell {
 		position: relative;
 		width: 3.35rem;
 		height: 1.65rem;
 		border-radius: 999px;
 		background: var(--ts-track);
-		box-shadow: inset 0 0 0 1px var(--sl-color-hairline);
+		box-shadow: inset 0 0 0 1px var(--ts-edge);
 		transition: background-color 0.15s ease, box-shadow 0.15s ease;
 	}
 
 	.theme-slider:hover .theme-slider__shell {
-		box-shadow: inset 0 0 0 1px var(--sl-color-gray-2);
+		box-shadow: inset 0 0 0 1px var(--ts-edge-hover);
 	}
 
 	.theme-slider:focus-visible {
@@ -146,8 +169,12 @@ import {Icon} from '@astrojs/starlight/components';
 	}
 
 	.theme-slider:focus-visible .theme-slider__shell {
-		outline: 2px solid var(--sl-color-accent);
+		outline: 2px solid color-mix(in srgb, #000 28%, transparent);
 		outline-offset: 2px;
+	}
+
+	:global(html[data-theme='dark']) .theme-slider:focus-visible .theme-slider__shell {
+		outline-color: color-mix(in srgb, #fff 35%, transparent);
 	}
 
 	.theme-slider__icon {

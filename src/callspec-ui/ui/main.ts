@@ -17,17 +17,22 @@ import {bindSchemaPanels, renderRouteErrorsSection, renderSchemaExamplePanel} fr
 import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {
+    renderDocsMenuButton,
     renderHeaderContractButtons,
     renderDocsSearchField,
     renderDocsThemeSlider,
     renderMcpOnlySlider,
+    renderMobileMenuTools,
     renderUiNotice,
     syncAllDocsThemeSliders,
 } from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {chevronLeftIcon, closeIcon, menuIcon, tagIcon} from './icons';
+import {lockIcon, tagIcon, unlockIcon} from './icons';
 import {renderRouteBadges} from './routeBadges';
+import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {renderRoutePaginationFooter} from './routePagination';
+import {readScrollTop, writeScrollTop} from './preserveScrollTop';
+import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
 
 type View =
     | {kind: 'home'}
@@ -176,7 +181,6 @@ function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): stri
 function renderTopHeader(
     title: string,
     branding: CallspecUiBranding | undefined,
-    searchText: string,
     specUrl: string,
 ): string {
 
@@ -184,22 +188,15 @@ function renderTopHeader(
 
     return `
         <header class="top-header">
-            <button type="button" class="nav-menu-btn" id="nav-menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="nav-drawer">
-                ${menuIcon()}
-            </button>
             <button type="button" class="top-brand" data-view="home">
                 ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
                 <span class="top-brand-text">${escapeHtml(name)}</span>
             </button>
-            ${renderDocsSearchField({
-                id: 'header-search',
-                value: searchText,
-                className: 'cs-docs-search--header',
-            })}
             ${renderNavbarLinks(branding)}
             <div class="top-header__end">
                 ${renderHeaderContractButtons(specUrl)}
                 ${renderDocsThemeSlider('theme-toggle')}
+                ${renderDocsMenuButton()}
             </div>
         </header>
     `;
@@ -451,7 +448,6 @@ function renderOverview(
     filtered: CallspecUiRoute[],
     allRoutes: CallspecUiRoute[],
     filters: RouteFilters,
-    showHome: boolean,
 ): string {
 
     const tags = uniqueTags(allRoutes);
@@ -490,28 +486,36 @@ function renderOverview(
 
         const active = filters.tag === tag ? ' active' : '';
 
-        return `<button type="button" class="filter-pill${active}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`;
+        return `
+            <button type="button" class="filter-pill filter-pill--tag${active}" data-tag="${escapeHtml(tag)}">
+                <span class="filter-pill__icon" aria-hidden="true">${tagIcon()}</span>
+                <span class="filter-pill__label">${escapeHtml(tag)}</span>
+            </button>
+        `;
 
     }).join('');
 
-    const breadcrumb = showHome
-        ? `<nav class="breadcrumb">${backLink('Home', 'data-view="home"')}</nav>`
-        : '';
-
     return `
-        ${breadcrumb}
         <div class="overview">
-            <div class="overview-head">
-                <h2 class="overview-title">Routes</h2>
-                <p class="overview-count">${filtered.length} of ${allRoutes.length}</p>
+            <div class="overview-title-panel">
+                <div class="overview-head">
+                    <h1 class="overview-title">Routes</h1>
+                    <p class="overview-count">${filtered.length} of ${allRoutes.length}</p>
+                </div>
             </div>
             <div class="filters">
                 <div class="filter-row">
                     <span class="filter-label">Auth</span>
                     <div class="filter-pills">
                         <button type="button" class="filter-pill${filters.auth === 'all' ? ' active' : ''}" data-auth="all">All</button>
-                        <button type="button" class="filter-pill${filters.auth === 'none' ? ' active' : ''}" data-auth="none">none</button>
-                        <button type="button" class="filter-pill${filters.auth === 'bearer' ? ' active' : ''}" data-auth="bearer">bearer</button>
+                        <button type="button" class="filter-pill filter-pill--auth${filters.auth === 'none' ? ' active' : ''}" data-auth="none">
+                            <span class="filter-pill__icon filter-pill__icon--none" aria-hidden="true">${unlockIcon()}</span>
+                            <span class="filter-pill__label">None</span>
+                        </button>
+                        <button type="button" class="filter-pill filter-pill--auth${filters.auth === 'bearer' ? ' active' : ''}" data-auth="bearer">
+                            <span class="filter-pill__icon filter-pill__icon--bearer" aria-hidden="true">${lockIcon()}</span>
+                            <span class="filter-pill__label">Bearer</span>
+                        </button>
                     </div>
                 </div>
                 <div class="filter-row">
@@ -522,11 +526,8 @@ function renderOverview(
                     </div>
                 </div>
                 <div class="filter-row filter-row--mcp">
-                    <span class="filter-label">MCP</span>
-                    <div class="filter-mcp-toggle">
-                        ${renderMcpOnlySlider('mcp-only', filters.mcpOnly)}
-                        <span class="filter-mcp-toggle__label">MCP only</span>
-                    </div>
+                    <span class="filter-label">MCP only</span>
+                    ${renderMcpOnlySlider('mcp-only', filters.mcpOnly)}
                 </div>
             </div>
             ${groupsHtml || '<div class="empty-state"><p>No routes match these filters</p></div>'}
@@ -541,17 +542,6 @@ function renderErrors(route: CallspecUiRoute): string {
 
 }
 
-function backLink(label: string, attrs: string): string {
-
-    return `
-        <button type="button" class="breadcrumb-link" ${attrs}>
-            <span class="breadcrumb-link__icon" aria-hidden="true">${chevronLeftIcon()}</span>
-            <span class="breadcrumb-link__label">${escapeHtml(label)}</span>
-        </button>
-    `;
-
-}
-
 function renderRoute(
     route: CallspecUiRoute,
     bodyJson: string,
@@ -561,54 +551,50 @@ function renderRoute(
 
     return `
         <div class="route-page">
-            <div class="route-page__content">
-                <nav class="breadcrumb">
-                    ${backLink('All routes', 'data-view="routes"')}
-                </nav>
-                <div class="route-endpoint">
-                    <span class="method">POST</span>
-                    <h2 class="route-name">${escapeHtml(route.name)}</h2>
-                    <div class="badges">${renderRouteBadges(route)}</div>
-                </div>
-                <p class="route-summary">${escapeHtml(route.summary)}</p>
-                ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
-                <div class="route-docs">
-                    ${renderSchemaExamplePanel({
-                        panelId: 'request',
-                        title: 'Request',
-                        schema: route.inputSchema,
-                    })}
-                    ${renderSchemaExamplePanel({
-                        panelId: 'response',
-                        title: 'Response',
-                        schema: route.outputSchema,
-                    })}
-                    ${renderErrors(route)}
-                </div>
-                ${renderRoutePaginationFooter(route.name, allRoutes)}
+            <div class="route-page__title">
+                ${renderRouteHeader(route)}
             </div>
-            <aside class="route-try" aria-label="Try it">
-                <div class="section try-section">
-                    <h3 class="section-title">Try it</h3>
-                    <div class="try-block">
-                        ${route.auth === 'bearer' ? `
-                        <div class="field">
-                            <label for="auth">Authorization</label>
-                            <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" value="${escapeHtml(authToken)}">
-                        </div>
-                        ` : ''}
-                        <div class="field">
-                            <label for="body">Body</label>
-                            ${jsonEditorHtml('body', bodyJson)}
-                        </div>
-                        <div class="actions">
-                            <button type="button" class="btn btn-primary" id="send">Send</button>
-                            <button type="button" class="btn btn-ghost" id="copy-curl-try">Copy curl</button>
-                        </div>
-                        <div class="response" id="response"></div>
+            <div class="route-page__body">
+                <div class="route-page__content">
+                    ${renderRouteLead(route)}
+                    <div class="route-docs">
+                        ${renderSchemaExamplePanel({
+                            panelId: 'request',
+                            title: 'Request',
+                            schema: route.inputSchema,
+                        })}
+                        ${renderSchemaExamplePanel({
+                            panelId: 'response',
+                            title: 'Response',
+                            schema: route.outputSchema,
+                        })}
+                        ${renderErrors(route)}
                     </div>
+                    ${renderRoutePaginationFooter(route.name, allRoutes)}
                 </div>
-            </aside>
+                <aside class="route-try" aria-label="Try it">
+                    <div class="section try-section">
+                        <h3 class="section-title">Try it</h3>
+                        <div class="try-block">
+                            ${route.auth === 'bearer' ? `
+                            <div class="field">
+                                <label for="auth">Authorization</label>
+                                <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" value="${escapeHtml(authToken)}">
+                            </div>
+                            ` : ''}
+                            <div class="field">
+                                <label for="body">Body</label>
+                                ${jsonEditorHtml('body', bodyJson)}
+                            </div>
+                            <div class="actions">
+                                <button type="button" class="btn btn-primary" id="send">Send</button>
+                                <button type="button" class="btn btn-ghost" id="copy-curl-try">Copy curl</button>
+                            </div>
+                            <div class="response" id="response"></div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
         </div>
     `;
 
@@ -701,14 +687,6 @@ function copyCurl(route: CallspecUiRoute): void {
 
 }
 
-function focusableIn(root: HTMLElement): HTMLElement[] {
-
-    return [...root.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )].filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
-
-}
-
 function bindCopyButtons(root: ParentNode): void {
 
     root.querySelectorAll('[data-copy]').forEach((btn) => {
@@ -795,62 +773,34 @@ async function boot(): Promise<void> {
             drawer?.classList.remove('open');
             drawer?.removeAttribute('role');
             drawer?.removeAttribute('aria-modal');
-            document.getElementById('nav-overlay')?.classList.remove('open');
             document.body.classList.remove('nav-open');
+            document.body.removeAttribute('data-mobile-menu-expanded');
+            document.querySelector('.content')?.removeAttribute('inert');
             const menuBtn = document.getElementById('nav-menu-btn');
 
             if (menuBtn instanceof HTMLButtonElement) {
 
                 menuBtn.setAttribute('aria-expanded', 'false');
-                menuBtn.setAttribute('aria-label', 'Open navigation');
+                menuBtn.setAttribute('aria-label', 'Menu');
 
             }
 
         };
 
-        const trapFocus = (drawer: HTMLElement): (() => void) => {
+        const bindOpenNavChrome = (): (() => void) => {
 
             const onKeyDown = (event: KeyboardEvent): void => {
 
-                if (event.key === 'Escape') {
+                if (event.key !== 'Escape') return;
 
-                    event.preventDefault();
-                    closeNav();
-                    document.getElementById('nav-menu-btn')?.focus();
-                    return;
-
-                }
-
-                if (event.key !== 'Tab') return;
-
-                const focusable = focusableIn(drawer);
-
-                if (!focusable.length) return;
-
-                const first = focusable[0];
-                const last = focusable[focusable.length - 1];
-
-                if (!first || !last) return;
-
-                if (event.shiftKey && document.activeElement === first) {
-
-                    event.preventDefault();
-                    last.focus();
-
-                } else if (!event.shiftKey && document.activeElement === last) {
-
-                    event.preventDefault();
-                    first.focus();
-
-                }
+                event.preventDefault();
+                closeNav();
+                document.getElementById('nav-menu-btn')?.focus();
 
             };
 
             document.addEventListener('keydown', onKeyDown);
-
-            const focusable = focusableIn(drawer);
-
-            (focusable[0] ?? drawer).focus();
+            document.querySelector('.content')?.setAttribute('inert', '');
 
             return () => document.removeEventListener('keydown', onKeyDown);
 
@@ -860,12 +810,11 @@ async function boot(): Promise<void> {
 
             navOpen = true;
             const drawer = document.getElementById('nav-drawer');
-            const overlay = document.getElementById('nav-overlay');
             const menuBtn = document.getElementById('nav-menu-btn');
 
             drawer?.classList.add('open');
-            overlay?.classList.add('open');
             document.body.classList.add('nav-open');
+            document.body.setAttribute('data-mobile-menu-expanded', '');
 
             if (drawer) {
 
@@ -877,15 +826,11 @@ async function boot(): Promise<void> {
             if (menuBtn instanceof HTMLButtonElement) {
 
                 menuBtn.setAttribute('aria-expanded', 'true');
-                menuBtn.setAttribute('aria-label', 'Close navigation');
+                menuBtn.setAttribute('aria-label', 'Close');
 
             }
 
-            if (drawer) {
-
-                drawerCleanup = trapFocus(drawer);
-
-            }
+            drawerCleanup = bindOpenNavChrome();
 
         };
 
@@ -923,38 +868,46 @@ async function boot(): Promise<void> {
             const filtered = applyRouteFilters(routes, filters);
             const sidebarRoutes = textFiltered;
             const hasNotice = Boolean(branding?.notice?.message);
+            // Full-app innerHTML rebuild wipes scroll — keep sidebar place in memory.
+            const prevSidebar = app.querySelector('.sidebar-scroll');
+            const sidebarScroll = prevSidebar instanceof HTMLElement
+                ? readScrollTop(prevSidebar)
+                : 0;
+
+            // Footer lives in .content; park it on <body> so the wipe doesn't destroy it.
+            parkPoweredByFooter();
 
             app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
                 ${renderUiNotice(branding?.notice)}
-                ${renderTopHeader(title, branding, filters.text, config.specUrl)}
-                <div class="nav-overlay" id="nav-overlay"></div>
+                ${renderTopHeader(title, branding, config.specUrl)}
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
-                    <div class="sidebar-drawer-chrome">
-                        <div class="sidebar-drawer-head">
-                            <p class="sidebar-meta">v${escapeHtml(version)} · ${routes.length} routes</p>
-                            <button type="button" class="nav-close-btn" id="nav-close-btn" aria-label="Close navigation">
-                                ${closeIcon()}
-                            </button>
-                        </div>
+                    <div class="sidebar-search">
                         ${renderDocsSearchField({
-                            id: 'drawer-search',
+                            id: 'sidebar-search',
                             value: filters.text,
-                            className: 'cs-docs-search--drawer',
+                            className: 'cs-docs-search--sidebar',
                         })}
-                        ${renderHeaderContractButtons(config.specUrl, {variant: 'drawer'})}
-                        <div class="drawer-theme">
-                            ${renderDocsThemeSlider('theme-toggle-drawer')}
-                            <span class="drawer-theme-label">Theme</span>
-                        </div>
-                        ${renderDrawerNavbarLinks(branding)}
                     </div>
-                    <div class="sidebar-scroll">${renderSidebar(sidebarRoutes, view, showHome)}</div>
+                    <div class="sidebar-scroll">
+                        <p class="sidebar-meta sidebar-meta--mobile">v${escapeHtml(version)} · ${routes.length} routes</p>
+                        ${renderSidebar(sidebarRoutes, view, showHome)}
+                    </div>
+                    ${renderMobileMenuTools({
+                        leadingHtml: renderHeaderContractButtons(config.specUrl, {variant: 'drawer'}),
+                        themeSliderId: 'theme-toggle-drawer',
+                        navLinksHtml: renderDrawerNavbarLinks(branding),
+                    })}
                 </aside>
                 <div class="content">
                     <main class="main" id="main"></main>
                 </div>
             `;
+
+            const nextSidebar = app.querySelector('.sidebar-scroll');
+            if (nextSidebar instanceof HTMLElement) writeScrollTop(nextSidebar, sidebarScroll);
+
+            placePoweredByFooter(app, branding.footer?.poweredBy);
 
             const main = document.getElementById('main');
 
@@ -982,7 +935,7 @@ async function boot(): Promise<void> {
 
             } else if (main && view.kind === 'routes') {
 
-                main.innerHTML = renderOverview(filtered, routes, filters, showHome);
+                main.innerHTML = renderOverview(filtered, routes, filters);
                 bindOverviewFilters(main);
 
             } else if (main && view.kind === 'route') {
@@ -1036,10 +989,10 @@ async function boot(): Promise<void> {
 
                 if (!(input instanceof HTMLInputElement)) return;
 
-                input.addEventListener('input', () => {
+                const applySearch = (value: string): void => {
 
                     persistRouteDraft();
-                    filters = {...filters, text: input.value};
+                    filters = {...filters, text: value};
                     render();
                     const restored = document.getElementById(id);
 
@@ -1051,12 +1004,27 @@ async function boot(): Promise<void> {
 
                     }
 
+                };
+
+                input.addEventListener('input', () => {
+                    applySearch(input.value);
                 });
+
+                const clearBtn = input
+                    .closest('.cs-docs-search')
+                    ?.querySelector('.cs-docs-search__clear');
+
+                if (clearBtn instanceof HTMLButtonElement) {
+
+                    clearBtn.addEventListener('click', () => {
+                        applySearch('');
+                    });
+
+                }
 
             };
 
-            bindSearchInput('header-search');
-            bindSearchInput('drawer-search');
+            bindSearchInput('sidebar-search');
 
             document.getElementById('nav-menu-btn')?.addEventListener('click', () => {
 
@@ -1065,8 +1033,11 @@ async function boot(): Promise<void> {
 
             });
 
-            document.getElementById('nav-close-btn')?.addEventListener('click', closeNav);
-            document.getElementById('nav-overlay')?.addEventListener('click', closeNav);
+            matchMedia('(min-width: 50rem)').addEventListener('change', (event) => {
+
+                if (event.matches) closeNav();
+
+            });
 
             if (navOpen) openNav();
 
@@ -1132,10 +1103,16 @@ async function boot(): Promise<void> {
 
             });
 
-            main.querySelector('#mcp-only')?.addEventListener('click', () => {
+            main.querySelectorAll('[data-mcp-only]').forEach((btn) => {
 
-                filters = {...filters, mcpOnly: !filters.mcpOnly};
-                render();
+                btn.addEventListener('click', () => {
+
+                    if (!(btn instanceof HTMLElement)) return;
+
+                    filters = {...filters, mcpOnly: btn.dataset.mcpOnly === 'true'};
+                    render();
+
+                });
 
             });
 
@@ -1175,7 +1152,7 @@ async function boot(): Promise<void> {
             }
 
             event.preventDefault();
-            const input = document.getElementById('header-search');
+            const input = document.getElementById('sidebar-search');
 
             if (input instanceof HTMLInputElement) {
 

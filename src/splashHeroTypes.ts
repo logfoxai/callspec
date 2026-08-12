@@ -3,10 +3,11 @@ export type SplashHeroAction = {
 	text: string;
 	link: string;
 	variant?: 'primary' | 'secondary' | 'minimal';
-	icon?: {
-		name?: string;
-		html?: string;
-	};
+	/** After Starlight schema transform: `{ type: 'icon', name }` or `{ type: 'raw', html }`. */
+	icon?:
+		| {type: 'icon'; name: string}
+		| {type: 'raw'; html: string}
+		| {name?: string; html?: string};
 	attrs?: Record<string, string | number | boolean> & {
 		class?: string;
 	};
@@ -15,7 +16,7 @@ export type SplashHeroAction = {
 export type SplashHeroActionList = SplashHeroAction[];
 
 /** Icons referenced from splash hero frontmatter. */
-export const SPLASH_HERO_ICON_NAMES = ['right-arrow', 'left-arrow', 'github'] as const;
+export const SPLASH_HERO_ICON_NAMES = ['right-arrow', 'left-arrow', 'github', 'rocket'] as const;
 
 export type SplashHeroIconName = (typeof SPLASH_HERO_ICON_NAMES)[number];
 

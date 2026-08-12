@@ -1,5 +1,34 @@
+import {readFileSync} from 'node:fs';
+import {dirname, join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {test} from 'kizu';
 import {renderRouteErrorsSection, renderSchemaExamplePanel} from './schemaPanel';
+
+const styles = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), 'styles.css'),
+    'utf8',
+);
+
+test('error-card schema toggle stays in-flow (no seam overlap)', (assert) => {
+
+    // Absolute + translateY(-50%) parks the Schema/Example control on the
+    // description/code border and clips into both panels.
+    const toggleRule = styles.match(/\.error-card-schema__toggle\s*\{[^}]+\}/)?.[0] ?? '';
+
+    assert.equal(toggleRule.includes('position: absolute'), false);
+    assert.equal(toggleRule.includes('translateY(-50%)'), false);
+    assert.equal(styles.includes('error-card-schema__head'), true);
+
+    const html = renderRouteErrorsSection({
+        name: 'healthcheck',
+        auth: 'none',
+        errors: {},
+    });
+
+    assert.equal(html.includes('error-card-schema__head'), true);
+    assert.equal(html.includes('error-card-schema__toggle'), false);
+
+});
 
 test('renderSchemaExamplePanel: schema and example views with toggle', (assert) => {
 

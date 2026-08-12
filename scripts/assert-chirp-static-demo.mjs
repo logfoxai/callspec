@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const demoDir = path.join(root, 'docs-site', 'demo');
-const required = ['index.html', 'callspec.json', 'openapi.json', 'brand/mark.png', 'brand/mark-dark.svg'];
+const required = ['index.html', 'callspec.json', 'openapi.json', 'brand/birb-icon-square.svg'];
 
 for (const rel of required) {
 	const full = path.join(demoDir, rel);

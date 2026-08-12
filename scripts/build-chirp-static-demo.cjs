@@ -85,9 +85,11 @@ exportCallspecUi({
     mcp,
     branding: {
         ...branding,
-        logoUrl: './brand/mark.png',
-        logoUrlDark: './brand/mark.png',
-        favicon: './brand/mark.png',
+        // Short lockup — full title stays in the page H1 / spec meta.
+        name: 'Chirp',
+        logoUrl: './brand/birb-icon-square.svg',
+        logoUrlDark: './brand/birb-icon-square.svg',
+        favicon: './brand/birb-icon-square.svg',
         notice: {
             title: 'Demo only',
             message: 'Browse-only — no Send or live MCP.',
@@ -107,6 +109,11 @@ if (!demoHtml.includes('<base href="/demo/">')) {
     );
 }
 
-fs.cpSync(brandSrc, path.join(outDir, 'brand'), {recursive: true});
+const brandOut = path.join(outDir, 'brand');
+fs.mkdirSync(brandOut, {recursive: true});
+fs.copyFileSync(
+    path.join(brandSrc, 'birb-icon-square.svg'),
+    path.join(brandOut, 'birb-icon-square.svg'),
+);
 
 console.log(`chirp static demo → ${path.relative(root, outDir)}`);

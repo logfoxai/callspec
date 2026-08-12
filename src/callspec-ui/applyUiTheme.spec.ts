@@ -17,6 +17,12 @@ test('applyUiTheme: maps theme keys to CSS vars and returns fontUrls', (assert) 
     assert.equal(result.cssVars['--accent'], '#0ea5e9');
     assert.equal(result.cssVars['--nav-active-bg'], '#0ea5e9');
     assert.equal(result.cssVars['--nav-active-fg'], '#fafafa');
+    assert.equal(result.cssVars['--cs-primary-bg'], '#0ea5e9');
+    assert.equal(result.cssVars['--cs-primary-fg'], '#fafafa');
+    assert.equal(
+        result.cssVars['--accent-soft'],
+        'color-mix(in srgb, #0ea5e9 16%, var(--surface))',
+    );
     assert.equal(result.cssVars['--bg'], '#0f172a');
     assert.equal(result.cssVars['--surface'], '#1e293b');
     assert.equal(result.cssVars['--sans'], '"IBM Plex Sans", system-ui, sans-serif');
@@ -53,6 +59,11 @@ test('applyUiTheme: accent-only sets nav active tokens from accent contrast', (a
     assert.equal(result.cssVars['--accent'], '#111');
     assert.equal(result.cssVars['--nav-active-bg'], '#111');
     assert.equal(result.cssVars['--nav-active-fg'], '#fafafa');
+    assert.equal(result.cssVars['--cs-primary-bg'], '#111');
+    assert.equal(
+        result.cssVars['--accent-soft'],
+        'color-mix(in srgb, #111 16%, var(--surface))',
+    );
     assert.equal(result.fontUrls, []);
 
 });

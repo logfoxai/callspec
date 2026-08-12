@@ -17,10 +17,36 @@ function getPreferredTheme(): Theme {
 
 }
 
-function applyTheme(theme: Theme): void {
+function prefersReducedMotion(): boolean {
+
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+}
+
+function commitTheme(theme: Theme): void {
 
     document.documentElement.dataset.theme = theme;
     localStorage.setItem(STORAGE_KEY, theme);
+
+}
+
+/** Crossfade theme paints — avoids muddy CSS-variable background interpolation flicker. */
+function applyTheme(theme: Theme, animate: boolean): void {
+
+    if (
+        animate
+        && typeof document.startViewTransition === 'function'
+        && !prefersReducedMotion()
+    ) {
+
+        document.startViewTransition(() => {
+            commitTheme(theme);
+        });
+        return;
+
+    }
+
+    commitTheme(theme);
 
 }
 
@@ -28,7 +54,7 @@ export function initTheme(): Theme {
 
     const theme = getPreferredTheme();
 
-    applyTheme(theme);
+    applyTheme(theme, false);
 
     return theme;
 
@@ -38,7 +64,7 @@ export function toggleTheme(current: Theme): Theme {
 
     const next: Theme = current === 'light' ? 'dark' : 'light';
 
-    applyTheme(next);
+    applyTheme(next, true);
 
     return next;
 

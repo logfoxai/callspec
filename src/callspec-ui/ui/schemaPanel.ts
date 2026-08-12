@@ -112,7 +112,7 @@ function renderCatalogErrorCard(entry: CatalogRouteError): string {
             <div class="error-card-body">
                 <p class="error-summary">${escapeHtml(entry.summary)}</p>
                 <div class="error-card-schema">
-                    <div class="error-card-schema__toggle">
+                    <div class="error-card-schema__head">
                         ${renderViewToggle(panelId)}
                     </div>
                     ${renderSchemaPanelViews(

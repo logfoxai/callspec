@@ -111,12 +111,15 @@ export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme
     if (typeof theme.accent === 'string' && theme.accent.length > 0) {
 
         cssVars['--nav-active-bg'] = theme.accent;
+        cssVars['--cs-primary-bg'] = theme.accent;
+        cssVars['--accent-soft'] = `color-mix(in srgb, ${theme.accent} 16%, var(--surface))`;
 
         const onAccent = textTokensForSurface(theme.accent);
 
         if (onAccent) {
 
             cssVars['--nav-active-fg'] = onAccent['--text'];
+            cssVars['--cs-primary-fg'] = onAccent['--text'];
 
         }
 

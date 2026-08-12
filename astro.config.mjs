@@ -58,9 +58,13 @@ export default defineConfig({
             ],
             components: {
                 Head: './src/overrides/Head.astro',
+                Header: './src/overrides/Header.astro',
                 Hero: './src/overrides/Hero.astro',
                 Search: './src/overrides/Search.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
+                MobileMenuToggle: './src/overrides/MobileMenuToggle.astro',
+                MobileMenuFooter: './src/overrides/MobileMenuFooter.astro',
+                PageFrame: './src/overrides/PageFrame.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
                 SiteTitle: './src/overrides/SiteTitle.astro',
             },

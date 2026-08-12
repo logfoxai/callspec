@@ -267,7 +267,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
         width: 100%;
         max-width: none;
         font-family: var(--cs-font-heading);
-        font-size: clamp(2.5rem, 6.5vw, 4.25rem);
+        font-size: clamp(2.65rem, 6.9vw, 4.5rem);
         font-weight: 600;
         letter-spacing: -0.045em;
         line-height: 1.08;
@@ -309,14 +309,27 @@ html[data-has-hero]:not([data-has-sidebar]) {
 
         .sl-link-button {
             font-family: var(--cs-font-heading);
-            font-size: 0.95rem;
-            letter-spacing: -0.01em;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.5rem;
-            min-height: 2.45rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: -0.015em;
+            padding: 1.05rem 1.85rem;
+            border-radius: 0.65rem;
+            min-height: 3.5rem;
+            gap: 0.65rem;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
-            svg {
+            /* Beat Starlight LinkButton desktop padding/type (50rem media). */
+            @media (min-width: 50rem) {
+                font-size: 1.2rem;
+                padding: 1.05rem 1.85rem;
+            }
+
+            svg,
+            .splash-hero__cta-icon,
+            .splash-hero__chirp-mark {
+                flex-shrink: 0;
+                width: 1.55rem;
+                height: 1.55rem;
                 transition: transform 0.15s ease;
             }
 
@@ -344,12 +357,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
             }
 
             &.secondary {
-                font-weight: 500;
-            }
-
-            &.sl-link-button--chirp .splash-hero__chirp-mark {
-                width: 1.35rem;
-                height: 1.35rem;
+                font-weight: 600;
             }
         }
     }

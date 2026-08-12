@@ -8,8 +8,8 @@
     align-items: center;
     gap: 0.55rem;
     min-width: 0;
-    flex: 0 1 22rem;
-    max-width: 22rem;
+    flex: 0 1 var(--docs-search-max-width);
+    max-width: var(--docs-search-max-width);
     height: var(--docs-search-height);
     margin-left: auto;
     padding-inline: 0.85rem;
@@ -20,28 +20,18 @@
     cursor: text;
 }
 
-.cs-docs-search--header {
-    flex: 0 1 13rem;
-    max-width: 13rem;
+.cs-docs-search--header,
+.cs-docs-search--sidebar {
+    flex: 0 1 var(--docs-search-max-width);
+    max-width: var(--docs-search-max-width);
     height: var(--docs-search-height);
     margin-left: 0;
-    padding-inline: 0.75rem;
-    gap: 0.45rem;
 }
 
-.cs-docs-search--header .cs-docs-search__icon,
-.cs-docs-search--header .cs-docs-search__icon svg {
-    width: 1rem;
-    height: 1rem;
-}
-
-.cs-docs-search--header .cs-docs-search__input {
-    font-size: 0.8125rem;
-}
-
-.cs-docs-search--header .cs-docs-search__kbd {
-    font-size: 0.6875rem;
-    padding: 0.125rem 0.35rem;
+.cs-docs-search--sidebar {
+    flex: 1 1 auto;
+    max-width: none;
+    width: 100%;
 }
 
 .cs-docs-search:hover {
@@ -82,10 +72,58 @@
     font: inherit;
     font-size: 0.9375rem;
     outline: none;
+    /* Native cancel is not reliably keyboard-focusable — use .cs-docs-search__clear. */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.cs-docs-search__input::-webkit-search-cancel-button,
+.cs-docs-search__input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
 }
 
 .cs-docs-search__input::placeholder {
     color: var(--text-secondary);
+}
+
+.cs-docs-search__clear {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin: 0;
+    margin-inline-start: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--border) 55%, transparent);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.cs-docs-search__clear svg {
+    display: block;
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+.cs-docs-search__clear:hover {
+    color: var(--text);
+    background: color-mix(in srgb, var(--border-strong) 45%, transparent);
+}
+
+.cs-docs-search__clear:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Show clear (and keep it in tab order) when the field has a value. */
+.cs-docs-search__input:not(:placeholder-shown) ~ .cs-docs-search__clear {
+    display: inline-flex;
 }
 
 .cs-docs-search__kbd {
@@ -101,20 +139,27 @@
     line-height: 1.2;
 }
 
+.cs-docs-search:focus-within .cs-docs-search__kbd,
+.cs-docs-search__input:not(:placeholder-shown) ~ .cs-docs-search__kbd {
+    display: none;
+}
+
 [data-theme='light'] .cs-docs-search {
     background: #ffffff;
     box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
 }
 
 [data-theme='light'] .cs-docs-search__kbd {
-    background: var(--accent-soft);
+    background: color-mix(in srgb, var(--border) 55%, transparent);
 }
 
-/* Theme slider — ThemeSelect.astro */
+/* Theme slider — ThemeSelect.astro (greyscale chrome; not code-block / brand fill). */
 .cs-theme-slider {
-    --ts-track: color-mix(in srgb, var(--border) 88%, var(--text-secondary));
+    --ts-track: color-mix(in srgb, #000 7%, var(--surface));
+    --ts-edge: color-mix(in srgb, #000 14%, var(--surface));
+    --ts-edge-hover: color-mix(in srgb, #000 40%, var(--surface));
     --ts-thumb: #ffffff;
-    --ts-ink: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+    --ts-ink: color-mix(in srgb, #000 42%, transparent);
     --ts-ink-on-thumb: #1a1b20;
     display: grid;
     place-items: center;
@@ -129,18 +174,27 @@
     flex-shrink: 0;
 }
 
+[data-theme='dark'] .cs-theme-slider {
+    --ts-track: color-mix(in srgb, #fff 10%, var(--surface));
+    --ts-edge: color-mix(in srgb, #fff 16%, var(--surface));
+    --ts-edge-hover: color-mix(in srgb, #fff 42%, var(--surface));
+    --ts-thumb: #f4f4f5;
+    --ts-ink: color-mix(in srgb, #fff 45%, transparent);
+    --ts-ink-on-thumb: #18181b;
+}
+
 .cs-theme-slider__shell {
     position: relative;
     width: 3.35rem;
     height: 1.65rem;
     border-radius: 999px;
     background: var(--ts-track);
-    box-shadow: inset 0 0 0 1px var(--border);
+    box-shadow: inset 0 0 0 1px var(--ts-edge);
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .cs-theme-slider:hover .cs-theme-slider__shell {
-    box-shadow: inset 0 0 0 1px var(--border-strong);
+    box-shadow: inset 0 0 0 1px var(--ts-edge-hover);
 }
 
 .cs-theme-slider:focus-visible {
@@ -148,8 +202,12 @@
 }
 
 .cs-theme-slider:focus-visible .cs-theme-slider__shell {
-    outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    outline: 2px solid color-mix(in srgb, #000 28%, transparent);
     outline-offset: 2px;
+}
+
+[data-theme='dark'] .cs-theme-slider:focus-visible .cs-theme-slider__shell {
+    outline-color: color-mix(in srgb, #fff 35%, transparent);
 }
 
 .cs-theme-slider__icon {
@@ -214,110 +272,156 @@
     }
 }
 
-/* MCP filter slider — matches cs-theme-slider */
-.cs-mcp-slider {
-    --ts-track: color-mix(in srgb, var(--border) 88%, var(--text-secondary));
-    --ts-thumb: #ffffff;
-    --ts-ink: color-mix(in srgb, var(--text-secondary) 70%, transparent);
-    --ts-ink-on-thumb: #1a1b20;
-    display: grid;
-    place-items: center;
-    width: auto;
-    height: auto;
+/* Mobile Menu chip — equal bars + Menu/Close (matches Starlight MobileMenuToggle). */
+.cs-menu-toggle__btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    height: 2.25rem;
     margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
+    padding: 0 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--surface) 92%, var(--bg));
+    color: var(--text);
+    box-shadow: none;
     cursor: pointer;
-    color: inherit;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
     flex-shrink: 0;
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
 }
 
-.cs-mcp-slider__shell {
-    position: relative;
-    width: 3.35rem;
-    height: 1.65rem;
-    border-radius: 999px;
-    background: var(--ts-track);
-    box-shadow: inset 0 0 0 1px var(--border);
-    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+.cs-menu-toggle__btn:hover {
+    border-color: var(--border-strong);
+    background: color-mix(in srgb, var(--border) 35%, var(--surface));
 }
 
-.cs-mcp-slider:hover .cs-mcp-slider__shell {
-    box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-
-.cs-mcp-slider:focus-visible {
-    outline: none;
-}
-
-.cs-mcp-slider:focus-visible .cs-mcp-slider__shell {
-    outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+.cs-menu-toggle__btn:focus-visible {
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
-.cs-mcp-slider__icon {
+.cs-menu-toggle__btn:active {
+    transform: scale(0.97);
+}
+
+[data-theme='light'] .cs-menu-toggle__btn {
+    background: #ffffff;
+    box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
+}
+
+[data-theme='light'] .cs-menu-toggle__btn:hover {
+    background: #f3f5f9;
+    border-color: var(--border-strong);
+}
+
+.cs-menu-toggle__btn[aria-expanded='true'] {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+
+[data-theme='light'] .cs-menu-toggle__btn[aria-expanded='true'] {
+    background: color-mix(in srgb, var(--accent) 12%, #ffffff);
+}
+
+.cs-menu-toggle__icon {
+    position: relative;
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+
+.cs-menu-toggle__line {
     position: absolute;
-    top: 50%;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    width: 1.2rem;
-    height: 1.2rem;
-    transform: translateY(-50%);
-    color: var(--ts-ink);
+    left: 0;
+    width: 100%;
+    height: 0.1125rem;
+    border-radius: 999px;
+    background: currentColor;
+    transform-origin: center;
+    transition:
+        transform 0.28s cubic-bezier(0.22, 0.7, 0.24, 1),
+        top 0.28s cubic-bezier(0.22, 0.7, 0.24, 1),
+        opacity 0.2s ease;
+}
+
+.cs-menu-toggle__line--1 {
+    top: 0.1rem;
+}
+
+.cs-menu-toggle__line--2 {
+    top: calc(50% - 0.05625rem);
+}
+
+.cs-menu-toggle__line--3 {
+    top: calc(100% - 0.1rem - 0.1125rem);
+}
+
+.cs-menu-toggle__btn[aria-expanded='true'] .cs-menu-toggle__line--1 {
+    top: calc(50% - 0.05625rem);
+    transform: rotate(45deg);
+}
+
+.cs-menu-toggle__btn[aria-expanded='true'] .cs-menu-toggle__line--2 {
+    opacity: 0;
+}
+
+.cs-menu-toggle__btn[aria-expanded='true'] .cs-menu-toggle__line--3 {
+    top: calc(50% - 0.05625rem);
+    transform: rotate(-45deg);
+}
+
+.cs-menu-toggle__label {
+    position: relative;
+    display: inline-grid;
+    align-items: center;
+    justify-items: center;
+    min-width: 2.75rem;
+    text-align: center;
+}
+
+.cs-menu-toggle__word {
+    grid-area: 1 / 1;
+    line-height: 1;
+    transition:
+        opacity 0.2s ease,
+        transform 0.28s cubic-bezier(0.22, 0.7, 0.24, 1);
+}
+
+.cs-menu-toggle__word--close {
+    opacity: 0;
+    transform: translateY(0.35em);
+}
+
+.cs-menu-toggle__btn[aria-expanded='true'] .cs-menu-toggle__word--open {
+    opacity: 0;
+    transform: translateY(-0.35em);
+}
+
+.cs-menu-toggle__btn[aria-expanded='true'] .cs-menu-toggle__word--close {
     opacity: 1;
-    pointer-events: none;
-    transition: color 0.15s ease, opacity 0.15s ease;
-}
-
-.cs-mcp-slider__icon--all {
-    left: 0.22rem;
-}
-
-.cs-mcp-slider__icon--mcp {
-    right: 0.18rem;
-}
-
-.cs-mcp-slider__icon svg {
-    width: 0.9rem;
-    height: 0.9rem;
-}
-
-.cs-mcp-slider__thumb {
-    position: absolute;
-    top: 50%;
-    left: 0.18rem;
-    z-index: 2;
-    width: 1.3rem;
-    height: 1.3rem;
-    border-radius: 50%;
-    background: var(--ts-thumb);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
-    transform: translate(0, -50%);
-    transition: transform 0.18s ease;
-    pointer-events: none;
-}
-
-.cs-mcp-slider[aria-pressed='true'] .cs-mcp-slider__thumb {
-    transform: translate(1.7rem, -50%);
-}
-
-.cs-mcp-slider[aria-pressed='false'] .cs-mcp-slider__icon--all,
-.cs-mcp-slider[aria-pressed='true'] .cs-mcp-slider__icon--mcp {
-    z-index: 3;
-    color: var(--ts-ink-on-thumb);
+    transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .cs-mcp-slider__thumb,
-    .cs-mcp-slider__icon,
-    .cs-mcp-slider__shell {
+    .cs-menu-toggle__btn,
+    .cs-menu-toggle__line,
+    .cs-menu-toggle__word {
         transition: none;
     }
 }
 
-@media (max-width: 50rem) {
+@media (max-width: 49.99rem) {
     .cs-docs-search {
         flex: 1 1 auto;
         max-width: none;
@@ -326,5 +430,9 @@
 
     .cs-docs-search__kbd {
         display: none;
+    }
+
+    .cs-menu-toggle__btn {
+        display: inline-flex;
     }
 }
