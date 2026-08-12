@@ -341,18 +341,92 @@ html[data-has-hero]:not([data-has-sidebar]) {
                 transform: translateX(-0.2rem);
             }
 
+            /* Get Started — black + white stars (light); white + black stars (dark). */
             &.primary {
+                --splash-rocket-tilt: -14deg;
+                --splash-cta-star: #fff;
+                position: relative;
+                isolation: isolate;
+                overflow: hidden;
                 font-weight: 600;
-                background: var(--cs-primary-bg);
-                border-color: var(--cs-primary-bg);
-                color: var(--cs-primary-fg);
+                color: #fff;
+                border: none;
+                border-color: transparent;
+                background: #000;
                 box-shadow: none;
+                transition: background-color 0.2s ease, color 0.2s ease;
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    /* Slightly wider than the button so a small rotate doesn’t clip empty corners. */
+                    left: -20%;
+                    width: 140%;
+                    top: -100%;
+                    height: 200%;
+                    z-index: -1;
+                    border-radius: inherit;
+                    pointer-events: none;
+                    opacity: 0;
+                    background-image:
+                        radial-gradient(0.85px 0.85px at 8% 14%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 18% 52%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 28% 30%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 36% 78%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 48% 18%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 56% 60%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 66% 40%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 74% 86%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 84% 24%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 92% 68%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 42% 44%, var(--splash-cta-star) 100%, transparent 100%),
+                        radial-gradient(0.85px 0.85px at 78% 54%, var(--splash-cta-star) 100%, transparent 100%);
+                    background-size: 100% 50%;
+                    background-repeat: repeat-y;
+                }
 
                 &:hover {
-                    background: var(--cs-primary-hover-bg);
-                    border-color: var(--cs-primary-hover-bg);
-                    color: var(--cs-primary-hover-fg);
+                    color: #fff;
+                    background: #000;
+                    border: none;
+                    box-shadow: none;
                     transform: none;
+
+                    &::before {
+                        opacity: 0.9;
+                        animation: splash-cta-stars-scroll 0.85s linear infinite;
+                    }
+                }
+
+                &:focus-visible {
+                    outline: 2px solid var(--cs-primary-bg);
+                    outline-offset: 3px;
+                }
+            }
+
+            /* Rocket — tip up-right, slight left tilt; hover bobs along that path. */
+            &.sl-link-button--rocket {
+                .splash-hero__rocket,
+                .splash-hero__rocket-craft {
+                    display: inline-grid;
+                    place-items: center;
+                    width: 1.55rem;
+                    height: 1.55rem;
+                    flex-shrink: 0;
+                }
+
+                .splash-hero__rocket-craft {
+                    transform: rotate(var(--splash-rocket-tilt, -14deg));
+                }
+
+                .splash-hero__cta-icon,
+                .splash-hero__cta-icon svg {
+                    transition: none !important;
+                    transform: none !important;
+                }
+
+                &:hover .splash-hero__rocket-craft {
+                    animation: splash-rocket-bob 0.32s ease-in-out infinite alternate;
                 }
             }
 
@@ -446,6 +520,15 @@ html[data-has-hero]:not([data-has-sidebar]) {
     .splash-hero__actions .sl-link-button--back:hover svg {
         transform: none;
     }
+
+    .splash-hero__actions .sl-link-button.primary::before,
+    .splash-hero__actions .sl-link-button--rocket .splash-hero__rocket-craft {
+        animation: none !important;
+    }
+
+    .splash-hero__actions .sl-link-button--rocket:hover .splash-hero__rocket-craft {
+        transform: rotate(var(--splash-rocket-tilt, -14deg));
+    }
 }
 
 @keyframes splash-fade-up {
@@ -457,6 +540,41 @@ html[data-has-hero]:not([data-has-sidebar]) {
     to {
         opacity: 1;
         transform: none;
+    }
+}
+
+@keyframes splash-cta-stars-scroll {
+    from {
+        transform: rotate(12deg) translate3d(0, 0, 0);
+    }
+
+    to {
+        transform: rotate(12deg) translate3d(0, 50%, 0);
+    }
+}
+
+/*
+ * Small bob along the rocket tip. translate after rotate so motion follows
+ * the tilted craft.
+ */
+@keyframes splash-rocket-bob {
+    from {
+        transform: rotate(var(--splash-rocket-tilt, -14deg)) translate(0.02rem, -0.02rem);
+    }
+
+    to {
+        transform: rotate(var(--splash-rocket-tilt, -14deg)) translate(0.1rem, -0.1rem);
+    }
+}
+
+html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
+    --splash-cta-star: #000;
+    color: #000;
+    background: #fff;
+
+    &:hover {
+        color: #000;
+        background: #fff;
     }
 }
 

@@ -56,7 +56,7 @@ For coding agents: [Working with Coding Agents](src/content/docs/coding-agents.m
 - [Single-file server example](src/content/docs/single-file-server-example.md)
 - [Authentication](src/content/docs/authentication.md)
 - [Request context](src/content/docs/request-context.md)
-- [API reference](src/content/docs/api-reference.md)
+- [API reference — Handlers](src/content/docs/api-reference/handlers.md)
 - [Error handling](src/content/docs/error-handling.md)
 - [Builtin errors](src/content/docs/builtin-errors.md)
 - [SDK generation](src/content/docs/sdk-generation.md)

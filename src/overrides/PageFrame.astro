@@ -106,7 +106,8 @@ const {hasSidebar} = Astro.locals.starlightRoute;
 			width: 100%;
 			height: var(--sl-nav-height);
 			border-bottom: 1px solid var(--docs-border, var(--sl-color-hairline));
-			padding: var(--sl-nav-pad-y) var(--sl-nav-pad-x);
+			/* Same L/R as explorer header (`--docs-header-pad-x` / 90rem bump). */
+			padding: var(--sl-nav-pad-y) var(--docs-header-pad-x);
 			background-color: var(--sl-color-bg-nav);
 		}
 
@@ -125,7 +126,8 @@ const {hasSidebar} = Astro.locals.starlightRoute;
 		.sidebar-content {
 			height: 100%;
 			min-height: max-content;
-			padding: 1rem var(--sl-sidebar-pad-x) 0;
+			/* Match starlight-custom / explorer: inset by link pad for text alignment. */
+			padding: 0.65rem calc(var(--sl-sidebar-pad-x) - var(--docs-sidebar-link-pad-inline)) 2.5rem;
 			flex-direction: column;
 			gap: 1rem;
 		}

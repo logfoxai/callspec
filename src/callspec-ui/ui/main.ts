@@ -574,16 +574,13 @@ function renderRoute(
                 </div>
                 <aside class="route-try" aria-label="Try it">
                     <div class="section try-section">
-                        <h3 class="section-title">Try it</h3>
                         <div class="try-block">
                             ${route.auth === 'bearer' ? `
                             <div class="field">
-                                <label for="auth">Authorization</label>
-                                <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" value="${escapeHtml(authToken)}">
+                                <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" aria-label="Authorization" value="${escapeHtml(authToken)}">
                             </div>
                             ` : ''}
                             <div class="field">
-                                <label for="body">Body</label>
                                 ${jsonEditorHtml('body', bodyJson)}
                             </div>
                             <div class="actions">

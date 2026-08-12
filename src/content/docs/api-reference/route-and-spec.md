@@ -170,4 +170,4 @@ export const api = spec({meta, routes, authenticate});
 
 Callspec extracts `Authorization: Bearer …`, calls your hook, and passes the returned context to handlers on bearer routes. Return `undefined` for invalid tokens → 401. See [Authentication](../authentication.md) and [Request context](../request-context.md).
 
-← [API reference](../api-reference.md) · Next: [`mountSpec`](./mount-spec.md)
+← [Handlers](./handlers.md) · Next: [`mountSpec`](./mount-spec.md)

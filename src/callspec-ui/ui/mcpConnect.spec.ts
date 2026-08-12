@@ -7,7 +7,23 @@ import {
     tokenEnvName,
     vscodeMcpConfig,
     windsurfMcpConfig,
+    withPreservedScrollTop,
 } from './mcpConnect';
+
+test('withPreservedScrollTop: tab switch must not jump the page scroller', (assert) => {
+
+    const scroller = {scrollTop: 640};
+
+    withPreservedScrollTop(scroller, () => {
+
+        // Simulate layout / focus side effects that zero the content pane.
+        scroller.scrollTop = 0;
+
+    });
+
+    assert.equal(scroller.scrollTop, 640);
+
+});
 
 test('serverSlugFromName normalizes display name', (assert) => {
 

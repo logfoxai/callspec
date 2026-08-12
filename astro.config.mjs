@@ -21,6 +21,11 @@ export default defineConfig({
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)
     publicDir: './assets',
+    // Old thin API reference landing → first real page.
+    redirects: {
+        '/api-reference': '/api-reference/handlers',
+        '/api-reference/': '/api-reference/handlers',
+    },
     // Dev server only: Origin-bearing cross-site requests (proxies / some IDE previews).
     // Cursor Simple Browser often sends cross-site no-cors *without* Origin — that
     // path is handled by devServerNoisePlugin (allowedDomains cannot match missing Origin).
@@ -88,7 +93,6 @@ export default defineConfig({
                 {
                     label: 'API reference',
                     items: [
-                        {label: 'Overview', slug: 'api-reference'},
                         {label: 'Handlers', slug: 'api-reference/handlers'},
                         {label: 'route & spec', slug: 'api-reference/route-and-spec'},
                         {label: 'mountSpec', slug: 'api-reference/mount-spec'},

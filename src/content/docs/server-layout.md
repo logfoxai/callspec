@@ -5,11 +5,10 @@ Callspec doesn't care about your folders. A single file is fine for demos — se
 ## Best practice (split layout)
 
 1. **One route per file** — `server/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
-2. **Always call `route()`** — `spec({ routes })` values must be **wired routes** from `route({ …, handler })`. Do not hand-build the wired object (`__callspecWired`, merged `errors`, defaults).
-3. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([Handlers](./api-reference/handlers.md)).
-4. **Shared domain preds** live under `server/schemas/` and are imported by routes (`output: product`). Infer TS types with `Infer<typeof product>` when local data (e.g. fixtures) should match. Route-only wire shapes (`{ id }`, filters) stay in the route file.
-5. **`routes.ts` is only the registry** — `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
-6. **`index.ts` only mounts** — Express + `mountSpec`. No route logic.
+2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([Handlers](./api-reference/handlers.md)).
+3. **Shared domain preds** live under `server/schemas/` and are imported by routes (`output: product`). Infer TS types with `Infer<typeof product>` when local data (e.g. fixtures) should match. Route-only wire shapes (`{ id }`, filters) stay in the route file.
+4. **`routes.ts` is only the registry** — `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
+5. **`index.ts` only mounts** — Express + `mountSpec`. No route logic.
 
 Test handlers with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
 

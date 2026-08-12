@@ -52,8 +52,8 @@
     --sidebar-pad-x: var(--docs-sidebar-pad-x);
     /* Nest rail — Starlight --sl-sidebar-item-padding-inline */
     --sidebar-item-pad-inline: 0.5rem;
-    /* Link/summary inline pad — room inside Home / group / route rows. */
-    --sidebar-link-pad-inline: 0.7rem;
+    /* Link/summary inline pad — shared with docs (`--docs-sidebar-link-pad-inline`). */
+    --sidebar-link-pad-inline: var(--docs-sidebar-link-pad-inline);
     --footer-height: 2.75rem;
     --content-width: 57.5rem; /* 920px — each route page column */
     --route-page-gap: 3.5rem;
@@ -360,7 +360,7 @@ html, body {
 .header-contract-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.2rem;
+    gap: var(--docs-mark-label-gap);
     height: 2.1rem;
     padding: 0 0.55rem;
     border-radius: 0.5rem;
@@ -379,8 +379,6 @@ html, body {
     justify-content: center;
     width: 1.05rem;
     height: 1.05rem;
-    /* Hex mark has viewBox padding — pull label a hair closer. */
-    margin-inline-end: -0.05rem;
 }
 
 .header-contract-btn__icon svg {
@@ -390,6 +388,7 @@ html, body {
 }
 
 .header-contract-btn--callspec .header-contract-btn__icon {
+    /* Ink mark — never host --accent (Chirp teal would tint the hex). */
     color: var(--docs-callspec-mark);
 }
 
@@ -444,7 +443,11 @@ html, body {
 }
 
 .sidebar-nav {
-    padding: 0.65rem var(--sidebar-pad-x) 2.5rem;
+    /*
+     * Pull in by link pad so “Home” text aligns with search icon
+     * (search uses --sidebar-pad-x; links add --sidebar-link-pad-inline).
+     */
+    padding: 0.65rem calc(var(--sidebar-pad-x) - var(--sidebar-link-pad-inline)) 2.5rem;
 }
 
 .sidebar-nav :is(ul, li) {
@@ -455,7 +458,7 @@ html, body {
 
 .sidebar-top-level > li + li {
     /* Docs: starlight-custom #starlight__sidebar .top-level > li + li */
-    margin-top: 0.85rem;
+    margin-top: 0.45rem;
 }
 
 .sidebar-group details {
@@ -468,8 +471,8 @@ html, body {
     justify-content: space-between;
     gap: 0.35rem;
     margin: 0;
-    /* Docs: starlight-custom summary padding-block/inline */
-    padding: 0.35em var(--sidebar-link-pad-inline);
+    /* Left pad for label; caret flush to the row’s right edge. */
+    padding: 0.35em 0 0.35em var(--sidebar-link-pad-inline);
     list-style: none;
     cursor: pointer;
     user-select: none;
@@ -478,7 +481,8 @@ html, body {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--text-secondary);
+    /* Categories — black like docs group labels. */
+    color: var(--text);
 }
 
 .sidebar-group summary::marker,
@@ -534,7 +538,7 @@ html, body {
 .sidebar-group-list .sidebar-link {
     font-family: var(--sans);
     font-size: 0.9rem;
-    line-height: 1.4;
+    line-height: var(--sidebar-subitem-line-height);
 }
 
 .sidebar-link {
@@ -559,11 +563,16 @@ html, body {
 /* Docs SidebarSublist: hover/focus brightens text only — no fill. */
 .sidebar-link:hover,
 .sidebar-link:focus-visible {
-    color: var(--text);
+    color: var(--sidebar-hover);
 }
 
 .sidebar-group summary:hover {
-    color: var(--text);
+    color: var(--sidebar-hover);
+}
+
+.sidebar-group summary:hover .sidebar-group-icon,
+.sidebar-group summary:hover .sidebar-caret {
+    color: var(--sidebar-hover);
 }
 
 .sidebar-link--active {
@@ -582,11 +591,12 @@ html, body {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--text);
+    /* Same grey → black hover as nested route links. */
+    color: var(--text-secondary);
 }
 
 .sidebar-link--top:hover {
-    color: var(--text);
+    color: var(--sidebar-hover);
 }
 
 .sidebar-link--top.sidebar-link--active,
@@ -1249,8 +1259,13 @@ body > .footer {
 
 .pagination-links {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+    /* Always side-by-side in the route column (18rem auto-fit wrapped too early). */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.85rem;
+}
+
+.pagination-link:only-child {
+    grid-column: 1 / -1;
 }
 
 .pagination-link {
@@ -1669,8 +1684,9 @@ body > .footer {
 .json-editor-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .json-editor-status {
@@ -1809,11 +1825,11 @@ body > .footer {
     tab-size: 2;
     white-space: pre-wrap;
     word-break: break-word;
-    overflow: hidden;
 }
 
 .json-editor-highlight {
     pointer-events: none;
+    overflow: hidden;
 }
 
 .json-editor-highlight code {
@@ -1826,6 +1842,8 @@ body > .footer {
 }
 
 .json-editor-input {
+    /* Scroll when the user shrinks the frame below content height. */
+    overflow: auto;
     resize: none;
     color: transparent;
     caret-color: var(--text);
@@ -2303,9 +2321,11 @@ body > .footer {
 
 .mcp-client-panels {
     padding: 1.125rem 1.375rem 1.375rem;
+    overflow-anchor: none;
 }
 
-.mcp-client-panel[hidden] {
+/* Class-based hide — avoid `hidden` attr (can scroll panels into view on toggle). */
+.mcp-client-panel:not(.is-active) {
     display: none;
 }
 

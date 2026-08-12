@@ -13,5 +13,5 @@ See [Authentication](../authentication.md) and [Request context](../request-cont
 
 OpenAPI Bearer security is **auto-derived** from route `auth`.
 
-← [API reference](../api-reference.md)
+← [`mountSpec`](./mount-spec.md) · Next: [Surfaces & exports](./surfaces-and-exports.md)
 

@@ -54,8 +54,9 @@ const shouldRenderSearch =
 
 		.title-wrapper {
 			overflow: clip;
-			padding: 0.25rem;
-			margin: -0.25rem;
+			/* No negative margin — keeps lockup flush with sidebar pad (Introduction). */
+			padding: 0;
+			margin: 0;
 			min-width: 0;
 			flex: 0 1 auto;
 		}

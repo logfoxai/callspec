@@ -11,11 +11,11 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const assets = path.join(root, 'assets');
 const id = process.argv[2] || 'spec';
 
-/** Keep in sync with --cs-primary-* / nav lockup in starlight-custom.css */
+/** Keep in sync with --docs-callspec-mark / nav lockup in starlight-custom.css */
 const BRAND = {
-    markDark: '#22D3EE',
-    markLight: '#0096D6',
-    favicon: '#0096D6',
+    markDark: '#fff',
+    markLight: '#000',
+    favicon: '#000',
 };
 
 const HEX =

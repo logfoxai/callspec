@@ -51,5 +51,5 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `the
 | `callspec/client` | Runtime client: CallspecClient, isCallspecOk, CLIENT_ERROR, BUILTIN_ERROR, CallspecRouteResult, … |
 | `callspec/document` | emitCallspec, emitOpenApi, parseCallspecDocument, generateClientFile |
 
-← [API reference](../api-reference.md)
+← [Auth and scope](./auth-and-scope.md) · Next: [Builtin errors](../builtin-errors.md)
 

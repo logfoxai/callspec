@@ -71,7 +71,14 @@ function actionIconHtml(action: SplashHeroAction): string | undefined {
 						{...attrs}
 					>
 						{htmlIcon && iconPlacement === 'start' && <Fragment set:html={htmlIcon} />}
-						{namedIcon && iconPlacement === 'start' && (
+						{namedIcon && iconPlacement === 'start' && namedIcon === 'rocket' && (
+							<span class="splash-hero__rocket" aria-hidden="true">
+								<span class="splash-hero__rocket-craft">
+									<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
+								</span>
+							</span>
+						)}
+						{namedIcon && iconPlacement === 'start' && namedIcon !== 'rocket' && (
 							<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
 						)}
 						{text}

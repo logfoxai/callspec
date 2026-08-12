@@ -24,6 +24,78 @@ function gutterText(lines: number): string {
 
 }
 
+/** Pretty-print when valid; `null` when empty/invalid (leave editor alone). */
+export function tryFormatJson(source: string): string | null {
+
+    const trimmed = source.trim();
+
+    if (!trimmed) return null;
+
+    try {
+
+        return JSON.stringify(JSON.parse(trimmed), null, 2);
+
+    } catch {
+
+        return null;
+
+    }
+
+}
+
+export const JSON_EDITOR_MIN_HEIGHT_PX = 160;
+export const JSON_EDITOR_DEFAULT_HEIGHT_PX = 224;
+export const JSON_EDITOR_MAX_DRAG_HEIGHT_PX = 960;
+const JSON_EDITOR_LINE_HEIGHT_PX = 19.2;
+const JSON_EDITOR_VERTICAL_PADDING_PX = 24;
+
+function lineHeightForLines(lines: number): number {
+
+    return lines * JSON_EDITOR_LINE_HEIGHT_PX + JSON_EDITOR_VERTICAL_PADDING_PX;
+
+}
+
+function clampDragHeight(height: number): number {
+
+    return Math.min(JSON_EDITOR_MAX_DRAG_HEIGHT_PX, Math.max(JSON_EDITOR_MIN_HEIGHT_PX, height));
+
+}
+
+/**
+ * Frame height after sync / drag.
+ * When the user has resized, keep that height (content scrolls) — do not snap
+ * back up to the content-derived height.
+ */
+export function resolveJsonEditorFrameHeight(opts: {
+    lines: number,
+    userHeight?: number,
+}): number {
+
+    const userHeight = opts.userHeight ?? 0;
+
+    if (userHeight > 0) {
+
+        return clampDragHeight(userHeight);
+
+    }
+
+    return Math.max(
+        JSON_EDITOR_MIN_HEIGHT_PX,
+        lineHeightForLines(opts.lines),
+        JSON_EDITOR_DEFAULT_HEIGHT_PX,
+    );
+
+}
+
+function syncFrameHeight(frame: HTMLElement, lines: number): void {
+
+    const userHeight = Number(frame.dataset.userHeight || 0);
+    const target = resolveJsonEditorFrameHeight({lines, userHeight});
+
+    frame.style.height = `${target}px`;
+
+}
+
 function syncEditor(textarea: HTMLTextAreaElement): void {
 
     const root = textarea.closest('[data-json-editor]');
@@ -81,37 +153,41 @@ function syncEditor(textarea: HTMLTextAreaElement): void {
 
 function formatEditor(textarea: HTMLTextAreaElement): void {
 
-    try {
+    const formatted = tryFormatJson(textarea.value);
 
-        const parsed = JSON.parse(textarea.value);
-
-        textarea.value = JSON.stringify(parsed, null, 2);
-        syncEditor(textarea);
-
-    } catch {
+    if (formatted === null) {
 
         syncEditor(textarea);
+        return;
 
     }
+
+    if (formatted !== textarea.value) {
+
+        textarea.value = formatted;
+
+    }
+
+    syncEditor(textarea);
 
 }
 
 export function jsonEditorHtml(id: string, value: string): string {
 
-    const lines = lineCount(value);
+    const initial = tryFormatJson(value) ?? value;
+    const lines = lineCount(initial);
 
     return `
         <div class="json-editor" data-json-editor="${escapeHtml(id)}">
             <div class="json-editor-head">
                 <span class="json-editor-status ok" data-json-status>Valid JSON</span>
-                <button type="button" class="json-editor-format" data-json-format>Format</button>
             </div>
             <div class="json-editor-shell">
                 <div class="json-editor-frame" data-json-frame>
                     <div class="json-editor-gutter" data-json-gutter aria-hidden="true">${gutterText(lines)}</div>
                     <div class="json-editor-main">
-                        <pre class="json-editor-highlight" aria-hidden="true"><code class="hljs language-json" data-json-highlight>${highlightJson(value)}</code></pre>
-                        <textarea class="json-editor-input" id="${escapeHtml(id)}" spellcheck="false">${escapeHtml(value)}</textarea>
+                        <pre class="json-editor-highlight" aria-hidden="true"><code class="hljs language-json" data-json-highlight>${highlightJson(initial)}</code></pre>
+                        <textarea class="json-editor-input" id="${escapeHtml(id)}" spellcheck="false">${escapeHtml(initial)}</textarea>
                     </div>
                 </div>
                 <button type="button" class="json-editor-resize" data-json-resize aria-label="Resize editor"></button>
@@ -149,6 +225,13 @@ export function initJsonEditor(id: string): void {
 
     });
 
+    // Auto-format when the field is valid (no Format button).
+    textarea.addEventListener('blur', () => {
+
+        formatEditor(textarea);
+
+    });
+
     textarea.addEventListener('scroll', syncScroll);
 
     textarea.addEventListener('keydown', (event) => {
@@ -168,43 +251,9 @@ export function initJsonEditor(id: string): void {
 
     });
 
-    root.querySelector('[data-json-format]')?.addEventListener('click', () => {
-
-        formatEditor(textarea);
-
-    });
-
     syncEditor(textarea);
 
     initJsonEditorResize(root);
-
-}
-
-const JSON_EDITOR_MIN_HEIGHT_PX = 160;
-const JSON_EDITOR_DEFAULT_HEIGHT_PX = 224;
-const JSON_EDITOR_MAX_DRAG_HEIGHT_PX = 960;
-const JSON_EDITOR_LINE_HEIGHT_PX = 19.2;
-const JSON_EDITOR_VERTICAL_PADDING_PX = 24;
-
-function lineHeightForLines(lines: number): number {
-
-    return lines * JSON_EDITOR_LINE_HEIGHT_PX + JSON_EDITOR_VERTICAL_PADDING_PX;
-
-}
-
-function clampDragHeight(height: number): number {
-
-    return Math.min(JSON_EDITOR_MAX_DRAG_HEIGHT_PX, Math.max(JSON_EDITOR_MIN_HEIGHT_PX, height));
-
-}
-
-function syncFrameHeight(frame: HTMLElement, lines: number): void {
-
-    const contentHeight = lineHeightForLines(lines);
-    const userMin = Number(frame.dataset.userMinHeight || 0);
-    const target = Math.max(JSON_EDITOR_MIN_HEIGHT_PX, contentHeight, userMin || JSON_EDITOR_DEFAULT_HEIGHT_PX);
-
-    frame.style.height = `${target}px`;
 
 }
 
@@ -225,7 +274,7 @@ function initJsonEditorResize(root: Element): void {
         const next = clampDragHeight(startHeight + (event.clientY - startY));
 
         frame.style.height = `${next}px`;
-        frame.dataset.userMinHeight = String(next);
+        frame.dataset.userHeight = String(next);
 
     };
 

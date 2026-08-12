@@ -37,7 +37,7 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 8. After route/error changes: regenerate the client; commit pinned contract if the repo pins one.
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.
-11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `routes.ts` = `spec()` registry only; never hand-build wired route objects for `spec({ routes })`.
+11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `routes.ts` = `spec()` registry only.
 ````
 
 ## Prompt: work with Callspec
@@ -76,7 +76,6 @@ Do this in order:
 
 Constraints:
 - Don't invent REST CRUD wrappers — Callspec is RPC methods (getProductById, …)
-- Always use route() for spec({ routes }) values — never hand-build wired route objects
 - scope: 'private' hides from SDK/docs/OpenAPI/MCP; it does not skip auth
 - Builtin error codes are reserved — only register domain codes
 - Prefer small PRs: pilot one route end-to-end before bulk migration
