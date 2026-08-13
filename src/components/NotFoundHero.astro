@@ -1,0 +1,29 @@
+---
+/**
+ * Standalone 404 hero — lives in 404.mdx body, not the Starlight Hero override.
+ */
+import {LinkButton} from '@astrojs/starlight/components';
+
+const PAGE_TITLE_ID = '_top';
+---
+
+<section class="not-found-hero">
+	<p class="not-found-hero__code" aria-hidden="true">404</p>
+	<h1 id={PAGE_TITLE_ID} class="not-found-hero__headline" data-page-title>Page not found</h1>
+	<p class="not-found-hero__lead">
+		That URL isn’t part of the Callspec docs. Head home, or jump into getting started.
+	</p>
+	<div class="not-found-hero__actions">
+		<LinkButton href="/" variant="primary" icon="right-arrow" class="sl-link-button--forward">
+			Home
+		</LinkButton>
+		<LinkButton
+			href="/getting-started/"
+			variant="secondary"
+			icon="right-arrow"
+			class="sl-link-button--forward"
+		>
+			Get started
+		</LinkButton>
+	</div>
+</section>

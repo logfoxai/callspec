@@ -67,5 +67,5 @@ test('getProductById: NOT_FOUND', async (assert) => {
 
 Export the wired route from the route module when tests live in another file.
 
-← [API reference](../api-reference.md)
+Next: [`route` & `spec`](./route-and-spec.md)
 

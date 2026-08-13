@@ -1,0 +1,167 @@
+---
+/**
+ * Page frame — menu control lives in the header (see Header.astro).
+ * Sidebar open state uses body[data-mobile-menu-expanded] instead of a
+ * sibling selector on the old fixed toggle.
+ */
+const {hasSidebar} = Astro.locals.starlightRoute;
+---
+
+<div class="page sl-flex">
+	<header class="header"><slot name="header" /></header>
+	{
+		hasSidebar && (
+			<nav class="sidebar print:hidden" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
+				<div id="starlight__sidebar" class="sidebar-pane">
+					<div class="sidebar-content sl-flex">
+						<slot name="sidebar" />
+					</div>
+				</div>
+			</nav>
+		)
+	}
+	<div class="main-frame"><slot /></div>
+</div>
+
+{/*
+  Starlight persists sidebar scroll, but restore skips falsy scroll and save is
+  only on visibilitychange. We patch that lightly — save only on sidebar-link
+  click / pagehide (no per-frame sessionStorage writes; those felt sluggish).
+*/}
+<script is:inline aria-hidden="true">
+	(() => {
+		const KEY = 'sl-sidebar-state';
+		/** Match Starlight CSS desktop sidebar (`50rem`), not the JS `50em` gate. */
+		const DESKTOP = '(min-width: 50rem)';
+
+		const scrollerEl = () => document.getElementById('starlight__sidebar');
+		const persistEl = () =>
+			document.querySelector('sl-sidebar-state-persist');
+
+		const readState = () => {
+			try {
+				return JSON.parse(sessionStorage.getItem(KEY) || 'null');
+			} catch {
+				return null;
+			}
+		};
+
+		const saveScroll = () => {
+			const scroller = scrollerEl();
+			const persist = persistEl();
+			if (!scroller || !persist) return;
+			const hash = persist.getAttribute('data-hash') || '';
+			if (!hash) return;
+			const prev = readState();
+			const open =
+				prev && prev.hash === hash && Array.isArray(prev.open) ? prev.open : [];
+			try {
+				sessionStorage.setItem(
+					KEY,
+					JSON.stringify({hash, open, scroll: scroller.scrollTop}),
+				);
+			} catch {}
+		};
+
+		const restoreScroll = () => {
+			if (!matchMedia(DESKTOP).matches) return;
+			const scroller = scrollerEl();
+			const persist = persistEl();
+			const state = readState();
+			if (!scroller || !persist || !state) return;
+			if (persist.getAttribute('data-hash') !== state.hash) return;
+			if (typeof state.scroll !== 'number') return;
+			scroller.scrollTop = state.scroll;
+		};
+
+		restoreScroll();
+		requestAnimationFrame(restoreScroll);
+
+		addEventListener('pagehide', saveScroll);
+		document.addEventListener(
+			'click',
+			(event) => {
+				const target = event.target;
+				if (!(target instanceof Element)) return;
+				if (!target.closest('#starlight__sidebar a[href]')) return;
+				saveScroll();
+			},
+			true,
+		);
+	})();
+</script>
+
+<style>
+	@layer starlight.core {
+		.page {
+			flex-direction: column;
+			min-height: 100vh;
+		}
+
+		.header {
+			z-index: var(--sl-z-index-navbar);
+			position: fixed;
+			inset-inline-start: 0;
+			inset-block-start: 0;
+			width: 100%;
+			height: var(--sl-nav-height);
+			border-bottom: 1px solid var(--docs-border, var(--sl-color-hairline));
+			/* Same L/R as explorer header (`--docs-header-pad-x` / 90rem bump). */
+			padding: var(--sl-nav-pad-y) var(--docs-header-pad-x);
+			background-color: var(--sl-color-bg-nav);
+		}
+
+		.sidebar-pane {
+			visibility: var(--sl-sidebar-visibility, hidden);
+			position: fixed;
+			z-index: var(--sl-z-index-menu);
+			inset-block: var(--sl-nav-height) 0;
+			inset-inline-start: 0;
+			width: 100%;
+			background-color: var(--sl-color-black);
+			overflow-y: auto;
+			scrollbar-gutter: stable;
+		}
+
+		.sidebar-content {
+			height: 100%;
+			min-height: max-content;
+			/* Match starlight-custom / explorer: inset by link pad for text alignment. */
+			padding: 0.65rem calc(var(--sl-sidebar-pad-x) - var(--docs-sidebar-link-pad-inline)) 2.5rem;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
+		@media (min-width: 50rem) {
+			.sidebar-content::after {
+				content: '';
+				padding-bottom: 1px;
+			}
+		}
+
+		.main-frame {
+			padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+			padding-inline-start: var(--sl-content-inline-start);
+		}
+
+		@media (min-width: 50rem) {
+			.sidebar-pane {
+				--sl-sidebar-visibility: visible;
+				width: var(--sl-sidebar-width);
+				background-color: var(--sl-color-bg-sidebar);
+				border-inline-end: 1px solid var(--sl-color-hairline-shade);
+			}
+		}
+	}
+</style>
+
+<style is:global>
+	@layer starlight.core {
+		/* Open drawer from header Menu control (body flag set by MobileMenuToggle). */
+		@media (max-width: 49.99rem) {
+			body[data-mobile-menu-expanded] .sidebar-pane {
+				--sl-sidebar-visibility: visible;
+			}
+		}
+	}
+</style>

@@ -15,6 +15,14 @@ test('applyUiTheme: maps theme keys to CSS vars and returns fontUrls', (assert) 
     });
 
     assert.equal(result.cssVars['--accent'], '#0ea5e9');
+    assert.equal(result.cssVars['--nav-active-bg'], '#0ea5e9');
+    assert.equal(result.cssVars['--nav-active-fg'], '#fafafa');
+    assert.equal(result.cssVars['--cs-primary-bg'], '#0ea5e9');
+    assert.equal(result.cssVars['--cs-primary-fg'], '#fafafa');
+    assert.equal(
+        result.cssVars['--accent-soft'],
+        'color-mix(in srgb, #0ea5e9 16%, var(--surface))',
+    );
     assert.equal(result.cssVars['--bg'], '#0f172a');
     assert.equal(result.cssVars['--surface'], '#1e293b');
     assert.equal(result.cssVars['--sans'], '"IBM Plex Sans", system-ui, sans-serif');
@@ -38,17 +46,24 @@ test('applyUiTheme: light background derives dark text tokens', (assert) => {
 
     assert.equal(result.cssVars['--bg'], '#f7f9f9');
     assert.equal(result.cssVars['--surface'], '#ffffff');
-    assert.equal(result.cssVars['--text'], '#1c1917');
-    assert.equal(result.cssVars['--text-secondary'], '#6b6560');
-    assert.equal(result.cssVars['--text-tertiary'], '#9c958c');
+    assert.equal(result.cssVars['--text'], 'hsl(228, 25%, 12%)');
+    assert.equal(result.cssVars['--text-secondary'], 'hsl(228, 10%, 40%)');
+    assert.equal(result.cssVars['--text-tertiary'], 'hsl(228, 8%, 52%)');
 
 });
 
-test('applyUiTheme: accent-only does not pin background or text (light/dark stay intact)', (assert) => {
+test('applyUiTheme: accent-only sets nav active tokens from accent contrast', (assert) => {
 
     const result = applyUiTheme({accent: '#111'});
 
-    assert.equal(result.cssVars, {'--accent': '#111'});
+    assert.equal(result.cssVars['--accent'], '#111');
+    assert.equal(result.cssVars['--nav-active-bg'], '#111');
+    assert.equal(result.cssVars['--nav-active-fg'], '#fafafa');
+    assert.equal(result.cssVars['--cs-primary-bg'], '#111');
+    assert.equal(
+        result.cssVars['--accent-soft'],
+        'color-mix(in srgb, #111 16%, var(--surface))',
+    );
     assert.equal(result.fontUrls, []);
 
 });

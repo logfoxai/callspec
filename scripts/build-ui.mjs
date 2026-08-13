@@ -1,9 +1,11 @@
 import crypto from 'crypto';
+import {createRequire} from 'module';
 import fs from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'vite';
 
+const require = createRequire(import.meta.url);
 const root = path.dirname(fileURLToPath(import.meta.url));
 const uiOut = path.join(root, '..', 'dist', 'callspec-ui', 'ui');
 
@@ -46,6 +48,14 @@ for (const name of brandAssets) {
 
 }
 
+const interFont = require.resolve('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2');
+const spaceGroteskFont = require.resolve(
+    '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2',
+);
+
+fs.copyFileSync(interFont, path.join(assetDir, 'inter.woff2'));
+fs.copyFileSync(spaceGroteskFont, path.join(assetDir, 'space-grotesk.woff2'));
+
 const appJs = path.join(assetDir, 'app.js');
 
 if (!fs.existsSync(appJs) || fs.statSync(appJs).size < 100) {
@@ -67,7 +77,9 @@ const indexTemplate = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Docs</title>
-    <script>(function(){var t=localStorage.getItem('callspec-ui-theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;})();</script>
+    <script>(function(){var t=localStorage.getItem('starlight-theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;})();</script>
+    <link rel="preload" href="./assets/inter.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./assets/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./assets/${styleHashed}">
     <!--CALLSPEC_UI_CONFIG-->
 </head>

@@ -199,13 +199,11 @@ function authenticate(token: string, _req: unknown): ChirpCtx | undefined {
 const meta = {
     title: 'Chirp API v2',
     version: '2.0.0',
-    intro: 'The Chirp API v2 lets you read and write posts, timelines, lists, and direct messages. This demo runs on callspec — one spec powers HTTP RPC, these docs, OpenAPI, and MCP tools.',
+    intro: 'Chirp is a fake Twitter-style API — posts, timelines, lists, DMs — invented to show what callspec can do. One spec drives this docs UI, HTTP RPC, OpenAPI, and MCP tools. Nothing here is a real product.',
     website: {url: 'https://chirp.social', label: 'chirp.social'},
-    logo: {light: './brand/mark.png', dark: './brand/mark.png'},
+    logo: {light: './brand/birb-icon-square.svg', dark: './brand/birb-icon-square.svg'},
     theme: {
-        accent: '#1d9bf0',
-        // Tiny escape-hatch demo (prefer theme vars; see docs-ui-branding.md).
-        customCss: '.top-header { border-bottom-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }',
+        accent: '#0C716B',
     },
     navbarLinks: [
         {label: 'chirp.social', href: 'https://chirp.social', external: true},

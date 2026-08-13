@@ -34,6 +34,26 @@ export function shouldShortCircuitDevtoolsProbe(pathname) {
 }
 
 /**
+ * `/demo` without a trailing slash breaks relative `./brand/…` and `./callspec.json`
+ * URLs (they resolve from site root). Canonical URL is `/demo/`.
+ */
+export function demoPublicDirRedirect(pathname) {
+    return pathname === '/demo' ? '/demo/' : null;
+}
+
+/**
+ * Starlight's `[...slug]` catches `/demo/` in dev before publicDir index.html.
+ * Production `astro:build` copies public files correctly; dev needs a rewrite.
+ */
+export function rewritePublicDirIndexRequest(pathname) {
+    if (pathname === '/demo/') {
+        return '/demo/index.html';
+    }
+
+    return null;
+}
+
+/**
  * Vite plugin: runs ahead of Astro's sec-fetch middleware in `astro dev`.
  * No effect on static builds / `astro:build`.
  */
@@ -48,7 +68,23 @@ export function devServerNoisePlugin() {
                     handle(req, res, next) {
                         const host = typeof req.headers.host === 'string' ? req.headers.host : undefined;
                         const url = req.url ?? '/';
-                        const pathname = decodeURI(new URL(url, 'http://localhost').pathname);
+                        const parsed = new URL(url, 'http://localhost');
+                        const pathname = decodeURI(parsed.pathname);
+                        const demoRedirect = demoPublicDirRedirect(pathname);
+
+                        if (demoRedirect) {
+                            res.statusCode = 301;
+                            res.setHeader('Location', demoRedirect);
+                            res.end();
+                            return;
+                        }
+
+                        const indexRewrite = rewritePublicDirIndexRequest(pathname);
+
+                        if (indexRewrite) {
+                            parsed.pathname = indexRewrite;
+                            req.url = `${parsed.pathname}${parsed.search}`;
+                        }
 
                         if (shouldShortCircuitDevtoolsProbe(pathname)) {
                             res.statusCode = 404;

@@ -89,16 +89,22 @@ export type CallspecUiTheme = {
     surface?: string
     fontFamily?: string
     fontUrls?: string[]
-    /**
-     * Stylesheet URL injected as `<link rel="stylesheet">` in the docs HTML shell.
-     * Overridable by `MountCallspecUiOptions.customCssUrl` (mount wins).
-     */
-    customCssUrl?: string
-    /**
-     * Small inline CSS for a `<style>` block (size-capped + `</style` stripped).
-     * Prefer theme vars / `customCssUrl` when possible.
-     */
-    customCss?: string
+};
+
+/** Plain-text banner above the top header (no custom HTML in message). */
+type CallspecUiNoticeLink = {
+    label: string
+    href: string
+    external?: boolean
+};
+
+export type CallspecUiNotice = {
+    title?: string
+    message: string
+    /** Optional CLI command shown in monospace after the message. */
+    command?: string
+    /** Optional inline links after the message (label + href only). */
+    links?: CallspecUiNoticeLink[]
 };
 
 export type CallspecNavbarLink = {
@@ -129,11 +135,8 @@ export type CallspecMeta = {
     navbarLinks?: CallspecNavbarLink[]
     footer?: CallspecUiFooter
     favicon?: string
-    /**
-     * Trusted-server HTML snippet above the docs app shell (last resort).
-     * Prefer `navbarLinks`. Never take from request params.
-     */
-    headerHtml?: string
+    /** Plain-text notice above the top header (e.g. static preview hint). */
+    notice?: CallspecUiNotice
     /** Static SDK install hint on the docs home page (e.g. `npm i @acme/sdk`). */
     sdkInstall?: string
 };

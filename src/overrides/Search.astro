@@ -28,8 +28,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		aria-keyshortcuts="/"
 	>
 		<Icon name="magnifier" />
-		<span class="sl-hidden md:sl-block" aria-hidden="true">{Astro.locals.t('search.label')}</span>
-		<kbd class="sl-hidden md:sl-flex">/</kbd>
+		<span class="cs-search-label" aria-hidden="true">{Astro.locals.t('search.label')}</span>
+		<kbd class="cs-search-kbd">/</kbd>
 	</button>
 
 	<dialog style="padding:0" aria-label={Astro.locals.t('search.label')}>
@@ -210,34 +210,54 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		button[data-open-modal] {
 			display: flex;
 			align-items: center;
-			gap: 0.5rem;
-			border: 0;
-			background-color: transparent;
-			color: var(--sl-color-gray-1);
+			gap: 0.45rem;
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.55rem;
+			padding-inline: 0.7rem;
+			background-color: var(--sl-color-gray-6);
+			color: var(--sl-color-gray-2);
 			cursor: pointer;
-			height: 2.5rem;
-			font-size: var(--sl-text-xl);
+			height: var(--docs-search-height, 2.25rem);
+			font-size: var(--sl-text-sm);
+			max-width: 100%;
+			min-width: 0;
+		}
+		button[data-open-modal]:hover {
+			border-color: var(--sl-color-gray-4);
+			color: var(--sl-color-white);
+		}
+
+		.cs-search-label {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.cs-search-kbd {
+			display: none;
+			margin-inline-start: auto;
+			border-radius: 0.25rem;
+			font-size: var(--sl-text-2xs);
+			padding-inline: 0.375rem;
+			background-color: var(--sl-color-gray-5);
+			border: 0;
+			color: var(--sl-color-gray-2);
 		}
 
 		@media (min-width: 50rem) {
 			button[data-open-modal] {
-				border: 1px solid var(--sl-color-gray-5);
-				border-radius: 0.5rem;
-				padding-inline-start: 0.75rem;
-				padding-inline-end: 0.5rem;
-				background-color: var(--sl-color-black);
-				color: var(--sl-color-gray-2);
-				font-size: var(--sl-text-sm);
 				width: 100%;
-				max-width: 22rem;
-			}
-			button[data-open-modal]:hover {
-				border-color: var(--sl-color-gray-2);
-				color: var(--sl-color-white);
+				max-width: var(--docs-search-max-width, 22rem);
+				padding-inline: 0.85rem;
 			}
 
 			button[data-open-modal] > :last-child {
 				margin-inline-start: auto;
+			}
+
+			.cs-search-kbd {
+				display: inline-flex;
+				align-items: center;
 			}
 		}
 

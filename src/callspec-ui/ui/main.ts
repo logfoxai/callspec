@@ -1,11 +1,9 @@
 import './styles.css';
 import {applyUiThemeToDocument} from '../applyUiTheme';
 import type {CallspecUiBranding, CallspecUiConfig} from '../branding';
-import {openApiPathFromSpecUrl} from '../contractPaths';
 import {
     applyRouteFilters,
     groupRoutesByTag,
-    neighborsInTagGroup,
     type AuthFilter,
     type RouteFilters,
 } from '../filterRoutes';
@@ -14,10 +12,28 @@ import type {CallspecUiRoute} from '../types';
 import {CallspecDocumentError} from '../../callspecDocumentTypes';
 import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
-import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
+import {exampleFromSchema} from './exampleFromSchema';
+import {bindSchemaPanels, renderRouteErrorsSection, renderSchemaExamplePanel} from './schemaPanel';
+import {initJsonEditor} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
+import {renderTryItPanel} from './tryItPanel';
+import {
+    renderDocsMenuButton,
+    renderHeaderContractButtons,
+    renderDocsSearchField,
+    renderDocsThemeSlider,
+    renderMcpOnlySlider,
+    renderMobileMenuTools,
+    renderUiNotice,
+    syncAllDocsThemeSliders,
+} from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
-import {closeIcon, menuIcon, themeMoonIcon, themeSunIcon} from './icons';
+import {lockIcon, tagIcon, unlockIcon} from './icons';
+import {renderRouteBadges} from './routeBadges';
+import {renderRouteHeader, renderRouteLead} from './routeHeader';
+import {renderRoutePaginationFooter} from './routePagination';
+import {readScrollTop, writeScrollTop} from './preserveScrollTop';
+import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
 
 type View =
     | {kind: 'home'}
@@ -163,116 +179,28 @@ function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): stri
 
 }
 
-function renderThemeToggle(id: string): string {
-
-    return `
-        <button type="button" class="theme-toggle" id="${id}" aria-label="Toggle color theme" title="Toggle color theme">
-            <span class="theme-icon theme-icon-light" aria-hidden="true">${themeSunIcon()}</span>
-            <span class="theme-icon theme-icon-dark" aria-hidden="true">${themeMoonIcon()}</span>
-        </button>
-    `;
-
-}
-
 function renderTopHeader(
     title: string,
     branding: CallspecUiBranding | undefined,
-    searchText: string,
+    specUrl: string,
 ): string {
 
     const name = displayName(title, branding);
 
     return `
         <header class="top-header">
-            <button type="button" class="nav-menu-btn" id="nav-menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="nav-drawer">
-                ${menuIcon()}
-            </button>
             <button type="button" class="top-brand" data-view="home">
                 ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
                 <span class="top-brand-text">${escapeHtml(name)}</span>
             </button>
             ${renderNavbarLinks(branding)}
-            <label class="header-search">
-                <span class="sr-only">Search routes</span>
-                <input
-                    id="header-search"
-                    class="search header-search-input"
-                    type="search"
-                    placeholder="Search routes"
-                    value="${escapeHtml(searchText)}"
-                    aria-label="Search routes"
-                >
-                <kbd class="header-search-kbd" aria-hidden="true">/</kbd>
-            </label>
-            ${renderThemeToggle('theme-toggle')}
+            <div class="top-header__end">
+                ${renderHeaderContractButtons(specUrl)}
+                ${renderDocsThemeSlider('theme-toggle')}
+                ${renderDocsMenuButton()}
+            </div>
         </header>
     `;
-
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-
-}
-
-function exampleFromSchema(schema: unknown, key?: string): unknown {
-
-    if (!isPlainObject(schema)) return {};
-
-    if (Array.isArray(schema.enum) && schema.enum.length) return schema.enum[0];
-
-    if (schema.const !== undefined) return schema.const;
-
-    const type = schema.type;
-
-    if (type === 'string') {
-
-        if (key?.toLowerCase().includes('id')) return '00000000-0000-0000-0000-000000000000';
-        if (key?.toLowerCase().includes('email')) return 'user@example.com';
-        return '';
-
-    }
-
-    if (type === 'number' || type === 'integer') return 0;
-
-    if (type === 'boolean') return false;
-
-    if (type === 'array') {
-
-        const items = schema.items;
-
-        return items ? [exampleFromSchema(items)] : [];
-
-    }
-
-    if (type === 'object' || schema.properties) {
-
-        const props = isPlainObject(schema.properties) ? schema.properties : undefined;
-        const required = Array.isArray(schema.required)
-            ? schema.required.filter((item): item is string => typeof item === 'string')
-            : [];
-        const out: Record<string, unknown> = {};
-
-        if (props) {
-
-            for (const [propKey, propSchema] of Object.entries(props)) {
-
-                if (required.includes(propKey) || Object.keys(out).length < 4) {
-
-                    out[propKey] = exampleFromSchema(propSchema, propKey);
-
-                }
-
-            }
-
-        }
-
-        return out;
-
-    }
-
-    return null;
 
 }
 
@@ -303,15 +231,6 @@ function parseAuthFilter(value: string | undefined): AuthFilter {
     }
 
     return 'all';
-
-}
-
-function renderBadges(route: CallspecUiRoute): string {
-
-    return [
-        `<span class="badge auth-${route.auth}">${route.auth}</span>`,
-        route.mcp ? '<span class="badge mcp">MCP</span>' : '',
-    ].filter(Boolean).join('');
 
 }
 
@@ -371,6 +290,45 @@ function setViewHash(view: View): void {
 
 }
 
+const SIDEBAR_CARET_SVG = `
+    <svg class="sidebar-caret" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/>
+    </svg>
+`.trim();
+
+const SIDEBAR_TAG_ICON = `<span class="sidebar-group-icon">${tagIcon()}</span>`;
+
+function renderSidebarLink(
+    label: string,
+    active: boolean,
+    attrs: Record<string, string>,
+    options: {mono?: boolean, top?: boolean, badges?: string} = {},
+): string {
+
+    const attrStr = Object.entries(attrs)
+        .map(([key, value]) => ` ${key}="${escapeHtml(value)}"`)
+        .join('');
+    const monoClass = options.mono ? ' sidebar-link--mono' : '';
+    const topClass = options.top ? ' sidebar-link--top' : '';
+    const content = options.badges
+        ? `
+            <span class="sidebar-link__inner">
+                <span class="sidebar-link__label">${escapeHtml(label)}</span>
+                <span class="sidebar-link__badges">${options.badges}</span>
+            </span>
+        `.trim()
+        : escapeHtml(label);
+
+    return `
+        <li>
+            <button type="button" class="sidebar-link${active ? ' sidebar-link--active' : ''}${monoClass}${topClass}"${attrStr}>
+                ${content}
+            </button>
+        </li>
+    `;
+
+}
+
 function renderSidebar(
     routes: CallspecUiRoute[],
     view: View,
@@ -378,33 +336,60 @@ function renderSidebar(
 ): string {
 
     const groups = groupRoutesByTag(routes);
-    let html = '';
+    let topLinks = '';
 
     if (showHome) {
 
-        html += `<button type="button" class="route-btn nav-btn${view.kind === 'home' ? ' active' : ''}" data-view="home">Home</button>`;
+        topLinks += renderSidebarLink('Home', view.kind === 'home', {'data-view': 'home'}, {top: true});
 
     }
 
-    html += `<button type="button" class="route-btn nav-btn${view.kind === 'routes' ? ' active' : ''}" data-view="routes">Routes</button>`;
+    topLinks += renderSidebarLink('Routes', view.kind === 'routes', {'data-view': 'routes'}, {top: true});
+
+    let groupHtml = '';
 
     for (const [tag, list] of groups) {
 
-        html += `<div class="tag-group"><div class="tag-label">${escapeHtml(tag)}</div>`;
+        let routeLinks = '';
 
         for (const route of list) {
 
-            const active = view.kind === 'route' && route.name === view.name ? ' active' : '';
+            const active = view.kind === 'route' && route.name === view.name;
 
-            html += `<button type="button" class="route-btn${active}" data-route="${escapeHtml(route.name)}">${escapeHtml(route.name)}</button>`;
+            routeLinks += renderSidebarLink(route.name, active, {'data-route': route.name}, {
+                badges: renderRouteBadges(route, {labels: false}),
+            });
 
         }
 
-        html += '</div>';
+        groupHtml += `
+            <li class="sidebar-group">
+                <details open>
+                    <summary>
+                        <span class="sidebar-group-heading">
+                            ${SIDEBAR_TAG_ICON}
+                            <span class="sidebar-group-label">${escapeHtml(tag)}</span>
+                        </span>
+                        ${SIDEBAR_CARET_SVG}
+                    </summary>
+                    <ul class="sidebar-group-list">${routeLinks}</ul>
+                </details>
+            </li>
+        `;
 
     }
 
-    return html || '<div class="empty-state"><p>No routes</p></div>';
+    if (!topLinks && !groupHtml) {
+
+        return '<div class="empty-state"><p>No routes</p></div>';
+
+    }
+
+    return `
+        <nav class="sidebar-nav" aria-label="Sidebar">
+            <ul class="sidebar-top-level">${topLinks}${groupHtml}</ul>
+        </nav>
+    `;
 
 }
 
@@ -464,7 +449,6 @@ function renderOverview(
     filtered: CallspecUiRoute[],
     allRoutes: CallspecUiRoute[],
     filters: RouteFilters,
-    showHome: boolean,
 ): string {
 
     const tags = uniqueTags(allRoutes);
@@ -482,7 +466,7 @@ function renderOverview(
                     <div class="route-card-head">
                         <span class="method">POST</span>
                         <span class="route-card-name">${escapeHtml(route.name)}</span>
-                        <span class="route-card-badges">${renderBadges(route)}</span>
+                        <span class="route-card-badges">${renderRouteBadges(route)}</span>
                     </div>
                     <p class="route-card-summary">${escapeHtml(route.summary)}</p>
                 </button>
@@ -503,28 +487,36 @@ function renderOverview(
 
         const active = filters.tag === tag ? ' active' : '';
 
-        return `<button type="button" class="filter-pill${active}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`;
+        return `
+            <button type="button" class="filter-pill filter-pill--tag${active}" data-tag="${escapeHtml(tag)}">
+                <span class="filter-pill__icon" aria-hidden="true">${tagIcon()}</span>
+                <span class="filter-pill__label">${escapeHtml(tag)}</span>
+            </button>
+        `;
 
     }).join('');
 
-    const breadcrumb = showHome
-        ? `<nav class="breadcrumb"><button type="button" class="breadcrumb-link" data-view="home">← Home</button></nav>`
-        : '';
-
     return `
-        ${breadcrumb}
         <div class="overview">
-            <div class="overview-head">
-                <h2 class="overview-title">Routes</h2>
-                <p class="overview-count">${filtered.length} of ${allRoutes.length}</p>
+            <div class="overview-title-panel">
+                <div class="overview-head">
+                    <h1 class="overview-title">Routes</h1>
+                    <p class="overview-count">${filtered.length} of ${allRoutes.length}</p>
+                </div>
             </div>
             <div class="filters">
                 <div class="filter-row">
                     <span class="filter-label">Auth</span>
                     <div class="filter-pills">
                         <button type="button" class="filter-pill${filters.auth === 'all' ? ' active' : ''}" data-auth="all">All</button>
-                        <button type="button" class="filter-pill${filters.auth === 'none' ? ' active' : ''}" data-auth="none">none</button>
-                        <button type="button" class="filter-pill${filters.auth === 'bearer' ? ' active' : ''}" data-auth="bearer">bearer</button>
+                        <button type="button" class="filter-pill filter-pill--auth${filters.auth === 'none' ? ' active' : ''}" data-auth="none">
+                            <span class="filter-pill__icon filter-pill__icon--none" aria-hidden="true">${unlockIcon()}</span>
+                            <span class="filter-pill__label">None</span>
+                        </button>
+                        <button type="button" class="filter-pill filter-pill--auth${filters.auth === 'bearer' ? ' active' : ''}" data-auth="bearer">
+                            <span class="filter-pill__icon filter-pill__icon--bearer" aria-hidden="true">${lockIcon()}</span>
+                            <span class="filter-pill__label">Bearer</span>
+                        </button>
                     </div>
                 </div>
                 <div class="filter-row">
@@ -534,10 +526,10 @@ function renderOverview(
                         ${tagPills}
                     </div>
                 </div>
-                <label class="filter-check">
-                    <input type="checkbox" id="mcp-only"${filters.mcpOnly ? ' checked' : ''}>
-                    MCP only
-                </label>
+                <div class="filter-row filter-row--mcp">
+                    <span class="filter-label">MCP only</span>
+                    ${renderMcpOnlySlider('mcp-only', filters.mcpOnly)}
+                </div>
             </div>
             ${groupsHtml || '<div class="empty-state"><p>No routes match these filters</p></div>'}
         </div>
@@ -547,82 +539,11 @@ function renderOverview(
 
 function renderErrors(route: CallspecUiRoute): string {
 
-    const entries = route.errors ? Object.entries(route.errors) : [];
-
-    if (!entries.length) return '';
-
-    const rows = entries
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([code, def]) => {
-
-            const schema = def.data
-                ? codeBlock(JSON.stringify(def.data, null, 2))
-                : '<p class="error-schema-empty">No data payload</p>';
-
-            return `
-                <div class="error-card">
-                    <div class="error-card-head">
-                        <code class="error-code">${escapeHtml(code)}</code>
-                        <span class="error-status">HTTP ${def.status}</span>
-                        ${def.dataRequired === false ? '<span class="error-optional">data optional</span>' : ''}
-                    </div>
-                    ${schema}
-                </div>
-            `;
-
-        }).join('');
-
-    return `
-        <div class="section">
-            <h3 class="section-title">Errors</h3>
-            <div class="error-list">${rows}</div>
-        </div>
-    `;
+    return renderRouteErrorsSection(route);
 
 }
 
-function renderRouteActions(route: CallspecUiRoute): string {
-
-    const callspecHref = config.specUrl;
-    const openapiHref = openApiPathFromSpecUrl(config.specUrl);
-    const mcpLink = route.mcp
-        ? `<a class="action-link" href="#/mcp-connect">MCP tool <code>${escapeHtml(route.name)}</code></a>`
-        : '';
-
-    return `
-        <div class="route-actions">
-            <button type="button" class="btn btn-ghost" id="copy-curl">Copy curl</button>
-            <a class="action-link" href="${escapeHtml(callspecHref)}" target="_blank" rel="noopener">callspec.json</a>
-            <a class="action-link" href="${escapeHtml(openapiHref)}" target="_blank" rel="noopener">openapi.json</a>
-            ${mcpLink}
-        </div>
-    `;
-
-}
-
-function renderPrevNext(routeName: string, routes: CallspecUiRoute[]): string {
-
-    const {tag, prev, next} = neighborsInTagGroup(routes, routeName);
-
-    if (!prev && !next) return '';
-
-    const tagLabel = tag ? `<span class="route-nav-tag">${escapeHtml(tag)}</span>` : '';
-
-    return `
-        <nav class="route-nav" aria-label="Adjacent routes">
-            ${tagLabel}
-            <div class="route-nav-links">
-                ${prev
-        ? `<button type="button" class="breadcrumb-link" data-route="${escapeHtml(prev)}">← ${escapeHtml(prev)}</button>`
-        : '<span class="route-nav-placeholder"></span>'}
-                ${next
-        ? `<button type="button" class="breadcrumb-link" data-route="${escapeHtml(next)}">${escapeHtml(next)} →</button>`
-        : '<span class="route-nav-placeholder"></span>'}
-            </div>
-        </nav>
-    `;
-
-}
+const demoMode = config.demoMode === true;
 
 function renderRoute(
     route: CallspecUiRoute,
@@ -632,51 +553,34 @@ function renderRoute(
 ): string {
 
     return `
-        <nav class="breadcrumb">
-            <button type="button" class="breadcrumb-link" data-view="routes">← All routes</button>
-        </nav>
-        <div class="route-endpoint">
-            <span class="method">POST</span>
-            <h2 class="route-name">${escapeHtml(route.name)}</h2>
-            <div class="badges">${renderBadges(route)}</div>
-        </div>
-        <p class="route-summary">${escapeHtml(route.summary)}</p>
-        ${route.description ? `<p class="route-desc">${escapeHtml(route.description)}</p>` : '<div class="route-desc"></div>'}
-        ${renderRouteActions(route)}
-        ${renderPrevNext(route.name, allRoutes)}
-        <div class="route-layout">
-            <div class="route-docs">
-                <div class="section">
-                    <h3 class="section-title">Request</h3>
-                    ${codeBlock(JSON.stringify(route.inputSchema, null, 2))}
-                </div>
-                <div class="section">
-                    <h3 class="section-title">Response</h3>
-                    ${codeBlock(JSON.stringify(route.outputSchema, null, 2))}
-                </div>
-                ${renderErrors(route)}
+        <div class="route-page">
+            <div class="route-page__title">
+                ${renderRouteHeader(route)}
             </div>
-            <div class="route-try">
-                <div class="section try-section">
-                    <h3 class="section-title">Try it</h3>
-                    <div class="try-block">
-                        ${route.auth === 'bearer' ? `
-                        <div class="field">
-                            <label for="auth">Authorization</label>
-                            <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" value="${escapeHtml(authToken)}">
-                        </div>
-                        ` : ''}
-                        <div class="field">
-                            <label for="body">Body</label>
-                            ${jsonEditorHtml('body', bodyJson)}
-                        </div>
-                        <div class="actions">
-                            <button type="button" class="btn btn-primary" id="send">Send</button>
-                            <button type="button" class="btn btn-ghost" id="copy-curl-try">Copy curl</button>
-                        </div>
-                        <div class="response" id="response"></div>
+            <div class="route-page__body">
+                <div class="route-page__content">
+                    ${renderRouteLead(route)}
+                    <div class="route-docs">
+                        ${renderSchemaExamplePanel({
+                            panelId: 'request',
+                            title: 'Request',
+                            schema: route.inputSchema,
+                        })}
+                        ${renderSchemaExamplePanel({
+                            panelId: 'response',
+                            title: 'Response',
+                            schema: route.outputSchema,
+                        })}
+                        ${renderErrors(route)}
                     </div>
+                    ${renderRoutePaginationFooter(route.name, allRoutes)}
                 </div>
+                ${renderTryItPanel({
+                    route,
+                    bodyJson,
+                    authToken,
+                    demoMode,
+                })}
             </div>
         </div>
     `;
@@ -770,14 +674,6 @@ function copyCurl(route: CallspecUiRoute): void {
 
 }
 
-function focusableIn(root: HTMLElement): HTMLElement[] {
-
-    return [...root.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )].filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
-
-}
-
 function bindCopyButtons(root: ParentNode): void {
 
     root.querySelectorAll('[data-copy]').forEach((btn) => {
@@ -864,62 +760,34 @@ async function boot(): Promise<void> {
             drawer?.classList.remove('open');
             drawer?.removeAttribute('role');
             drawer?.removeAttribute('aria-modal');
-            document.getElementById('nav-overlay')?.classList.remove('open');
             document.body.classList.remove('nav-open');
+            document.body.removeAttribute('data-mobile-menu-expanded');
+            document.querySelector('.content')?.removeAttribute('inert');
             const menuBtn = document.getElementById('nav-menu-btn');
 
             if (menuBtn instanceof HTMLButtonElement) {
 
                 menuBtn.setAttribute('aria-expanded', 'false');
-                menuBtn.setAttribute('aria-label', 'Open navigation');
+                menuBtn.setAttribute('aria-label', 'Menu');
 
             }
 
         };
 
-        const trapFocus = (drawer: HTMLElement): (() => void) => {
+        const bindOpenNavChrome = (): (() => void) => {
 
             const onKeyDown = (event: KeyboardEvent): void => {
 
-                if (event.key === 'Escape') {
+                if (event.key !== 'Escape') return;
 
-                    event.preventDefault();
-                    closeNav();
-                    document.getElementById('nav-menu-btn')?.focus();
-                    return;
-
-                }
-
-                if (event.key !== 'Tab') return;
-
-                const focusable = focusableIn(drawer);
-
-                if (!focusable.length) return;
-
-                const first = focusable[0];
-                const last = focusable[focusable.length - 1];
-
-                if (!first || !last) return;
-
-                if (event.shiftKey && document.activeElement === first) {
-
-                    event.preventDefault();
-                    last.focus();
-
-                } else if (!event.shiftKey && document.activeElement === last) {
-
-                    event.preventDefault();
-                    first.focus();
-
-                }
+                event.preventDefault();
+                closeNav();
+                document.getElementById('nav-menu-btn')?.focus();
 
             };
 
             document.addEventListener('keydown', onKeyDown);
-
-            const focusable = focusableIn(drawer);
-
-            (focusable[0] ?? drawer).focus();
+            document.querySelector('.content')?.setAttribute('inert', '');
 
             return () => document.removeEventListener('keydown', onKeyDown);
 
@@ -929,12 +797,11 @@ async function boot(): Promise<void> {
 
             navOpen = true;
             const drawer = document.getElementById('nav-drawer');
-            const overlay = document.getElementById('nav-overlay');
             const menuBtn = document.getElementById('nav-menu-btn');
 
             drawer?.classList.add('open');
-            overlay?.classList.add('open');
             document.body.classList.add('nav-open');
+            document.body.setAttribute('data-mobile-menu-expanded', '');
 
             if (drawer) {
 
@@ -946,15 +813,11 @@ async function boot(): Promise<void> {
             if (menuBtn instanceof HTMLButtonElement) {
 
                 menuBtn.setAttribute('aria-expanded', 'true');
-                menuBtn.setAttribute('aria-label', 'Close navigation');
+                menuBtn.setAttribute('aria-label', 'Close');
 
             }
 
-            if (drawer) {
-
-                drawerCleanup = trapFocus(drawer);
-
-            }
+            drawerCleanup = bindOpenNavChrome();
 
         };
 
@@ -990,48 +853,48 @@ async function boot(): Promise<void> {
                 mcpOnly: false,
             });
             const filtered = applyRouteFilters(routes, filters);
-            const sidebarName = displayName(title, branding);
             const sidebarRoutes = textFiltered;
+            const hasNotice = Boolean(branding?.notice?.message);
+            // Full-app innerHTML rebuild wipes scroll — keep sidebar place in memory.
+            const prevSidebar = app.querySelector('.sidebar-scroll');
+            const sidebarScroll = prevSidebar instanceof HTMLElement
+                ? readScrollTop(prevSidebar)
+                : 0;
 
-            app.className = '';
+            // Footer lives in .content; park it on <body> so the wipe doesn't destroy it.
+            parkPoweredByFooter();
+
+            app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
-                ${renderTopHeader(title, branding, filters.text)}
-                <div class="nav-overlay" id="nav-overlay"></div>
+                ${renderUiNotice(branding?.notice)}
+                ${renderTopHeader(title, branding, config.specUrl)}
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
-                    <div class="sidebar-head">
-                        <div class="sidebar-head-row">
-                            <button type="button" class="sidebar-title" data-view="home">
-                                ${renderBrandMark(branding, {wrapClass: 'sidebar-mark'}) || renderLetterMark(sidebarName, 'sidebar-mark')}
-                                <span class="sidebar-title-text">${escapeHtml(sidebarName)}</span>
-                            </button>
-                            <button type="button" class="nav-close-btn" id="nav-close-btn" aria-label="Close navigation">
-                                ${closeIcon()}
-                            </button>
-                        </div>
-                        <p>v${escapeHtml(version)} · ${routes.length} routes</p>
-                        <label class="drawer-search">
-                            <span class="sr-only">Search routes</span>
-                            <input
-                                id="drawer-search"
-                                class="search drawer-search-input"
-                                type="search"
-                                placeholder="Search routes"
-                                value="${escapeHtml(filters.text)}"
-                                aria-label="Search routes"
-                            >
-                        </label>
-                        <div class="drawer-theme">
-                            ${renderThemeToggle('theme-toggle-drawer')}
-                            <span class="drawer-theme-label">Theme</span>
-                        </div>
-                        ${renderDrawerNavbarLinks(branding)}
+                    <div class="sidebar-search">
+                        ${renderDocsSearchField({
+                            id: 'sidebar-search',
+                            value: filters.text,
+                            className: 'cs-docs-search--sidebar',
+                        })}
                     </div>
-                    <div class="route-list">${renderSidebar(sidebarRoutes, view, showHome)}</div>
+                    <div class="sidebar-scroll">
+                        <p class="sidebar-meta sidebar-meta--mobile">v${escapeHtml(version)} · ${routes.length} routes</p>
+                        ${renderSidebar(sidebarRoutes, view, showHome)}
+                    </div>
+                    ${renderMobileMenuTools({
+                        leadingHtml: renderHeaderContractButtons(config.specUrl, {variant: 'drawer'}),
+                        themeSliderId: 'theme-toggle-drawer',
+                        navLinksHtml: renderDrawerNavbarLinks(branding),
+                    })}
                 </aside>
                 <div class="content">
                     <main class="main" id="main"></main>
                 </div>
             `;
+
+            const nextSidebar = app.querySelector('.sidebar-scroll');
+            if (nextSidebar instanceof HTMLElement) writeScrollTop(nextSidebar, sidebarScroll);
+
+            placePoweredByFooter(app, branding.footer?.poweredBy);
 
             const main = document.getElementById('main');
 
@@ -1059,7 +922,7 @@ async function boot(): Promise<void> {
 
             } else if (main && view.kind === 'routes') {
 
-                main.innerHTML = renderOverview(filtered, routes, filters, showHome);
+                main.innerHTML = renderOverview(filtered, routes, filters);
                 bindOverviewFilters(main);
 
             } else if (main && view.kind === 'route') {
@@ -1075,18 +938,22 @@ async function boot(): Promise<void> {
                         authToken,
                     );
 
-                    document.getElementById('send')?.addEventListener('click', () => {
+                    if (!demoMode) {
 
-                        void sendRequest(route);
+                        document.getElementById('send')?.addEventListener('click', () => {
 
-                    });
+                            void sendRequest(route);
+
+                        });
+
+                    }
 
                     const onCopyCurl = (): void => copyCurl(route);
 
-                    document.getElementById('copy-curl')?.addEventListener('click', onCopyCurl);
                     document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
 
                     initJsonEditor('body');
+                    bindSchemaPanels(main);
 
                 } else {
 
@@ -1099,11 +966,13 @@ async function boot(): Promise<void> {
             const onThemeClick = (): void => {
 
                 theme = toggleTheme(theme);
+                syncAllDocsThemeSliders(theme);
 
             };
 
             document.getElementById('theme-toggle')?.addEventListener('click', onThemeClick);
             document.getElementById('theme-toggle-drawer')?.addEventListener('click', onThemeClick);
+            syncAllDocsThemeSliders(theme);
 
             const bindSearchInput = (id: string): void => {
 
@@ -1111,10 +980,10 @@ async function boot(): Promise<void> {
 
                 if (!(input instanceof HTMLInputElement)) return;
 
-                input.addEventListener('input', () => {
+                const applySearch = (value: string): void => {
 
                     persistRouteDraft();
-                    filters = {...filters, text: input.value};
+                    filters = {...filters, text: value};
                     render();
                     const restored = document.getElementById(id);
 
@@ -1126,12 +995,27 @@ async function boot(): Promise<void> {
 
                     }
 
+                };
+
+                input.addEventListener('input', () => {
+                    applySearch(input.value);
                 });
+
+                const clearBtn = input
+                    .closest('.cs-docs-search')
+                    ?.querySelector('.cs-docs-search__clear');
+
+                if (clearBtn instanceof HTMLButtonElement) {
+
+                    clearBtn.addEventListener('click', () => {
+                        applySearch('');
+                    });
+
+                }
 
             };
 
-            bindSearchInput('header-search');
-            bindSearchInput('drawer-search');
+            bindSearchInput('sidebar-search');
 
             document.getElementById('nav-menu-btn')?.addEventListener('click', () => {
 
@@ -1140,8 +1024,11 @@ async function boot(): Promise<void> {
 
             });
 
-            document.getElementById('nav-close-btn')?.addEventListener('click', closeNav);
-            document.getElementById('nav-overlay')?.addEventListener('click', closeNav);
+            matchMedia('(min-width: 50rem)').addEventListener('change', (event) => {
+
+                if (event.matches) closeNav();
+
+            });
 
             if (navOpen) openNav();
 
@@ -1207,14 +1094,16 @@ async function boot(): Promise<void> {
 
             });
 
-            main.querySelector('#mcp-only')?.addEventListener('change', (event) => {
+            main.querySelectorAll('[data-mcp-only]').forEach((btn) => {
 
-                const target = event.target;
+                btn.addEventListener('click', () => {
 
-                if (!(target instanceof HTMLInputElement)) return;
+                    if (!(btn instanceof HTMLElement)) return;
 
-                filters = {...filters, mcpOnly: target.checked};
-                render();
+                    filters = {...filters, mcpOnly: btn.dataset.mcpOnly === 'true'};
+                    render();
+
+                });
 
             });
 
@@ -1254,7 +1143,7 @@ async function boot(): Promise<void> {
             }
 
             event.preventDefault();
-            const input = document.getElementById('header-search');
+            const input = document.getElementById('sidebar-search');
 
             if (input instanceof HTMLInputElement) {
 

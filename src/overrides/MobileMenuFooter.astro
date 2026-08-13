@@ -1,0 +1,100 @@
+---
+/**
+ * Mobile drawer chrome — search + theme (header drops these below 50rem on guides).
+ */
+import config from 'virtual:starlight/user-config';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const shouldRenderSearch =
+	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="cs-mobile-menu-tools">
+	{
+		shouldRenderSearch && (
+			<div class="cs-mobile-menu-tools__search">
+				<Search />
+			</div>
+		)
+	}
+	<div class="mobile-preferences sl-flex">
+		<div class="social-icons">
+			<SocialIcons />
+		</div>
+		<div class="cs-mobile-menu-tools__theme">
+			<span class="cs-mobile-menu-tools__theme-label">Theme</span>
+			<ThemeSelect />
+		</div>
+		<LanguageSelect />
+	</div>
+</div>
+
+<style>
+	@layer starlight.core {
+		.cs-mobile-menu-tools {
+			display: flex;
+			flex-direction: column;
+			gap: 0.85rem;
+			margin-top: auto;
+			padding-top: 0.75rem;
+			border-top: 1px solid var(--sl-color-gray-6);
+		}
+
+		.cs-mobile-menu-tools__search {
+			width: 100%;
+		}
+
+		.cs-mobile-menu-tools__search :global(site-search > button) {
+			width: 100%;
+			max-width: none;
+			justify-content: flex-start;
+		}
+
+		.cs-mobile-menu-tools__search :global(.cs-search-label) {
+			display: inline !important;
+		}
+
+		.cs-mobile-menu-tools__search :global(button[data-open-modal]) {
+			width: 100% !important;
+			padding-inline: 0.85rem !important;
+			justify-content: flex-start !important;
+		}
+
+		.social-icons {
+			display: flex;
+			margin-inline-end: auto;
+			gap: 1rem;
+			align-items: center;
+			padding-block: 0;
+		}
+
+		.social-icons:empty {
+			display: none;
+		}
+
+		.mobile-preferences {
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			column-gap: 1rem;
+			row-gap: 0.65rem;
+			padding: 0.15rem 0 0.35rem;
+		}
+
+		.cs-mobile-menu-tools__theme {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.65rem;
+		}
+
+		.cs-mobile-menu-tools__theme-label {
+			font-size: 0.8125rem;
+			font-weight: 600;
+			color: var(--sl-color-gray-2);
+			letter-spacing: -0.01em;
+		}
+	}
+</style>

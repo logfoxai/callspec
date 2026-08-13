@@ -1,0 +1,45 @@
+---
+/**
+ * Marketing homepage hero — headline, pitch, lead, and pile graphic.
+ */
+import SplashHeroActions from './SplashHeroActions.astro';
+import SplashPile from './SplashPile.astro';
+import type {SplashHeroActionList} from '../splashHeroTypes';
+
+const PAGE_TITLE_ID = '_top';
+
+interface Props {
+	title: string;
+	headline: string;
+	actions: SplashHeroActionList;
+}
+
+const {title, headline, actions = []} = Astro.props;
+
+const homePitch = 'One TypeScript route → typed SDK, docs, OpenAPI, and MCP.';
+---
+
+<section class="splash-hero">
+	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
+	{headline && <h2 class="splash-hero__headline">{headline}</h2>}
+	<p class="splash-hero__pitch">{homePitch}</p>
+	<SplashHeroActions actions={actions} />
+	<div class="splash-hero__stage">
+		<div class="splash-hero__lead">
+			<p>
+				Most teams duct-tape the same API six ways: REST to bikeshed, hand-maintained OpenAPI,
+				a DIY client, duplicate validators, stale docs, and MCP bolted on last. One change breaks
+				three surfaces — overly complex, brittle, and time you could be spending building your
+				app.
+			</p>
+			<p>
+				Instead, define each route once in TypeScript — inputs, outputs, and errors — and
+				Callspec ships the server, SDK, docs, OpenAPI, and MCP from that contract. One source
+				of truth, unit-testable, no drift.
+			</p>
+		</div>
+		<div class="splash-hero__visual">
+			<SplashPile />
+		</div>
+	</div>
+</section>

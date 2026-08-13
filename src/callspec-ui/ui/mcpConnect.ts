@@ -1,6 +1,7 @@
 import type {CallspecUiConfig} from '../branding';
 import {slugifyName} from '../../metaDefaults';
 import {codeBlock} from './highlight';
+import {mcpIcon} from './icons';
 
 type McpRoute = {
     name: string
@@ -261,7 +262,8 @@ function renderClientPanels(clients: ConnectClient[]): string {
             id="mcp-panel-${client.id}"
             data-mcp-panel="${client.id}"
             aria-labelledby="mcp-tab-${client.id}"
-            ${index === 0 ? '' : 'hidden'}
+            aria-hidden="${index === 0 ? 'false' : 'true'}"
+            ${index === 0 ? '' : 'inert'}
         >
             <div class="mcp-client-meta">
                 <span class="mcp-client-path">${escapeHtml(client.meta)}</span>
@@ -299,12 +301,14 @@ export function renderMcpConnect(
         <section class="mcp-connect" id="mcp-connect">
             <div class="mcp-connect-head">
                 <div>
-                    <h3 class="mcp-connect-title">Connect MCP</h3>
+                    <h3 class="mcp-connect-title">
+                        <span class="mcp-connect-title__icon" aria-hidden="true">${mcpIcon()}</span>
+                        Connect MCP
+                    </h3>
                     <p class="mcp-connect-lead">
                         ${mcpRoutes.length} tool${mcpRoutes.length === 1 ? '' : 's'} over HTTP — paste into your agent.
                     </p>
                 </div>
-                <span class="badge mcp mcp-connect-badge">MCP</span>
             </div>
 
             <div class="mcp-endpoint">
@@ -350,6 +354,62 @@ function flashCopyButton(btn: HTMLElement): void {
         btn.classList.remove('is-copied');
 
     }, 1400);
+
+}
+
+/** Keep the docs/content scroller put while a tab switch mutates layout. */
+export function withPreservedScrollTop(
+    scroller: {scrollTop: number} | null | undefined,
+    mutate: () => void,
+): void {
+
+    const top = scroller?.scrollTop ?? 0;
+
+    mutate();
+
+    if (scroller) {
+
+        scroller.scrollTop = top;
+
+    }
+
+}
+
+function contentScrollerNear(root: HTMLElement): HTMLElement | null {
+
+    const el = root.closest('.content');
+
+    return el instanceof HTMLElement ? el : null;
+
+}
+
+function selectMcpClient(
+    tabs: NodeListOf<HTMLButtonElement>,
+    panels: NodeListOf<HTMLElement>,
+    clientId: string,
+    activeTab: HTMLButtonElement,
+): void {
+
+    tabs.forEach((other) => {
+
+        const on = other === activeTab;
+
+        other.setAttribute('aria-selected', on ? 'true' : 'false');
+        other.tabIndex = on ? 0 : -1;
+
+    });
+
+    panels.forEach((panel) => {
+
+        const active = panel.dataset.mcpPanel === clientId;
+
+        panel.classList.toggle('is-active', active);
+        // Prefer class + inert over the `hidden` attribute — toggling `hidden` can
+        // scroll the newly shown panel (and ancestors) into view.
+        panel.toggleAttribute('inert', !active);
+        panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+
+    });
 
 }
 
@@ -401,27 +461,54 @@ export function bindMcpConnect(root: HTMLElement): void {
     }
 
     const panels = root.querySelectorAll<HTMLElement>('[data-mcp-panel]');
+    const scroller = contentScrollerNear(root);
+
+    // Initial a11y state (first tab selected in markup).
+    tabs.forEach((tab, index) => {
+
+        tab.tabIndex = index === 0 ? 0 : -1;
+
+    });
+
+    panels.forEach((panel, index) => {
+
+        const active = index === 0;
+
+        panel.classList.toggle('is-active', active);
+        panel.toggleAttribute('inert', !active);
+        panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+        panel.removeAttribute('hidden');
+
+    });
 
     tabs.forEach((tab) => {
 
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', (event) => {
+
+            event.preventDefault();
 
             const clientId = tab.dataset.mcpClient ?? '';
 
-            tabs.forEach((other) => {
+            withPreservedScrollTop(scroller, () => {
 
-                other.setAttribute('aria-selected', other === tab ? 'true' : 'false');
-
-            });
-
-            panels.forEach((panel) => {
-
-                const active = panel.dataset.mcpPanel === clientId;
-
-                panel.hidden = !active;
-                panel.classList.toggle('is-active', active);
+                selectMcpClient(tabs, panels, clientId, tab);
 
             });
+
+            // Focus without scrolling the page/content pane.
+            tab.focus({preventScroll: true});
+
+            if (scroller) {
+
+                const top = scroller.scrollTop;
+
+                requestAnimationFrame(() => {
+
+                    scroller.scrollTop = top;
+
+                });
+
+            }
 
         });
 

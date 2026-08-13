@@ -21,82 +21,35 @@ test('renderCallspecUiPage bakes absolute specUrl and rpcBase into HTML', (asser
 
 });
 
-test('renderCallspecUiPage injects customCssUrl link with escaped href', (assert) => {
+test('renderCallspecUiPage bakes branding.notice into client config', (assert) => {
 
     const html = renderCallspecUiPage({
         specUrl: '../callspec.json',
         rpcBase: '..',
         branding: {
-            theme: {customCssUrl: 'https://cdn.example/brand.css?x=">&<'},
+            notice: {
+                title: 'Preview',
+                message: 'Browse only.',
+                command: 'npm run demo',
+            },
         },
     });
 
-    assert.equal(
-        html.includes('<link rel="stylesheet" href="https://cdn.example/brand.css?x=&quot;&gt;&amp;&lt;">'),
-        true,
-    );
+    assert.equal(html.includes('"notice":{"title":"Preview","message":"Browse only.","command":"npm run demo"}'), true);
+    assert.equal(html.includes('callspec-ui-header-html'), false);
+    assert.equal(html.includes('data-callspec-ui-custom-css'), false);
 
 });
 
-test('renderCallspecUiPage: mount customCssUrl wins over theme.customCssUrl', (assert) => {
+test('renderCallspecUiPage bakes demoMode into client config', (assert) => {
 
     const html = renderCallspecUiPage({
         specUrl: '../callspec.json',
         rpcBase: '..',
-        customCssUrl: 'https://mount.example/override.css',
-        branding: {
-            theme: {customCssUrl: 'https://meta.example/theme.css'},
-        },
+        demoMode: true,
     });
 
-    assert.equal(
-        html.includes('<link rel="stylesheet" href="https://mount.example/override.css">'),
-        true,
-    );
-    assert.equal(
-        html.includes('<link rel="stylesheet" href="https://meta.example/theme.css">'),
-        false,
-    );
-
-});
-
-test('renderCallspecUiPage injects sanitized customCss (strips style breakouts)', (assert) => {
-
-    const html = renderCallspecUiPage({
-        specUrl: '../callspec.json',
-        rpcBase: '..',
-        branding: {
-            theme: {customCss: '.x{color:red}</style><p>breakout</p>'},
-        },
-    });
-
-    assert.equal(html.includes('<style data-callspec-ui-custom-css>'), true);
-    assert.equal(html.includes('.x{color:red}'), true);
-    // Closing `</style` removed so markup after it stays inside the style element.
-    assert.equal(html.includes('</style><p>breakout</p>'), false);
-    assert.equal(html.includes('data-callspec-ui-custom-css>.x{color:red}><p>breakout</p></style>'), true);
-
-});
-
-test('renderCallspecUiPage injects sanitized headerHtml above #app', (assert) => {
-
-    const html = renderCallspecUiPage({
-        specUrl: '../callspec.json',
-        rpcBase: '..',
-        branding: {
-            headerHtml: '<nav class="mkt"><a href="/app" onclick="evil()">App</a></nav><script>x()</script>',
-        },
-    });
-
-    const wrapperStart = html.indexOf('<div class="callspec-ui-header-html">');
-    const appStart = html.indexOf('<div id="app"');
-
-    assert.equal(wrapperStart > -1, true);
-    assert.equal(appStart > wrapperStart, true);
-    assert.equal(html.includes('class="mkt"'), true);
-    assert.equal(html.includes('href="/app"'), true);
-    assert.equal(/onclick=/i.test(html), false);
-    assert.equal(html.includes('<script>x()'), false);
+    assert.equal(html.includes('"demoMode":true'), true);
 
 });
 
@@ -117,7 +70,6 @@ test('exportCallspecUi writes index.html and assets for S3 upload', (assert) => 
     assert.equal(fs.existsSync(htmlPath), true);
     assert.equal(html.includes('"specUrl":"https://api.example.com/v1/callspec.json"'), true);
     assert.equal(html.includes('"rpcBase":"https://api.example.com/v1"'), true);
-    // Absolute rpcBase → MCP defaults to the API host, not the CDN docs origin.
     assert.equal(html.includes('"mcpPath":"https://api.example.com/v1/mcp"'), true);
 
     const assetsDir = path.join(outDir, 'assets');

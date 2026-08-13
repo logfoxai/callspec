@@ -1,0 +1,210 @@
+/*
+ * Shared docs chrome tokens — Astro/Starlight guides + Vite callspec-ui.
+ * Splash stays separate (splash.css). Keep this file the single source of truth
+ * for page/sidebar/nav/code colors and header metrics.
+ *
+ * :root defaults to light (avoids dark FOUC before theme JS). Dark is
+ * html[data-theme='dark'] / [data-theme='dark'] only.
+ */
+
+/* Mobile-first html scale — both surfaces inherit rem from this. */
+html {
+    font-size: 0.875rem;
+}
+
+@media (min-width: 40em) {
+    html {
+        font-size: 0.9375rem;
+    }
+}
+
+@media (min-width: 50em) {
+    html {
+        font-size: 1rem;
+    }
+}
+
+/*
+ * Wide type bumps — start after MacBook Neo (~1204–1408 CSS px).
+ * 72rem (1152px) was firing on Neo and scaled the whole UI up.
+ */
+@media (min-width: 90rem) {
+    html {
+        font-size: 1.03125rem;
+    }
+}
+
+@media (min-width: 110rem) {
+    html {
+        font-size: 1.0625rem;
+    }
+}
+
+@media (min-width: 140rem) {
+    html {
+        font-size: 1.075rem;
+    }
+}
+
+:root,
+::backdrop,
+html[data-theme='light'],
+[data-theme='light'],
+[data-theme='light'] ::backdrop {
+    color-scheme: light;
+
+    --docs-bg: hsl(228, 24%, 97%);
+    --docs-surface: #ffffff;
+    /* Light chrome — white top bar + sidebar (content stays soft grey). */
+    --docs-sidebar: #ffffff;
+    --docs-nav: #ffffff;
+    --docs-border: hsl(228, 15%, 85%);
+    --docs-border-strong: hsl(228, 13%, 75%);
+    --docs-text: hsl(228, 25%, 12%);
+    --docs-text-secondary: hsl(228, 10%, 40%);
+    --docs-text-tertiary: hsl(228, 8%, 52%);
+    --docs-accent: hsl(196, 100%, 40%);
+    --docs-accent-soft: color-mix(in srgb, var(--docs-accent) 14%, var(--docs-bg));
+    /* Callspec hex mark — ink (host --accent must not override). */
+    --docs-callspec-mark: #000;
+    /* Mark ↔ label gap — explorer contract chips + docs nav lockup. */
+    --docs-mark-label-gap: 0.18rem;
+    /* Neutral inset — same hue family as page chrome, not cyan-tinted. */
+    --docs-code-bg: hsl(228, 14%, 94%);
+    --docs-code-border: var(--docs-border);
+    --docs-mcp: #9333ea;
+    --docs-radius: 0.75rem;
+    --docs-code-radius: 0.5rem;
+    --docs-header-height: 3.5rem;
+    --docs-header-pad-x: 1.25rem;
+    --docs-search-height: 2.25rem;
+    --docs-search-max-width: 22rem;
+    /* Track header brand edge; wide screens bump both via --docs-header-pad-x. */
+    --docs-sidebar-pad-x: var(--docs-header-pad-x);
+    /* Inline pad inside Home / group / route rows (docs + explorer). */
+    --docs-sidebar-link-pad-inline: 0.7rem;
+    /* Nested route/page rows under a category (docs + explorer). */
+    --docs-sidebar-subitem-line-height: 1.65;
+    /* Sidebar link/category hover — pure black in light. */
+    --docs-sidebar-hover: #000;
+    --docs-header-bg: #ffffff;
+
+    /* Primary fill — CTAs + active nav (slightly richer than accent). */
+    --docs-primary-bg: hsl(196, 100%, 42%);
+    --docs-primary-fg: #f8fafc;
+    --docs-primary-hover-bg: hsl(196, 100%, 34%);
+    --docs-primary-hover-fg: #ffffff;
+
+    --docs-table-bg: hsl(0, 0%, 100%);
+    --docs-table-row-hover: hsl(228, 28%, 97%);
+}
+
+html[data-theme='dark'],
+[data-theme='dark'],
+[data-theme='dark'] ::backdrop {
+    color-scheme: dark;
+
+    --docs-bg: hsl(228, 22%, 6%);
+    --docs-surface: hsl(228, 18%, 9%);
+    --docs-sidebar: hsl(228, 16%, 11%);
+    /* Same plane as sidebar — top bar shouldn’t read as a different grey. */
+    --docs-nav: var(--docs-sidebar);
+    --docs-border: hsl(228, 12%, 22%);
+    --docs-border-strong: hsl(228, 10%, 32%);
+    --docs-text: hsl(228, 20%, 98%);
+    --docs-text-secondary: hsl(228, 12%, 68%);
+    --docs-text-tertiary: hsl(228, 10%, 52%);
+    --docs-sidebar-hover: var(--docs-text);
+    --docs-accent: hsl(196, 90%, 58%);
+    --docs-accent-soft: color-mix(in srgb, var(--docs-accent) 22%, var(--docs-surface));
+    /* Callspec hex mark — assets/mark-dark.svg */
+    --docs-callspec-mark: #fff;
+    --docs-code-bg: hsl(228, 14%, 15%);
+    --docs-code-border: color-mix(in srgb, var(--docs-code-bg) 88%, white);
+    --docs-mcp: #c084fc;
+    --docs-header-bg: var(--docs-sidebar);
+
+    --docs-primary-bg: hsl(196, 92%, 62%);
+    --docs-primary-fg: #061018;
+    --docs-primary-hover-bg: #7dd3fc;
+    --docs-primary-hover-fg: #061018;
+
+    --docs-table-bg: hsl(228, 16%, 10%);
+    --docs-table-row-hover: hsl(228, 14%, 13%);
+}
+
+/* Roomier L/R chrome — past MacBook Neo widths (see html type scale above). */
+@media (min-width: 90rem) {
+    /* Match token selectors — `:root` alone loses to `html[data-theme]`. */
+    :root,
+    html[data-theme='light'],
+    html[data-theme='dark'],
+    [data-theme='light'],
+    [data-theme='dark'] {
+        --docs-header-pad-x: 1.5rem;
+    }
+}
+
+/* Aliases — Starlight / cs-* + Vite callspec-ui */
+:root,
+::backdrop,
+html[data-theme='dark'],
+html[data-theme='light'],
+[data-theme='dark'],
+[data-theme='light'] {
+    --cs-radius: var(--docs-radius);
+    --cs-ink: var(--docs-text);
+    --cs-muted: var(--docs-text-secondary);
+    --cs-line: var(--docs-border);
+    --cs-surface: var(--docs-surface);
+    --cs-mcp: var(--docs-mcp);
+    --cs-code-bg: var(--docs-code-bg);
+    --cs-code-border: var(--docs-code-border);
+    --cs-cyan: var(--docs-accent);
+    --cs-primary-bg: var(--docs-primary-bg);
+    --cs-primary-fg: var(--docs-primary-fg);
+    --cs-primary-hover-bg: var(--docs-primary-hover-bg);
+    --cs-primary-hover-fg: var(--docs-primary-hover-fg);
+    --cs-table-bg: var(--docs-table-bg);
+    --cs-table-row-hover: var(--docs-table-row-hover);
+
+    --bg: var(--docs-bg);
+    --surface: var(--docs-surface);
+    --sidebar-bg: var(--docs-sidebar);
+    --border: var(--docs-border);
+    --border-strong: var(--docs-border-strong);
+    --text: var(--docs-text);
+    --text-secondary: var(--docs-text-secondary);
+    --text-tertiary: var(--docs-text-tertiary);
+    --accent: var(--docs-accent);
+    /* Derive from --accent so brand theme overrides (inline --accent) tint soft too. */
+    --accent-soft: color-mix(in srgb, var(--accent) 16%, var(--surface));
+    --hljs-bg: var(--docs-code-bg);
+    --radius: var(--docs-radius);
+    --header-height: var(--docs-header-height);
+    --header-pad-x: var(--docs-header-pad-x);
+    --sidebar-link-pad-inline: var(--docs-sidebar-link-pad-inline);
+    --sidebar-subitem-line-height: var(--docs-sidebar-subitem-line-height);
+    --sidebar-hover: var(--docs-sidebar-hover);
+    --nav-active-bg: var(--docs-primary-bg);
+    --nav-active-fg: var(--docs-primary-fg);
+    --callspec-mark: var(--docs-callspec-mark);
+    --mark-label-gap: var(--docs-mark-label-gap);
+    --font-heading: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Shared frosted header treatment (guides + explorer). */
+.docs-frosted-header {
+    background: var(--docs-header-bg);
+    backdrop-filter: blur(14px) saturate(1.25);
+    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+}
+
+/* Theme toggle crossfade (document.startViewTransition in ThemeSelect / theme.ts). */
+@media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 0.2s;
+        animation-timing-function: ease;
+    }
+}

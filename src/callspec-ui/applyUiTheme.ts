@@ -16,9 +16,9 @@ type ThemeColorKey = keyof typeof THEME_TO_CSS_VAR;
 
 /** Match built-in UI palettes so brand surfaces stay readable in both modes. */
 const LIGHT_TEXT = {
-    '--text': '#1c1917',
-    '--text-secondary': '#6b6560',
-    '--text-tertiary': '#9c958c',
+    '--text': 'hsl(228, 25%, 12%)',
+    '--text-secondary': 'hsl(228, 10%, 40%)',
+    '--text-tertiary': 'hsl(228, 8%, 52%)',
 } as const;
 
 const DARK_TEXT = {
@@ -103,6 +103,23 @@ export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme
         if (typeof value === 'string' && value.length > 0) {
 
             cssVars[THEME_TO_CSS_VAR[key]] = value;
+
+        }
+
+    }
+
+    if (typeof theme.accent === 'string' && theme.accent.length > 0) {
+
+        cssVars['--nav-active-bg'] = theme.accent;
+        cssVars['--cs-primary-bg'] = theme.accent;
+        cssVars['--accent-soft'] = `color-mix(in srgb, ${theme.accent} 16%, var(--surface))`;
+
+        const onAccent = textTokensForSurface(theme.accent);
+
+        if (onAccent) {
+
+            cssVars['--nav-active-fg'] = onAccent['--text'];
+            cssVars['--cs-primary-fg'] = onAccent['--text'];
 
         }
 

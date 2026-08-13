@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Chirp">
-  <rect width="64" height="64" rx="14" fill="#134e4a"/>
-  <circle cx="33" cy="31" r="12" fill="#fafafa"/>
-  <path fill="#fafafa" d="M19 21l-5 6 8 2 4-5z"/>
-  <circle cx="36.5" cy="26.5" r="2" fill="#171717"/>
-  <path fill="#fb923c" d="M45 28.5 51.5 31.5 45 34.5z"/>
-</svg>

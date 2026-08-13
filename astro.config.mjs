@@ -17,10 +17,15 @@ export default defineConfig({
             rehypePlugins: [rehypeWrapTables],
         }),
     },
-    site: 'https://logfoxai.github.io/callspec',
+    site: 'https://callspec.logfox.ai',
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)
     publicDir: './assets',
+    // Old thin API reference landing → first real page.
+    redirects: {
+        '/api-reference': '/api-reference/handlers',
+        '/api-reference/': '/api-reference/handlers',
+    },
     // Dev server only: Origin-bearing cross-site requests (proxies / some IDE previews).
     // Cursor Simple Browser often sends cross-site no-cors *without* Origin — that
     // path is handled by devServerNoisePlugin (allowedDomains cannot match missing Origin).
@@ -42,7 +47,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Callspec',
-            description: 'Write your API once. Get typed RPC, SDK, MCP, docs, and OpenAPI spec.',
+            description: 'Stop duct-taping your API stack. One TypeScript route → typed SDK, docs, OpenAPI, and MCP.',
             logo: {
                 light: './assets/callspec-lockup-light.svg',
                 dark: './assets/callspec-lockup-dark.svg',
@@ -53,14 +58,20 @@ export default defineConfig({
             expressiveCode: true,
             customCss: [
                 './src/styles/fonts.css',
+                './src/styles/docs-shared.css',
                 './src/styles/starlight-custom.css',
             ],
             components: {
                 Head: './src/overrides/Head.astro',
+                Header: './src/overrides/Header.astro',
                 Hero: './src/overrides/Hero.astro',
                 Search: './src/overrides/Search.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
+                MobileMenuToggle: './src/overrides/MobileMenuToggle.astro',
+                MobileMenuFooter: './src/overrides/MobileMenuFooter.astro',
+                PageFrame: './src/overrides/PageFrame.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
+                SiteTitle: './src/overrides/SiteTitle.astro',
             },
             social: [
                 {
@@ -82,7 +93,6 @@ export default defineConfig({
                 {
                     label: 'API reference',
                     items: [
-                        {label: 'Overview', slug: 'api-reference'},
                         {label: 'Handlers', slug: 'api-reference/handlers'},
                         {label: 'route & spec', slug: 'api-reference/route-and-spec'},
                         {label: 'mountSpec', slug: 'api-reference/mount-spec'},

@@ -1,0 +1,236 @@
+---
+/**
+ * In-header Menu chip — equal bars + “Menu”/“Close” label.
+ * Animates open ↔ close.
+ */
+const label = Astro.locals.t('menuButton.accessibleLabel');
+---
+
+<starlight-menu-button class="print:hidden cs-menu-toggle">
+	<button
+		type="button"
+		aria-expanded="false"
+		aria-label={label}
+		aria-controls="starlight__sidebar"
+		class="cs-menu-toggle__btn md:sl-hidden"
+	>
+		<span class="cs-menu-toggle__icon" aria-hidden="true">
+			<span class="cs-menu-toggle__line cs-menu-toggle__line--1"></span>
+			<span class="cs-menu-toggle__line cs-menu-toggle__line--2"></span>
+			<span class="cs-menu-toggle__line cs-menu-toggle__line--3"></span>
+		</span>
+		<span class="cs-menu-toggle__label">
+			<span class="cs-menu-toggle__word cs-menu-toggle__word--open">Menu</span>
+			<span class="cs-menu-toggle__word cs-menu-toggle__word--close">Close</span>
+		</span>
+	</button>
+</starlight-menu-button>
+
+<script>
+	class StarlightMenuButton extends HTMLElement {
+		btn = this.querySelector('button')!;
+
+		constructor() {
+			super();
+			this.btn.addEventListener('click', () => this.toggleExpanded());
+
+			const parentNav = this.closest('nav');
+			if (parentNav) {
+				parentNav.addEventListener('keyup', (e) => this.closeOnEscape(e));
+			}
+
+			// Also close on Escape from the document when toggle lives in the header.
+			document.addEventListener('keyup', (e) => {
+				if (this.getAttribute('aria-expanded') === 'true') this.closeOnEscape(e);
+			});
+
+			matchMedia('(min-width: 50em)').addEventListener('change', () => this.setExpanded(false));
+		}
+
+		setExpanded(expanded: boolean) {
+			this.setAttribute('aria-expanded', String(expanded));
+			this.btn.setAttribute('aria-expanded', String(expanded));
+			document.body.toggleAttribute('data-mobile-menu-expanded', expanded);
+			document.querySelectorAll<HTMLElement>('.main-frame, .sl-skip-link').forEach((el) => {
+				el.toggleAttribute('inert', expanded);
+			});
+		}
+
+		toggleExpanded() {
+			this.setExpanded(this.getAttribute('aria-expanded') !== 'true');
+		}
+
+		closeOnEscape(e: KeyboardEvent) {
+			if (e.code === 'Escape') {
+				this.setExpanded(false);
+				this.btn.focus();
+			}
+		}
+	}
+
+	customElements.define('starlight-menu-button', StarlightMenuButton);
+</script>
+
+<style>
+	.cs-menu-toggle {
+		display: contents;
+	}
+
+	.cs-menu-toggle__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		height: 2.25rem;
+		margin: 0;
+		padding: 0 0.7rem;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.55rem;
+		background: var(--sl-color-gray-6);
+		color: var(--sl-color-white);
+		box-shadow: none;
+		cursor: pointer;
+		font-family: var(--sl-font);
+		font-size: 0.8125rem;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		line-height: 1;
+		transition:
+			background-color 0.18s ease,
+			border-color 0.18s ease,
+			color 0.18s ease,
+			transform 0.18s ease;
+	}
+
+	@media (min-width: 50rem) {
+		.cs-menu-toggle__btn {
+			display: none;
+		}
+	}
+
+	.cs-menu-toggle__btn:hover {
+		border-color: var(--sl-color-gray-4);
+		background: color-mix(in srgb, var(--sl-color-gray-5) 55%, var(--sl-color-gray-6));
+	}
+
+	.cs-menu-toggle__btn:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+	}
+
+	.cs-menu-toggle__btn:active {
+		transform: scale(0.97);
+	}
+
+	:global([data-theme='light']) .cs-menu-toggle__btn {
+		background: #ffffff;
+		color: var(--sl-color-white);
+		box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
+	}
+
+	:global([data-theme='light']) .cs-menu-toggle__btn:hover {
+		background: #f3f5f9;
+		border-color: var(--sl-color-gray-4);
+	}
+
+	.cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__btn {
+		border-color: color-mix(in srgb, var(--sl-color-accent) 45%, var(--sl-color-gray-5));
+		background: color-mix(in srgb, var(--sl-color-accent) 14%, var(--sl-color-gray-6));
+	}
+
+	:global([data-theme='light']) .cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__btn {
+		background: color-mix(in srgb, var(--sl-color-accent) 12%, #ffffff);
+	}
+
+	/* Three equal bars — flex spacing avoids subpixel clip on the bottom line. */
+	.cs-menu-toggle__icon {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 0.875rem;
+		height: 0.875rem;
+		flex-shrink: 0;
+	}
+
+	.cs-menu-toggle__line {
+		display: block;
+		width: 100%;
+		height: 0.125rem;
+		min-height: 2px;
+		border-radius: 999px;
+		background: currentColor;
+		transform-origin: center;
+		flex-shrink: 0;
+		transition:
+			transform 0.28s cubic-bezier(0.22, 0.7, 0.24, 1),
+			opacity 0.2s ease;
+	}
+
+	.cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__line--1 {
+		transform: translateY(0.375rem) rotate(45deg);
+	}
+
+	.cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__line--2 {
+		opacity: 0;
+	}
+
+	.cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__line--3 {
+		transform: translateY(-0.375rem) rotate(-45deg);
+	}
+
+	.cs-menu-toggle__label {
+		position: relative;
+		display: inline-grid;
+		align-items: center;
+		justify-items: center;
+		/* Stable width for Menu ↔ Close so the chip doesn’t jump. */
+		min-width: 2.75rem;
+		text-align: center;
+	}
+
+	.cs-menu-toggle__word {
+		grid-area: 1 / 1;
+		line-height: 1;
+		transition:
+			opacity 0.2s ease,
+			transform 0.28s cubic-bezier(0.22, 0.7, 0.24, 1);
+	}
+
+	.cs-menu-toggle__word--close {
+		opacity: 0;
+		transform: translateY(0.35em);
+	}
+
+	.cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__word--open {
+		opacity: 0;
+		transform: translateY(-0.35em);
+	}
+
+	.cs-menu-toggle[aria-expanded='true'] .cs-menu-toggle__word--close {
+		opacity: 1;
+		transform: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cs-menu-toggle__btn,
+		.cs-menu-toggle__line,
+		.cs-menu-toggle__word {
+			transition: none;
+		}
+	}
+</style>
+
+<style is:global>
+	@layer starlight.core {
+		[data-mobile-menu-expanded] {
+			overflow: hidden;
+		}
+
+		@media (min-width: 50rem) {
+			[data-mobile-menu-expanded] {
+				overflow: auto;
+			}
+		}
+	}
+</style>

@@ -26,7 +26,7 @@ test('metaBrandingFromCallspecMeta: passes theme, navbarLinks, footer, favicon',
             {label: 'GitHub', href: 'https://github.com/acme', external: true},
         ],
         footer: {poweredBy: false},
-        headerHtml: '<div class="mkt">Acme</div>',
+        notice: {title: 'Preview', message: 'Browse only.'},
         authHint: 'Use a portal key.',
     });
 
@@ -49,7 +49,7 @@ test('metaBrandingFromCallspecMeta: passes theme, navbarLinks, footer, favicon',
         {label: 'GitHub', href: 'https://github.com/acme', external: true},
     ]);
     assert.equal(branding.footer, {poweredBy: false});
-    assert.equal(branding.headerHtml, '<div class="mkt">Acme</div>');
+    assert.equal(branding.notice, {title: 'Preview', message: 'Browse only.'});
     assert.equal(branding.mcp, {authHint: 'Use a portal key.'});
 
 });
@@ -74,7 +74,7 @@ test('metaBrandingFromCallspecMeta: omits optional branding when unset', (assert
     assert.equal(branding.theme, undefined);
     assert.equal(branding.navbarLinks, undefined);
     assert.equal(branding.footer, undefined);
-    assert.equal(branding.headerHtml, undefined);
+    assert.equal(branding.notice, undefined);
     assert.equal(branding.sdkInstall, undefined);
 
 });

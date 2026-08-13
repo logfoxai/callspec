@@ -1,58 +1,16 @@
 ---
 /**
- * Splash hero — brand in nav lockup; typewriter h2 + supporting lead.
- * Guide pages use Starlight’s PageTitle, not this override.
+ * Splash homepage hero only (index.mdx). The 404 page is separate — see NotFoundPage.astro.
  */
-import {LinkButton} from '@astrojs/starlight/components';
+import SplashHomeHero from '../components/SplashHomeHero.astro';
 
-const PAGE_TITLE_ID = '_top';
-const {data} = Astro.locals.starlightRoute.entry;
+const {entry} = Astro.locals.starlightRoute;
+const {data} = entry;
 const {title = data.title, tagline, actions = []} = data.hero || {};
 const headline = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
-const typeSteps = Math.max([...headline].length, 1);
-
-const lead =
-	'Define your API in TypeScript — get RPC, client SDKs, MCP, docs, and OpenAPI.';
 ---
 
-<section class="splash-hero">
-	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
-	{
-		headline && (
-			<>
-				<h2 class="splash-hero__headline" style={`--type-steps: ${typeSteps}`}>
-					{headline}
-				</h2>
-				<p class="splash-hero__lead">{lead}</p>
-			</>
-		)
-	}
-	{
-		actions.length > 0 && (
-			<div class="splash-hero__actions">
-				{actions.map(
-					({attrs: {class: className, ...attrs} = {}, icon, link: href, text, variant}) => (
-						<LinkButton
-							{href}
-							{variant}
-							icon={icon?.name}
-							iconPlacement={icon?.name === 'github' ? 'start' : 'end'}
-							class:list={[
-								className,
-								icon?.name === 'right-arrow' && 'sl-link-button--forward',
-								icon?.name === 'left-arrow' && 'sl-link-button--back',
-							]}
-							{...attrs}
-						>
-							{text}
-							{icon?.html && <Fragment set:html={icon.html} />}
-						</LinkButton>
-					),
-				)}
-			</div>
-		)
-	}
-</section>
+<SplashHomeHero title={title} headline={headline} actions={actions} />
 
 <script>
 	/** Frost the splash nav after a short scroll (class toggled for CSS). */

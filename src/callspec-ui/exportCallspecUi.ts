@@ -9,10 +9,10 @@ export type ExportCallspecUiOptions = {
     rpcBase: string
     title?: string
     branding?: CallspecUiBranding
-    /** Mount-level stylesheet URL; wins over `branding.theme.customCssUrl`. */
-    customCssUrl?: string
     mcpPath?: string
     mcp?: CallspecUiMcp
+    /** Browse-only export — disables try-it in the baked UI. */
+    demoMode?: boolean
 };
 
 function defaultMcpPath(rpcBase: string, mcpPath: string | undefined): string {
@@ -45,9 +45,9 @@ export function exportCallspecUi(options: ExportCallspecUiOptions): void {
         rpcBase: options.rpcBase,
         title: options.title,
         branding: options.branding,
-        customCssUrl: options.customCssUrl,
         mcpPath: defaultMcpPath(options.rpcBase, options.mcpPath),
         mcp: options.mcp,
+        demoMode: options.demoMode,
     });
 
     fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');

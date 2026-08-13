@@ -1,0 +1,94 @@
+---
+import {Icon, LinkButton} from '@astrojs/starlight/components';
+import type {SplashHeroAction, SplashHeroActionList} from '../splashHeroTypes';
+import {splashHeroIconName} from '../splashHeroTypes';
+import chirpBirdSvg from '../../assets/chirp/birb-teal.svg?raw';
+
+interface Props {
+	actions: SplashHeroActionList;
+}
+
+const {actions = []} = Astro.props;
+
+const chirpBirdHtml = chirpBirdSvg
+	.replace(/\s+width="[^"]*"/, '')
+	.replace(/\s+height="[^"]*"/, '')
+	.replace(
+		'<svg ',
+		'<svg class="splash-hero__chirp-mark" aria-hidden="true" focusable="false" ',
+	);
+
+function actionIconName(action: SplashHeroAction): ReturnType<typeof splashHeroIconName> {
+	const raw = action.icon;
+	if (!raw) return undefined;
+	// Starlight hero schema: { type: 'icon', name } | { type: 'raw', html }
+	if (typeof raw === 'object' && 'name' in raw && typeof raw.name === 'string') {
+		return splashHeroIconName(raw.name);
+	}
+	return undefined;
+}
+
+function actionIconHtml(action: SplashHeroAction): string | undefined {
+	const raw = action.icon;
+	if (raw && typeof raw === 'object' && 'html' in raw && typeof raw.html === 'string') {
+		return raw.html;
+	}
+	return undefined;
+}
+---
+
+{
+	actions.length > 0 && (
+		<div class="splash-hero__actions">
+			{actions.map((action: SplashHeroAction) => {
+				const {text, link: href, variant} = action;
+				const className = action.attrs?.class;
+				const attrs = {...(action.attrs ?? {})};
+				delete attrs.class;
+
+				const isDemo = href === '/demo/' || href === '/demo';
+				const isGetStarted =
+					href === '/getting-started/' || href === '/getting-started';
+
+				const htmlIcon = actionIconHtml(action) ?? (isDemo ? chirpBirdHtml : undefined);
+				const namedIcon =
+					htmlIcon ? undefined : (actionIconName(action) ?? (isGetStarted ? 'rocket' : undefined));
+				const iconPlacement =
+					htmlIcon || namedIcon === 'github' || namedIcon === 'rocket' ? 'start' : 'end';
+
+				return (
+					<LinkButton
+						{href}
+						{variant}
+						iconPlacement={iconPlacement}
+						class:list={[
+							className,
+							namedIcon === 'right-arrow' && 'sl-link-button--forward',
+							namedIcon === 'left-arrow' && 'sl-link-button--back',
+							htmlIcon && 'sl-link-button--chirp',
+							namedIcon === 'rocket' && 'sl-link-button--rocket',
+						]}
+						{...attrs}
+					>
+						{htmlIcon && iconPlacement === 'start' && <Fragment set:html={htmlIcon} />}
+						{namedIcon && iconPlacement === 'start' && namedIcon === 'rocket' && (
+							<span class="splash-hero__rocket" aria-hidden="true">
+								<span class="splash-hero__rocket-craft">
+									<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
+								</span>
+							</span>
+						)}
+						{namedIcon && iconPlacement === 'start' && namedIcon !== 'rocket' && (
+							<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
+						)}
+						{text}
+						{htmlIcon && iconPlacement === 'end' && <Fragment set:html={htmlIcon} />}
+						{namedIcon && iconPlacement === 'end' && (
+							<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
+						)}
+					</LinkButton>
+				);
+			})}
+		</div>
+	)
+}

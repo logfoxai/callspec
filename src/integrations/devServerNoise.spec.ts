@@ -1,6 +1,8 @@
 import {test} from 'kizu';
 import {
+    demoPublicDirRedirect,
     isLocalDevHost,
+    rewritePublicDirIndexRequest,
     shouldBypassSecFetchForIdePreview,
     shouldShortCircuitDevtoolsProbe,
 } from './devServerNoise.mjs';
@@ -58,4 +60,17 @@ test('shouldShortCircuitDevtoolsProbe: CDP JSON endpoints only', (assert) => {
     assert.equal(shouldShortCircuitDevtoolsProbe('/json'), true);
     assert.equal(shouldShortCircuitDevtoolsProbe('/getting-started/'), false);
     assert.equal(shouldShortCircuitDevtoolsProbe('/jsonly'), false);
+});
+
+test('demoPublicDirRedirect: canonical trailing slash for Chirp demo', (assert) => {
+    assert.equal(demoPublicDirRedirect('/demo'), '/demo/');
+    assert.equal(demoPublicDirRedirect('/demo/'), null);
+    assert.equal(demoPublicDirRedirect('/demo/index.html'), null);
+});
+
+test('rewritePublicDirIndexRequest: Chirp demo index in dev', (assert) => {
+    assert.equal(rewritePublicDirIndexRequest('/demo'), null);
+    assert.equal(rewritePublicDirIndexRequest('/demo/'), '/demo/index.html');
+    assert.equal(rewritePublicDirIndexRequest('/demo/index.html'), null);
+    assert.equal(rewritePublicDirIndexRequest('/demo/callspec.json'), null);
 });
