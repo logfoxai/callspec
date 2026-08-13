@@ -1266,7 +1266,7 @@ html[data-theme='light'] .expressive-code .frame.is-terminal {
     letter-spacing: normal !important;
 }
 
-/* Light: code titlebar matches the frame border (#d3e1e5), not the site nav. */
+/* Light: code titlebar matches the frame border (--docs-code-border), not the site nav. */
 html[data-theme='light'] .expressive-code .frame.has-title > .header,
 html[data-theme='light'] .expressive-code .frame.is-terminal > .header {
     background: var(--docs-code-border) !important;

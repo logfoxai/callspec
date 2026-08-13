@@ -41,6 +41,18 @@ test('renderCallspecUiPage bakes branding.notice into client config', (assert) =
 
 });
 
+test('renderCallspecUiPage bakes demoMode into client config', (assert) => {
+
+    const html = renderCallspecUiPage({
+        specUrl: '../callspec.json',
+        rpcBase: '..',
+        demoMode: true,
+    });
+
+    assert.equal(html.includes('"demoMode":true'), true);
+
+});
+
 test('exportCallspecUi writes index.html and assets for S3 upload', (assert) => {
 
     const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'callspec-export-ui-'));

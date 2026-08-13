@@ -172,10 +172,15 @@ function formatEditor(textarea: HTMLTextAreaElement): void {
 
 }
 
-export function jsonEditorHtml(id: string, value: string): string {
+export function jsonEditorHtml(
+    id: string,
+    value: string,
+    options: {readOnly?: boolean} = {},
+): string {
 
     const initial = tryFormatJson(value) ?? value;
     const lines = lineCount(initial);
+    const readOnlyAttr = options.readOnly ? ' readonly' : '';
 
     return `
         <div class="json-editor" data-json-editor="${escapeHtml(id)}">
@@ -187,10 +192,10 @@ export function jsonEditorHtml(id: string, value: string): string {
                     <div class="json-editor-gutter" data-json-gutter aria-hidden="true">${gutterText(lines)}</div>
                     <div class="json-editor-main">
                         <pre class="json-editor-highlight" aria-hidden="true"><code class="hljs language-json" data-json-highlight>${highlightJson(initial)}</code></pre>
-                        <textarea class="json-editor-input" id="${escapeHtml(id)}" spellcheck="false">${escapeHtml(initial)}</textarea>
+                        <textarea class="json-editor-input" id="${escapeHtml(id)}" spellcheck="false"${readOnlyAttr}>${escapeHtml(initial)}</textarea>
                     </div>
                 </div>
-                <button type="button" class="json-editor-resize" data-json-resize aria-label="Resize editor"></button>
+                <button type="button" class="json-editor-resize" data-json-resize aria-label="Resize editor"${options.readOnly ? ' disabled' : ''}></button>
             </div>
         </div>
     `;

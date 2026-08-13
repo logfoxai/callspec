@@ -14,8 +14,9 @@ import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
 import {exampleFromSchema} from './exampleFromSchema';
 import {bindSchemaPanels, renderRouteErrorsSection, renderSchemaExamplePanel} from './schemaPanel';
-import {initJsonEditor, jsonEditorHtml} from './jsonEditor';
+import {initJsonEditor} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
+import {renderTryItPanel} from './tryItPanel';
 import {
     renderDocsMenuButton,
     renderHeaderContractButtons,
@@ -542,6 +543,8 @@ function renderErrors(route: CallspecUiRoute): string {
 
 }
 
+const demoMode = config.demoMode === true;
+
 function renderRoute(
     route: CallspecUiRoute,
     bodyJson: string,
@@ -572,25 +575,12 @@ function renderRoute(
                     </div>
                     ${renderRoutePaginationFooter(route.name, allRoutes)}
                 </div>
-                <aside class="route-try" aria-label="Try it">
-                    <div class="section try-section">
-                        <div class="try-block">
-                            ${route.auth === 'bearer' ? `
-                            <div class="field">
-                                <input id="auth" type="text" placeholder="Bearer token" autocomplete="off" spellcheck="false" aria-label="Authorization" value="${escapeHtml(authToken)}">
-                            </div>
-                            ` : ''}
-                            <div class="field">
-                                ${jsonEditorHtml('body', bodyJson)}
-                            </div>
-                            <div class="actions">
-                                <button type="button" class="btn btn-primary" id="send">Send</button>
-                                <button type="button" class="btn btn-ghost" id="copy-curl-try">Copy curl</button>
-                            </div>
-                            <div class="response" id="response"></div>
-                        </div>
-                    </div>
-                </aside>
+                ${renderTryItPanel({
+                    route,
+                    bodyJson,
+                    authToken,
+                    demoMode,
+                })}
             </div>
         </div>
     `;
@@ -948,11 +938,15 @@ async function boot(): Promise<void> {
                         authToken,
                     );
 
-                    document.getElementById('send')?.addEventListener('click', () => {
+                    if (!demoMode) {
 
-                        void sendRequest(route);
+                        document.getElementById('send')?.addEventListener('click', () => {
 
-                    });
+                            void sendRequest(route);
+
+                        });
+
+                    }
 
                     const onCopyCurl = (): void => copyCurl(route);
 

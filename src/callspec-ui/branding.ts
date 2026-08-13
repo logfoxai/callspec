@@ -47,4 +47,6 @@ export type CallspecUiConfig = {
     /** Relative path from docs to MCP endpoint. Default `../mcp` */
     mcpPath?: string
     mcp?: CallspecUiMcp
+    /** Browse-only static export — disables try-it Send / live RPC. */
+    demoMode?: boolean
 };

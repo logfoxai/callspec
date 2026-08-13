@@ -17,11 +17,11 @@
     --badge-private-border: hsl(228, 14%, 78%);
     --badge-mcp-bg: color-mix(in srgb, var(--cs-mcp) 10%, var(--surface));
     --badge-mcp-border: color-mix(in srgb, var(--cs-mcp) 26%, var(--border));
-    --hljs-attr: #0550ae;
-    --hljs-string: #0a3069;
-    --hljs-number: #0550ae;
+    --hljs-attr: var(--text);
+    --hljs-string: #116329;
+    --hljs-number: #953800;
     --hljs-literal: #cf222e;
-    --hljs-punctuation: #57606a;
+    --hljs-punctuation: var(--text-tertiary);
 }
 
 [data-theme="dark"] {
@@ -1408,6 +1408,15 @@ body > .footer {
     border-radius: 0;
     padding: 0;
     background: transparent;
+}
+
+.try-send-wrap {
+    display: inline-block;
+    cursor: not-allowed;
+}
+
+.try-send-wrap .btn:disabled {
+    pointer-events: none;
 }
 
 

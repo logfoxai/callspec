@@ -28,4 +28,9 @@ if (!html.includes('<base href="/demo/">')) {
 	process.exit(1);
 }
 
+if (!html.includes('"demoMode":true')) {
+	console.error('assert-chirp-static-demo: demo index.html missing demoMode flag');
+	process.exit(1);
+}
+
 console.log('assert-chirp-static-demo: ok');

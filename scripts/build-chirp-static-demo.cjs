@@ -83,6 +83,7 @@ exportCallspecUi({
     title: resolvedMeta.title,
     mcpPath: './mcp',
     mcp,
+    demoMode: true,
     branding: {
         ...branding,
         // Short lockup — full title stays in the page H1 / spec meta.

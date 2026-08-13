@@ -55,8 +55,8 @@ test('docs-shared: light header/sidebar white; code block fill + border only', (
     assert.equal(lightBlock.includes('--docs-nav: #ffffff'), true);
     assert.equal(lightBlock.includes('--docs-header-bg: #ffffff'), true);
     assert.equal(lightBlock.includes('--docs-bg: #d3e1e5'), false);
-    assert.equal(lightBlock.includes('--docs-code-bg: #f2f8f9'), true);
-    assert.equal(lightBlock.includes('--docs-code-border: #d3e1e5'), true);
+    assert.equal(lightBlock.includes('--docs-code-bg: hsl(228, 14%, 94%)'), true);
+    assert.equal(lightBlock.includes('--docs-code-border: var(--docs-border)'), true);
     assert.equal(starlight.includes('--cs-code-border: var(--docs-code-border)'), true);
     assert.equal(
         /html\[data-theme='light'\] \.expressive-code \.frame\.has-title > \.header[\s\S]*?background:\s*var\(--docs-code-border\)/.test(starlight),

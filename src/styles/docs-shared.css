@@ -69,8 +69,9 @@ html[data-theme='light'],
     --docs-callspec-mark: #000;
     /* Mark ↔ label gap — explorer contract chips + docs nav lockup. */
     --docs-mark-label-gap: 0.18rem;
-    --docs-code-bg: #f2f8f9;
-    --docs-code-border: #d3e1e5;
+    /* Neutral inset — same hue family as page chrome, not cyan-tinted. */
+    --docs-code-bg: hsl(228, 14%, 94%);
+    --docs-code-border: var(--docs-border);
     --docs-mcp: #9333ea;
     --docs-radius: 0.75rem;
     --docs-code-radius: 0.5rem;

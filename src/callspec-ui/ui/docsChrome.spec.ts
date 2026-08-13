@@ -14,6 +14,26 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
+test('menu toggle icon: equal flex bars (no absolute top offsets)', (assert) => {
+
+    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
+    const starlight = readFileSync(path.join(root, 'src/overrides/MobileMenuToggle.astro'), 'utf8');
+
+    assert.equal(/\.cs-menu-toggle__icon\s*\{[^}]*flex-direction:\s*column/.test(chrome), true);
+    assert.equal(chrome.includes('justify-content: space-between'), true);
+    assert.equal(chrome.includes('cs-menu-toggle__line--1 {\n    top:'), false);
+    assert.equal(
+        /\.cs-menu-toggle__line\s*\{[^}]*position:\s*absolute/.test(chrome),
+        false,
+        'lines must not use absolute top stacking',
+    );
+    assert.equal(chrome.includes('translateY(0.375rem) rotate(45deg)'), true);
+
+    assert.equal(/\.cs-menu-toggle__icon\s*\{[^}]*flex-direction:\s*column/.test(starlight), true);
+    assert.equal(starlight.includes('translateY(-0.375rem) rotate(-45deg)'), true);
+
+});
+
 test('renderDocsMenuButton: labeled Menu chip with equal bars', (assert) => {
 
     const html = renderDocsMenuButton();
