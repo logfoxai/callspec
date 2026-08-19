@@ -2,21 +2,13 @@
 import {Icon, LinkButton} from '@astrojs/starlight/components';
 import type {SplashHeroAction, SplashHeroActionList} from '../splashHeroTypes';
 import {splashHeroIconName} from '../splashHeroTypes';
-import chirpBirdSvg from '../../assets/chirp/birb-teal.svg?raw';
+import {getStartedCtaIconHtml, isGettingStartedLink} from './splashCtaIcons';
 
 interface Props {
 	actions: SplashHeroActionList;
 }
 
 const {actions = []} = Astro.props;
-
-const chirpBirdHtml = chirpBirdSvg
-	.replace(/\s+width="[^"]*"/, '')
-	.replace(/\s+height="[^"]*"/, '')
-	.replace(
-		'<svg ',
-		'<svg class="splash-hero__chirp-mark" aria-hidden="true" focusable="false" ',
-	);
 
 function actionIconName(action: SplashHeroAction): ReturnType<typeof splashHeroIconName> {
 	const raw = action.icon;
@@ -46,15 +38,12 @@ function actionIconHtml(action: SplashHeroAction): string | undefined {
 				const attrs = {...(action.attrs ?? {})};
 				delete attrs.class;
 
-				const isDemo = href === '/demo/' || href === '/demo';
-				const isGetStarted =
-					href === '/getting-started/' || href === '/getting-started';
-
-				const htmlIcon = actionIconHtml(action) ?? (isDemo ? chirpBirdHtml : undefined);
-				const namedIcon =
-					htmlIcon ? undefined : (actionIconName(action) ?? (isGetStarted ? 'rocket' : undefined));
-				const iconPlacement =
-					htmlIcon || namedIcon === 'github' || namedIcon === 'rocket' ? 'start' : 'end';
+				const usesGetStartedIcon =
+					!actionIconHtml(action) && !actionIconName(action) && isGettingStartedLink(href);
+				const htmlIcon =
+					actionIconHtml(action) ?? (usesGetStartedIcon ? getStartedCtaIconHtml() : undefined);
+				const namedIcon = htmlIcon ? undefined : actionIconName(action);
+				const iconPlacement = htmlIcon || namedIcon === 'github' ? 'start' : 'end';
 
 				return (
 					<LinkButton
@@ -65,20 +54,11 @@ function actionIconHtml(action: SplashHeroAction): string | undefined {
 							className,
 							namedIcon === 'right-arrow' && 'sl-link-button--forward',
 							namedIcon === 'left-arrow' && 'sl-link-button--back',
-							htmlIcon && 'sl-link-button--chirp',
-							namedIcon === 'rocket' && 'sl-link-button--rocket',
 						]}
 						{...attrs}
 					>
 						{htmlIcon && iconPlacement === 'start' && <Fragment set:html={htmlIcon} />}
-						{namedIcon && iconPlacement === 'start' && namedIcon === 'rocket' && (
-							<span class="splash-hero__rocket" aria-hidden="true">
-								<span class="splash-hero__rocket-craft">
-									<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
-								</span>
-							</span>
-						)}
-						{namedIcon && iconPlacement === 'start' && namedIcon !== 'rocket' && (
+						{namedIcon && iconPlacement === 'start' && (
 							<Icon name={namedIcon} size="1.55rem" class="splash-hero__cta-icon" />
 						)}
 						{text}

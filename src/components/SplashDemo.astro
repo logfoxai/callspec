@@ -1,25 +1,30 @@
 ---
 /**
- * Try path — hosted Chirp explorer (browse-only) + local setup.
+ * Try path — hosted Chirp explorer (browse-only) + link to run it locally.
  */
+import SplashHeroActions from './SplashHeroActions.astro';
 ---
 
 <section class="splash-demo" aria-labelledby="splash-demo-title">
 	<header class="splash-demo__intro">
 		<h2 id="splash-demo-title" class="splash-demo__title">Try it</h2>
 		<p class="splash-demo__lede">
-			Chirp is a sample API that demos Callspec’s docs UI — browse routes, schemas, and MCP connect.
+			Chirp is Callspec's sample API. The hosted demo is browse-only — run it locally to execute
+			routes and connect MCP.
 		</p>
-		<div class="splash-demo__actions">
-			<a class="splash-demo__btn splash-demo__btn--primary" href="/demo/">
-				Browse the explorer
-				<span aria-hidden="true">→</span>
-			</a>
-			<a class="splash-demo__btn splash-demo__btn--secondary" href="/development/">
-				Development setup
-				<span aria-hidden="true">→</span>
-			</a>
-		</div>
+		<SplashHeroActions
+			actions={[
+				{text: 'See the demo', link: '/demo/', variant: 'primary'},
+				{
+					text: 'Run it locally',
+					link: '/development/',
+					variant: 'secondary',
+					attrs: {
+						title: 'Start the live Chirp API — execute routes and connect MCP',
+					},
+				},
+			]}
+		/>
 	</header>
 
 	<figure class="splash-demo__shot">
@@ -33,42 +38,4 @@
 			/>
 		</a>
 	</figure>
-
-	<aside class="splash-demo__local" aria-label="Run Chirp locally">
-		<p class="splash-demo__local-label">
-			Want live try-it + MCP? Clone, install, then run the local server —
-			<a href="/development/">full steps in Development</a>.
-		</p>
-		<div class="splash-demo__terminal" aria-label="Terminal">
-			<span class="splash-demo__chrome" aria-hidden="true">
-				<span></span><span></span><span></span>
-			</span>
-			<div class="splash-demo__cli-line">
-				<span class="splash-demo__prompt" aria-hidden="true">$</span>
-				<code>
-					<span class="splash-demo__tok-muted">git clone</span>
-					{' '}
-					<span class="splash-demo__tok-cmd">https://github.com/logfoxai/callspec.git</span>
-				</code>
-			</div>
-			<div class="splash-demo__cli-line">
-				<span class="splash-demo__prompt" aria-hidden="true">$</span>
-				<code>
-					<span class="splash-demo__tok-cmd">cd callspec && npm install</span>
-				</code>
-			</div>
-			<div class="splash-demo__cli-line">
-				<span class="splash-demo__prompt" aria-hidden="true">$</span>
-				<code>
-					<span class="splash-demo__tok-muted">npm run</span>
-					{' '}
-					<span class="splash-demo__tok-cmd">serve:chirp-demo</span>
-				</code>
-			</div>
-			<div class="splash-demo__cli-meta">
-				<span class="splash-demo__pill">Then open <code>http://127.0.0.1:3456/v1/docs</code></span>
-				<span class="splash-demo__pill">Bearer <code>demo</code></span>
-			</div>
-		</div>
-	</aside>
 </section>

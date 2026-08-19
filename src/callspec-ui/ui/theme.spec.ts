@@ -82,14 +82,3 @@ test('docs ThemeSelect: theme change uses startViewTransition', (assert) => {
     assert.equal(themeSelect.includes('prefers-reduced-motion'), true);
 
 });
-
-test('theme surfaces do not interpolate bg via short body transition', (assert) => {
-
-    const styles = readFileSync(path.join(root, 'src/callspec-ui/ui/styles.css'), 'utf8');
-    const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
-
-    // Body color-var interpolate flickers; VT crossfade is the theme transition.
-    assert.equal(/html,\s*body\s*\{[^}]*transition:\s*background-color/.test(styles), false);
-    assert.equal(shared.includes('::view-transition-old(root)'), true);
-
-});

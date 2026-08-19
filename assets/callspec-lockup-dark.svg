@@ -2,10 +2,10 @@
   <defs>
     <style>
       @font-face {
-        font-family: 'Inter';
+        font-family: 'IBM Plex Sans';
         font-style: normal;
         font-weight: 100 900;
-        src: url('./fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+        src: url('./fonts/ibm-plex-sans-latin-wght-normal.woff2') format('woff2-variations');
       }
     </style>
   </defs>
@@ -14,5 +14,5 @@
   <path fill="#fff" fill-rule="evenodd" d="M30.9 4.635A2.2 2.2 0 0 1 33.1 4.635L55.149 17.365A2.2 2.2 0 0 1 56.249 19.27V44.73A2.2 2.2 0 0 1 55.149 46.635L33.1 59.365A2.2 2.2 0 0 1 30.9 59.365L8.851 46.635A2.2 2.2 0 0 1 7.751 44.73V19.27A2.2 2.2 0 0 1 8.851 17.365ZM19.00 24.00H45.00A3.00 3.00 0 0 1 45.00 30.00H19.00A3.00 3.00 0 0 1 19.00 24.00ZM19.00 34.00H45.00A3.00 3.00 0 0 1 45.00 40.00H19.00A3.00 3.00 0 0 1 19.00 34.00Z"/>
 
   </g>
-  <text x="34" y="16" fill="white" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" letter-spacing="-0.03em" dominant-baseline="central">callspec</text>
+  <text x="34" y="16" fill="white" font-family="IBM Plex Sans, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" letter-spacing="-0.03em" dominant-baseline="central">callspec</text>
 </svg>

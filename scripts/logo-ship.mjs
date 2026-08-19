@@ -164,7 +164,7 @@ if (!maker) {
     process.exit(1);
 }
 
-/** Lockup layout — mark + Inter bold wordmark */
+/** Lockup layout — mark + IBM Plex Sans bold wordmark */
 const LOCKUP = {
     height: 32,
     markX: 0,
@@ -193,31 +193,25 @@ function lockup(_onDark, textFill, ids) {
   <defs>
     <style>
       @font-face {
-        font-family: 'Inter';
+        font-family: 'IBM Plex Sans';
         font-style: normal;
         font-weight: 100 900;
-        src: url('./fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+        src: url('./fonts/ibm-plex-sans-latin-wght-normal.woff2') format('woff2-variations');
       }
     </style>
   </defs>
-${markGroup(_onDark, ids)}  <text x="${wordX}" y="${textY}" fill="${textFill}" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="${letterSpacing}" dominant-baseline="central">callspec</text>
+${markGroup(_onDark, ids)}  <text x="${wordX}" y="${textY}" fill="${textFill}" font-family="IBM Plex Sans, ui-sans-serif, system-ui, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="${letterSpacing}" dominant-baseline="central">callspec</text>
 </svg>
 `;
 }
 
-const interFontSrc = path.join(
+const sansFontSrc = path.join(
     root,
-    'node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+    'node_modules/@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2',
 );
-const spaceGroteskFontSrc = path.join(
-    root,
-    'node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2',
-);
-const interFontDest = path.join(assets, 'fonts/inter-latin-wght-normal.woff2');
-const spaceGroteskFontDest = path.join(assets, 'fonts/space-grotesk-latin-wght-normal.woff2');
-fs.mkdirSync(path.dirname(interFontDest), {recursive: true});
-fs.copyFileSync(interFontSrc, interFontDest);
-fs.copyFileSync(spaceGroteskFontSrc, spaceGroteskFontDest);
+const sansFontDest = path.join(assets, 'fonts/ibm-plex-sans-latin-wght-normal.woff2');
+fs.mkdirSync(path.dirname(sansFontDest), {recursive: true});
+fs.copyFileSync(sansFontSrc, sansFontDest);
 
 fs.writeFileSync(path.join(assets, 'favicon.svg'), maker(true, ['fc', 'fL', 'fR'], true));
 fs.writeFileSync(path.join(assets, 'mark-dark.svg'), maker(true, ['mdc', 'mdL', 'mdR']));

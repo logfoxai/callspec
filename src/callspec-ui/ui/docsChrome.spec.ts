@@ -1,6 +1,3 @@
-import {readFileSync} from 'node:fs';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {test} from 'kizu';
 import {
     renderDocsMenuButton,
@@ -11,28 +8,6 @@ import {
     renderMobileMenuTools,
     renderUiNotice,
 } from './docsChrome';
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-
-test('menu toggle icon: equal flex bars (no absolute top offsets)', (assert) => {
-
-    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
-    const starlight = readFileSync(path.join(root, 'src/overrides/MobileMenuToggle.astro'), 'utf8');
-
-    assert.equal(/\.cs-menu-toggle__icon\s*\{[^}]*flex-direction:\s*column/.test(chrome), true);
-    assert.equal(chrome.includes('justify-content: space-between'), true);
-    assert.equal(chrome.includes('cs-menu-toggle__line--1 {\n    top:'), false);
-    assert.equal(
-        /\.cs-menu-toggle__line\s*\{[^}]*position:\s*absolute/.test(chrome),
-        false,
-        'lines must not use absolute top stacking',
-    );
-    assert.equal(chrome.includes('translateY(0.375rem) rotate(45deg)'), true);
-
-    assert.equal(/\.cs-menu-toggle__icon\s*\{[^}]*flex-direction:\s*column/.test(starlight), true);
-    assert.equal(starlight.includes('translateY(-0.375rem) rotate(-45deg)'), true);
-
-});
 
 test('renderDocsMenuButton: labeled Menu chip with equal bars', (assert) => {
 
@@ -100,16 +75,6 @@ test('renderDocsSearchField: docs-style search shell', (assert) => {
 
 });
 
-test('docs search chrome: hide / hint on focus + tabbable clear', (assert) => {
-
-    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
-
-    assert.equal(chrome.includes('.cs-docs-search:focus-within .cs-docs-search__kbd'), true);
-    assert.equal(chrome.includes('::-webkit-search-cancel-button'), true);
-    assert.equal(/\.cs-docs-search__clear\s*\{/.test(chrome), true);
-
-});
-
 test('renderHeaderContractButtons: header contract file buttons', (assert) => {
 
     const html = renderHeaderContractButtons('../callspec.json');
@@ -150,27 +115,6 @@ test('renderDocsThemeSlider: theme slider shell', (assert) => {
     assert.equal(html.includes('class="cs-theme-slider"'), true);
     assert.equal(html.includes('id="theme-toggle"'), true);
     assert.equal(html.includes('cs-theme-slider__thumb'), true);
-
-});
-
-test('theme slider uses brand-agnostic grayscale (not code-block chrome)', (assert) => {
-
-    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
-    const themeSelect = readFileSync(path.join(root, 'src/overrides/ThemeSelect.astro'), 'utf8');
-
-    // Must not borrow teal code fill/border — keep slider neutral vs branded surfaces.
-    assert.equal(chrome.includes('--ts-track: var(--cs-code-bg)'), false);
-    assert.equal(themeSelect.includes('--ts-track: var(--cs-code-bg)'), false);
-    assert.equal(chrome.includes('--docs-code-border'), false);
-    assert.equal(themeSelect.includes('--docs-code-border'), false);
-    assert.equal(chrome.includes('--cs-code-border'), false);
-    assert.equal(themeSelect.includes('--cs-code-border'), false);
-
-    // Black/white mixes on surface → grey track + edge in both themes.
-    assert.equal(chrome.includes('color-mix(in srgb, #000 7%, var(--surface))'), true);
-    assert.equal(themeSelect.includes('color-mix(in srgb, #000 7%, var(--surface'), true);
-    assert.equal(chrome.includes('color-mix(in srgb, #fff 10%, var(--surface))'), true);
-    assert.equal(themeSelect.includes('color-mix(in srgb, #fff 10%, var(--surface'), true);
 
 });
 

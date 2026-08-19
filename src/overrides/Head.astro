@@ -7,10 +7,16 @@ const {head} = Astro.locals.starlightRoute;
 
 {head.map(({tag: Tag, attrs, content}) => <Tag {...attrs} set:html={content} />)}
 
-<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
 <link
     rel="preload"
-    href="/fonts/space-grotesk-latin-wght-normal.woff2"
+    href="/fonts/ibm-plex-sans-latin-wght-normal.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin="anonymous"
+/>
+<link
+    rel="preload"
+    href="/fonts/ibm-plex-mono-latin-400-normal.woff2"
     as="font"
     type="font/woff2"
     crossorigin="anonymous"

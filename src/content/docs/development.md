@@ -5,7 +5,7 @@
 ```bash
 npm install
 npm run validate       # build, lint, knip, typecheck:routes, test + coverage, astro:build
-npm run astro:dev      # guide site — http://127.0.0.1:4321
+npm run astro:dev      # guide site — http://127.0.0.1:4321 (wipes .astro / Vite caches first)
 npm run astro:build    # static site → docs-site/ (+ hosted Chirp explorer at /demo/)
 npm run astro:preview  # serve production guide site locally
 npm run serve:chirp-demo   # live Chirp API — http://127.0.0.1:3456/v1/docs (token: demo)

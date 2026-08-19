@@ -4,8 +4,8 @@
     "report"
   ],
   "ignoreDependencies": [
-    "@fontsource-variable/inter",
-    "@fontsource-variable/space-grotesk",
+    "@fontsource-variable/ibm-plex-sans",
+    "@fontsource/ibm-plex-mono",
     "@pagefind/default-ui",
     "astro-expressive-code"
   ],

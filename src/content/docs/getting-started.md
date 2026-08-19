@@ -7,7 +7,7 @@ For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + cop
 ## 1. Install backend dependencies
 
 ```bash
-# callspec = RPC runtime; runtyp = typed validators for input/output; express = HTTP peer
+# callspec = RPC runtime; runtyp = typed validators for input/output; express = HTTP server
 npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
@@ -42,11 +42,10 @@ export const getProductById = route({
     meta: {summary: 'Get product by ID', tags: ['catalog']},
     auth: 'none', // public — no Bearer; default is 'bearer'
     mcp: true, // expose as an MCP tool when the server mounts MCP
-    // Keep the handler inline — `input` / return types flow from the preds
+    // Keep the handler inline for LSP support
     handler: async (input, _ctx) => {
         const found = products.find((item) => item.id === input.id);
-        // Expected failures: return err.* — do not throw
-        if (!found) return err.NOT_FOUND();
+        if (!found) return err.NOT_FOUND(); // return err.* for expected errors
         return found; // must satisfy `output`
     },
 });
@@ -105,7 +104,7 @@ Related: [Docs UI](./docs-ui.md) · [mountSpec](./api-reference/mount-spec.md) �
 ## 5. Generate the SDK
 
 ```bash
-# Live mount (server running) — pass the mount point; callspec.json is appended
+# Live mount (server running) - pass the mount point
 npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 
 # From a pinned file — fetch the contract, then codegen offline / in CI
