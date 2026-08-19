@@ -11,7 +11,8 @@
   ],
   "ignoreIssues": {
     "src/defineErrors.ts": ["types"],
-    "src/splashHeroTypes.ts": ["types", "exports"]
+    "src/splashHeroTypes.ts": ["types", "exports"],
+    "src/components/splashCtaIcons.ts": ["exports"]
   },
   "entry": [
     "src/callspec-ui/ui/main.ts",
