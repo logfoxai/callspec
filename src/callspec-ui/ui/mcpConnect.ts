@@ -12,7 +12,6 @@ type McpRoute = {
 type ConnectClient = {
     id: string
     title: string
-    meta: string
     hint: string
     body: string
 };
@@ -174,8 +173,7 @@ function buildConnectClients(
         {
             id: 'cursor',
             title: 'Cursor',
-            meta: '.cursor/mcp.json',
-            hint: 'Project file or Settings → MCP.',
+            hint: 'Add this to <code>.cursor/mcp.json</code>, or open Settings → MCP.',
             body: `
                 ${renderCodePanel(cursorJson, 'cursor-mcp-config', 'Copy config')}
             `,
@@ -183,7 +181,6 @@ function buildConnectClients(
         {
             id: 'claude-desktop',
             title: 'Claude',
-            meta: 'Desktop · Connectors',
             hint: 'Remote HTTP MCP via custom connectors (not the local stdio config file).',
             body: `
                 <ol class="mcp-steps">
@@ -196,8 +193,7 @@ function buildConnectClients(
         {
             id: 'claude-code',
             title: 'Claude Code',
-            meta: 'CLI',
-            hint: `Run in your terminal.${authNote}`,
+            hint: `Run this in your terminal.${authNote}`,
             body: `
                 ${renderCodePanel(claudeCodeCmd, 'claude-code-mcp', 'Copy command', 'Shell')}
             `,
@@ -205,8 +201,7 @@ function buildConnectClients(
         {
             id: 'vscode',
             title: 'VS Code',
-            meta: '.vscode/mcp.json',
-            hint: 'Workspace or user profile — Command Palette → <code>MCP: Open User Configuration</code>.',
+            hint: 'Add this to workspace <code>.vscode/mcp.json</code>, or Command Palette → <code>MCP: Open User Configuration</code>.',
             body: `
                 ${renderCodePanel(vscodeJson, 'vscode-mcp-config', 'Copy config')}
             `,
@@ -214,10 +209,9 @@ function buildConnectClients(
         {
             id: 'windsurf',
             title: 'Windsurf',
-            meta: 'mcp_config.json',
             hint: hasPrivateMcp
-                ? `Uses <code>serverUrl</code> and <code>\${env:${tokenEnv}}</code> for auth.`
-                : 'Uses <code>serverUrl</code> (not <code>url</code>) for remote servers.',
+                ? `Add this to <code>mcp_config.json</code>. Uses <code>serverUrl</code> and <code>\${env:${tokenEnv}}</code> for auth.`
+                : 'Add this to <code>mcp_config.json</code>. Uses <code>serverUrl</code> (not <code>url</code>) for remote servers.',
             body: `
                 ${renderCodePanel(windsurfJson, 'windsurf-mcp-config', 'Copy config')}
             `,
@@ -225,10 +219,9 @@ function buildConnectClients(
         {
             id: 'pi',
             title: 'Pi',
-            meta: '.pi/mcp.json',
             hint: hasPrivateMcp
-                ? `Set <code>${tokenEnv}</code> in your environment; Pi reads it via <code>bearerTokenEnv</code>.`
-                : 'Project-local <code>.pi/mcp.json</code> or global Pi MCP config.',
+                ? `Add this to <code>.pi/mcp.json</code>. Set <code>${tokenEnv}</code> in your environment; Pi reads it via <code>bearerTokenEnv</code>.`
+                : 'Add this to project-local <code>.pi/mcp.json</code>, or the global Pi MCP config.',
             body: `
                 ${renderCodePanel(piJson, 'pi-mcp-config', 'Copy config')}
             `,
@@ -265,9 +258,6 @@ function renderClientPanels(clients: ConnectClient[]): string {
             aria-hidden="${index === 0 ? 'false' : 'true'}"
             ${index === 0 ? '' : 'inert'}
         >
-            <div class="mcp-client-meta">
-                <span class="mcp-client-path">${escapeHtml(client.meta)}</span>
-            </div>
             <p class="mcp-client-hint">${client.hint}</p>
             ${client.body}
         </div>

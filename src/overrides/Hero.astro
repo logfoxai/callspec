@@ -4,7 +4,7 @@
  * Load splash.css from this Starlight override — not from MDX — so Vite watches it
  * instead of trapping it in the .astro content-collection cache.
  */
-import SplashStyles from '../components/SplashStyles.astro';
+import '../components/splash.css';
 import SplashHomeHero from '../components/SplashHomeHero.astro';
 
 const {entry} = Astro.locals.starlightRoute;
@@ -13,7 +13,6 @@ const {title = data.title, tagline, actions = []} = data.hero || {};
 const headline = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
 ---
 
-<SplashStyles />
 <SplashHomeHero title={title} headline={headline} actions={actions} />
 
 <script>

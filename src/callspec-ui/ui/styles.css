@@ -15,8 +15,6 @@
     --badge-public-border: #b8dfc0;
     --badge-private-bg: hsl(228, 22%, 96%);
     --badge-private-border: hsl(228, 14%, 78%);
-    --badge-mcp-bg: color-mix(in srgb, var(--cs-mcp) 10%, var(--surface));
-    --badge-mcp-border: color-mix(in srgb, var(--cs-mcp) 26%, var(--border));
     --hljs-attr: var(--text);
     --hljs-string: #116329;
     --hljs-number: #953800;
@@ -36,8 +34,6 @@
     --badge-public-border: #166534;
     --badge-private-bg: #422006;
     --badge-private-border: #92400e;
-    --badge-mcp-bg: color-mix(in srgb, var(--cs-mcp) 16%, var(--surface));
-    --badge-mcp-border: color-mix(in srgb, var(--cs-mcp) 42%, var(--border));
     --hljs-attr: #ffa657;
     --hljs-string: #a5d6ff;
     --hljs-number: #79c0ff;
@@ -102,14 +98,14 @@ html, body {
     align-items: center;
     gap: 0.35rem 0.5rem;
     padding: 0.65rem var(--header-pad-x);
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-    color: var(--text-secondary);
+    background: var(--nav-active-bg);
+    color: var(--nav-active-fg);
     font-size: 0.875rem;
     line-height: 1.45;
 }
 
 .cs-ui-notice__title {
-    color: var(--text);
+    color: inherit;
 }
 
 .cs-ui-notice__links {
@@ -124,9 +120,9 @@ html, body {
     align-items: center;
     padding: 0.22rem 0.65rem;
     border-radius: 0.35rem;
-    border: 0.0625rem solid color-mix(in srgb, var(--accent) 50%, var(--border-strong));
-    background: color-mix(in srgb, var(--accent) 18%, var(--surface));
-    color: var(--text);
+    border: 0.0625rem solid color-mix(in srgb, var(--nav-active-fg) 35%, transparent);
+    background: color-mix(in srgb, var(--nav-active-fg) 12%, transparent);
+    color: var(--nav-active-fg);
     font-size: 0.8125rem;
     font-weight: 600;
     text-decoration: none;
@@ -134,8 +130,8 @@ html, body {
 }
 
 .cs-ui-notice__link:hover {
-    background: color-mix(in srgb, var(--accent) 28%, var(--surface));
-    border-color: color-mix(in srgb, var(--accent) 65%, var(--border-strong));
+    background: color-mix(in srgb, var(--nav-active-fg) 22%, transparent);
+    border-color: color-mix(in srgb, var(--nav-active-fg) 55%, transparent);
     text-decoration: none;
 }
 
@@ -144,8 +140,8 @@ html, body {
     font-size: 0.8125rem;
     padding: 0.1rem 0.4rem;
     border-radius: 0.35rem;
-    background: color-mix(in srgb, var(--surface) 70%, transparent);
-    color: var(--text);
+    background: color-mix(in srgb, var(--nav-active-fg) 12%, transparent);
+    color: inherit;
 }
 
 #app {
@@ -2143,7 +2139,7 @@ body > .footer {
     padding: 1.375rem 1.375rem 0;
     border: 0.0625rem solid var(--border);
     border-radius: calc(var(--radius) + 0.25rem);
-    /* Soft MCP wash — mix from --cs-mcp so light mode stays visible (badge-mcp-bg was too diluted). */
+    /* Soft MCP wash — mix from --cs-mcp so light mode stays visible. */
     background:
         linear-gradient(180deg, color-mix(in srgb, var(--cs-mcp) 14%, var(--surface)) 0%, var(--surface) 6.5rem);
     box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.04);
@@ -2336,26 +2332,6 @@ body > .footer {
 /* Class-based hide — avoid `hidden` attr (can scroll panels into view on toggle). */
 .mcp-client-panel:not(.is-active) {
     display: none;
-}
-
-.mcp-client-meta {
-    margin-bottom: 0.5rem;
-}
-
-.mcp-client-path {
-    display: inline-flex;
-    align-items: center;
-    max-width: 100%;
-    padding: 0.35rem 0.75rem;
-    border: 0.0625rem solid var(--badge-mcp-border);
-    border-radius: 0.45rem;
-    background: var(--badge-mcp-bg);
-    color: var(--cs-mcp);
-    font-family: var(--mono);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: -0.01em;
 }
 
 .mcp-client-hint {

@@ -2,7 +2,7 @@
 import {Icon, LinkButton} from '@astrojs/starlight/components';
 import type {SplashHeroAction, SplashHeroActionList} from '../splashHeroTypes';
 import {splashHeroIconName} from '../splashHeroTypes';
-import {getStartedCtaIconHtml, isGettingStartedLink} from './splashCtaIcons';
+import {getStartedCtaIconHtml, isGettingStartedLink, withDemoLinkOpenAttrs} from './splashCtaIcons';
 
 interface Props {
 	actions: SplashHeroActionList;
@@ -35,7 +35,7 @@ function actionIconHtml(action: SplashHeroAction): string | undefined {
 			{actions.map((action: SplashHeroAction) => {
 				const {text, link: href, variant} = action;
 				const className = action.attrs?.class;
-				const attrs = {...(action.attrs ?? {})};
+				const attrs = withDemoLinkOpenAttrs(href, {...(action.attrs ?? {})});
 				delete attrs.class;
 
 				const usesGetStartedIcon =

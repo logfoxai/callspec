@@ -1,5 +1,6 @@
 /*
- * Splash homepage
+ * Splash homepage — lives next to Splash*.astro. Loaded from Hero.astro
+ * (Starlight override), not MDX, so Vite watches it.
  * Shell uses Starlight’s data-has-hero (no sidebar). Page blocks are .splash-* only.
  */
 

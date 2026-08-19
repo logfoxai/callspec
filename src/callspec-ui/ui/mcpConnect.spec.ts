@@ -3,6 +3,7 @@ import {
     claudeCodeMcpCommand,
     mcpServersUrlConfig,
     piMcpConfig,
+    renderMcpConnect,
     serverSlugFromName,
     tokenEnvName,
     vscodeMcpConfig,
@@ -95,5 +96,31 @@ test('claudeCodeMcpCommand includes transport and header', (assert) => {
         'claude mcp add --transport http chirp https://api.example.com/mcp --header "Authorization: Bearer tok"',
         'command',
     );
+
+});
+
+test('renderMcpConnect: instructions name the config file, no path badge', (assert) => {
+
+    const previous = globalThis.window;
+    globalThis.window = {location: {href: 'http://127.0.0.1:3000/v1/docs/'}} as Window & typeof globalThis;
+
+    try {
+        const html = renderMcpConnect(
+            {specUrl: './callspec.json', rpcBase: '..'},
+            [{name: 'searchPosts', auth: 'none', mcp: true}],
+            'Chirp API',
+        );
+
+        assert.equal(html.includes('mcp-client-path'), false);
+        assert.equal(html.includes('mcp-client-meta'), false);
+        assert.equal(html.includes('.cursor/mcp.json'), true);
+        assert.equal(html.includes('.vscode/mcp.json'), true);
+        assert.equal(html.includes('mcp_config.json'), true);
+        assert.equal(html.includes('.pi/mcp.json'), true);
+        assert.equal(html.includes('Settings → Connectors'), true);
+        assert.equal(html.includes('terminal'), true);
+    } finally {
+        globalThis.window = previous;
+    }
 
 });

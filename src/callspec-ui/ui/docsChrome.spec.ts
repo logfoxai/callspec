@@ -1,4 +1,7 @@
 import {test} from 'kizu';
+import {readFileSync} from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {
     renderDocsMenuButton,
     renderDocsSearchField,
@@ -8,6 +11,8 @@ import {
     renderMobileMenuTools,
     renderUiNotice,
 } from './docsChrome';
+
+const stylesPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'styles.css');
 
 test('renderDocsMenuButton: labeled Menu chip with equal bars', (assert) => {
 
@@ -135,5 +140,15 @@ test('renderUiNotice: plain-text notice bar with links', (assert) => {
     assert.equal(html.includes('npm run serve:chirp-demo'), true);
     assert.equal(html.includes('href="/development/"'), true);
     assert.equal(html.includes('rel="noopener noreferrer"'), true);
+
+});
+
+test('cs-ui-notice uses primary fill in both themes', (assert) => {
+
+    const css = readFileSync(stylesPath, 'utf8');
+    const block = css.slice(css.indexOf('.cs-ui-notice {'), css.indexOf('.cs-ui-notice__title'));
+
+    assert.equal(block.includes('background: var(--nav-active-bg)'), true);
+    assert.equal(block.includes('color: var(--nav-active-fg)'), true);
 
 });

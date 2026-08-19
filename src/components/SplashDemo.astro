@@ -3,6 +3,9 @@
  * Try path — hosted Chirp explorer (browse-only) + link to run it locally.
  */
 import SplashHeroActions from './SplashHeroActions.astro';
+import {withDemoLinkOpenAttrs} from './splashCtaIcons';
+
+const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
 ---
 
 <section class="splash-demo" aria-labelledby="splash-demo-title">
@@ -28,7 +31,7 @@ import SplashHeroActions from './SplashHeroActions.astro';
 	</header>
 
 	<figure class="splash-demo__shot">
-		<a href="/demo/" class="splash-demo__shot-link">
+		<a href="/demo/" class="splash-demo__shot-link" {...demoShotAttrs}>
 			<img
 				src="/chirp-demo.png"
 				alt="Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config"

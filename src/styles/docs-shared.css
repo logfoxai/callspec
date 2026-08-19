@@ -1,6 +1,6 @@
 /*
  * Shared docs chrome tokens — Astro/Starlight guides + Vite callspec-ui.
- * Splash stays separate (splash.css). Keep this file the single source of truth
+ * Splash stays separate (src/components/splash.css). Keep this file the single source of truth
  * for page/sidebar/nav/code colors and header metrics.
  *
  * :root defaults to light (avoids dark FOUC before theme JS). Dark is
@@ -126,9 +126,10 @@ html[data-theme='dark'],
     --docs-mcp: #c084fc;
     --docs-header-bg: var(--docs-sidebar);
 
-    --docs-primary-bg: hsl(228, 14%, 78%);
+    /* Same slate as light, lightened so it still reads as color on dark. */
+    --docs-primary-bg: color-mix(in srgb, hsl(228, 18%, 32%) 62%, white);
     --docs-primary-fg: hsl(228, 28%, 8%);
-    --docs-primary-hover-bg: hsl(228, 12%, 86%);
+    --docs-primary-hover-bg: color-mix(in srgb, hsl(228, 18%, 32%) 48%, white);
     --docs-primary-hover-fg: hsl(228, 28%, 8%);
 
     --docs-table-bg: hsl(228, 16%, 10%);

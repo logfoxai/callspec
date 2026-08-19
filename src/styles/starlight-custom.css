@@ -1,7 +1,7 @@
 /*
  * Callspec docs theme
  * Guide pages and splash home are scoped separately so splash never bleeds into guides.
- * Splash homepage styles live in splash.css.
+ * Splash homepage styles live in src/components/splash.css.
  * Shared page/sidebar/nav/code tokens: docs-shared.css (also used by Vite UI).
  */
 

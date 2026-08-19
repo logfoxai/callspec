@@ -20,9 +20,9 @@ test('splash.css loads from Hero override, not the content collection', (assert)
     const hero = readFileSync(path.join(root, 'src/overrides/Hero.astro'), 'utf8');
     const index = readFileSync(path.join(root, 'src/content/docs/index.mdx'), 'utf8');
 
-    // MDX → SplashStyles puts splash.css in .astro content cache, which goes stale.
-    assert.equal(hero.includes('SplashStyles'), true);
-    assert.equal(index.includes('SplashStyles'), false);
+    // MDX → splash.css in .astro content cache, which goes stale.
+    assert.equal(hero.includes('splash.css'), true);
+    assert.equal(index.includes('splash.css'), false);
 
 });
 
