@@ -24,7 +24,6 @@ export default defineConfig({
     // Old thin API reference landing → first real page.
     redirects: {
         '/api-reference': '/api-reference/handlers',
-        '/api-reference/': '/api-reference/handlers',
     },
     // Dev server only: Origin-bearing cross-site requests (proxies / some IDE previews).
     // Cursor Simple Browser often sends cross-site no-cors *without* Origin — that

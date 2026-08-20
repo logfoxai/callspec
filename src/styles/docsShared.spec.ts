@@ -15,6 +15,29 @@ test('astro + vite both import docs-shared', (assert) => {
 
 });
 
+test('astro redirects do not register both slash variants of one path', (assert) => {
+
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+    const block = astro.match(/redirects:\s*\{([^}]+)\}/);
+
+    assert.equal(Boolean(block), true);
+
+    const keys = [...(block?.[1] ?? '').matchAll(/['"]([^'"]+)['"]\s*:/g)].map((match) => match[1]);
+    const seen = new Set<string>();
+
+    for (const key of keys) {
+
+        const normalized = key.replace(/\/$/, '') || '/';
+
+        assert.equal(seen.has(normalized), false);
+        seen.add(normalized);
+
+    }
+
+    assert.equal(seen.has('/api-reference'), true);
+
+});
+
 test('splash.css loads from the homepage Astro page', (assert) => {
 
     const index = readFileSync(path.join(root, 'src/pages/index.astro'), 'utf8');
