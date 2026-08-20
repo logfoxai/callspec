@@ -44,6 +44,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
 
+      # main → stable semver; next → npm pre-release channel. PRERELEASE is written
+      # to $GITHUB_ENV so later steps (autorel) can read it as a normal env var.
       - name: Resolve npm release channel
         env:
           BRANCH: ${{ github.event.workflow_run.head_branch }}
