@@ -4,6 +4,7 @@ export {spec} from './defineSpec';
 export type {Callspec} from './defineSpec';
 export {mountSpec} from './mountSpec';
 export type {MountSpecOptions} from './mountSpec';
+export type {ExportVisibility} from './routeVisibility';
 export {logRequest} from './mountSpecLogging';
 export type {CallEvent, CallOutcome, CallSurface, OnCall} from './callObservability';
 export {defaultLogCall, toCallEvent} from './callObservability';

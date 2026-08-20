@@ -14,6 +14,7 @@ import {
 import {executeRoute} from './executeRoute';
 import {emitCallspec} from './emitCallspec';
 import {listMcpTools} from './mcpTools';
+import type {ExportVisibility} from './routeVisibility';
 import {mountMcp} from './mountMcp';
 import {emitOpenApi} from './openapi';
 import {resolveRouteContext} from './resolveRouteContext';
@@ -39,6 +40,11 @@ export type MountSpecOptions = {
      * Pass `false` to disable all docs/spec surfaces.
      */
     docs?: boolean
+    /**
+     * Which routes appear on `/docs`, `/callspec.json`, `/openapi.json`, and MCP `tools/list`.
+     * Default `public`. Pass `all` in dev/stage so `scope: 'private'` routes are documented on this mount.
+     */
+    visibility?: ExportVisibility
     /** Docs UI mount path on this router. Default `/docs`. `callspec.json` and `openapi.json` stay fixed. */
     docsPath?: string
     /** MCP HTTP path on this router. Default `/mcp`. */
@@ -90,12 +96,14 @@ export function mountSpec<Ctx>(
 
     }
 
+    const visibility = options.visibility ?? 'public';
     const emitOptions = {
         title: resolvedMeta.title,
         version: resolvedMeta.version,
         basePath,
         description: resolvedMeta.intro,
         exports,
+        visibility,
     };
 
     if (docsEnabled) {
@@ -113,6 +121,7 @@ export function mountSpec<Ctx>(
                 version: resolvedMeta.version,
                 basePath,
                 description: resolvedMeta.intro,
+                visibility,
             }));
 
         });
@@ -192,7 +201,7 @@ export function mountSpec<Ctx>(
 
     }
 
-    if (listMcpTools(routes).length > 0) {
+    if (listMcpTools(routes, visibility).length > 0) {
 
         const onCall = options.onCall ?? (loggingEnabled ? defaultLogCall : undefined);
 
@@ -204,6 +213,7 @@ export function mountSpec<Ctx>(
             },
             instructions: resolvedMeta.mcpInstructions,
             onCall,
+            visibility,
         });
 
     }

@@ -47,7 +47,7 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `the
 
 | Import | Use |
 |--------|-----|
-| `callspec` | Server: route, spec, mountSpec, defineErrors, err, logRequest, BUILTIN_ERROR.<br>Types: Callspec, RoutesMap, MountSpecOptions, RouteFailure, RouteContractInput, HandlerFor, RouteHandler, Authenticate, WiredRoute |
+| `callspec` | Server: route, spec, mountSpec, defineErrors, err, logRequest, BUILTIN_ERROR.<br>Types: Callspec, RoutesMap, MountSpecOptions, ExportVisibility, RouteFailure, RouteContractInput, HandlerFor, RouteHandler, Authenticate, WiredRoute |
 | `callspec/client` | Runtime client: CallspecClient, isCallspecOk, CLIENT_ERROR, BUILTIN_ERROR, CallspecRouteResult, … |
 | `callspec/document` | emitCallspec, emitOpenApi, parseCallspecDocument, generateClientFile |
 

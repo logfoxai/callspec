@@ -13,7 +13,7 @@ export const getProductById = route({
 });
 ```
 
-When **any** route has `mcp: true`, `mountSpec` serves MCP at **`{mount}/mcp`** (override with `mcpPath`). Only `scope: 'public'` routes appear in `tools/list` — `scope: 'private'` stays mounted for HTTP but is hidden from MCP.
+When **any** route has `mcp: true`, `mountSpec` serves MCP at **`{mount}/mcp`** (override with `mcpPath`). By default only `scope: 'public'` routes appear in `tools/list`. Private MCP tools are listed when this mount uses `visibility: 'all'`. HTTP still works either way.
 
 ## Connect a client
 
@@ -39,7 +39,7 @@ spec({
 
 | | |
 |--|--|
-| Tools | One MCP tool per `mcp: true` + `scope: 'public'` route |
+| Tools | One MCP tool per `mcp: true` route that this mount’s `visibility` includes (`scope: 'public'`, or private when `visibility` is `'all'`) |
 | Input / output | Same preds as the RPC method |
 | Errors | Same codes as HTTP / the generated SDK (`NOT_FOUND`, domain errors, …) |
 | Auth | Per-route `auth` — bearer tools reject missing/invalid tokens like private HTTP |

@@ -2,6 +2,7 @@ export {emitCallspec} from './emitCallspec';
 export type {EmitCallspecOptions} from './emitCallspec';
 export {emitOpenApi} from './openapi';
 export type {OpenApiOptions} from './openapi';
+export type {ExportVisibility} from './routeVisibility';
 export {
     parseCallspecDocument,
     CallspecDocumentError,

@@ -8,6 +8,7 @@ mountSpec(router, spec, options?: MountSpecOptions)
 |--------|---------|-------------|
 | `basePath` | `''` | Prefix for RPC paths and for paths baked into emitted documents |
 | `docs` | `true` | Pass `false` to disable `/docs`, `/callspec.json`, and `/openapi.json` at the mount root |
+| `visibility` | `'public'` | `'public'` — public-scope routes only. `'all'` — also document `scope: 'private'` routes on this mount (dev/stage). See [Auth and scope](./auth-and-scope.md). |
 | `docsPath` | `'/docs'` | Docs UI path on this router (`callspec.json` and `openapi.json` paths are fixed) |
 | `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
 | `logging` | `true` | jsout-express request log on this router + jsout error log on unhandled throws; pass `false` in tests |
@@ -20,6 +21,14 @@ When `docs` is enabled, the docs UI fetches **`callspec.json`** at `/callspec.js
 ```typescript
 mountSpec(router, spec, {docsPath: '/explorer'});
 // UI at /explorer — still loads ../callspec.json relative to that path
+```
+
+Document private routes on this same `/docs` with `visibility: 'all'`:
+
+```typescript
+mountSpec(router, spec, {
+    visibility: process.env.NODE_ENV === 'production' ? 'public' : 'all',
+});
 ```
 
 See [Error handling § mountSpec runtime](../error-handling.md#mountspec-runtime).

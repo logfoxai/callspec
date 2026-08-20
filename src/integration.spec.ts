@@ -1125,3 +1125,106 @@ test('integration: default meta title and version when omitted', async (assert) 
     }
 
 });
+
+test('integration: visibility public omits private routes from contracts; all includes them', async (assert) => {
+
+    const visibilitySpec = spec({
+        meta: {title: 'Visibility API', version: '1.0.0'},
+        routes: {
+            ping: route({
+                input: p.object({}),
+                output: p.object({ok: p.boolean()}),
+                meta: {summary: 'Ping', tags: ['health']},
+                auth: 'none',
+                mcp: true,
+                handler: async (_input, _ctx) => ({ok: true}),
+            }),
+            purgeCache: route({
+                input: p.object({key: p.string()}),
+                output: p.object({ok: p.boolean()}),
+                meta: {summary: 'Purge cache', tags: ['ops']},
+                auth: 'none',
+                scope: 'private',
+                mcp: true,
+                handler: async (_input, _ctx) => ({ok: true}),
+            }),
+        },
+    });
+
+    async function listenWithVisibility(visibility?: 'public' | 'all'): Promise<{
+        origin: string
+        server: http.Server
+    }> {
+
+        const app = express();
+        const router = express.Router();
+
+        router.use(express.json());
+        mountSpec(router, visibilitySpec, {logging: false, visibility});
+        app.use(router);
+
+        const server = http.createServer(app);
+
+        await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+        const addr = server.address();
+
+        if (!addr || typeof addr === 'string') throw new Error('bad address');
+
+        return {origin: `http://127.0.0.1:${addr.port}`, server};
+
+    }
+
+    const publicMount = await listenWithVisibility();
+
+    try {
+
+        const callspec = parseCallspecDocument(await (await fetch(`${publicMount.origin}/callspec.json`)).json());
+        const openApi = await (await fetch(`${publicMount.origin}/openapi.json`)).json() as {
+            paths: Record<string, unknown>
+        };
+        const mcp = await (await fetch(`${publicMount.origin}/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/list'}),
+        })).json() as {result?: {tools?: Array<{name: string}>}};
+
+        assert.equal(Object.keys(callspec.routes).join(','), 'ping');
+        assert.equal(Object.keys(openApi.paths).sort().join(','), '/ping');
+        assert.equal((mcp.result?.tools ?? []).map((tool) => tool.name).join(','), 'ping');
+
+    } finally {
+
+        await closeServer(publicMount.server);
+
+    }
+
+    const allMount = await listenWithVisibility('all');
+
+    try {
+
+        const callspec = parseCallspecDocument(await (await fetch(`${allMount.origin}/callspec.json`)).json());
+        const openApi = await (await fetch(`${allMount.origin}/openapi.json`)).json() as {
+            paths: Record<string, unknown>
+        };
+        const mcp = await (await fetch(`${allMount.origin}/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/list'}),
+        })).json() as {result?: {tools?: Array<{name: string}>}};
+
+        assert.equal(Object.keys(callspec.routes).sort().join(','), 'ping,purgeCache');
+        assert.equal(callspec.routes.purgeCache.scope, 'private');
+        assert.equal(Object.keys(openApi.paths).sort().join(','), '/ping,/purgeCache');
+        assert.equal(
+            (mcp.result?.tools ?? []).map((tool) => tool.name).sort().join(','),
+            'ping,purgeCache',
+        );
+
+    } finally {
+
+        await closeServer(allMount.server);
+
+    }
+
+});
