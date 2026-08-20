@@ -14,11 +14,17 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const destDir = path.join(root, 'assets/fonts');
 
 const fonts = [
-    ['@fontsource-variable/inter/files/inter-latin-wght-normal.woff2', 'inter-latin-wght-normal.woff2'],
     [
-        '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2',
-        'space-grotesk-latin-wght-normal.woff2',
+        '@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2',
+        'ibm-plex-sans-latin-wght-normal.woff2',
     ],
+    ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2', 'ibm-plex-mono-latin-400-normal.woff2'],
+    ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2', 'ibm-plex-mono-latin-600-normal.woff2'],
+];
+
+const retired = [
+    'inter-latin-wght-normal.woff2',
+    'space-grotesk-latin-wght-normal.woff2',
 ];
 
 fs.mkdirSync(destDir, {recursive: true});
@@ -28,4 +34,12 @@ for (const [pkgPath, filename] of fonts) {
     const dest = path.join(destDir, filename);
     fs.copyFileSync(src, dest);
     console.log(`sync-fonts: ${filename}`);
+}
+
+for (const filename of retired) {
+    const dest = path.join(destDir, filename);
+    if (fs.existsSync(dest)) {
+        fs.unlinkSync(dest);
+        console.log(`sync-fonts: removed ${filename}`);
+    }
 }

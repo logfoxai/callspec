@@ -1,11 +1,13 @@
 /*
- * Splash homepage
+ * Splash homepage — lives next to Splash*.astro. Loaded from Hero.astro
+ * (Starlight override), not MDX, so Vite watches it.
  * Shell uses Starlight’s data-has-hero (no sidebar). Page blocks are .splash-* only.
  */
 
 html[data-has-hero]:not([data-has-sidebar]) {
     --sl-content-width: min(80rem, calc(100vw - 2rem));
     --sl-content-pad-x: clamp(1.25rem, 3.5vw, 2.75rem);
+    --splash-section-gap: clamp(3.5rem, 7vw, 5.5rem);
 
     /* Dark splash chrome */
     &[data-theme='dark'] {
@@ -28,30 +30,13 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #f4f6fb;
         --cs-muted: #9aa3b5;
         --cs-line: #2a2f3c;
-        --splash-demo-stripe: hsl(198 58% 52% / 0.055);
+        --splash-demo-bg: hsl(220 14% 12%);
+        --splash-demo-stripe: hsl(220 12% 16% / 0.85);
         color-scheme: dark;
-
-        /* Top bloom stays fixed under the transparent nav; base gradient scrolls. */
-        &::before {
-            content: '';
-            position: fixed;
-            inset: 0 0 auto 0;
-            height: min(100vh, 42rem);
-            pointer-events: none;
-            z-index: -1;
-            background:
-                radial-gradient(
-                    ellipse min(92vw, 75rem) min(34vh, 22rem) at 50% 0%,
-                    hsl(210 80% 40% / 0.32),
-                    transparent 58%
-                ),
-                radial-gradient(ellipse 50% 36% at 100% 8%, hsl(198 55% 45% / 0.12), transparent 52%);
-        }
 
         &,
         & body {
-            background: linear-gradient(180deg, #0a0c12 0%, #07080c 42%, #06070a 100%);
-            background-attachment: scroll;
+            background: #07080c;
         }
     }
 
@@ -76,29 +61,13 @@ html[data-has-hero]:not([data-has-sidebar]) {
         --cs-ink: #10131a;
         --cs-muted: #5a6170;
         --cs-line: #dde1ea;
-        --splash-demo-stripe: hsl(198 45% 42% / 0.065);
+        --splash-demo-bg: hsl(210 24% 86%);
+        --splash-demo-stripe: hsl(198 18% 80% / 0.85);
         color-scheme: light;
-
-        &::before {
-            content: '';
-            position: fixed;
-            inset: 0 0 auto 0;
-            height: min(100vh, 42rem);
-            pointer-events: none;
-            z-index: -1;
-            background:
-                radial-gradient(
-                    ellipse min(92vw, 75rem) min(34vh, 22rem) at 50% 0%,
-                    hsl(198 75% 55% / 0.18),
-                    transparent 58%
-                ),
-                radial-gradient(ellipse 50% 36% at 100% 6%, hsl(198 50% 55% / 0.1), transparent 52%);
-        }
 
         &,
         & body {
-            background: linear-gradient(180deg, #f7f9fc 0%, #f3f5f9 48%, #eef1f7 100%);
-            background-attachment: scroll;
+            background: #f4f5f8;
         }
     }
 
@@ -201,32 +170,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
         position: relative;
     }
 
-    /* Soft color blooms — full page, behind content. */
-    main::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 100vw;
-        height: 100%;
-        margin-left: -50vw;
-        pointer-events: none;
-        z-index: -2;
-        background:
-            radial-gradient(ellipse 55% 22% at 92% 22%, hsl(198 55% 45% / 0.1), transparent 58%),
-            radial-gradient(ellipse 50% 24% at 8% 48%, hsl(258 50% 52% / 0.08), transparent 58%),
-            radial-gradient(ellipse 60% 26% at 88% 68%, hsl(188 62% 46% / 0.09), transparent 58%),
-            radial-gradient(ellipse 85% 30% at 50% 100%, hsl(210 72% 42% / 0.14), transparent 62%);
-    }
-
-    &[data-theme='light'] main::before {
-        background:
-            radial-gradient(ellipse 55% 22% at 92% 22%, hsl(198 50% 55% / 0.07), transparent 58%),
-            radial-gradient(ellipse 50% 24% at 8% 48%, hsl(258 45% 58% / 0.06), transparent 58%),
-            radial-gradient(ellipse 60% 26% at 88% 68%, hsl(188 55% 48% / 0.07), transparent 58%),
-            radial-gradient(ellipse 85% 30% at 50% 100%, hsl(210 65% 50% / 0.1), transparent 62%);
-    }
-
     .sl-container {
         position: relative;
         z-index: 1;
@@ -297,145 +240,93 @@ html[data-has-hero]:not([data-has-sidebar]) {
             font-size: clamp(1.05rem, 3.8vw, 1.25rem);
         }
     }
+}
 
-    .splash-hero__actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 0.85rem;
-        margin: 0.5rem 0 0;
-        animation: splash-fade-up 0.6s ease 0.18s both;
+.splash-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.85rem;
+    margin: 0.5rem 0 0;
+}
 
-        .sl-link-button {
-            font-family: var(--cs-font-heading);
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: -0.015em;
-            padding: 1.05rem 1.85rem;
-            border-radius: 0.65rem;
-            min-height: 3.5rem;
-            gap: 0.65rem;
-            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+.splash-hero .splash-hero__actions {
+    animation: splash-fade-up 0.6s ease 0.18s both;
+}
 
-            /* Beat Starlight LinkButton desktop padding/type (50rem media). */
-            @media (min-width: 50rem) {
-                font-size: 1.2rem;
-                padding: 1.05rem 1.85rem;
-            }
+.splash-demo .splash-hero__actions {
+    margin: 0.15rem 0 0;
+}
 
-            svg,
-            .splash-hero__cta-icon,
-            .splash-hero__chirp-mark {
-                flex-shrink: 0;
-                width: 1.55rem;
-                height: 1.55rem;
-                transition: transform 0.15s ease;
-            }
+.splash-hero__actions .sl-link-button {
+    font-family: var(--cs-font-heading);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    padding: 1.05rem 1.85rem;
+    border-radius: 0.65rem;
+    min-height: 3.5rem;
+    gap: 0.65rem;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
-            &.sl-link-button--forward:hover svg {
-                transform: translateX(0.2rem);
-            }
+    /* Beat Starlight LinkButton desktop padding/type (50rem media). */
+    @media (min-width: 50rem) {
+        font-size: 1.2rem;
+        padding: 1.05rem 1.85rem;
+    }
 
-            &.sl-link-button--back:hover svg {
-                transform: translateX(-0.2rem);
-            }
+    svg,
+    .splash-hero__cta-icon {
+        flex-shrink: 0;
+        width: 1.55rem;
+        height: 1.55rem;
+        transition: transform 0.15s ease;
+    }
 
-            /* Get Started — black + white stars (light); white + black stars (dark). */
-            &.primary {
-                --splash-rocket-tilt: -14deg;
-                --splash-cta-star: #fff;
-                position: relative;
-                isolation: isolate;
-                overflow: hidden;
-                font-weight: 600;
-                color: #fff;
-                border: none;
-                border-color: transparent;
-                background: #000;
-                box-shadow: none;
-                transition: background-color 0.2s ease, color 0.2s ease;
+    &.sl-link-button--forward:hover svg {
+        transform: translateX(0.2rem);
+    }
 
-                &::before {
-                    content: '';
-                    position: absolute;
-                    /* Slightly wider than the button so a small rotate doesn’t clip empty corners. */
-                    left: -20%;
-                    width: 140%;
-                    top: -100%;
-                    height: 200%;
-                    z-index: -1;
-                    border-radius: inherit;
-                    pointer-events: none;
-                    opacity: 0;
-                    background-image:
-                        radial-gradient(0.85px 0.85px at 8% 14%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 18% 52%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 28% 30%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 36% 78%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 48% 18%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 56% 60%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 66% 40%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 74% 86%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 84% 24%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 92% 68%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 42% 44%, var(--splash-cta-star) 100%, transparent 100%),
-                        radial-gradient(0.85px 0.85px at 78% 54%, var(--splash-cta-star) 100%, transparent 100%);
-                    background-size: 100% 50%;
-                    background-repeat: repeat-y;
-                }
+    &.sl-link-button--back:hover svg {
+        transform: translateX(-0.2rem);
+    }
 
-                &:hover {
-                    color: #fff;
-                    background: #000;
-                    border: none;
-                    box-shadow: none;
-                    transform: none;
+    /* Get Started — solid black (light) / white (dark). */
+    &.primary {
+        font-weight: 600;
+        color: #fff;
+        border: none;
+        border-color: transparent;
+        background: #000;
+        box-shadow: none;
+        transition:
+            background-color 0.2s ease,
+            color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.15s ease;
 
-                    &::before {
-                        opacity: 0.9;
-                        animation: splash-cta-stars-scroll 0.85s linear infinite;
-                    }
-                }
+        &:hover {
+            color: var(--cs-primary-fg);
+            background: var(--cs-primary-bg);
+            border: none;
+            border-color: var(--cs-primary-bg);
+            box-shadow: 0 8px 28px hsl(228 35% 6% / 0.48);
+            transform: translateY(-2px);
+        }
 
-                &:focus-visible {
-                    outline: 2px solid var(--cs-primary-bg);
-                    outline-offset: 3px;
-                }
-            }
-
-            /* Rocket — tip up-right, slight left tilt; hover bobs along that path. */
-            &.sl-link-button--rocket {
-                .splash-hero__rocket,
-                .splash-hero__rocket-craft {
-                    display: inline-grid;
-                    place-items: center;
-                    width: 1.55rem;
-                    height: 1.55rem;
-                    flex-shrink: 0;
-                }
-
-                .splash-hero__rocket-craft {
-                    transform: rotate(var(--splash-rocket-tilt, -14deg));
-                }
-
-                .splash-hero__cta-icon,
-                .splash-hero__cta-icon svg {
-                    transition: none !important;
-                    transform: none !important;
-                }
-
-                &:hover .splash-hero__rocket-craft {
-                    animation: splash-rocket-bob 0.32s ease-in-out infinite alternate;
-                }
-            }
-
-            &.secondary {
-                font-weight: 600;
-            }
+        &:focus-visible {
+            outline: 2px solid var(--cs-primary-bg);
+            outline-offset: 3px;
         }
     }
 
+    &.secondary {
+        font-weight: 600;
+    }
+}
+
+.splash-hero {
     .splash-hero__stage {
         display: grid;
         gap: 2rem;
@@ -465,7 +356,7 @@ html[data-has-hero]:not([data-has-sidebar]) {
             letter-spacing: -0.012em;
             line-height: 1.5;
             text-wrap: pretty;
-            color: var(--cs-muted);
+            color: var(--cs-ink);
         }
 
         p + p {
@@ -520,15 +411,6 @@ html[data-has-hero]:not([data-has-sidebar]) {
     .splash-hero__actions .sl-link-button--back:hover svg {
         transform: none;
     }
-
-    .splash-hero__actions .sl-link-button.primary::before,
-    .splash-hero__actions .sl-link-button--rocket .splash-hero__rocket-craft {
-        animation: none !important;
-    }
-
-    .splash-hero__actions .sl-link-button--rocket:hover .splash-hero__rocket-craft {
-        transform: rotate(var(--splash-rocket-tilt, -14deg));
-    }
 }
 
 @keyframes splash-fade-up {
@@ -543,38 +425,16 @@ html[data-has-hero]:not([data-has-sidebar]) {
     }
 }
 
-@keyframes splash-cta-stars-scroll {
-    from {
-        transform: rotate(12deg) translate3d(0, 0, 0);
-    }
-
-    to {
-        transform: rotate(12deg) translate3d(0, 50%, 0);
-    }
-}
-
-/*
- * Small bob along the rocket tip. translate after rotate so motion follows
- * the tilted craft.
- */
-@keyframes splash-rocket-bob {
-    from {
-        transform: rotate(var(--splash-rocket-tilt, -14deg)) translate(0.02rem, -0.02rem);
-    }
-
-    to {
-        transform: rotate(var(--splash-rocket-tilt, -14deg)) translate(0.1rem, -0.1rem);
-    }
-}
-
 html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
-    --splash-cta-star: #000;
     color: #000;
     background: #fff;
 
     &:hover {
-        color: #000;
-        background: #fff;
+        color: var(--cs-primary-fg);
+        background: var(--cs-primary-bg);
+        border-color: var(--cs-primary-bg);
+        box-shadow: 0 8px 28px hsl(210 40% 2% / 0.45);
+        transform: translateY(-2px);
     }
 }
 
@@ -609,7 +469,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
 .splash-page {
     display: flex;
     flex-direction: column;
-    gap: clamp(3.5rem, 7vw, 5.5rem);
+    gap: var(--splash-section-gap);
     position: relative;
     z-index: 1;
 }
@@ -945,7 +805,7 @@ html[data-theme='light'] .splash-hero__actions .sl-link-button {
         display: block;
         font-family: var(--sl-font-mono);
         font-size: 0.82rem;
-        color: #67e8f9;
+        color: var(--docs-link);
         background: none;
         border: 0;
         padding: 0;
@@ -1055,7 +915,7 @@ html[data-theme='light'] .splash-flow {
     }
 
     .splash-flow__sdk-call {
-        color: #0284c7;
+        color: var(--docs-link);
     }
 
     .splash-flow__icon {
@@ -1075,8 +935,6 @@ html[data-theme='light'] .splash-flow {
 }
 
 /* ─── Features ───────────────────────────────────────────────────────────── */
-
-/* ─── Features (own section) ─────────────────────────────────────────────── */
 
 .splash-features {
     --feature-media: 4.5rem;
@@ -1226,6 +1084,7 @@ html[data-theme='light'] .splash-features__icon {
     gap: clamp(1.35rem, 2.75vw, 1.85rem);
     position: relative;
     margin: 0;
+    isolation: isolate;
     padding: clamp(2.75rem, 5.5vw, 4rem) 0;
     background: transparent;
     box-shadow: none;
@@ -1233,41 +1092,20 @@ html[data-theme='light'] .splash-features__icon {
     &::before {
         content: '';
         position: absolute;
-        top: clamp(-4rem, -8vw, -2.75rem);
-        bottom: clamp(-2rem, -4vw, -1.25rem);
+        top: 0;
+        bottom: 0;
         left: 50%;
         width: 100vw;
         margin-left: -50vw;
         pointer-events: none;
         z-index: -1;
+        background-color: var(--splash-demo-bg);
         background-image: repeating-linear-gradient(
-            -12deg,
+            -45deg,
             transparent 0,
-            transparent 13px,
-            var(--splash-demo-stripe) 13px,
+            transparent 12px,
+            var(--splash-demo-stripe) 12px,
             var(--splash-demo-stripe) 14px
-        );
-        mask-image: linear-gradient(
-            180deg,
-            transparent 0%,
-            rgb(0 0 0 / 0.25) 14%,
-            rgb(0 0 0 / 0.72) 26%,
-            rgb(0 0 0 / 1) 38%,
-            rgb(0 0 0 / 1) 62%,
-            rgb(0 0 0 / 0.72) 74%,
-            rgb(0 0 0 / 0.25) 86%,
-            transparent 100%
-        );
-        -webkit-mask-image: linear-gradient(
-            180deg,
-            transparent 0%,
-            rgb(0 0 0 / 0.25) 14%,
-            rgb(0 0 0 / 0.72) 26%,
-            rgb(0 0 0 / 1) 38%,
-            rgb(0 0 0 / 1) 62%,
-            rgb(0 0 0 / 0.72) 74%,
-            rgb(0 0 0 / 0.25) 86%,
-            transparent 100%
         );
     }
 
@@ -1276,7 +1114,7 @@ html[data-theme='light'] .splash-features__icon {
         flex-direction: column;
         align-items: center;
         gap: 0.85rem;
-        width: min(100%, 36rem);
+        width: min(100%, 44rem);
         text-align: center;
     }
 
@@ -1299,53 +1137,6 @@ html[data-theme='light'] .splash-features__icon {
         text-wrap: pretty;
     }
 
-    .splash-demo__actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem;
-        margin: 0.15rem 0 0;
-    }
-
-    .splash-demo__btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-family: var(--cs-font-heading);
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        padding: 0.6rem 1.2rem;
-        border-radius: 0.5rem;
-        min-height: 2.45rem;
-        text-decoration: none;
-        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-    }
-
-    .splash-demo__btn--primary {
-        background: var(--cs-primary-bg);
-        border: 1px solid var(--cs-primary-bg);
-        color: var(--cs-primary-fg);
-
-        &:hover {
-            background: var(--cs-primary-hover-bg);
-            border-color: var(--cs-primary-hover-bg);
-            color: var(--cs-primary-hover-fg);
-        }
-    }
-
-    .splash-demo__btn--secondary {
-        background: transparent;
-        border: 1px solid var(--cs-line);
-        color: var(--cs-ink);
-        font-weight: 500;
-
-        &:hover {
-            border-color: color-mix(in srgb, var(--cs-cyan) 35%, var(--cs-line));
-            color: var(--cs-cyan);
-        }
-    }
-
     .splash-demo__shot {
         position: relative;
         margin: 0.35rem 0 0;
@@ -1363,198 +1154,13 @@ html[data-theme='light'] .splash-features__icon {
             width: 100%;
             height: auto;
             border-radius: inherit;
-            border: 1px solid #ffffff17;
-            box-shadow:
-                0 -5px 5px hsl(0 0% 0% / 0.24),
-                0 5px 15px 4px hsl(0 0% 0% / 0.62),
-                0 20px 20px -20px hsl(0 0% 0% / 0.41);
-            transition: box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-
-        &:hover img {
-            border-color: #ffffff2e;
-            box-shadow:
-                0 -6px 10px hsl(0 0% 0% / 0.3),
-                0 10px 28px 6px hsl(0 0% 0% / 0.72),
-                0 32px 36px -18px hsl(0 0% 0% / 0.55);
+            border: none;
+            box-shadow: none;
         }
 
         &:focus-visible {
             outline: 2px solid var(--cs-cyan);
             outline-offset: 3px;
-        }
-    }
-
-    .splash-demo__local {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        width: min(100%, 40rem);
-        margin: 0.25rem 0 0;
-    }
-
-    .splash-demo__local-label {
-        margin: 0;
-        text-align: center;
-        font-size: 0.95rem;
-        line-height: 1.4;
-        color: var(--cs-muted);
-
-        a {
-            color: var(--cs-cyan);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    }
-
-    .splash-demo__terminal {
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-        width: 100%;
-        padding: 0.75rem 0.95rem 0.85rem;
-        border-radius: 0.55rem;
-        background:
-            linear-gradient(180deg, hsl(228 22% 16%) 0%, hsl(228 24% 11%) 100%);
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.08),
-            inset 0 0 0 1px hsl(0 0% 100% / 0.05),
-            0 12px 32px hsl(228 50% 2% / 0.35);
-        font-family: var(--sl-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
-        color: #e8eaf2;
-    }
-
-    .splash-demo__chrome {
-        display: flex;
-        gap: 0.3rem;
-
-        span {
-            width: 0.4rem;
-            height: 0.4rem;
-            border-radius: 999px;
-            background: hsl(228 12% 38%);
-
-            &:first-child { background: #ff5f57; }
-            &:nth-child(2) { background: #febc2e; }
-            &:nth-child(3) { background: #28c840; }
-        }
-    }
-
-    .splash-demo__cli-line {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        min-width: 0;
-        font-size: 0.92rem;
-        line-height: 1.35;
-        white-space: nowrap;
-
-        code {
-            font: inherit;
-            background: none;
-            border: 0;
-            padding: 0;
-            color: inherit;
-        }
-    }
-
-    .splash-demo__prompt {
-        color: #7dd3fc;
-        font-weight: 600;
-    }
-
-    .splash-demo__tok-muted {
-        color: #9aa1b2;
-    }
-
-    .splash-demo__tok-cmd {
-        color: #67e8f9;
-        font-weight: 600;
-    }
-
-    .splash-demo__cli-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.45rem;
-    }
-
-    .splash-demo__pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        padding: 0.28rem 0.55rem;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        line-height: 1.2;
-        color: #c4c9d4;
-        background: hsl(228 18% 8% / 0.7);
-        box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.08);
-
-        code {
-            font: inherit;
-            background: none;
-            border: 0;
-            padding: 0;
-            color: #e9d5ff;
-        }
-    }
-}
-
-html[data-theme='light'] .splash-demo {
-    .splash-demo__shot-link img {
-        border-color: hsl(228 25% 18% / 0.14);
-    }
-
-    .splash-demo__shot-link:hover img {
-        border-color: hsl(228 25% 18% / 0.22);
-        box-shadow:
-            0 -6px 10px hsl(228 30% 20% / 0.16),
-            0 10px 28px 6px hsl(228 35% 22% / 0.26),
-            0 32px 36px -18px hsl(228 30% 25% / 0.2);
-    }
-
-    .splash-demo__terminal {
-        background:
-            linear-gradient(180deg, #ffffff 0%, #f6f8fc 100%);
-        box-shadow:
-            0 1px 2px hsl(228 25% 40% / 0.08),
-            0 0 0 1px hsl(228 16% 82%),
-            0 14px 28px hsl(228 25% 40% / 0.08);
-        color: #1a1d26;
-    }
-
-    .splash-demo__chrome span {
-        background: hsl(228 12% 72%);
-
-        &:first-child { background: #ff5f57; }
-        &:nth-child(2) { background: #febc2e; }
-        &:nth-child(3) { background: #28c840; }
-    }
-
-    .splash-demo__prompt {
-        color: #0284c7;
-    }
-
-    .splash-demo__tok-muted {
-        color: #6b7280;
-    }
-
-    .splash-demo__tok-cmd {
-        color: #0284c7;
-    }
-
-    .splash-demo__pill {
-        color: #4b5563;
-        background: #eef1f6;
-        box-shadow: inset 0 0 0 1px hsl(228 16% 84%);
-
-        code {
-            color: #7c3aed;
         }
     }
 }

@@ -32,6 +32,12 @@ export default defineConfig({
     security: {
         allowedDomains: [{}],
     },
+    // HTML + Vite modules — Cursor Simple Browser and Chrome otherwise keep stale CSS.
+    server: {
+        headers: {
+            'Cache-Control': 'no-store',
+        },
+    },
     vite: {
         plugins: [devServerNoisePlugin()],
         // Vite 8 defaults cssMinify to lightningcss, which drops unprefixed
@@ -42,6 +48,13 @@ export default defineConfig({
         },
         server: {
             cors: true,
+            headers: {
+                'Cache-Control': 'no-store',
+            },
+            watch: {
+                // Build output must not reload dev — corrupts Starlight content sync.
+                ignored: ['**/docs-site/**'],
+            },
         },
     },
     integrations: [

@@ -16,7 +16,7 @@ export type SplashHeroAction = {
 export type SplashHeroActionList = SplashHeroAction[];
 
 /** Icons referenced from splash hero frontmatter. */
-export const SPLASH_HERO_ICON_NAMES = ['right-arrow', 'left-arrow', 'github', 'rocket'] as const;
+export const SPLASH_HERO_ICON_NAMES = ['right-arrow', 'left-arrow', 'github'] as const;
 
 export type SplashHeroIconName = (typeof SPLASH_HERO_ICON_NAMES)[number];
 

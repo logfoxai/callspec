@@ -4,14 +4,15 @@
     "report"
   ],
   "ignoreDependencies": [
-    "@fontsource-variable/inter",
-    "@fontsource-variable/space-grotesk",
+    "@fontsource-variable/ibm-plex-sans",
+    "@fontsource/ibm-plex-mono",
     "@pagefind/default-ui",
     "astro-expressive-code"
   ],
   "ignoreIssues": {
     "src/defineErrors.ts": ["types"],
-    "src/splashHeroTypes.ts": ["types", "exports"]
+    "src/splashHeroTypes.ts": ["types", "exports"],
+    "src/components/splashCtaIcons.ts": ["exports"]
   },
   "entry": [
     "src/callspec-ui/ui/main.ts",

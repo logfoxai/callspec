@@ -5,7 +5,7 @@
 ```bash
 npm install
 npm run validate       # build, lint, knip, typecheck:routes, test + coverage, astro:build
-npm run astro:dev      # guide site — http://127.0.0.1:4321
+npm run astro:dev      # guide site — http://127.0.0.1:4321 (refuses if that port is taken; then wipes caches)
 npm run astro:build    # static site → docs-site/ (+ hosted Chirp explorer at /demo/)
 npm run astro:preview  # serve production guide site locally
 npm run serve:chirp-demo   # live Chirp API — http://127.0.0.1:3456/v1/docs (token: demo)
@@ -18,7 +18,7 @@ Guide sources in `src/content/docs/` are **plain markdown for GitHub** and the A
 - Start with `# Page title` — no YAML frontmatter (GitHub renders frontmatter as an ugly widget).
 - Link with relative paths: `[Authentication](./authentication.md)` — works on GitHub; Astro rewrites `.md` links to guide-site slugs at build time.
 - At build time, the docs loader reads the `# heading` for Starlight metadata; PageTitle renders it in the chrome (the body `# heading` is hidden on the guide site).
-- Splash-only CSS (`splash.css`) loads on the homepage only — not on guide pages.
+- Splash-only CSS (`src/components/splash.css`) loads on the homepage only — not on guide pages.
 
 Sidebar order: `astro.config.mjs`. Splash homepage stays `index.mdx` (MDX + frontmatter).
 

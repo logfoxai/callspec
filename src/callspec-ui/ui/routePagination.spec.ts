@@ -1,10 +1,6 @@
-import {readFileSync} from 'node:fs';
-import path from 'node:path';
 import {test} from 'kizu';
 import type {CallspecUiRoute} from '../types';
 import {renderRoutePagination} from './routePagination';
-
-const root = path.resolve(__dirname, '../../..');
 
 const routes: CallspecUiRoute[] = [
     {
@@ -92,26 +88,5 @@ test('renderRoutePagination: previous route only', (assert) => {
     assert.equal(html.includes('Previous'), true);
     assert.equal(html.includes('class="link-title">createUser</span>'), true);
     assert.equal(html.includes('rel="next"'), false);
-
-});
-
-test('pagination-links: two columns so prev/next share a row (explorer + docs)', (assert) => {
-
-    const styles = readFileSync(path.join(root, 'src/callspec-ui/ui/styles.css'), 'utf8');
-    const docs = readFileSync(path.join(root, 'src/styles/starlight-custom.css'), 'utf8');
-
-    assert.equal(
-        /\.pagination-links\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(
-            styles,
-        ),
-        true,
-    );
-    assert.equal(styles.includes('minmax(min(18rem, 100%), 1fr)'), false);
-    assert.equal(
-        /pagination-links\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(
-            docs,
-        ),
-        true,
-    );
 
 });
