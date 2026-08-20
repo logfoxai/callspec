@@ -77,6 +77,7 @@ export default defineConfig({
             components: {
                 Head: './src/overrides/Head.astro',
                 Header: './src/overrides/Header.astro',
+                Hero: './src/overrides/Hero.astro',
                 Search: './src/overrides/Search.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
                 MobileMenuToggle: './src/overrides/MobileMenuToggle.astro',

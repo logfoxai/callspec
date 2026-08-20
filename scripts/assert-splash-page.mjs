@@ -49,4 +49,10 @@ for (const needle of forbidden) {
 	}
 }
 
+const panels = html.match(/<div class="content-panel/g) ?? [];
+if (panels.length !== 1) {
+	console.error(`assert-splash-page: expected 1 content-panel on splash, got ${panels.length}`);
+	process.exit(1);
+}
+
 console.log('assert-splash-page: ok');
