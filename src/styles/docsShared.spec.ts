@@ -33,7 +33,7 @@ test('astro docs editor config covers content MDX', (assert) => {
     const astroTsconfig = readFileSync(path.join(root, 'tsconfig.astro.json'), 'utf8');
 
     assert.equal(env.includes('astro/client'), true);
-    assert.equal(env.includes('.astro/types.d.ts'), true);
+    assert.equal(astroTsconfig.includes('.astro/types.d.ts'), true);
     assert.equal(astroTsconfig.includes('src/content/**/*'), true);
     assert.equal(astro.includes('contentIntellisense'), true);
     assert.equal(existsSync(path.join(root, 'src/content/tsconfig.json')), true);
