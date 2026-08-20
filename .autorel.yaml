@@ -11,4 +11,3 @@ commitTypes:
   - {type: ci, title: 🔧 Continuous Integration, release: patch}
 branches:
   - {name: main}
-publish: true
