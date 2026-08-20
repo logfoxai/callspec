@@ -1149,7 +1149,7 @@ html[data-theme='light'] .splash-features__icon {
         display: block;
         border-radius: 0.65rem;
 
-        img {
+        .splash-demo__shot-img {
             display: block;
             width: 100%;
             height: auto;
@@ -1158,9 +1158,24 @@ html[data-theme='light'] .splash-features__icon {
             box-shadow: none;
         }
 
+        /* Inverted — dark UI screenshot on light splash, light UI on dark splash. */
+        .splash-demo__shot-img--for-dark {
+            display: none;
+        }
+
         &:focus-visible {
             outline: 2px solid var(--cs-cyan);
             outline-offset: 3px;
         }
+    }
+}
+
+html[data-theme='dark'] .splash-demo .splash-demo__shot-link {
+    .splash-demo__shot-img--for-light {
+        display: none;
+    }
+
+    .splash-demo__shot-img--for-dark {
+        display: block;
     }
 }

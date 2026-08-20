@@ -2,7 +2,7 @@
 
 After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`) for a white-label explorer over the same routes as your RPC server — try methods, inspect schemas and error codes, and copy MCP client config.
 
-![Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config](../../../assets/chirp-demo.png)
+![Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config](../../../assets/demo-screenshot-dark.png)
 
 ## What people do here
 

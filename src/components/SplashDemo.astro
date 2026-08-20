@@ -33,11 +33,21 @@ const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
 	<figure class="splash-demo__shot">
 		<a href="/demo/" class="splash-demo__shot-link" {...demoShotAttrs}>
 			<img
-				src="/chirp-demo.png"
+				class="splash-demo__shot-img splash-demo__shot-img--for-light"
+				src="/demo-screenshot-dark.png"
 				alt="Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config"
 				width="1600"
 				height="1000"
 				loading="lazy"
+			/>
+			<img
+				class="splash-demo__shot-img splash-demo__shot-img--for-dark"
+				src="/demo-screenshot-light.png"
+				alt=""
+				width="1600"
+				height="1000"
+				loading="lazy"
+				aria-hidden="true"
 			/>
 		</a>
 	</figure>
