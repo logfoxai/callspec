@@ -85,6 +85,7 @@ export default defineConfig({
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
                 MobileMenuToggle: './src/overrides/MobileMenuToggle.astro',
                 MobileMenuFooter: './src/overrides/MobileMenuFooter.astro',
+                MarkdownContent: './src/overrides/MarkdownContent.astro',
                 PageFrame: './src/overrides/PageFrame.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
                 SiteTitle: './src/overrides/SiteTitle.astro',

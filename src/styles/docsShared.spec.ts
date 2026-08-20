@@ -1,3 +1,4 @@
+import {execFileSync} from 'node:child_process';
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -18,25 +19,46 @@ test('astro + vite both import docs-shared', (assert) => {
 test('splash.css loads from Hero override, not the content collection', (assert) => {
 
     const hero = readFileSync(path.join(root, 'src/overrides/Hero.astro'), 'utf8');
+    const body = readFileSync(path.join(root, 'src/overrides/MarkdownContent.astro'), 'utf8');
     const index = readFileSync(path.join(root, 'src/content/docs/index.mdx'), 'utf8');
 
     // MDX → splash.css in .astro content cache, which goes stale.
     assert.equal(hero.includes('splash.css'), true);
+    assert.equal(body.includes('SplashFlow'), true);
     assert.equal(index.includes('splash.css'), false);
 
 });
 
-test('astro docs editor config covers content MDX', (assert) => {
+test('splash and 404 MDX are frontmatter-only', (assert) => {
 
-    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
-    const env = readFileSync(path.join(root, 'env.d.ts'), 'utf8');
-    const astroTsconfig = readFileSync(path.join(root, 'tsconfig.astro.json'), 'utf8');
+    for (const rel of ['src/content/docs/index.mdx', 'src/content/docs/404.mdx']) {
 
-    assert.equal(env.includes('astro/client'), true);
-    assert.equal(astroTsconfig.includes('.astro/types.d.ts'), true);
-    assert.equal(astroTsconfig.includes('src/content/**/*'), true);
-    assert.equal(astro.includes('contentIntellisense'), true);
-    assert.equal(existsSync(path.join(root, 'src/content/tsconfig.json')), true);
+        const src = readFileSync(path.join(root, rel), 'utf8');
+
+        assert.equal(/^import\s/m.test(src), false);
+
+    }
+
+});
+
+test('workspace editor enables Astro content intellisense', (assert) => {
+
+    const settings: {'astro.content-intellisense'?: unknown} = JSON.parse(
+        readFileSync(path.join(root, '.vscode/settings.json'), 'utf8'),
+    );
+
+    assert.equal(settings['astro.content-intellisense'], true);
+
+});
+
+test('astro sync writes a content-intellisense manifest for docs MDX', (assert) => {
+
+    execFileSync('npx', ['astro', 'sync'], {cwd: root, encoding: 'utf8'});
+
+    const manifest = readFileSync(path.join(root, '.astro/collections/collections.json'), 'utf8');
+
+    assert.equal(manifest.includes('index.mdx'), true);
+    assert.equal(manifest.includes('404.mdx'), true);
 
 });
 
