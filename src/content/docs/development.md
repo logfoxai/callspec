@@ -20,7 +20,7 @@ Guide sources in `src/content/docs/` are **plain markdown for GitHub** and the A
 - At build time, the docs loader reads the `# heading` for Starlight metadata; PageTitle renders it in the chrome (the body `# heading` is hidden on the guide site).
 - Splash-only CSS (`src/components/splash.css`) loads on the homepage only — not on guide pages.
 
-Sidebar order: `astro.config.mjs`. Splash homepage `index.mdx` and `404.mdx` are frontmatter only — bodies are Astro overrides (`Hero.astro`, `MarkdownContent.astro`). Guide MDX with component imports still works (`docs-ui.mdx`).
+Sidebar order: `astro.config.mjs`. Splash homepage is `src/pages/index.astro` (Astro + LSP). `404.mdx` still uses an MDX import. Guide MDX with component imports still works (`docs-ui.mdx`).
 
 After `npm install`, Astro content IntelliSense needs the official **Astro** extension and a window reload. Workspace settings turn on `astro.content-intellisense`.
 

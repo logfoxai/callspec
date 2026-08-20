@@ -1,6 +1,6 @@
 /*
  * Dedicated 404 page — not routed through the splash Hero override.
- * Scoped with .not-found-page (MarkdownContent 404 body).
+ * Scoped with .not-found-page (404.mdx body only).
  */
 
 html:not([data-has-sidebar]):has(.not-found-page) {

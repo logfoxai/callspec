@@ -19,25 +19,19 @@ test('astro + vite both import docs-shared', (assert) => {
 test('splash.css loads from Hero override, not the content collection', (assert) => {
 
     const hero = readFileSync(path.join(root, 'src/overrides/Hero.astro'), 'utf8');
-    const body = readFileSync(path.join(root, 'src/overrides/MarkdownContent.astro'), 'utf8');
-    const index = readFileSync(path.join(root, 'src/content/docs/index.mdx'), 'utf8');
+    const index = readFileSync(path.join(root, 'src/pages/index.astro'), 'utf8');
 
-    // MDX → splash.css in .astro content cache, which goes stale.
+    // Content-collection MDX → splash.css in .astro cache, which goes stale.
     assert.equal(hero.includes('splash.css'), true);
-    assert.equal(body.includes('SplashFlow'), true);
+    assert.equal(index.includes('SplashFlow'), true);
     assert.equal(index.includes('splash.css'), false);
 
 });
 
-test('splash and 404 MDX are frontmatter-only', (assert) => {
+test('splash homepage is an Astro page, not collection MDX', (assert) => {
 
-    for (const rel of ['src/content/docs/index.mdx', 'src/content/docs/404.mdx']) {
-
-        const src = readFileSync(path.join(root, rel), 'utf8');
-
-        assert.equal(/^import\s/m.test(src), false);
-
-    }
+    assert.equal(existsSync(path.join(root, 'src/pages/index.astro')), true);
+    assert.equal(existsSync(path.join(root, 'src/content/docs/index.mdx')), false);
 
 });
 
@@ -57,8 +51,8 @@ test('astro sync writes a content-intellisense manifest for docs MDX', (assert) 
 
     const manifest = readFileSync(path.join(root, '.astro/collections/collections.json'), 'utf8');
 
-    assert.equal(manifest.includes('index.mdx'), true);
     assert.equal(manifest.includes('404.mdx'), true);
+    assert.equal(manifest.includes('docs-ui.mdx'), true);
 
 });
 

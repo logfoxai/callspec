@@ -6,6 +6,7 @@
     "src/components/**/*.astro",
     "src/components/**/*.ts",
     "src/overrides/**/*.astro",
+    "src/pages/**/*.astro",
     "src/splashHeroTypes.ts"
   ],
   "exclude": ["dist", "node_modules", "docs-site"]
