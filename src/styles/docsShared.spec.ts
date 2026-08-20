@@ -27,6 +27,18 @@ test('splash.css loads from the homepage Astro page', (assert) => {
 
 });
 
+test('custom pages are Astro, not collection MDX', (assert) => {
+
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+
+    assert.equal(existsSync(path.join(root, 'src/pages/index.astro')), true);
+    assert.equal(existsSync(path.join(root, 'src/pages/404.astro')), true);
+    assert.equal(existsSync(path.join(root, 'src/content/docs/index.mdx')), false);
+    assert.equal(existsSync(path.join(root, 'src/content/docs/404.mdx')), false);
+    assert.equal(astro.includes('disable404Route: true'), true);
+
+});
+
 test('vite UI @font-face urls resolve to files on disk', (assert) => {
 
     const tokensPath = path.join(root, 'src/callspec-ui/ui/docs-tokens.css');

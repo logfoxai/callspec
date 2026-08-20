@@ -61,6 +61,8 @@ export default defineConfig({
         starlight({
             title: 'Callspec',
             description: 'Stop duct-taping your API stack. One TypeScript route → typed SDK, docs, OpenAPI, and MCP.',
+            // Custom 404 is src/pages/404.astro — Starlight's injected route would collide.
+            disable404Route: true,
             logo: {
                 light: './assets/callspec-lockup-light.svg',
                 dark: './assets/callspec-lockup-dark.svg',

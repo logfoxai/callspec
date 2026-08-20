@@ -1,0 +1,16 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import NotFoundPage from '../components/NotFoundPage.astro';
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'Page not found',
+		template: 'splash',
+		editUrl: false,
+		pagefind: false,
+		hero: {title: 'Page not found'},
+	}}
+>
+	<NotFoundPage />
+</StarlightPage>

@@ -20,7 +20,7 @@ Guide sources in `src/content/docs/` are **plain markdown for GitHub** and the A
 - At build time, the docs loader reads the `# heading` for Starlight metadata; PageTitle renders it in the chrome (the body `# heading` is hidden on the guide site).
 - Splash-only CSS (`src/components/splash.css`) loads on the homepage only — not on guide pages.
 
-Sidebar order: `astro.config.mjs`. Splash homepage is `src/pages/index.astro`. 404 stays `src/content/docs/404.mdx` — Starlight already owns `/404`. Guide MDX with component imports still works (`docs-ui.mdx`).
+Sidebar order: `astro.config.mjs`. Custom pages are Astro: `src/pages/index.astro` (splash) and `src/pages/404.astro` (`disable404Route` so Starlight does not inject its own). Guide MDX with component imports still works (`docs-ui.mdx`).
 
 ## Guide site vs Chirp demo
 
