@@ -26,6 +26,20 @@ test('splash.css loads from Hero override, not the content collection', (assert)
 
 });
 
+test('astro docs editor config covers content MDX', (assert) => {
+
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+    const env = readFileSync(path.join(root, 'src/env.d.ts'), 'utf8');
+    const astroTsconfig = readFileSync(path.join(root, 'tsconfig.astro.json'), 'utf8');
+
+    assert.equal(env.includes('astro/client'), true);
+    assert.equal(env.includes('.astro/types.d.ts'), true);
+    assert.equal(astroTsconfig.includes('src/content/**/*'), true);
+    assert.equal(astro.includes('contentIntellisense'), true);
+    assert.equal(existsSync(path.join(root, 'src/content/tsconfig.json')), true);
+
+});
+
 test('vite UI @font-face urls resolve to files on disk', (assert) => {
 
     const tokensPath = path.join(root, 'src/callspec-ui/ui/docs-tokens.css');

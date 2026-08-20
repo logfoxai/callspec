@@ -8,6 +8,9 @@ import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
 const isDev = process.env.NODE_ENV !== 'production';
 
 export default defineConfig({
+    experimental: {
+        contentIntellisense: true,
+    },
     // Hover-prefetching every sidebar link hammers Vite in dev and freezes tabs.
     prefetch: isDev ? false : {prefetchAll: true, defaultStrategy: 'hover'},
     devToolbar: {enabled: false},
