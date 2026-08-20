@@ -1,34 +1,7 @@
 ---
 /**
- * Splash homepage hero only (index.mdx). The 404 page is separate — see NotFoundPage.astro.
- * Load splash.css from this Starlight override — not from MDX — so Vite watches it
- * instead of trapping it in the .astro content-collection cache.
+ * Starlight only uses the single-panel splash layout when hero frontmatter is set.
+ * Real heroes live on src/pages/index.astro and src/pages/404.astro — this
+ * suppresses Starlight's default Hero.
  */
-import '../components/splash.css';
-import SplashHomeHero from '../components/SplashHomeHero.astro';
-
-const {entry} = Astro.locals.starlightRoute;
-const {data} = entry;
-const {title = data.title, tagline, actions = []} = data.hero || {};
-const headline = tagline ? String(tagline).replace(/<[^>]*>/g, '') : '';
 ---
-
-<SplashHomeHero title={title} headline={headline} actions={actions} />
-
-<script>
-	/** Frost the splash nav after a short scroll (class toggled for CSS). */
-	function syncSplashNav() {
-		const onSplash = document.documentElement.matches(
-			'[data-has-hero]:not([data-has-sidebar])',
-		);
-		document.documentElement.classList.toggle(
-			'splash-nav-scrolled',
-			onSplash && window.scrollY > 10,
-		);
-	}
-
-	syncSplashNav();
-	window.addEventListener('scroll', syncSplashNav, {passive: true});
-	window.addEventListener('pageshow', syncSplashNav);
-	document.addEventListener('astro:page-load', syncSplashNav);
-</script>

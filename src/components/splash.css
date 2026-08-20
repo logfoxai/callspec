@@ -1,10 +1,9 @@
 /*
- * Splash homepage — lives next to Splash*.astro. Loaded from Hero.astro
- * (Starlight override), not MDX, so Vite watches it.
- * Shell uses Starlight’s data-has-hero (no sidebar). Page blocks are .splash-* only.
+ * Splash homepage — lives next to Splash*.astro. Loaded from src/pages/index.astro.
+ * Scoped to the splash page (no sidebar). Page blocks are .splash-* only.
  */
 
-html[data-has-hero]:not([data-has-sidebar]) {
+html:not([data-has-sidebar]):has(.splash-page) {
     --sl-content-width: min(80rem, calc(100vw - 2rem));
     --sl-content-pad-x: clamp(1.25rem, 3.5vw, 2.75rem);
     --splash-section-gap: clamp(3.5rem, 7vw, 5.5rem);

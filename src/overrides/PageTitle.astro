@@ -4,7 +4,7 @@ const {entry} = Astro.locals.starlightRoute;
 ---
 
 {
-	entry.id !== '404' && (
+	entry.data.template !== 'splash' && (
 		<h1 id={PAGE_TITLE_ID}>{entry.data.title}</h1>
 	)
 }

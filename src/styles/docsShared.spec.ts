@@ -15,14 +15,27 @@ test('astro + vite both import docs-shared', (assert) => {
 
 });
 
-test('splash.css loads from Hero override, not the content collection', (assert) => {
+test('splash.css loads from the homepage Astro page', (assert) => {
 
-    const hero = readFileSync(path.join(root, 'src/overrides/Hero.astro'), 'utf8');
-    const index = readFileSync(path.join(root, 'src/content/docs/index.mdx'), 'utf8');
+    const index = readFileSync(path.join(root, 'src/pages/index.astro'), 'utf8');
+    const splash = readFileSync(path.join(root, 'src/components/splash.css'), 'utf8');
 
-    // MDX → splash.css in .astro content cache, which goes stale.
-    assert.equal(hero.includes('splash.css'), true);
-    assert.equal(index.includes('splash.css'), false);
+    assert.equal(index.includes('splash.css'), true);
+    assert.equal(index.includes('SplashHomeHero'), true);
+    assert.equal(index.includes('SplashFlow'), true);
+    assert.equal(splash.includes(':has(.splash-page)'), true);
+
+});
+
+test('custom pages are Astro, not collection MDX', (assert) => {
+
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+
+    assert.equal(existsSync(path.join(root, 'src/pages/index.astro')), true);
+    assert.equal(existsSync(path.join(root, 'src/pages/404.astro')), true);
+    assert.equal(existsSync(path.join(root, 'src/content/docs/index.mdx')), false);
+    assert.equal(existsSync(path.join(root, 'src/content/docs/404.mdx')), false);
+    assert.equal(astro.includes('disable404Route: true'), true);
 
 });
 

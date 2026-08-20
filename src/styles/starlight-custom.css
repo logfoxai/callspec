@@ -143,11 +143,11 @@ html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper.level-h3 {
 /* Headings — same Plex Sans stack as body/UI (weight contrast only) */
 html[data-has-sidebar] .content-panel:first-of-type h1,
 html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, h4),
-html[data-has-hero]:not([data-has-sidebar]) .splash-hero__headline,
-html[data-has-hero]:not([data-has-sidebar]) .splash-how__title,
-html[data-has-hero]:not([data-has-sidebar]) .splash-features__heading,
-html[data-has-hero]:not([data-has-sidebar]) .splash-features__title,
-html[data-has-hero]:not([data-has-sidebar]) .splash-demo__title {
+.splash-hero__headline,
+.splash-how__title,
+.splash-features__heading,
+.splash-features__title,
+.splash-demo__title {
     font-family: var(--cs-font-heading);
 }
 

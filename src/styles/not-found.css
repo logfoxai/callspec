@@ -1,6 +1,6 @@
 /*
- * Dedicated 404 page — not routed through the splash Hero override.
- * Scoped with .not-found-page (404.mdx body only).
+ * Dedicated 404 page — not the splash homepage.
+ * Scoped with .not-found-page (src/pages/404.astro body).
  */
 
 html:not([data-has-sidebar]):has(.not-found-page) {
@@ -53,10 +53,6 @@ html:not([data-has-sidebar]):has(.not-found-page) {
         }
     }
 
-    .content-panel:first-of-type {
-        display: none;
-    }
-
     .content-panel .sl-container {
         width: min(100%, var(--sl-content-width));
         max-width: var(--sl-content-width);
@@ -68,7 +64,7 @@ html:not([data-has-sidebar]):has(.not-found-page) {
         background: transparent;
     }
 
-    .content-panel:last-of-type {
+    .content-panel:first-of-type {
         padding-block: 0 4rem;
         padding-inline: var(--sl-content-pad-x);
     }
