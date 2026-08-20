@@ -1824,3 +1824,33 @@ html[data-has-sidebar] #starlight__sidebar summary:hover .caret {
 html[data-has-sidebar] #starlight__sidebar ul ul li {
     border-inline-start: none;
 }
+
+/* Demo UI screenshot — inverted by docs/splash theme for contrast. */
+.demo-screenshot {
+    margin: 1.25rem 0;
+}
+
+.demo-screenshot__link {
+    display: block;
+}
+
+.demo-screenshot__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    border: 1px solid var(--docs-border);
+}
+
+.demo-screenshot__img--for-dark {
+    display: none;
+}
+
+html[data-theme='dark'] .demo-screenshot__img--for-light {
+    display: none;
+}
+
+html[data-theme='dark'] .demo-screenshot__img--for-dark {
+    display: block;
+}
+
