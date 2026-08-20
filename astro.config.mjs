@@ -8,9 +8,6 @@ import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
 const isDev = process.env.NODE_ENV !== 'production';
 
 export default defineConfig({
-    experimental: {
-        contentIntellisense: true,
-    },
     // Hover-prefetching every sidebar link hammers Vite in dev and freezes tabs.
     prefetch: isDev ? false : {prefetchAll: true, defaultStrategy: 'hover'},
     devToolbar: {enabled: false},
@@ -80,7 +77,6 @@ export default defineConfig({
             components: {
                 Head: './src/overrides/Head.astro',
                 Header: './src/overrides/Header.astro',
-                Hero: './src/overrides/Hero.astro',
                 Search: './src/overrides/Search.astro',
                 ThemeSelect: './src/overrides/ThemeSelect.astro',
                 MobileMenuToggle: './src/overrides/MobileMenuToggle.astro',

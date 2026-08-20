@@ -1,4 +1,0 @@
-{
-  "extends": "../../tsconfig.astro.json",
-  "include": ["./**/*.astro", "./**/*.ts", "../../.astro/types.d.ts"]
-}

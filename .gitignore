@@ -1,7 +1,5 @@
 .idea
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
+.vscode
 .DS_Store
 node_modules
 dist

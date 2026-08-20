@@ -53,7 +53,7 @@
     "!dist/demo/**"
   ],
   "scripts": {
-    "prepare": "npm run astro:sync && npm run build",
+    "prepare": "npm run build",
     "build": "npm run build:server && npm run build:ui",
     "build:server": "tsc",
     "build:ui": "node scripts/build-ui.mjs",

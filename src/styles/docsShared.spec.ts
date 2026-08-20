@@ -1,4 +1,3 @@
-import {execFileSync} from 'node:child_process';
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -16,43 +15,15 @@ test('astro + vite both import docs-shared', (assert) => {
 
 });
 
-test('splash.css loads from Hero override, not the content collection', (assert) => {
+test('splash.css loads from the homepage Astro page', (assert) => {
 
-    const hero = readFileSync(path.join(root, 'src/overrides/Hero.astro'), 'utf8');
     const index = readFileSync(path.join(root, 'src/pages/index.astro'), 'utf8');
+    const splash = readFileSync(path.join(root, 'src/components/splash.css'), 'utf8');
 
-    // Content-collection MDX → splash.css in .astro cache, which goes stale.
-    assert.equal(hero.includes('splash.css'), true);
+    assert.equal(index.includes('splash.css'), true);
+    assert.equal(index.includes('SplashHomeHero'), true);
     assert.equal(index.includes('SplashFlow'), true);
-    assert.equal(index.includes('splash.css'), false);
-
-});
-
-test('splash homepage is an Astro page, not collection MDX', (assert) => {
-
-    assert.equal(existsSync(path.join(root, 'src/pages/index.astro')), true);
-    assert.equal(existsSync(path.join(root, 'src/content/docs/index.mdx')), false);
-
-});
-
-test('workspace editor enables Astro content intellisense', (assert) => {
-
-    const settings: {'astro.content-intellisense'?: unknown} = JSON.parse(
-        readFileSync(path.join(root, '.vscode/settings.json'), 'utf8'),
-    );
-
-    assert.equal(settings['astro.content-intellisense'], true);
-
-});
-
-test('astro sync writes a content-intellisense manifest for docs MDX', (assert) => {
-
-    execFileSync('npx', ['astro', 'sync'], {cwd: root, encoding: 'utf8'});
-
-    const manifest = readFileSync(path.join(root, '.astro/collections/collections.json'), 'utf8');
-
-    assert.equal(manifest.includes('404.mdx'), true);
-    assert.equal(manifest.includes('docs-ui.mdx'), true);
+    assert.equal(splash.includes(':has(.splash-page)'), true);
 
 });
 

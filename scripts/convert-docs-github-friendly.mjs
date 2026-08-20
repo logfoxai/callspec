@@ -55,8 +55,6 @@ function rewriteLinks(body, fromFile) {
 }
 
 async function convert(file) {
-    if (file.endsWith('index.mdx')) return;
-
     const raw = await readFile(file, 'utf-8');
     const {title, body} = parseFrontmatter(raw);
     if (!title) {
