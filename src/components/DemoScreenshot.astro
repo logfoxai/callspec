@@ -1,0 +1,65 @@
+---
+/**
+ * Chirp docs UI screenshot — dark capture on light theme, light capture on dark theme.
+ */
+interface Props {
+	link?: string;
+	linkAttrs?: Record<string, string | number | boolean>;
+	class?: string;
+}
+
+const {
+	link,
+	linkAttrs = {},
+	class: className = '',
+} = Astro.props;
+
+const alt =
+	'Chirp docs UI — routes sidebar, Connect MCP panel, Cursor MCP config';
+---
+
+<figure class:list={['demo-screenshot', className]}>
+	{
+		link ? (
+			<a href={link} class="demo-screenshot__link" {...linkAttrs}>
+				<img
+					class="demo-screenshot__img demo-screenshot__img--for-light"
+					src="/demo-screenshot-dark.png"
+					alt={alt}
+					width="1600"
+					height="1000"
+					loading="lazy"
+				/>
+				<img
+					class="demo-screenshot__img demo-screenshot__img--for-dark"
+					src="/demo-screenshot-light.png"
+					alt=""
+					width="1600"
+					height="1000"
+					loading="lazy"
+					aria-hidden="true"
+				/>
+			</a>
+		) : (
+			<>
+				<img
+					class="demo-screenshot__img demo-screenshot__img--for-light"
+					src="/demo-screenshot-dark.png"
+					alt={alt}
+					width="1600"
+					height="1000"
+					loading="lazy"
+				/>
+				<img
+					class="demo-screenshot__img demo-screenshot__img--for-dark"
+					src="/demo-screenshot-light.png"
+					alt=""
+					width="1600"
+					height="1000"
+					loading="lazy"
+					aria-hidden="true"
+				/>
+			</>
+		)
+	}
+</figure>
