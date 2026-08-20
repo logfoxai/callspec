@@ -19,7 +19,7 @@ It is a **projection for the ecosystem**, not the source of truth for Callspecâ€
 - Request/response schemas from route preds
 - Errors grouped by HTTP status (builtins + route domain errors)
 - Bearer security when `auth: 'bearer'`
-- `scope: 'private'` routes **omitted**
+- `scope: 'private'` routes omitted unless `visibility: 'all'`
 
 Auth/scope details: [Auth and scope](./api-reference/auth-and-scope.md).
 

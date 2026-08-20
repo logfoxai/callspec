@@ -173,6 +173,12 @@ test('emitCallspec: omits scope private routes from the document', (assert) => {
     assert.equal(doc.routes.publicRoute.scope, 'public');
     assert.equal(doc.routes.internalRoute, undefined);
 
+    const all = emitCallspec(routes, {title: 'Scope API', version: '1.0.0', visibility: 'all'});
+
+    assert.equal(Object.keys(all.routes).sort().join(','), 'internalRoute,publicRoute');
+    assert.equal(all.routes.internalRoute.scope, 'private');
+    assert.equal(all.routes.publicRoute.scope, 'public');
+
 });
 
 test('parseCallspecDocument: rejects callspec 1.x documents', (assert) => {

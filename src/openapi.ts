@@ -1,7 +1,7 @@
 import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
 import {joinRoutePath} from './metaDefaults';
-import {exportedRoutes, hasBearerRoutes} from './routeVisibility';
+import {exportedRoutes, hasBearerRoutes, type ExportVisibility} from './routeVisibility';
 import {openApiErrorResponses} from './routeErrorDocument';
 
 export type OpenApiOptions = {
@@ -9,6 +9,7 @@ export type OpenApiOptions = {
     version: string
     basePath?: string
     description?: string
+    visibility?: ExportVisibility
 };
 
 export function emitOpenApi(
@@ -20,7 +21,7 @@ export function emitOpenApi(
     const basePath = options.basePath ?? '';
     const hasBearer = hasBearerRoutes(routes);
 
-    for (const [name, route] of Object.entries(exportedRoutes(routes))) {
+    for (const [name, route] of Object.entries(exportedRoutes(routes, options.visibility))) {
 
         const outputSchema = toJsonSchema(route.output);
 

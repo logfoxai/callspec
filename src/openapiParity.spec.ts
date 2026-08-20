@@ -209,3 +209,38 @@ test('emitOpenApi: bearer security only on private routes', (assert) => {
     assert.equal(components.securitySchemes?.bearer !== undefined, true, 'bearer scheme present');
 
 });
+
+test('emitOpenApi: visibility all includes scope private routes', (assert) => {
+
+    const routes = {
+        ping: route({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Ping', tags: ['health']},
+            auth: 'none',
+            handler: async (_input, _ctx) => ({ok: true}),
+        }),
+        purgeCache: route({
+            input: p.object({key: p.string()}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Purge cache', tags: ['ops']},
+            auth: 'none',
+            scope: 'private',
+            handler: async (_input, _ctx) => ({ok: true}),
+        }),
+    };
+
+    const publicDoc = emitOpenApi(routes, {title: 'API', version: '1.0.0'});
+    const allDoc = emitOpenApi(routes, {title: 'API', version: '1.0.0', visibility: 'all'});
+
+    const publicPaths = publicDoc.paths as Record<string, unknown>;
+    const allPaths = allDoc.paths as Record<string, unknown>;
+
+    assert.equal(Object.keys(publicPaths).sort().join(','), '/ping');
+    assert.equal(Object.keys(allPaths).sort().join(','), '/ping,/purgeCache');
+    assert.equal(
+        (allPaths['/purgeCache'] as {post?: {'x-callspec-scope'?: string}})?.post?.['x-callspec-scope'],
+        'private',
+    );
+
+});

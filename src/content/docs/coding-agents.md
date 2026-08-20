@@ -30,7 +30,7 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 1. Handlers **return** `err.*` / domain handles for expected failures. Bare `throw` → `INTERNAL_ERROR`.
 2. SDK/codegen reads **`callspec.json`** (`npx callspec …`), **not** OpenAPI.
 3. Default `auth` is **`bearer`** — requires `authenticate` on `spec()`, or set `auth: 'none'`.
-4. `scope: 'private'` omits from SDK/docs/OpenAPI/MCP; still mounted; does **not** skip auth.
+4. `scope: 'private'` omits from the public contract; still mounted; does **not** skip auth. Use `visibility: 'all'` on `mountSpec` to document those routes on that mount.
 5. Never re-declare **builtin** codes on route `errors:`. Domain codes must be registered (`defineErrors`).
 6. When `!result.ok`, branch on **`result.code`**, not HTTP status. Don’t show `UNKNOWN_ERROR.data` to users.
 7. Don’t wire Express error middleware / jsout on the `mountSpec` router — it owns the catch path.
@@ -76,7 +76,7 @@ Do this in order:
 
 Constraints:
 - Don't invent REST CRUD wrappers — Callspec is RPC methods (getProductById, …)
-- scope: 'private' hides from SDK/docs/OpenAPI/MCP; it does not skip auth
+- scope: 'private' stays off the public contract unless mountSpec visibility is 'all'; it does not skip auth
 - Builtin error codes are reserved — only register domain codes
 - Prefer small PRs: pilot one route end-to-end before bulk migration
 

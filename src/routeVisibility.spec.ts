@@ -25,6 +25,8 @@ test('exportedRoutes: includes only scope public routes', (assert) => {
     };
 
     assert.equal(Object.keys(exportedRoutes(routes)).join(','), 'exported');
+    assert.equal(Object.keys(exportedRoutes(routes, 'public')).join(','), 'exported');
+    assert.equal(Object.keys(exportedRoutes(routes, 'all')).sort().join(','), 'exported,internal');
 
 });
 

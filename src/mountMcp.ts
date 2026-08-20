@@ -9,6 +9,7 @@ import {
 import {executeRoute} from './executeRoute';
 import {resolveRouteContext} from './resolveRouteContext';
 import {isMcpEnabled, listMcpTools, routeMcpName} from './mcpTools';
+import type {ExportVisibility} from './routeVisibility';
 import type {Authenticate, RoutesMap} from './types';
 
 export type InternalMountMcpOptions = {
@@ -17,6 +18,7 @@ export type InternalMountMcpOptions = {
     instructions?: string
     /** Structured per-tool call events (MCP `tools/call`). */
     onCall?: OnCall
+    visibility?: ExportVisibility
 };
 
 function toolError(message: string): { content: Array<{ type: 'text', text: string }>, isError: true } {
@@ -81,7 +83,7 @@ export function mountMcp<Ctx>(
 
             if (body?.method === 'tools/list') {
 
-                respond({tools: listMcpTools(routes)});
+                respond({tools: listMcpTools(routes, options.visibility)});
                 return;
 
             }

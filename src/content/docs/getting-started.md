@@ -40,7 +40,7 @@ export const getProductById = route({
     output: product, // same pred as the domain shape
     // Docs UI / OpenAPI / MCP labels
     meta: {summary: 'Get product by ID', tags: ['catalog']},
-    auth: 'none', // public — no Bearer; default is 'bearer'
+    auth: 'none', // no Bearer; default is 'bearer'
     mcp: true, // expose as an MCP tool when the server mounts MCP
     // Keep the handler inline for LSP support
     handler: async (input, _ctx) => {
@@ -50,6 +50,8 @@ export const getProductById = route({
     },
 });
 ```
+
+`auth` is who can call the route. `scope` is who can see it in docs and specs — default `'public'`. Use `scope: 'private'` for routes you document on your own mounts (`visibility: 'all'` in dev/stage) but omit from the public contract. See [Auth and scope](./api-reference/auth-and-scope.md).
 
 Related: [runtyp](https://github.com/logfoxai/runtyp) · [Builtin errors](./builtin-errors.md) · [Error handling](./error-handling.md) · [Unit testing](./unit-testing.md) · [route & spec](./api-reference/route-and-spec.md)
 

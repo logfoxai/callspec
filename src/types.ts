@@ -17,7 +17,7 @@ export type McpRouteConfig =
 
 export type RouteAuth = 'none' | 'bearer';
 
-/** Whether a route appears in callspec.json, OpenAPI, docs UI, SDK codegen, and MCP tools/list. */
+/** Whether a route is on the public contract. Private routes still mount; they appear on docs/specs when visibility is `all`. */
 export type RouteScope = 'public' | 'private';
 
 /** Default HTTP status for domain route errors when `status` is omitted. */

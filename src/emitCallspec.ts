@@ -1,6 +1,6 @@
 import {toJsonSchema, type Pred} from 'runtyp';
 import type {RoutesMap} from './types';
-import {exportedRoutes} from './routeVisibility';
+import {exportedRoutes, type ExportVisibility} from './routeVisibility';
 import {joinRoutePath} from './metaDefaults';
 import {
     CALLSPEC_DOCUMENT_VERSION,
@@ -18,6 +18,8 @@ export type EmitCallspecOptions = {
     description?: string
     /** Named runtyp preds for consumer codegen (filters, domain objects, shared slices). */
     exports?: Record<string, Pred<any>>
+    /** Default `public` — omit `scope: 'private'`. `all` includes them on this document. */
+    visibility?: ExportVisibility
 };
 
 export function emitCallspec(
@@ -26,7 +28,8 @@ export function emitCallspec(
 ): CallspecDocument {
 
     const basePath = options.basePath ?? '';
-    const sortedNames = Object.keys(exportedRoutes(routes)).sort((a, b) => a.localeCompare(b));
+    const sortedNames = Object.keys(exportedRoutes(routes, options.visibility))
+        .sort((a, b) => a.localeCompare(b));
     const documentRoutes: Record<string, CallspecDocumentRoute> = {};
 
     for (const name of sortedNames) {

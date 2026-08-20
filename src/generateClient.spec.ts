@@ -165,6 +165,39 @@ test('generateClientSource: one file includes ApiClient, schemas preds, and expo
 
 });
 
+test('generateClientSource: visibility all emits methods for scope private routes', (assert) => {
+
+    const routes = {
+        ping: route({
+            input: p.object({}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Ping', tags: ['health']},
+            auth: 'none',
+            handler: async (_input, _ctx) => ({ok: true}),
+        }),
+        purgeCache: route({
+            input: p.object({key: p.string()}),
+            output: p.object({ok: p.boolean()}),
+            meta: {summary: 'Purge cache', tags: ['ops']},
+            auth: 'none',
+            scope: 'private',
+            handler: async (_input, _ctx) => ({ok: true}),
+        }),
+    };
+
+    const publicClient = generateClientSource(
+        emitCallspec(routes, {title: 'API', version: '1.0.0'}),
+    );
+    const allClient = generateClientSource(
+        emitCallspec(routes, {title: 'API', version: '1.0.0', visibility: 'all'}),
+    );
+
+    assert.equal(publicClient.includes('async purgeCache('), false);
+    assert.equal(allClient.includes('async purgeCache('), true);
+    assert.equal(allClient.includes('async ping('), true);
+
+});
+
 test('generateClientFile: generates from HTTP URL', async (assert) => {
 
     const routes = {

@@ -16,7 +16,7 @@ route({ input, output, meta, handler, … })
 | `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |
 | `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
 | `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
-| `scope` | `'public'` | `'public'` — included in docs, OpenAPI, SDK codegen, MCP `tools/list`. `'private'` — server-only; omitted from exports. |
+| `scope` | `'public'` | `'public'` — on the public contract (docs, OpenAPI, SDK, MCP `tools/list`). `'private'` — documented when `visibility` is `'all'`; omitted from the public contract. Still mounted. |
 | `mcp` | — | Expose as an MCP tool. `true`, or `{ name?, annotations? }` to override the tool name or MCP annotations. |
 
 Returns a **wired route** (`WiredRoute`) for `spec({ routes })`. Call `.handler(input, ctx)` in tests — no HTTP. See [Handlers](./handlers.md) and [Unit testing](../unit-testing.md).
@@ -50,7 +50,7 @@ Throws at load time if any route uses `auth: 'bearer'` and `authenticate` is mis
 
 Keys become **RPC method names** — `routes: { getProductById }` is called as `POST /v1/getProductById` (plus your Express mount prefix). Values must come from `route({ …, handler })`, not bare preds.
 
-Only routes with `scope: 'public'` appear in `callspec.json`, OpenAPI, SDK codegen, and MCP `tools/list`. Private routes still run on the server.
+By default only `scope: 'public'` routes appear in `callspec.json`, OpenAPI, SDK codegen, and MCP `tools/list`. Private routes still run on the server. Pass `visibility: 'all'` on `mountSpec` (or `emitCallspec`) to document them on that mount. See [Auth and scope](./auth-and-scope.md).
 
 ### Spec meta
 
