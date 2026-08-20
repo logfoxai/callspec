@@ -5,7 +5,7 @@
   },
   "include": [
     ".astro/types.d.ts",
-    "src/env.d.ts",
+    "env.d.ts",
     "src/content.config.ts",
     "src/content/**/*",
     "src/**/*.astro",

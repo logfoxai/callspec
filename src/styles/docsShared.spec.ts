@@ -29,7 +29,7 @@ test('splash.css loads from Hero override, not the content collection', (assert)
 test('astro docs editor config covers content MDX', (assert) => {
 
     const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
-    const env = readFileSync(path.join(root, 'src/env.d.ts'), 'utf8');
+    const env = readFileSync(path.join(root, 'env.d.ts'), 'utf8');
     const astroTsconfig = readFileSync(path.join(root, 'tsconfig.astro.json'), 'utf8');
 
     assert.equal(env.includes('astro/client'), true);
