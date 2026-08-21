@@ -29,29 +29,26 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 <template id="cs-search-pending-template">
 	<div class="cs-search-pending" data-cs-search-pending hidden aria-hidden="true">
-		<div class="cs-search-pending__section">
-			<div class="cs-search-pending__page">
-				<span class="cs-search-pending__doc-icon" aria-hidden="true"></span>
-				<span class="cs-search-pending__bar cs-search-pending__bar--title"></span>
-			</div>
-			<div class="cs-search-pending__nested">
-				<span class="cs-search-pending__bar cs-search-pending__bar--hit"></span>
-				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt"></span>
-				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w72"></span>
-			</div>
-			<div class="cs-search-pending__nested">
-				<span class="cs-search-pending__bar cs-search-pending__bar--hit cs-search-pending__bar--w88"></span>
-				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w94"></span>
+		<div class="cs-search-pending__result">
+			<div class="cs-search-pending__inner">
+				<div class="cs-search-pending__title">
+					<span class="cs-search-pending__bar cs-search-pending__bar--title cs-search-pending__bar--w52"></span>
+				</div>
+				<div class="cs-search-pending__nested cs-search-pending__nested--last">
+					<span class="cs-search-pending__bar cs-search-pending__bar--hit cs-search-pending__bar--w48"></span>
+					<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w78"></span>
+				</div>
 			</div>
 		</div>
-		<div class="cs-search-pending__section">
-			<div class="cs-search-pending__page">
-				<span class="cs-search-pending__doc-icon" aria-hidden="true"></span>
-				<span class="cs-search-pending__bar cs-search-pending__bar--title cs-search-pending__bar--w58"></span>
-			</div>
-			<div class="cs-search-pending__nested">
-				<span class="cs-search-pending__bar cs-search-pending__bar--hit cs-search-pending__bar--w76"></span>
-				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w80"></span>
+		<div class="cs-search-pending__result">
+			<div class="cs-search-pending__inner">
+				<div class="cs-search-pending__title">
+					<span class="cs-search-pending__bar cs-search-pending__bar--title cs-search-pending__bar--w52"></span>
+				</div>
+				<div class="cs-search-pending__nested cs-search-pending__nested--last">
+					<span class="cs-search-pending__bar cs-search-pending__bar--hit cs-search-pending__bar--w48"></span>
+					<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w78"></span>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -136,14 +133,15 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		const existing = root.querySelector<HTMLElement>('[data-cs-search-pending]');
 		if (existing) return existing;
 
-		const area = root.querySelector('.pagefind-ui__results-area');
-		if (!area) return null;
+		const results = root.querySelector('.pagefind-ui__results');
+		const host = results ?? root.querySelector('.pagefind-ui__results-area');
+		if (!host) return null;
 
 		const template = document.querySelector<HTMLTemplateElement>('#cs-search-pending-template');
 		const pending = template?.content.firstElementChild?.cloneNode(true);
 		if (!(pending instanceof HTMLElement)) return null;
 
-		area.appendChild(pending);
+		host.appendChild(pending);
 		return pending;
 	}
 
