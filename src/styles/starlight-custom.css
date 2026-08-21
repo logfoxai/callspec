@@ -672,37 +672,37 @@ site-search dialog::backdrop {
 }
 
 /* Pagefind field + results inside the dialog */
-#starlight__search {
+[data-cs-pagefind-root] {
     --pagefind-ui-border-radius: 0.7rem;
     --pagefind-ui-scale: 0.92;
 }
 
 /* Pagefind defaults (~21px titles / ~16px excerpts) read oversized in this modal. */
-#starlight__search .pagefind-ui__result-title {
+[data-cs-pagefind-root] .pagefind-ui__result-title {
     font-size: 0.8125rem;
 }
 
-#starlight__search .pagefind-ui__result-nested .pagefind-ui__result-link {
+[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-link {
     font-size: 0.75rem;
 }
 
-#starlight__search .pagefind-ui__result-excerpt {
+[data-cs-pagefind-root] .pagefind-ui__result-excerpt {
     font-size: 0.6875rem;
     line-height: 1.45;
 }
 
-#starlight__search .pagefind-ui__search-input {
+[data-cs-pagefind-root] .pagefind-ui__search-input {
     font-weight: 500;
     letter-spacing: -0.01em;
     box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
-#starlight__search .pagefind-ui__search-input::placeholder {
+[data-cs-pagefind-root] .pagefind-ui__search-input::placeholder {
     opacity: 0.45;
     font-weight: 400;
 }
 
-#starlight__search input:focus {
+[data-cs-pagefind-root] input:focus {
     --pagefind-ui-border: var(--cs-cyan);
     outline: none;
     box-shadow:
@@ -710,7 +710,7 @@ site-search dialog::backdrop {
         inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
-#starlight__search .pagefind-ui__results-area {
+[data-cs-pagefind-root] .pagefind-ui__results-area {
     margin-top: 0.85rem;
 }
 
@@ -719,7 +719,7 @@ site-search dialog::backdrop {
  * Unlayered so result cards keep a gap under their rounded bottoms, and so the
  * load-more button isn’t flush with the last result.
  */
-#starlight__search .pagefind-ui__button {
+[data-cs-pagefind-root] .pagefind-ui__button {
     margin-top: 0.85rem;
     height: auto;
     min-height: 2.35rem;
@@ -739,17 +739,17 @@ site-search dialog::backdrop {
         color 0.15s ease;
 }
 
-#starlight__search .pagefind-ui__button:hover {
+[data-cs-pagefind-root] .pagefind-ui__button:hover {
     border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
     background: color-mix(in srgb, var(--sl-color-black) 35%, var(--sl-color-gray-6));
     color: var(--cs-ink);
 }
 
-#starlight__search .pagefind-ui__results > * + * {
+[data-cs-pagefind-root] .pagefind-ui__results > * + * {
     margin-top: var(--sl-search-result-spacing, calc(1.25rem * var(--pagefind-ui-scale, 1)));
 }
 
-#starlight__search .pagefind-ui__message {
+[data-cs-pagefind-root] .pagefind-ui__message {
     font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: 0.01em;
@@ -760,7 +760,7 @@ site-search dialog::backdrop {
 }
 
 /* Zero-results: compact card — quoted term via i18n; Discord help injected in JS */
-#starlight__search:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
+[data-cs-pagefind-root]:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
     display: block;
     margin: 0.15rem 0 0;
     padding: 1rem 1.1rem;
@@ -773,7 +773,7 @@ site-search dialog::backdrop {
     letter-spacing: -0.015em;
 }
 
-#starlight__search .pagefind-ui__results:not(:has(.pagefind-ui__result)) {
+[data-cs-pagefind-root] .pagefind-ui__results:not(:has(.pagefind-ui__result)) {
     margin: 0;
     padding: 0;
     min-height: 0;
@@ -852,7 +852,7 @@ html[data-theme='light'] .cs-search-pending__row {
     color: var(--cs-cyan);
 }
 
-#starlight__search mark {
+[data-cs-pagefind-root] mark {
     color: var(--cs-cyan);
     font-weight: 600;
 }
@@ -1029,18 +1029,18 @@ html[data-theme='light'] .cs-search-idle__chips button {
     color: var(--cs-ink);
 }
 
-html[data-theme='light'] #starlight__search:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
+html[data-theme='light'] [data-cs-pagefind-root]:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
     background: #fff;
     border-color: var(--sl-color-gray-5);
 }
 
-html[data-theme='light'] #starlight__search .pagefind-ui__button {
+html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button {
     background: #ffffff;
     border-color: var(--cs-line);
     color: var(--cs-ink);
 }
 
-html[data-theme='light'] #starlight__search .pagefind-ui__button:hover {
+html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button:hover {
     background: #f0f1f5;
     border-color: color-mix(in srgb, var(--sl-color-accent) 35%, var(--cs-line));
     color: var(--cs-ink);

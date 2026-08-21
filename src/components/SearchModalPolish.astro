@@ -59,7 +59,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 		const host =
 			frame.querySelector('.search-container') ??
-			frame.querySelector('#starlight__search')?.parentElement ??
+			frame.querySelector('[data-cs-pagefind-root]')?.parentElement ??
 			frame;
 		host.appendChild(idle);
 		return idle;
@@ -163,7 +163,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		siteSearch.dataset.csSearchPolishBound = '1';
 
 		const frame = siteSearch.querySelector('.dialog-frame');
-		const root = siteSearch.querySelector('#starlight__search');
+		const root = siteSearch.querySelector('[data-cs-pagefind-root]');
 		if (!frame || !root) return;
 
 		const idle = ensureIdlePanel(frame);
