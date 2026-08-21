@@ -80,6 +80,21 @@ test('renderDocsSearchField: docs-style search shell', (assert) => {
 
 });
 
+test('renderDocsSearchField: explorer sidebar says Search routes', (assert) => {
+
+    const html = renderDocsSearchField({
+        id: 'sidebar-search',
+        value: '',
+        label: 'Search routes',
+        className: 'cs-docs-search--sidebar',
+    });
+
+    assert.equal(html.includes('placeholder="Search routes"'), true);
+    assert.equal(html.includes('aria-label="Search routes"'), true);
+    assert.equal(html.includes('placeholder="Search"'), false);
+
+});
+
 test('renderHeaderContractButtons: header contract file buttons', (assert) => {
 
     const html = renderHeaderContractButtons('../callspec.json');

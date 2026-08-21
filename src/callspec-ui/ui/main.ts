@@ -793,6 +793,7 @@ async function boot(): Promise<void> {
                         ${renderSidebar(sidebarRoutes, view, showHome, renderDocsSearchField({
                             id: 'sidebar-search',
                             value: filters.text,
+                            label: 'Search routes',
                             className: 'cs-docs-search--sidebar',
                         }))}
                     </div>
