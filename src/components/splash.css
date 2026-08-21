@@ -255,6 +255,18 @@ html:not([data-has-sidebar]):has(.splash-page) {
 
     &.secondary {
         font-weight: 600;
+        box-shadow: none;
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease,
+            box-shadow 0.2s ease;
+
+        &:hover {
+            box-shadow:
+                0.2rem 0.2rem 0 0
+                color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
+        }
     }
 }
 
