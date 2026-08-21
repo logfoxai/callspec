@@ -1631,21 +1631,46 @@ html[data-has-sidebar] .pagination-links > :only-child {
 html[data-has-sidebar] .pagination-links a {
     align-items: center;
     gap: 0.85rem;
-    border: 1px solid var(--cs-line);
+    border: none;
     border-radius: calc(var(--cs-radius) - 0.15rem);
-    background: var(--cs-table-bg);
     padding: 1rem 1.15rem;
     box-shadow: none;
     color: var(--cs-muted);
     transition:
-        border-color 0.15s ease,
-        background-color 0.15s ease,
+        background 0.15s ease,
         color 0.15s ease;
 }
 
-html[data-has-sidebar] .pagination-links a:hover {
-    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
-    background: var(--cs-table-row-hover);
+html[data-has-sidebar] .pagination-links a[rel='prev'] {
+    background: linear-gradient(
+        to left,
+        transparent,
+        color-mix(in srgb, var(--cs-ink) 8%, transparent)
+    );
+}
+
+html[data-has-sidebar] .pagination-links a[rel='next'] {
+    background: linear-gradient(
+        to right,
+        transparent,
+        color-mix(in srgb, var(--cs-ink) 8%, transparent)
+    );
+}
+
+html[data-has-sidebar] .pagination-links a[rel='prev']:hover {
+    background: linear-gradient(
+        to left,
+        transparent,
+        color-mix(in srgb, var(--cs-ink) 13%, transparent)
+    );
+}
+
+html[data-has-sidebar] .pagination-links a[rel='next']:hover {
+    background: linear-gradient(
+        to right,
+        transparent,
+        color-mix(in srgb, var(--cs-ink) 13%, transparent)
+    );
 }
 
 html[data-has-sidebar] .pagination-links a > span {
