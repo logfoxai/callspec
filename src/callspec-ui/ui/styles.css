@@ -2452,6 +2452,10 @@ body > .footer {
     border-radius: 0;
 }
 
+.mcp-client-panel .code-block code {
+    font-size: 0.84rem;
+}
+
 .btn-sm {
     padding: 0.25rem 0.625rem;
     font-size: 0.75rem;
