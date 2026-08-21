@@ -64,30 +64,13 @@ function renderSidebarLink(
 
 }
 
-export function renderSidebar(
+/** Tag groups only — search can swap this without remounting the search field. */
+export function renderSidebarRouteGroups(
     routes: CallspecUiRoute[],
     view: SidebarView,
-    showHome: boolean,
-    searchHtml = '',
 ): string {
 
     const groups = groupRoutesByTag(routes);
-    let pageLinks = '';
-
-    if (showHome) {
-
-        pageLinks += renderSidebarLink('Home', view.kind === 'home', {'data-view': 'home'}, {
-            top: true,
-            icon: homeIcon(),
-        });
-
-    }
-
-    pageLinks += renderSidebarLink('Routes', view.kind === 'routes', {'data-view': 'routes'}, {
-        top: true,
-        icon: routesIcon(),
-    });
-
     let groupHtml = '';
 
     for (const [tag, list] of groups) {
@@ -121,7 +104,38 @@ export function renderSidebar(
 
     }
 
-    if (!pageLinks && !groupHtml) {
+    return groupHtml
+        ? `<ul class="sidebar-top-level">${groupHtml}</ul>`
+        : '';
+
+}
+
+export function renderSidebar(
+    routes: CallspecUiRoute[],
+    view: SidebarView,
+    showHome: boolean,
+    searchHtml = '',
+): string {
+
+    let pageLinks = '';
+
+    if (showHome) {
+
+        pageLinks += renderSidebarLink('Home', view.kind === 'home', {'data-view': 'home'}, {
+            top: true,
+            icon: homeIcon(),
+        });
+
+    }
+
+    pageLinks += renderSidebarLink('Routes', view.kind === 'routes', {'data-view': 'routes'}, {
+        top: true,
+        icon: routesIcon(),
+    });
+
+    const groupsHtml = renderSidebarRouteGroups(routes, view);
+
+    if (!pageLinks && !groupsHtml) {
 
         return '<div class="empty-state"><p>No routes</p></div>';
 
@@ -133,10 +147,6 @@ export function renderSidebar(
     const search = searchHtml
         ? `<div class="sidebar-search">${searchHtml}</div>`
         : '';
-    const groupsHtml = groupHtml
-        ? `<ul class="sidebar-top-level">${groupHtml}</ul>`
-        : '';
-
     return `
         <nav class="sidebar-nav" aria-label="Sidebar">
             ${pageLinksHtml}

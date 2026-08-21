@@ -1,7 +1,7 @@
 import {test} from 'kizu';
 import type {CallspecUiRoute} from '../types';
 import {homeIcon, routesIcon} from './icons';
-import {renderSidebar} from './sidebarNav';
+import {renderSidebar, renderSidebarRouteGroups} from './sidebarNav';
 
 const user: CallspecUiRoute = {
     name: 'getUser',
@@ -27,5 +27,24 @@ test('sidebar Home and Routes have icons; tags sit below a page-links group', (a
     assert.equal(html.indexOf('sidebar-page-links') < html.indexOf('sidebar-search'), true);
     assert.equal(html.indexOf('sidebar-search') < html.indexOf('sidebar-group'), true);
     assert.equal(html.includes('sidebar-group-label">users</span>'), true);
+
+});
+
+test('renderSidebarRouteGroups: tag routes only — no search chrome or Home/Routes', (assert) => {
+
+    const html = renderSidebarRouteGroups([user], {kind: 'route', name: 'getUser'});
+
+    assert.equal(html.includes('class="sidebar-top-level"'), true);
+    assert.equal(html.includes('data-route="getUser"'), true);
+    assert.equal(html.includes('sidebar-group-label">users</span>'), true);
+    assert.equal(html.includes('sidebar-search'), false);
+    assert.equal(html.includes('data-view="home"'), false);
+    assert.equal(html.includes('data-view="routes"'), false);
+
+});
+
+test('renderSidebarRouteGroups: empty filter result is an empty string', (assert) => {
+
+    assert.equal(renderSidebarRouteGroups([], {kind: 'home'}), '');
 
 });

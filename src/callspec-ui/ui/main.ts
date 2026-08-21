@@ -31,7 +31,8 @@ import {initTheme, toggleTheme, type Theme} from './theme';
 import {lockIcon, tagIcon, unlockIcon} from './icons';
 import {renderIconLabel} from './iconLabel';
 import {renderRouteBadges} from './routeBadges';
-import {renderSidebar} from './sidebarNav';
+import {explorerSearchScope} from './explorerSearch';
+import {renderSidebar, renderSidebarRouteGroups} from './sidebarNav';
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {renderRoutePaginationFooter} from './routePagination';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
@@ -758,6 +759,22 @@ async function boot(): Promise<void> {
 
         };
 
+        const bindRouteNavigators = (root: ParentNode): void => {
+
+            root.querySelectorAll('[data-route]').forEach((btn) => {
+
+                btn.addEventListener('click', () => {
+
+                    if (!(btn instanceof HTMLElement)) return;
+
+                    navigate({kind: 'route', name: btn.dataset.route ?? ''});
+
+                });
+
+            });
+
+        };
+
         const render = async (): Promise<void> => {
 
             const gen = ++renderGen;
@@ -915,14 +932,60 @@ async function boot(): Promise<void> {
 
                     persistRouteDraft();
                     filters = {...filters, text: value};
-                    void render();
-                    const restored = document.getElementById(id);
+                    const scope = explorerSearchScope(view);
+                    const textFiltered = applyRouteFilters(routes, {
+                        text: filters.text,
+                        auth: 'all',
+                        tag: null,
+                        mcpOnly: false,
+                    });
 
-                    if (restored instanceof HTMLInputElement) {
+                    if (scope.sidebar) {
 
-                        restored.focus();
-                        const len = restored.value.length;
-                        restored.setSelectionRange(len, len);
+                        const nav = app.querySelector('.sidebar-nav');
+
+                        if (nav instanceof HTMLElement) {
+
+                            const next = renderSidebarRouteGroups(textFiltered, view);
+                            const existing = nav.querySelector('.sidebar-top-level');
+
+                            if (existing) {
+
+                                existing.outerHTML = next;
+
+                            } else if (next) {
+
+                                nav.insertAdjacentHTML('beforeend', next);
+
+                            }
+
+                            const groups = nav.querySelector('.sidebar-top-level');
+
+                            if (groups) {
+
+                                bindRouteNavigators(groups);
+
+                            }
+
+                        }
+
+                    }
+
+                    if (scope.routesOverview) {
+
+                        const mainEl = document.getElementById('main');
+
+                        if (mainEl) {
+
+                            mainEl.innerHTML = renderOverview(
+                                applyRouteFilters(routes, filters),
+                                routes,
+                                filters,
+                            );
+                            bindOverviewFilters(mainEl);
+                            bindRouteNavigators(mainEl);
+
+                        }
 
                     }
 
@@ -978,17 +1041,7 @@ async function boot(): Promise<void> {
 
             });
 
-            app.querySelectorAll('[data-route]').forEach((btn) => {
-
-                btn.addEventListener('click', () => {
-
-                    if (!(btn instanceof HTMLElement)) return;
-
-                    navigate({kind: 'route', name: btn.dataset.route ?? ''});
-
-                });
-
-            });
+            bindRouteNavigators(app);
 
         };
 
