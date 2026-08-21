@@ -1,0 +1,48 @@
+.site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1.5rem;
+    margin-top: 2.75rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid var(--cs-line, var(--sl-color-hairline));
+}
+
+.site-footer__icon,
+.site-footer__icon svg {
+    display: block;
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+}
+
+.site-footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1.15rem;
+}
+
+.site-footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    color: var(--cs-muted, var(--sl-color-gray-3));
+    text-decoration: none;
+}
+
+.site-footer__nav a:hover {
+    color: var(--docs-primary-bg);
+}
+
+.pagination-links + .site-footer {
+    margin-top: 1.75rem;
+}
+
+html:has(.splash-page) .site-footer,
+html:has(.not-found-page) .site-footer {
+    margin-top: 3.25rem;
+    padding-top: 1.35rem;
+}

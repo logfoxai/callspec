@@ -1,5 +1,9 @@
 /** Powered-by callspec strip — lives at the end of the scrollable content pane. */
 
+import {renderCallspecLockup} from './callspecLockup';
+
+const POWERED_BY_HREF = 'https://github.com/logfoxai/callspec';
+
 export function shouldShowPoweredByFooter(poweredBy: boolean | undefined): boolean {
 
     return poweredBy !== false;
@@ -25,6 +29,25 @@ export function parkPoweredByFooter(): void {
 
 }
 
+function ensurePoweredByLockup(footer: HTMLElement): void {
+
+    if (footer.querySelector('.cs-lockup')) return;
+
+    footer.replaceChildren();
+    const label = document.createElement('span');
+    label.className = 'footer-label';
+    label.textContent = 'Powered by';
+    footer.append(label);
+    footer.insertAdjacentHTML('beforeend', renderCallspecLockup({
+        href: POWERED_BY_HREF,
+        maskId: 'cs-eq-mask-explorer',
+        holes: 'overlay',
+        extraHtml: '<span class="sr-only">callspec</span>',
+        attrs: {target: '_blank', rel: 'noopener'},
+    }));
+
+}
+
 /** Move the shell `<footer class="footer">` into `.content` so it scrolls with the page. */
 export function placePoweredByFooter(
     appRoot: ParentNode,
@@ -43,7 +66,10 @@ export function placePoweredByFooter(
 
     const content = appRoot.querySelector('.content');
     if (!(content instanceof HTMLElement)) return;
-    if (footer.parentElement === content) return;
-    content.appendChild(footer);
+    if (footer.parentElement !== content) {
+        content.appendChild(footer);
+    }
+
+    ensurePoweredByLockup(footer);
 
 }

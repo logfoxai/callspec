@@ -1,11 +1,20 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {defineConfig} from 'vite';
+import {rewriteExplorerCss} from './src/callspec-ui/ui/explorerFontsLib.mjs';
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     base: './',
+    plugins: [
+        {
+            name: 'callspec-bundle-explorer-fonts',
+            apply: 'build',
+            enforce: 'pre',
+            transform: rewriteExplorerCss,
+        },
+    ],
     build: {
         outDir: 'dist/callspec-ui/ui',
         emptyOutDir: true,
@@ -19,6 +28,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 assetFileNames: 'assets/[name][extname]',
+                inlineDynamicImports: true,
             },
         },
     },

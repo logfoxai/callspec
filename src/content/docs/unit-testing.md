@@ -12,8 +12,7 @@ Examples use [kizu](https://github.com/mhweiner/kizu) — same runner callspec u
 
 ## Basic handler test
 
-```typescript
-// server/routes/getProductById.spec.ts
+```typescript title="server/routes/getProductById.spec.ts" frame="code"
 import {test} from 'kizu';
 import {err} from 'callspec';
 import {getProductById} from './getProductById';

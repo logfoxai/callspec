@@ -32,18 +32,3 @@ const actions = [
 		<SplashDemo />
 	</div>
 </StarlightPage>
-
-<script>
-	function syncSplashNav() {
-		const onSplash = Boolean(document.querySelector('.splash-page'));
-		document.documentElement.classList.toggle(
-			'splash-nav-scrolled',
-			onSplash && window.scrollY > 10,
-		);
-	}
-
-	syncSplashNav();
-	window.addEventListener('scroll', syncSplashNav, {passive: true});
-	window.addEventListener('pageshow', syncSplashNav);
-	document.addEventListener('astro:page-load', syncSplashNav);
-</script>

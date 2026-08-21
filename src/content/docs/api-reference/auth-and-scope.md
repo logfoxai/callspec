@@ -9,7 +9,7 @@ See [Authentication](../authentication.md) and [Request context](../request-cont
 **Scope** is who can see the route in docs and specs. The route still mounts either way.
 
 - **`scope: 'public'`** (default) — on the public contract (`callspec.json`, OpenAPI, docs UI, SDK codegen, MCP `tools/list`)
-- **`scope: 'private'`** — documented when this mount uses `visibility: 'all'`; omitted from the public contract. Does not change the auth gate.
+- **`scope: 'private'`** — documented when this mount uses `visibility: 'all'`. Does not change the auth gate.
 
 **`visibility`** on `mountSpec` / `emitCallspec` / `emitOpenApi` (default `'public'`):
 

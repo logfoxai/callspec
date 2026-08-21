@@ -12,9 +12,9 @@
     --sl-font: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
     --sl-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
     --sl-color-accent-low: color-mix(in srgb, var(--docs-primary-bg) 22%, var(--docs-bg));
-    --sl-color-accent: var(--docs-accent);
-    --sl-color-accent-high: color-mix(in srgb, var(--docs-primary-bg) 70%, white);
-    --sl-color-text-accent: var(--docs-link);
+    --sl-color-accent: var(--docs-primary-bg);
+    --sl-color-accent-high: var(--docs-primary-bg);
+    --sl-color-text-accent: var(--docs-primary-bg);
     --sl-color-bg-accent: var(--docs-primary-bg);
     --sl-color-text-invert: hsl(0, 0%, 100%);
     --sl-color-bg-inline-code: var(--cs-inline-code-bg);
@@ -46,9 +46,9 @@
 :root[data-theme='light'],
 [data-theme='light'] ::backdrop {
     --sl-color-accent-low: color-mix(in srgb, var(--docs-primary-bg) 16%, var(--docs-bg));
-    --sl-color-accent: var(--docs-accent);
-    --sl-color-accent-high: color-mix(in srgb, var(--docs-primary-bg) 72%, white);
-    --sl-color-text-accent: var(--docs-link);
+    --sl-color-accent: var(--docs-primary-bg);
+    --sl-color-accent-high: var(--docs-primary-bg);
+    --sl-color-text-accent: var(--docs-primary-bg);
     --sl-color-bg-accent: var(--docs-primary-bg);
     --sl-color-text-invert: hsl(0, 0%, 100%);
     --sl-color-bg-inline-code: var(--cs-inline-code-bg);
@@ -172,6 +172,13 @@ html[data-has-sidebar] .sl-markdown-content > .sl-heading-wrapper.level-h1:first
 }
 
 html[data-has-sidebar] .sl-markdown-content > .sl-heading-wrapper:first-child {
+    margin-top: 0;
+}
+
+/* Body pad is the gap under the title hairline — do not rely on first-child margins
+   (.md pages keep a hidden H1 so the lead <p> is not :first-child; MDX often is). */
+html[data-has-sidebar] .sl-markdown-content > :first-child,
+html[data-has-sidebar] .sl-markdown-content > .sl-heading-wrapper.level-h1:first-child + * {
     margin-top: 0;
 }
 
@@ -384,8 +391,6 @@ html[data-has-sidebar] .sl-markdown-content table
 @layer starlight.core {
     html[data-has-sidebar] header.header {
         background-color: var(--docs-header-bg);
-        /* Use docs border — Starlight hairline-shade is black in dark and vanishes. */
-        border-bottom: 1px solid var(--docs-border);
         backdrop-filter: blur(14px) saturate(1.25);
         -webkit-backdrop-filter: blur(14px) saturate(1.25);
     }
@@ -409,9 +414,8 @@ html[data-has-sidebar] .content-panel:first-of-type h1 {
     line-height: 1.25;
 }
 
-/* Tighten space between title hairline and first body paragraph. */
 html[data-has-sidebar] .main-pane .content-panel + .content-panel {
-    padding-top: 0.35rem;
+    padding-top: 1.25rem;
 }
 
 @media (min-width: 90rem) {
@@ -443,85 +447,31 @@ html[data-theme='dark'] {
     }
 }
 
-/* Nav lockup — inline mark + wordmark; mark color/gap shared with explorer */
-.cs-lockup {
-    --cs-mark: var(--docs-callspec-mark);
-    --cs-word: #f5f6fa;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--docs-mark-label-gap);
-    text-decoration: none;
-    line-height: 1;
-}
-
-html[data-theme='light'] .cs-lockup {
-    --cs-word: #10131a;
-}
-
-.cs-lockup__mark {
-    flex: none;
-    width: 1.8rem;
-    height: 1.8rem;
-    color: var(--cs-mark);
-    transition: color 0.25s ease;
-}
-
-.cs-hex {
-    fill: currentColor;
-}
-
-/* Equals bars are mask holes — animatable while staying a true knockout. */
-.cs-eq {
-    transform-box: fill-box;
-    transform-origin: left center;
-}
-
-.cs-lockup__word {
-    font-family: var(--sl-font);
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--cs-word);
-    transition: color 0.25s ease;
-}
-
-@media (hover: hover) {
-    /* The spec re-types itself: equals bars wipe in left→right, staggered. */
-    .cs-lockup:hover .cs-eq--top {
-        animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) both;
-    }
-
-    .cs-lockup:hover .cs-eq--bottom {
-        animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) 0.09s both;
-    }
-}
-
-@keyframes cs-eq-type {
-    0% {
-        transform: scaleX(0);
-    }
-
-    100% {
-        transform: scaleX(1);
-    }
-}
-
-.cs-lockup:focus-visible {
-    outline: 2px solid var(--cs-mark);
-    outline-offset: 3px;
-    border-radius: 6px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .cs-lockup:hover .cs-eq--top,
-    .cs-lockup:hover .cs-eq--bottom {
-        animation: none;
-    }
-}
-
 header.header {
     /* Match explorer `.top-header { padding: 0 var(--header-pad-x) }`. */
     padding-inline: var(--docs-header-pad-x);
+    /* Never border-box a 1px line here — that shrinks the bar and shifts the lockup. */
+    border-bottom: none;
+}
+
+/* Hairline sits *under* the fixed bar so splash ↔ guides keep the same header box. */
+html[data-has-sidebar] header.header::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    height: 1px;
+    background: var(--docs-border);
+    pointer-events: none;
+}
+
+html[data-has-sidebar] .sidebar-pane {
+    inset-block-start: calc(var(--sl-nav-height) + 1px);
+    border-inline-end-color: var(--sl-color-hairline);
+}
+
+html[data-has-sidebar] .main-frame {
+    padding-top: calc(var(--sl-nav-height) + 1px + var(--sl-mobile-toc-height));
 }
 
 /*
@@ -571,8 +521,8 @@ header.header {
         max-width: var(--docs-search-max-width);
         height: var(--docs-search-height);
         border-radius: 0.55rem;
-        border: 1px solid var(--sl-color-gray-5);
-        background-color: var(--sl-color-gray-6);
+        border: 1px solid var(--docs-border-strong);
+        background-color: var(--docs-surface);
         color: var(--sl-color-gray-2);
         padding-inline: 0.85rem;
         justify-content: flex-start;
@@ -580,7 +530,7 @@ header.header {
     }
 
     site-search > button:hover {
-        border-color: var(--sl-color-gray-4);
+        border-color: color-mix(in srgb, var(--docs-border-strong) 70%, var(--docs-text));
         color: var(--sl-color-white);
     }
 
@@ -594,8 +544,8 @@ header.header {
 }
 
 html[data-theme='light'] site-search > button {
-    background-color: #ffffff;
-    border-color: var(--sl-color-gray-5);
+    background-color: var(--docs-surface);
+    border-color: var(--docs-border-strong);
     box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
 }
 
@@ -715,7 +665,7 @@ header.header .social-icons a svg {
 
 site-search dialog::backdrop {
     background:
-        radial-gradient(120% 80% at 50% 0%, hsl(198 40% 20% / 0.28), transparent 55%),
+        radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--docs-primary-bg) 28%, transparent), transparent 55%),
         hsl(228 24% 4% / 0.72);
     -webkit-backdrop-filter: blur(6px) saturate(1.15);
     backdrop-filter: blur(6px) saturate(1.15);
@@ -1056,13 +1006,13 @@ html[data-theme='light'] site-search dialog[open] {
         );
     border-color: var(--sl-color-gray-5);
     box-shadow:
-        0 0 0 1px hsl(198 40% 70% / 0.18),
+        0 0 0 1px color-mix(in srgb, var(--docs-primary-bg) 18%, transparent),
         0 24px 60px hsl(228 30% 30% / 0.18);
 }
 
 html[data-theme='light'] site-search dialog::backdrop {
     background:
-        radial-gradient(120% 80% at 50% 0%, hsl(198 50% 70% / 0.18), transparent 55%),
+        radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--docs-primary-bg) 18%, transparent), transparent 55%),
         hsl(228 20% 20% / 0.35);
 }
 
@@ -1096,13 +1046,15 @@ html[data-theme='light'] #starlight__search .pagefind-ui__button:hover {
     color: var(--cs-ink);
 }
 
+/* Unlayered — beat Starlight’s current-page grey fill. */
+html[data-has-sidebar] #starlight__sidebar a[aria-current='page'] {
+    color: var(--docs-primary-fg);
+    background-color: var(--docs-primary-bg);
+    border-radius: 0.45rem;
+}
+
 @layer starlight.components {
     /* Sidebar: readable labels + clear active state */
-    html[data-has-sidebar] #starlight__sidebar a[aria-current='page'] {
-        color: var(--cs-primary-fg);
-        background-color: var(--cs-primary-bg);
-        border-radius: 0.45rem;
-    }
 
     html[data-has-sidebar] #starlight__sidebar a {
         border-radius: 0.45rem;
@@ -1346,8 +1298,7 @@ html[data-theme='light'] .expressive-code .frame.has-title .title {
 }
 
 html[data-theme='light'] .expressive-code .frame.is-terminal .title {
-    /* Bright cyan washes out on light panels — use inked teal */
-    color: hsl(188, 72%, 28%) !important;
+    color: var(--docs-primary-bg) !important;
 }
 
 .expressive-code .frame.has-title .title::before,
@@ -1751,11 +1702,6 @@ html[data-has-sidebar] .pagination-links a[rel='prev']:hover svg {
     }
 }
 
-/* Sidebar breathing room — Starlight defaults pad-bottom: 0 and a tight top */
-html[data-has-sidebar] .sidebar-pane {
-    border-inline-end-color: var(--sl-color-hairline);
-}
-
 /*
  * Match explorer `.sidebar-nav`: pull content in by link pad so “Home” text
  * aligns with brand/search; caret flush on the right of group rows.
@@ -1797,7 +1743,8 @@ html[data-has-sidebar] #starlight__sidebar summary:hover {
 html[data-has-sidebar] #starlight__sidebar a[aria-current='page'],
 html[data-has-sidebar] #starlight__sidebar a[aria-current='page']:hover,
 html[data-has-sidebar] #starlight__sidebar a[aria-current='page']:focus-visible {
-    color: var(--cs-primary-fg);
+    color: var(--docs-primary-fg);
+    background-color: var(--docs-primary-bg);
 }
 
 html[data-has-sidebar] #starlight__sidebar summary {

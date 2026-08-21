@@ -1,0 +1,33 @@
+---
+import {Icon} from '@astrojs/starlight/components';
+import CallspecLockup from './CallspecLockup.astro';
+import './site-footer.css';
+---
+
+<div class="site-footer not-content">
+	<CallspecLockup href="/" maskId="cs-eq-mask-footer">
+		<span class="sr-only">callspec</span>
+	</CallspecLockup>
+	<nav class="site-footer__nav" aria-label="Site">
+		<a href="/getting-started/">
+			<Icon name="open-book" size="0.95rem" class="site-footer__icon" />
+			Docs
+		</a>
+		<a href="/demo/">
+			<Icon name="laptop" size="0.95rem" class="site-footer__icon" />
+			Demo
+		</a>
+		<a href="https://github.com/logfoxai/callspec" rel="noopener noreferrer">
+			<Icon name="github" size="0.95rem" class="site-footer__icon" />
+			GitHub
+		</a>
+		<a href="https://discord.gg/2wyYnBDhWQ" rel="noopener noreferrer">
+			<Icon name="discord" size="0.95rem" class="site-footer__icon" />
+			Discord
+		</a>
+		<a href="https://github.com/logfoxai/callspec/blob/main/LICENSE" rel="noopener noreferrer">
+			<Icon name="document" size="0.95rem" class="site-footer__icon" />
+			MIT
+		</a>
+	</nav>
+</div>

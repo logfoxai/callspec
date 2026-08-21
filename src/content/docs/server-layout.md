@@ -45,8 +45,7 @@ Share domain preds. Keep ID/filter/pagination shapes with the route unless they'
 
 ## Shared schemas
 
-```typescript
-// server/schemas/product.ts
+```typescript title="server/schemas/product.ts" frame="code"
 import {predicates as p, Infer} from 'runtyp';
 
 export const product = p.object({
@@ -64,8 +63,7 @@ export const productList = p.object({
 
 ## Routes
 
-```typescript
-// server/routes/getProductById.ts
+```typescript title="server/routes/getProductById.ts" frame="code"
 import {route, err} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {product, type Product} from '../schemas/product';
@@ -89,8 +87,7 @@ export const getProductById = route({
 });
 ```
 
-```typescript
-// server/routes/listProducts.ts
+```typescript title="server/routes/listProducts.ts" frame="code"
 import {route} from 'callspec';
 import {predicates as p} from 'runtyp';
 import {productList} from '../schemas/product';
@@ -109,8 +106,7 @@ export const listProducts = route({
 
 ## Registry and entrypoint
 
-```typescript
-// server/routes.ts
+```typescript title="server/routes.ts" frame="code"
 import {spec} from 'callspec';
 import {product, productList} from './schemas/product';
 import {getProductById} from './routes/getProductById';
@@ -124,8 +120,7 @@ export const api = spec({
 });
 ```
 
-```typescript
-// server/index.ts
+```typescript title="server/index.ts" frame="code"
 import express from 'express';
 import {mountSpec} from 'callspec';
 import {api} from './routes';

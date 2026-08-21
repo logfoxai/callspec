@@ -1,0 +1,14 @@
+---
+import {renderCallspecLockup} from '../callspec-ui/ui/callspecLockup';
+
+interface Props {
+	href: string;
+	maskId: string;
+	class?: string;
+}
+
+const {href, maskId, class: className} = Astro.props;
+const extraHtml = await Astro.slots.render('default');
+---
+
+<Fragment set:html={renderCallspecLockup({href, maskId, className, extraHtml})} />

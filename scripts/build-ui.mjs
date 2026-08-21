@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'vite';
+import {injectChirpDemoBoot, renderLoadingAppHtml} from '../src/callspec-ui/ui/loadingShell.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const uiOut = path.join(root, '..', 'dist', 'callspec-ui', 'ui');
@@ -73,32 +74,24 @@ const styleHashed = `style.${contentHash(styleCss)}.css`;
 fs.renameSync(appJs, path.join(assetDir, appHashed));
 fs.renameSync(styleCss, path.join(assetDir, styleHashed));
 
-const indexTemplate = `<!DOCTYPE html>
-<html lang="en">
+const indexTemplate = injectChirpDemoBoot(`<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Docs</title>
-    <script>(function(){var t=localStorage.getItem('starlight-theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;})();</script>
 ${fontPreloads}
     <link rel="stylesheet" href="./assets/${styleHashed}">
     <!--CALLSPEC_UI_CONFIG-->
 </head>
 <body>
-    <div id="app" class="loading">
-        <p class="loading-text">Loading…</p>
-    </div>
+    ${renderLoadingAppHtml()}
     <footer class="footer">
-        <a class="footer-link" href="https://github.com/logfoxai/callspec" target="_blank" rel="noopener">
-            <span class="footer-label">Powered by</span>
-            <img class="footer-logo footer-logo-light" src="./assets/mark-light.svg" width="18" height="18" alt="">
-            <img class="footer-logo footer-logo-dark" src="./assets/mark-dark.svg" width="18" height="18" alt="">
-            <span class="footer-name">callspec</span>
-        </a>
+        <span class="footer-label">Powered by</span>
     </footer>
     <script src="./assets/${appHashed}"></script>
 </body>
 </html>
-`;
+`);
 
 fs.writeFileSync(path.join(uiOut, 'index.html'), indexTemplate);

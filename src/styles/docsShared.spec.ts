@@ -50,6 +50,20 @@ test('splash.css loads from the homepage Astro page', (assert) => {
 
 });
 
+test('guide site footer is a Starlight override with GitHub, Discord, and MIT', (assert) => {
+
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+    const footer = readFileSync(path.join(root, 'src/overrides/Footer.astro'), 'utf8');
+    const site = readFileSync(path.join(root, 'src/components/SiteFooter.astro'), 'utf8');
+
+    assert.equal(astro.includes("Footer: './src/overrides/Footer.astro'"), true);
+    assert.equal(footer.includes('SiteFooter'), true);
+    assert.equal(site.includes('github.com/logfoxai/callspec'), true);
+    assert.equal(site.includes('discord.gg/'), true);
+    assert.equal(site.includes('MIT'), true);
+
+});
+
 test('custom pages are Astro, not collection MDX', (assert) => {
 
     const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
@@ -62,24 +76,32 @@ test('custom pages are Astro, not collection MDX', (assert) => {
 
 });
 
-test('vite UI @font-face urls resolve to files on disk', (assert) => {
+test('vite UI @font-face urls resolve to public /fonts/ files', (assert) => {
 
     const tokensPath = path.join(root, 'src/callspec-ui/ui/docs-tokens.css');
     const tokens = readFileSync(tokensPath, 'utf8');
-    const urls = [...tokens.matchAll(/url\(['"](\.[^'"]+\.woff2[^'"]*)['"]\)/g)].map((match) => match[1]);
-    const tokensDir = path.dirname(tokensPath);
+    const urls = [...tokens.matchAll(/url\(['"]([^'"]+\.woff2)['"]\)/g)].map((match) => match[1]);
 
     assert.equal(urls.length >= 3, true);
+    assert.equal(urls.every((url) => url.startsWith('/fonts/')), true);
 
     for (const url of urls) {
-
-        const [filePath] = url.split('?');
-
-        assert.equal(existsSync(path.resolve(tokensDir, filePath)), true);
-        // Vite lib mode inlines every CSS url() unless ?no-inline is present.
-        assert.equal(url.includes('no-inline'), true);
-
+        assert.equal(existsSync(path.join(root, 'assets', url.slice(1))), true);
     }
+
+});
+
+test('docs highlight aliases the primary fill token', (assert) => {
+
+    const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
+    const starlight = readFileSync(path.join(root, 'src/styles/starlight-custom.css'), 'utf8');
+
+    assert.equal(shared.includes('--docs-link: var(--docs-primary-bg)'), true);
+    assert.equal(shared.includes('--cs-cyan: var(--docs-primary-bg)'), true);
+    assert.equal(shared.includes('--cs-link: var(--docs-primary-bg)'), true);
+    assert.equal(starlight.includes('--sl-color-text-accent: var(--docs-primary-bg)'), true);
+    assert.equal(starlight.includes('--sl-color-accent-high: var(--docs-primary-bg)'), true);
+    assert.equal(shared.includes('--docs-primary-hover-bg: var(--docs-primary-bg)'), true);
 
 });
 

@@ -3,6 +3,7 @@ import path from 'path';
 import type {RequestHandler, Router} from 'express';
 import express from 'express';
 import type {CallspecUiBranding, CallspecUiConfig, CallspecUiMcp} from './branding';
+import {callspecDocumentTitle} from './documentTitle';
 import {cacheControlForUiAsset, UI_HTML_CACHE_CONTROL} from './uiCacheHeaders';
 
 export type MountCallspecUiOptions = {
@@ -82,6 +83,10 @@ export function renderCallspecUiPage(config: CallspecUiConfig): string {
         html = html.replace('</head>', `${script}</head>`);
 
     }
+
+    const pageTitle = callspecDocumentTitle(config.title);
+
+    html = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtmlAttr(pageTitle)}</title>`);
 
     if (branding?.favicon) {
 

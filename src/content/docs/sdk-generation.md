@@ -22,7 +22,7 @@ if (!checked.isValid) {
 
 Generated code imports `callspec/client` (browser-safe) and `runtyp` (for `schemas`). Install both in the app that compiles the generated file (`npm i callspec runtyp`). Codegen reads **`callspec.json`**, not OpenAPI.
 
-The CLI has no `--scope` flag. It generates whatever routes are in the document you hand it. To include `scope: 'private'` methods, point it at a mount (or file) emitted with `visibility: 'all'` — typically your dev/stage server. See [Auth and scope](./api-reference/auth-and-scope.md).
+It generates whatever routes are in the document you hand it. To include `scope: 'private'` methods, point it at a mount (or file) emitted with `visibility: 'all'` — typically your dev/stage server. See [Auth and scope](./api-reference/auth-and-scope.md).
 
 ## Pinning for CI (optional)
 

@@ -10,7 +10,7 @@ html:not([data-has-sidebar]):has(.not-found-page) {
     &[data-theme='dark'] {
         --sl-color-bg: #07080c;
         --sl-color-black: #07080c;
-        --sl-color-bg-nav: #0a0b10;
+        --sl-color-bg-nav: #07080c;
         --sl-color-white: #f5f6fa;
         --sl-color-gray-2: #a8acb8;
         --sl-color-gray-3: #7a7f8c;
@@ -33,7 +33,7 @@ html:not([data-has-sidebar]):has(.not-found-page) {
     &[data-theme='light'] {
         --sl-color-bg: #f4f5f8;
         --sl-color-black: #f4f5f8;
-        --sl-color-bg-nav: #ffffff;
+        --sl-color-bg-nav: #f4f5f8;
         --sl-color-white: #12141a;
         --sl-color-gray-2: #3a3f4d;
         --sl-color-gray-3: #5c6170;
@@ -51,6 +51,14 @@ html:not([data-has-sidebar]):has(.not-found-page) {
                 #f3f5f9;
             background-attachment: scroll;
         }
+    }
+
+    header.header {
+        background-color: color-mix(in srgb, var(--sl-color-bg) 72%, transparent);
+        border-bottom: none;
+        backdrop-filter: blur(14px) saturate(1.25);
+        -webkit-backdrop-filter: blur(14px) saturate(1.25);
+        box-shadow: none;
     }
 
     .content-panel .sl-container {

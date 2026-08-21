@@ -1,0 +1,24 @@
+---
+/**
+ * Prev/next on guide pages, plus a site footer on splash, 404, and docs.
+ */
+import Pagination from 'virtual:starlight/components/Pagination';
+import SiteFooter from '../components/SiteFooter.astro';
+
+const {pagination} = Astro.locals.starlightRoute;
+const hasPaging = Boolean(pagination.prev || pagination.next);
+---
+
+<footer class="sl-flex">
+	{hasPaging && <Pagination />}
+	<SiteFooter />
+</footer>
+
+<style>
+	@layer starlight.core {
+		footer {
+			flex-direction: column;
+			gap: 0;
+		}
+	}
+</style>

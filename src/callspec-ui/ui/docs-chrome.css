@@ -13,9 +13,9 @@
     height: var(--docs-search-height);
     margin-left: auto;
     padding-inline: 0.85rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: 0.55rem;
-    background: color-mix(in srgb, var(--surface) 92%, var(--bg));
+    background: var(--surface);
     color: var(--text-secondary);
     cursor: text;
 }
@@ -35,7 +35,7 @@
 }
 
 .cs-docs-search:hover {
-    border-color: var(--border-strong);
+    border-color: color-mix(in srgb, var(--border-strong) 70%, var(--text));
     color: var(--text);
 }
 

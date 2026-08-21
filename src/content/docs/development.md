@@ -26,7 +26,7 @@ Sidebar order: `astro.config.mjs`. Custom pages are Astro: `src/pages/index.astr
 
 | Command | What you get |
 |---------|----------------|
-| `npm run astro:dev` | **Markdown guides** (getting started, error handling, …) — sidebar and search |
+| `npm run astro:dev` | **Markdown guides** plus the Chirp explorer at `/demo/` (Vite HMR for explorer UI; spec JSON rebakes when Chirp routes change) |
 | `npm run astro:build` | Guide site plus **hosted Chirp explorer** at `/demo/` (browse routes; banner points to local for live RPC/MCP) |
 | `npm run serve:chirp-demo` | **Live Chirp demo API** with Callspec's built-in `/v1/docs` explorer, OpenAPI, and MCP |
 

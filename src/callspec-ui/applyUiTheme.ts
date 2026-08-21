@@ -112,6 +112,7 @@ export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme
 
         cssVars['--nav-active-bg'] = theme.accent;
         cssVars['--cs-primary-bg'] = theme.accent;
+        cssVars['--cs-primary-hover-bg'] = `color-mix(in srgb, ${theme.accent} 82%, black)`;
         cssVars['--accent-soft'] = `color-mix(in srgb, ${theme.accent} 16%, var(--surface))`;
 
         const onAccent = textTokensForSurface(theme.accent);
@@ -120,6 +121,7 @@ export function applyUiTheme(theme: CallspecUiTheme | undefined): AppliedUiTheme
 
             cssVars['--nav-active-fg'] = onAccent['--text'];
             cssVars['--cs-primary-fg'] = onAccent['--text'];
+            cssVars['--cs-primary-hover-fg'] = onAccent['--text'];
 
         }
 
