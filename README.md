@@ -12,8 +12,8 @@
     <a href="https://callspec.logfox.ai/demo/">Try the demo</a>
   </p>
   <p align="center">
-    <a href="assets/callspec-flow.svg?cb=8">
-      <img src="assets/callspec-flow.svg?cb=8" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, and OpenAPI export" />
+    <a href="assets/callspec-flow.svg?cb=9">
+      <img src="assets/callspec-flow.svg?cb=9" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, and OpenAPI export" />
     </a>
   </p>
 </div>
