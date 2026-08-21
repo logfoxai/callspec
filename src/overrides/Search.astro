@@ -192,12 +192,18 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 						// @ts-expect-error — Missing types for @pagefind/default-ui package.
 						const {PagefindUI} = await import('@pagefind/default-ui');
-						new PagefindUI({
+						const pagefindEngineOptions = {
 							...pagefindUserConfig,
+							basePath: indexPath,
+							excerptLength: 12,
+							// Worker init can stall ~5s in dev before falling back to the main thread.
+							noWorker: true,
+						};
+						new PagefindUI({
+							...pagefindEngineOptions,
 							element,
 							baseUrl: import.meta.env.BASE_URL,
 							bundlePath,
-							basePath: indexPath,
 							showImages: false,
 							debounceTimeoutMs: 0,
 							translations,
@@ -210,6 +216,9 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 								});
 							},
 						});
+						const engineUrl = new URL(`${bundlePath}pagefind.js`, window.location.href).href;
+						const pagefindEngine = await import(/* @vite-ignore */ engineUrl);
+						await pagefindEngine.options(pagefindEngineOptions);
 						this.querySelector('[data-cs-search-loading]')?.remove();
 						this.toggleAttribute('data-cs-search-ready', true);
 						if (dialog.open) focusSearchInput();

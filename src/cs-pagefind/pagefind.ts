@@ -11,7 +11,17 @@
 import * as engine from '../pagefind/pagefind.js';
 import {wrapPagefindSearch} from '../components/wrapPagefindSearch.js';
 
-export const options = engine.options;
+let warmPromise: Promise<void> | null = null;
+
+async function warmIndex(): Promise<void> {
+	warmPromise ??= engine.preload(null, {}).then(() => undefined);
+	await warmPromise;
+}
+
+export async function options(opts: Parameters<typeof engine.options>[0]): Promise<void> {
+	await engine.options(opts);
+	await warmIndex();
+}
 export const init = engine.init;
 export const destroy = engine.destroy;
 export const mergeIndex = engine.mergeIndex;

@@ -1151,7 +1151,7 @@ site-search dialog[open] .search-container {
     overscroll-behavior: contain;
     box-sizing: border-box;
     border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
+    border-top-right-radius: 0;
 }
 
 [data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer .pagefind-ui__results-area {
@@ -1164,13 +1164,13 @@ site-search dialog[open] .search-container {
     scroll-padding-bottom: 1.25rem;
     box-sizing: border-box;
     border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
+    border-top-right-radius: 0;
 }
 
 [data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer [data-cs-search-stale]:not([hidden]) {
     flex-shrink: 0;
     border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
+    border-top-right-radius: 0;
     overflow: hidden;
 }
 

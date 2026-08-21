@@ -67,6 +67,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		collectSuggestionChips,
 		handleSearchKey,
 		markAwaitingFreshResults,
+		resetSearchNavSession,
 		resolveKeyboardSelection,
 		resultLinkForRow,
 		scrollSearchSelectionIntoView,
@@ -281,13 +282,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		if (!idle) return;
 
 		const dialog = siteSearch.querySelector('dialog');
-		let navState: KeyboardNavState = {
-			selectedIndex: -1,
-			lastFingerprint: '',
-			awaitingFreshResults: false,
-			sawSearchingWhileAwaiting: false,
-			userMovedResults: false,
-		};
+		let navState: KeyboardNavState = resetSearchNavSession(root);
 		let staleResultsState: StaleResultsState = INITIAL_STALE_RESULTS_STATE;
 		let pendingDelayState: SearchPendingDelayState = INITIAL_SEARCH_PENDING_DELAY_STATE;
 		let pendingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -338,7 +333,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 		const selectableItems = (mode: KeyboardNavMode, navItems: HTMLElement[], chips: HTMLElement[]): HTMLElement[] => {
 			if (mode === 'idle') return chips;
-			if (mode === 'results' && !navState.awaitingFreshResults) return navItems;
+			if (mode === 'results') return navItems;
 			return [];
 		};
 
@@ -425,25 +420,21 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			{capture: true},
 		);
 
+		const endSearchSession = () => {
+			clearStaleResults(root);
+			staleResultsState = INITIAL_STALE_RESULTS_STATE;
+			if (pendingTimer) clearTimeout(pendingTimer);
+			pendingTimer = null;
+			pendingDelayState = INITIAL_SEARCH_PENDING_DELAY_STATE;
+			const pending = ensurePending(root);
+			if (pending) syncPendingVisibility(pending, false);
+			navState = resetSearchNavSession(root);
+			syncSelection();
+		};
+
 		if (dialog) {
 			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
-			dialog.addEventListener('close', () => {
-				clearStaleResults(root);
-				staleResultsState = INITIAL_STALE_RESULTS_STATE;
-				if (pendingTimer) clearTimeout(pendingTimer);
-				pendingTimer = null;
-				pendingDelayState = INITIAL_SEARCH_PENDING_DELAY_STATE;
-				const pending = ensurePending(root);
-				if (pending) syncPendingVisibility(pending, false);
-				navState = {
-					selectedIndex: -1,
-					lastFingerprint: '',
-					awaitingFreshResults: false,
-					sawSearchingWhileAwaiting: false,
-					userMovedResults: false,
-				};
-				syncSelection();
-			});
+			dialog.addEventListener('close', endSearchSession);
 			dialog.addEventListener(
 				'keydown',
 				(event) => {
@@ -488,6 +479,9 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			);
 		}
 		siteSearch.querySelector('[data-open-modal]')?.addEventListener('click', () => {
+			navState = resetSearchNavSession(root);
+			staleResultsState = INITIAL_STALE_RESULTS_STATE;
+			clearStaleResults(root);
 			requestAnimationFrame(sync);
 		});
 		sync();

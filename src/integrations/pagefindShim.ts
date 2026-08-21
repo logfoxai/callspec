@@ -6,7 +6,7 @@ export function pagefindShimIntegration(): AstroIntegration {
     return {
         name: 'callspec-pagefind-shim',
         hooks: {
-            'astro:build:done': async () => {
+            'astro:build:done': async (): Promise<void> => {
                 await writeCsPagefindShim();
             },
         },

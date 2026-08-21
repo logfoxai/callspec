@@ -1,6 +1,14 @@
 /** Attribute used for keyboard-selected search rows / idle chips. */
 const SEARCH_SELECTED_ATTR = 'data-cs-search-selected';
 
+export const INITIAL_KEYBOARD_NAV_STATE: KeyboardNavState = {
+	selectedIndex: -1,
+	lastFingerprint: '',
+	awaitingFreshResults: false,
+	sawSearchingWhileAwaiting: false,
+	userMovedResults: false,
+};
+
 export type SelectableItem = {
 	setAttribute(name: string, value: string): void;
 	removeAttribute(name: string): void;
@@ -149,6 +157,26 @@ export function scrollSearchSelectionIntoView(
 	item?.scrollIntoView({block: 'nearest'});
 }
 
+/** Strip keyboard highlight from a prior modal session. */
+export function clearSearchSelection(root: ParentNode): void {
+	for (const el of Array.from(root.querySelectorAll(`[${SEARCH_SELECTED_ATTR}]`))) {
+		el.removeAttribute(SEARCH_SELECTED_ATTR);
+	}
+}
+
+/** Pagefind keeps results mounted while the dialog is closed — reset scroll position. */
+export function resetSearchResultsScroll(root: ParentNode): void {
+	const scroller = findSearchResultsScroller(root);
+	if (scroller) scroller.scrollTop = 0;
+}
+
+/** Fresh keyboard-nav state when the search dialog closes or reopens. */
+export function resetSearchNavSession(root: ParentNode): KeyboardNavState {
+	clearSearchSelection(root);
+	resetSearchResultsScroll(root);
+	return {...INITIAL_KEYBOARD_NAV_STATE};
+}
+
 export type KeyboardNavMode = 'idle' | 'results' | 'other';
 
 export type KeyboardNavState = {
@@ -241,7 +269,17 @@ export function resolveKeyboardSelection(
 	}
 
 	if (state.awaitingFreshResults) {
-		// Same hrefs after a completed search cycle → accept (same-hit query edit).
+		// Fast searches may never show a searching state — accept once live hits are back.
+		if (!isSearching && itemCount > 0) {
+			return {
+				...clearResultsNav,
+				lastFingerprint: fingerprint,
+				awaitingFreshResults: false,
+				sawSearchingWhileAwaiting: false,
+			};
+		}
+
+		// Same hits after a visible searching cycle (query tweak, identical results).
 		if (sawSearching && !isSearching) {
 			return {
 				...clearResultsNav,

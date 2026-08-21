@@ -7,12 +7,48 @@ import {
 	handleSearchKey,
 	markAwaitingFreshResults,
 	nextIndex,
+	resetSearchNavSession,
+	resetSearchResultsScroll,
 	resolveKeyboardSelection,
 	resultLinkForRow,
 	scrollSearchSelectionIntoView,
 	shouldHandleSearchListKeyboard,
 	type KeyboardNavState,
 } from './searchKeyboardNav.js';
+
+test('resetSearchNavSession clears highlight and scroll for a new dialog open', (assert) => {
+	const selected = stubEl();
+	selected.setAttribute('data-cs-search-selected', 'true');
+	const scroller = {scrollTop: 480};
+	const root = {
+		querySelector(selector: string): {scrollTop: number} | null {
+			return selector === '.pagefind-ui__results-area' ? scroller : null;
+		},
+		querySelectorAll(selector: string): Element[] {
+			return selector === '[data-cs-search-selected]' ? [selected] : [];
+		},
+	} as unknown as ParentNode;
+
+	const next = resetSearchNavSession(root);
+	assert.equal(next.selectedIndex, -1);
+	assert.equal(next.lastFingerprint, '');
+	assert.equal(next.awaitingFreshResults, false);
+	assert.equal(next.userMovedResults, false);
+	assert.equal(selected.getAttribute('data-cs-search-selected'), null);
+	assert.equal(scroller.scrollTop, 0);
+});
+
+test('resetSearchResultsScroll zeroes the results scroller', (assert) => {
+	const scroller = {scrollTop: 999};
+	const root = {
+		querySelector(selector: string): {scrollTop: number} | null {
+			return selector === '.pagefind-ui__results-area' ? scroller : null;
+		},
+	} as unknown as ParentNode;
+
+	resetSearchResultsScroll(root);
+	assert.equal(scroller.scrollTop, 0);
+});
 
 test('nextIndex clamps without wrapping', (assert) => {
 	assert.equal(nextIndex(0, -1, 3), 0);
@@ -92,9 +128,18 @@ test('awaiting stays blocked until fingerprint changes or search cycle completes
 
 	const stillStale = resolveKeyboardSelection(afterType, 'results', 'results:a', 2, false);
 	assert.equal(stillStale.selectedIndex, -1);
-	assert.equal(stillStale.awaitingFreshResults, true);
+	assert.equal(stillStale.awaitingFreshResults, false, 'live hits settle even without a searching phase');
 
-	const searching = resolveKeyboardSelection(stillStale, 'results', 'results:a', 2, true);
+	const awaitingNoHits = markAwaitingFreshResults({
+		selectedIndex: 0,
+		lastFingerprint: 'results:a',
+		awaitingFreshResults: false,
+		sawSearchingWhileAwaiting: false,
+	});
+	const stillLoading = resolveKeyboardSelection(awaitingNoHits, 'results', 'results:a', 0, false);
+	assert.equal(stillLoading.awaitingFreshResults, true, 'still awaiting when live rows are not ready');
+
+	const searching = resolveKeyboardSelection(stillLoading, 'results', 'results:a', 2, true);
 	assert.equal(searching.awaitingFreshResults, true);
 	assert.equal(searching.sawSearchingWhileAwaiting, true);
 	assert.equal(searching.selectedIndex, -1);
@@ -109,6 +154,19 @@ test('awaiting stays blocked until fingerprint changes or search cycle completes
 	assert.equal(fresh.awaitingFreshResults, false);
 });
 
+test('fast same-hit search clears awaiting when live rows return', (assert) => {
+	const awaiting = markAwaitingFreshResults({
+		selectedIndex: 1,
+		lastFingerprint: 'results:a',
+		awaitingFreshResults: false,
+		sawSearchingWhileAwaiting: false,
+		userMovedResults: true,
+	});
+	const settled = resolveKeyboardSelection(awaiting, 'results', 'results:a', 4, false);
+	assert.equal(settled.awaitingFreshResults, false);
+	assert.equal(settled.selectedIndex, -1);
+	assert.equal(handleSearchKey('ArrowDown', settled.selectedIndex, 4).selectedIndex, 0);
+});
 test('fresh results stay unselected until arrow keys move selection', (assert) => {
 	const state = markAwaitingFreshResults({
 		selectedIndex: -1,
@@ -142,7 +200,7 @@ test('scrollSearchSelectionIntoView resets drawer scroll for the first row', (as
 		},
 	};
 	const item = {
-		scrollIntoView() {
+		scrollIntoView(): void {
 			assert.fail('first row should reset drawer scroll instead of nearest');
 		},
 	};
@@ -160,7 +218,7 @@ test('scrollSearchSelectionIntoView uses end alignment for the last item', (asse
 	};
 	let block: ScrollLogicalPosition | undefined;
 	const item = {
-		scrollIntoView(options?: ScrollIntoViewOptions) {
+		scrollIntoView(options?: ScrollIntoViewOptions): void {
 			block = options?.block;
 		},
 	};
@@ -178,7 +236,7 @@ test('scrollSearchSelectionIntoView uses nearest for middle rows', (assert) => {
 	};
 	let scrolled = false;
 	const item = {
-		scrollIntoView(options?: ScrollIntoViewOptions) {
+		scrollIntoView(options?: ScrollIntoViewOptions): void {
 			scrolled = true;
 			assert.equal(options?.block, 'nearest');
 		},
@@ -191,9 +249,9 @@ test('scrollSearchSelectionIntoView uses nearest for middle rows', (assert) => {
 
 test('collectResultNavItems appends load more after result rows', (assert) => {
 	const loadMore = {
-		classList: {contains: (c: string) => c === 'pagefind-ui__button'},
-		closest: () => null,
-		click() {},
+		classList: {contains: (c: string): boolean => c === 'pagefind-ui__button'},
+		closest: (): null => null,
+		click(): void {},
 	};
 	const root = {
 		querySelector(selector: string): typeof loadMore | null {
@@ -223,8 +281,8 @@ test('handleSearchKey reaches load more after the last result row', (assert) => 
 test('activateSearchNavItem clicks load more', (assert) => {
 	let clicked = false;
 	const button = {
-		classList: {contains: (c: string) => c === 'pagefind-ui__button'},
-		click() {
+		classList: {contains: (c: string): boolean => c === 'pagefind-ui__button'},
+		click(): void {
 			clicked = true;
 		},
 	};
@@ -236,7 +294,7 @@ function stubRow(href: string): {
 	querySelector(selector: string): {href: string} | null;
 } {
 	return {
-		querySelector(selector: string) {
+		querySelector(selector: string): {href: string} | null {
 			return selector === 'a.pagefind-ui__result-link' ? {href} : null;
 		},
 	};
@@ -265,18 +323,18 @@ test('collectResultRows skips rows inside stale snapshot hosts', (assert) => {
 	const live = stubEl();
 	live.className = 'pagefind-ui__result-title';
 	const liveLink = {getAttribute: () => '/live'} as HTMLAnchorElement;
-	live.querySelector = (selector: string) =>
+	live.querySelector = (selector: string): HTMLAnchorElement | null =>
 		selector === 'a.pagefind-ui__result-link' ? liveLink : null;
 
 	const staleRow = stubEl();
 	staleRow.className = 'pagefind-ui__result-nested';
 	const staleLink = {getAttribute: () => '/stale'} as HTMLAnchorElement;
-	staleRow.querySelector = (selector: string) =>
+	staleRow.querySelector = (selector: string): HTMLAnchorElement | null =>
 		selector === 'a.pagefind-ui__result-link' ? staleLink : null;
-	staleRow.closest = (selector: string) =>
+	staleRow.closest = (selector: string): Element | null =>
 		selector === '[data-cs-search-stale]' ? ({} as Element) : null;
 
-	live.closest = () => null;
+	live.closest = (): null => null;
 
 	const root = {
 		querySelectorAll(selector: string): HTMLElement[] {
