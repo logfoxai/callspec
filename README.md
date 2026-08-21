@@ -6,6 +6,12 @@
   </picture>
   <h4 align="center">One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h4>
   <p align="center">
+    <strong>For humans:</strong>
+    <a href="https://callspec.logfox.ai">callspec.logfox.ai</a>
+    ·
+    <a href="https://callspec.logfox.ai/demo/">Chirp explorer</a>
+  </p>
+  <p align="center">
     <a href="assets/callspec-flow.svg?cb=8">
       <img src="assets/callspec-flow.svg?cb=8" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, and OpenAPI export" />
     </a>
@@ -17,8 +23,6 @@ Most teams duct-tape the same API across REST routes, OpenAPI specs, DIY clients
 Instead, define each route once in TypeScript — inputs, outputs, and errors — and Callspec ships the server, SDK, docs, OpenAPI, and MCP from that contract. One source of truth, unit-testable, no drift.
 
 On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. Unit-test the real handler with `.handler(input, ctx)` — no HTTP, no `req`/`res`.
-
-**For Humans:** [callspec.logfox.ai](https://callspec.logfox.ai) · [Chirp explorer](https://callspec.logfox.ai/demo/)
 
 The rest of this README is for coding agents.
 
