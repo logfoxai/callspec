@@ -55,7 +55,7 @@
     --route-page-gap: 3.5rem;
     --route-page-width: calc(var(--content-width) * 2 + var(--route-page-gap));
     --content-pad-x: 1.25rem;
-    --explorer-code-size: 0.75rem;
+    --explorer-code-size: 0.7rem;
 }
 
 /*
@@ -2251,7 +2251,7 @@ body > .footer {
     min-width: 0;
     padding: 0.6875rem 0.875rem;
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: var(--explorer-code-size);
     line-height: 1.5;
     word-break: break-all;
     color: var(--text);
@@ -2409,6 +2409,10 @@ body > .footer {
     margin: 0;
     border: 0;
     border-radius: 0;
+}
+
+.mcp-client-panel .code-block code {
+    font-size: var(--explorer-code-size);
 }
 
 .btn-sm {
