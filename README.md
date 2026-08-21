@@ -24,6 +24,8 @@ Instead, define each route once in TypeScript — inputs, outputs, and errors �
 
 On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. Unit-test the real handler with `.handler(input, ctx)` — no HTTP, no `req`/`res`.
 
+**For humans:** [callspec.logfox.ai](https://callspec.logfox.ai) · [Try the demo](https://callspec.logfox.ai/demo/)
+
 The rest of this README is for coding agents.
 
 ## Skill
