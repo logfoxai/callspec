@@ -718,6 +718,28 @@ site-search dialog::backdrop {
     box-shadow: none;
 }
 
+/* File icon + page title stay white on the purple fill (gray-3 / accent wash out). */
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title::before {
+    background: #fff;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title .pagefind-ui__result-link {
+    color: #fff;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-link {
+    color: #fff;
+}
+
+html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title::before {
+    background: var(--sl-color-black);
+}
+
+html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title .pagefind-ui__result-link,
+html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-link {
+    color: var(--sl-color-black);
+}
+
 [data-cs-pagefind-root] .pagefind-ui__search-input {
     font-weight: 500;
     letter-spacing: -0.01em;
