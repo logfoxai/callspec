@@ -6,7 +6,7 @@
 @import '../../styles/docs-shared.css';
 
 /* Public /fonts/ — same files as src/styles/fonts.css (publicDir ./assets).
- * Lib build rewrites these to assets/fonts?no-inline (explorerFontsLib.mjs). */
+ * Lib build: rewriteExplorerCss → assets/fonts?no-inline. */
 @font-face {
     font-family: 'IBM Plex Sans';
     font-style: normal;
