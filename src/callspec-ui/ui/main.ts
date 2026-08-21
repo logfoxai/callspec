@@ -802,76 +802,81 @@ async function boot(): Promise<void> {
             placePoweredByFooter(app, branding.footer?.poweredBy);
 
             const main = document.getElementById('main');
+            const currentView = view;
 
-            if (main && view.kind === 'home') {
+            if (main) {
 
-                main.innerHTML = renderHome(title, version, routes, branding);
-                bindMcpConnect(main);
-                bindCopyButtons(main);
-                main.querySelector('[data-mcp-routes]')?.addEventListener('click', () => {
+                if (currentView.kind === 'home') {
 
-                    filters = {...filters, mcpOnly: true};
-                    navigate({kind: 'routes'});
+                    main.innerHTML = renderHome(title, version, routes, branding);
+                    bindMcpConnect(main);
+                    bindCopyButtons(main);
+                    main.querySelector('[data-mcp-routes]')?.addEventListener('click', () => {
 
-                });
-
-                if (location.hash.includes('mcp-connect')) {
-
-                    queueMicrotask(() => {
-
-                        document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
+                        filters = {...filters, mcpOnly: true};
+                        navigate({kind: 'routes'});
 
                     });
 
-                }
+                    if (location.hash.includes('mcp-connect')) {
 
-            } else if (main && view.kind === 'routes') {
+                        queueMicrotask(() => {
 
-                main.innerHTML = renderOverview(filtered, routes, filters);
-                bindOverviewFilters(main);
-
-            } else if (main && view.kind === 'route') {
-
-                const route = routes.find((item) => item.name === view.name);
-
-                if (route) {
-
-                    const panels = await loadRoutePanels();
-
-                    if (gen !== renderGen) {
-
-                        return;
-
-                    }
-
-                    main.innerHTML = renderRoute(
-                        route,
-                        bodies.get(route.name) ?? '{}',
-                        routes,
-                        authToken,
-                        panels,
-                    );
-
-                    if (!demoMode) {
-
-                        document.getElementById('send')?.addEventListener('click', () => {
-
-                            void sendRequest(route);
+                            document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
 
                         });
 
                     }
 
-                    const onCopyCurl = (): void => copyCurl(route);
+                } else if (currentView.kind === 'routes') {
 
-                    document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
-
-                    initJsonEditor('body');
-                    panels.bindSchemaPanels(main);
+                    main.innerHTML = renderOverview(filtered, routes, filters);
+                    bindOverviewFilters(main);
 
                 } else {
 
-                    navigate(showHome ? {kind: 'home'} : {kind: 'routes'});
+                    const route = routes.find((item) => item.name === currentView.name);
+
+                    if (route) {
+
+                        const panels = await loadRoutePanels();
+
+                        if (gen !== renderGen) {
+
+                            return;
+
+                        }
+
+                        main.innerHTML = renderRoute(
+                            route,
+                            bodies.get(route.name) ?? '{}',
+                            routes,
+                            authToken,
+                            panels,
+                        );
+
+                        if (!demoMode) {
+
+                            document.getElementById('send')?.addEventListener('click', () => {
+
+                                void sendRequest(route);
+
+                            });
+
+                        }
+
+                        const onCopyCurl = (): void => copyCurl(route);
+
+                        document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
+
+                        initJsonEditor('body');
+                        panels.bindSchemaPanels(main);
+
+                    } else {
+
+                        navigate(showHome ? {kind: 'home'} : {kind: 'routes'});
+
+                    }
 
                 }
 

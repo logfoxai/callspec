@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noImplicitAny": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": ["node"]
+  },
+  "include": [
+    "../.astro/types.d.ts",
+    "**/*.astro",
+    "content.config.ts",
+    "integrations/**/*.spec.ts",
+    "integrations/**/*.mjs",
+    "styles/**/*.spec.ts",
+    "overrides/**/*.spec.ts"
+  ],
+  "exclude": [
+    "callspec-ui/ui/**",
+    "cs-pagefind/**"
+  ]
+}

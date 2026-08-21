@@ -4,11 +4,13 @@
     <source srcset="assets/callspec-lockup-light.svg?cb=14" media="(prefers-color-scheme: light)" />
     <img src="assets/callspec-lockup-light.svg?cb=14" width="320" alt="Callspec" />
   </picture>
+  <h4 align="center">One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h4>
+  <p align="center">
+    <a href="assets/callspec-flow.svg?cb=8">
+      <img src="assets/callspec-flow.svg?cb=8" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, and OpenAPI export" />
+    </a>
+  </p>
 </div>
-
-# Stop duct-taping your API stack.
-
-One TypeScript route → typed SDK, docs, OpenAPI, and MCP.
 
 Most teams duct-tape the same API across REST routes, OpenAPI specs, DIY clients, docs, types, validators and MCP. That's a ton of repetitive work and brittle code that drifts.
 
