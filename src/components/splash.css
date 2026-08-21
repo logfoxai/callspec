@@ -242,7 +242,9 @@ html:not([data-has-sidebar]):has(.splash-page) {
             background: var(--cs-primary-hover-bg);
             border: none;
             border-color: var(--cs-primary-hover-bg);
-            box-shadow: none;
+            box-shadow:
+                0.2rem 0.2rem 0 0
+                color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
         }
 
         &:focus-visible {
@@ -363,7 +365,9 @@ html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
         color: var(--cs-primary-hover-fg);
         background: var(--cs-primary-hover-bg);
         border-color: var(--cs-primary-hover-bg);
-        box-shadow: none;
+        box-shadow:
+            0.2rem 0.2rem 0 0
+            color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
     }
 }
 
