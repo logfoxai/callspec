@@ -737,12 +737,29 @@ site-search dialog::backdrop {
         inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
+/* Pagefind nests the drawer inside the form — do not shrink-wrap the form. */
+[data-cs-pagefind-root] .pagefind-ui,
 [data-cs-pagefind-root] .pagefind-ui__form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__form {
+    flex: 1 1 auto;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__search-input,
+[data-cs-pagefind-root] .pagefind-ui__search-clear {
     flex-shrink: 0;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__results-area {
     margin-top: 0.85rem;
+}
+
+[data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer {
+    min-height: 0;
     max-height: min(28rem, calc(100dvh - 16rem));
     overflow: auto;
     overscroll-behavior: contain;
@@ -752,23 +769,38 @@ site-search dialog::backdrop {
     site-search dialog[open] {
         display: flex;
         flex-direction: column;
+        overflow: hidden;
     }
 
     site-search dialog[open] .dialog-frame,
-    site-search dialog[open] .search-container,
-    site-search dialog[open] [data-cs-pagefind-root],
-    site-search dialog[open] [data-cs-pagefind-root] .pagefind-ui {
+    site-search dialog[open] .search-container {
         display: flex;
         flex-direction: column;
         min-height: 0;
         flex: 1 1 auto;
     }
 
-    site-search dialog[open] [data-cs-pagefind-root] .pagefind-ui__drawer,
-    site-search dialog[open] [data-cs-pagefind-root] .pagefind-ui__results-area {
+    /*
+     * Idle chips live after the Pagefind root. Growing the root on idle
+     * shoves that card to the bottom of the full-screen dialog.
+     */
+    site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root],
+    site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .pagefind-ui {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        flex: 1 1 auto;
+    }
+
+    site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .pagefind-ui__form,
+    site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .pagefind-ui__drawer {
         flex: 1 1 auto;
         min-height: 0;
         max-height: none;
+        overflow: hidden;
+    }
+
+    site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .pagefind-ui__drawer {
         overflow: auto;
     }
 }
