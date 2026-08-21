@@ -46,3 +46,7 @@ html:has(.not-found-page) .site-footer {
     margin-top: 3.25rem;
     padding-top: 1.35rem;
 }
+
+html:has(.splash-page) .site-footer {
+    border-top: none;
+}
