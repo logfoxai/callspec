@@ -2410,25 +2410,6 @@ body > .footer {
     color: var(--text-tertiary);
 }
 
-.mcp-code-copy {
-    padding: 0.25rem 0.625rem;
-    border: 0.0625rem solid var(--border);
-    border-radius: 0.375rem;
-    background: var(--surface);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.mcp-code-copy:hover {
-    color: var(--text);
-    border-color: var(--border-strong);
-}
-
-.mcp-code-copy.is-copied,
 .mcp-endpoint-copy.is-copied {
     color: var(--green);
     border-color: var(--badge-public-border);

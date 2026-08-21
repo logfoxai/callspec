@@ -117,7 +117,7 @@ const COPY_ICON_SVG =
 const CHECK_ICON_SVG =
     '<svg class="cs-copy-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>';
 
-function renderCopyButton(button: HTMLButtonElement, isCopied: boolean): void {
+export function paintCopyButton(button: HTMLButtonElement, isCopied: boolean): void {
     const {label, state} = copyButtonContent(isCopied);
     button.classList.toggle('cs-copied', isCopied);
     button.dataset.csCopyState = state;
@@ -131,6 +131,18 @@ function renderCopyButton(button: HTMLButtonElement, isCopied: boolean): void {
     text.className = 'cs-copy-label';
     text.textContent = label;
     button.append(icon, text);
+}
+
+/** Idle chrome used by docs EC and explorer MCP panels. */
+export function copyButtonMarkup(attrs: {copyTarget?: string} = {}): string {
+    const {label} = copyButtonContent(false);
+    const target = attrs.copyTarget === undefined ? '' : ` data-copy-target="${attrs.copyTarget}"`;
+    return (
+        `<button type="button" class="cs-copy-btn" title="Copy to clipboard" data-cs-copy-state="idle"${target}>` +
+        `<span class="cs-copy-icon" aria-hidden="true">${COPY_ICON_SVG}</span>` +
+        `<span class="cs-copy-label">${label}</span>` +
+        `</button>`
+    );
 }
 
 function createKindMark(kind: string): HTMLElement {
@@ -175,7 +187,7 @@ function ensureCopyInHeader(frame: HTMLElement, header: HTMLElement): void {
     button.dataset.csCopyWired = '1';
     button.classList.add('cs-copy-btn');
     button.type = 'button';
-    renderCopyButton(button, false);
+    paintCopyButton(button, false);
 
     let resetTimer: ReturnType<typeof setTimeout> | undefined;
     button.addEventListener('click', (event) => {
@@ -188,12 +200,12 @@ function ensureCopyInHeader(frame: HTMLElement, header: HTMLElement): void {
             if (!ok) {
                 return;
             }
-            renderCopyButton(button, true);
+            paintCopyButton(button, true);
             if (resetTimer !== undefined) {
                 clearTimeout(resetTimer);
             }
             resetTimer = setTimeout(() => {
-                renderCopyButton(button, false);
+                paintCopyButton(button, false);
                 resetTimer = undefined;
             }, COPY_FEEDBACK_MS);
         });

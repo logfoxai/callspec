@@ -1,4 +1,5 @@
 import type {CallspecUiConfig} from '../branding';
+import {COPY_FEEDBACK_MS, copyButtonMarkup, paintCopyButton, tryCopyText} from '../../components/codeBlockTitles';
 import {slugifyName} from '../../metaDefaults';
 import {codeBlock} from './highlight';
 import {mcpIcon} from './icons';
@@ -130,19 +131,13 @@ export function claudeCodeMcpCommand(mcpUrl: string, serverName: string, authHea
 
 }
 
-function renderCopyButton(targetId: string, label = 'Copy'): string {
-
-    return `<button type="button" class="mcp-code-copy" data-copy-target="${targetId}">${label}</button>`;
-
-}
-
-function renderCodePanel(source: string, id: string, copyLabel = 'Copy', lang = 'JSON'): string {
+function renderCodePanel(source: string, id: string, lang = 'JSON'): string {
 
     return `
         <div class="mcp-code-panel">
             <div class="mcp-code-toolbar">
                 <span class="mcp-code-lang">${lang}</span>
-                ${renderCopyButton(id, copyLabel)}
+                ${copyButtonMarkup({copyTarget: id})}
             </div>
             ${codeBlock(source, id)}
         </div>
@@ -176,7 +171,7 @@ function buildConnectClients(
             title: 'Cursor',
             hint: 'Add this to <code>.cursor/mcp.json</code>, or open Settings → MCP.',
             body: `
-                ${renderCodePanel(cursorJson, 'cursor-mcp-config', 'Copy config')}
+                ${renderCodePanel(cursorJson, 'cursor-mcp-config')}
             `,
         },
         {
@@ -196,7 +191,7 @@ function buildConnectClients(
             title: 'Claude Code',
             hint: `Run this in your terminal.${authNote}`,
             body: `
-                ${renderCodePanel(claudeCodeCmd, 'claude-code-mcp', 'Copy command', 'Shell')}
+                ${renderCodePanel(claudeCodeCmd, 'claude-code-mcp', 'Shell')}
             `,
         },
         {
@@ -204,7 +199,7 @@ function buildConnectClients(
             title: 'VS Code',
             hint: 'Add this to workspace <code>.vscode/mcp.json</code>, or Command Palette → <code>MCP: Open User Configuration</code>.',
             body: `
-                ${renderCodePanel(vscodeJson, 'vscode-mcp-config', 'Copy config')}
+                ${renderCodePanel(vscodeJson, 'vscode-mcp-config')}
             `,
         },
         {
@@ -214,7 +209,7 @@ function buildConnectClients(
                 ? `Add this to <code>mcp_config.json</code>. Uses <code>serverUrl</code> and <code>\${env:${tokenEnv}}</code> for auth.`
                 : 'Add this to <code>mcp_config.json</code>. Uses <code>serverUrl</code> (not <code>url</code>) for remote servers.',
             body: `
-                ${renderCodePanel(windsurfJson, 'windsurf-mcp-config', 'Copy config')}
+                ${renderCodePanel(windsurfJson, 'windsurf-mcp-config')}
             `,
         },
         {
@@ -224,7 +219,7 @@ function buildConnectClients(
                 ? `Add this to <code>.pi/mcp.json</code>. Set <code>${tokenEnv}</code> in your environment; Pi reads it via <code>bearerTokenEnv</code>.`
                 : 'Add this to project-local <code>.pi/mcp.json</code>, or the global Pi MCP config.',
             body: `
-                ${renderCodePanel(piJson, 'pi-mcp-config', 'Copy config')}
+                ${renderCodePanel(piJson, 'pi-mcp-config')}
             `,
         },
     ];
@@ -425,22 +420,51 @@ export function bindMcpConnect(root: HTMLElement): void {
 
     });
 
-    root.querySelectorAll('[data-copy-target]').forEach((btn) => {
+    root.querySelectorAll('[data-copy-target]').forEach((node) => {
 
-        btn.addEventListener('click', () => {
+        if (!(node instanceof HTMLButtonElement)) {
 
-            const targetId = (btn as HTMLElement).dataset.copyTarget ?? '';
+            return;
+
+        }
+
+        let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+        node.addEventListener('click', () => {
+
+            const targetId = node.dataset.copyTarget ?? '';
             const el = document.getElementById(targetId);
 
-            if (el) {
+            if (!el) {
 
-                void navigator.clipboard.writeText(el.textContent ?? '').then(() => {
-
-                    flashCopyButton(btn as HTMLElement);
-
-                });
+                return;
 
             }
+
+            void tryCopyText(el.textContent ?? '').then((ok) => {
+
+                if (!ok) {
+
+                    return;
+
+                }
+
+                paintCopyButton(node, true);
+
+                if (resetTimer !== undefined) {
+
+                    clearTimeout(resetTimer);
+
+                }
+
+                resetTimer = setTimeout(() => {
+
+                    paintCopyButton(node, false);
+                    resetTimer = undefined;
+
+                }, COPY_FEEDBACK_MS);
+
+            });
 
         });
 

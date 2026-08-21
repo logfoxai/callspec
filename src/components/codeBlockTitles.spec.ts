@@ -2,6 +2,7 @@ import {test} from 'kizu';
 import {
     COPY_FEEDBACK_MS,
     copyButtonContent,
+    copyButtonMarkup,
     defaultTitleFromLang,
     ecDataCodeToText,
     fileKindFromName,
@@ -13,6 +14,15 @@ import {
 test('copyButtonContent matches app-frontend idle / copied labels', (assert) => {
     assert.equal(copyButtonContent(false), {label: 'Copy', state: 'idle'});
     assert.equal(copyButtonContent(true), {label: 'Copied!', state: 'copied'});
+});
+
+test('copyButtonMarkup is the docs chrome idle control', (assert) => {
+    const html = copyButtonMarkup({copyTarget: 'cursor-mcp-config'});
+    assert.equal(html.includes('class="cs-copy-btn"'), true);
+    assert.equal(html.includes('cs-copy-icon'), true);
+    assert.equal(html.includes('cs-copy-label'), true);
+    assert.equal(html.includes('Copy to clipboard'), true);
+    assert.equal(html.includes('data-copy-target="cursor-mcp-config"'), true);
 });
 
 test('COPY_FEEDBACK_MS matches useCopyToClipboard reset window', (assert) => {

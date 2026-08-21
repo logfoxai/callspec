@@ -119,6 +119,11 @@ test('renderMcpConnect: instructions name the config file, no path badge', (asse
         assert.equal(html.includes('.pi/mcp.json'), true);
         assert.equal(html.includes('Settings → Connectors'), true);
         assert.equal(html.includes('terminal'), true);
+        assert.equal(html.includes('mcp-code-copy'), false);
+        assert.equal(html.includes('class="cs-copy-btn"'), true);
+        assert.equal(html.includes('cs-copy-icon'), true);
+        assert.equal(html.includes('cs-copy-label'), true);
+        assert.equal(html.includes('Copy to clipboard'), true);
     } finally {
         globalThis.window = previous;
     }
