@@ -1638,39 +1638,50 @@ html[data-has-sidebar] .pagination-links a {
     color: var(--cs-muted);
     transition:
         background 0.15s ease,
-        color 0.15s ease;
+        color 0.15s ease,
+        box-shadow 0.2s ease;
 }
 
 html[data-has-sidebar] .pagination-links a[rel='prev'] {
     background: linear-gradient(
         to left,
-        transparent 55%,
-        color-mix(in srgb, var(--cs-ink) 10%, transparent)
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 8%, var(--cs-table-bg))
     );
 }
 
 html[data-has-sidebar] .pagination-links a[rel='next'] {
     background: linear-gradient(
         to right,
-        transparent 55%,
-        color-mix(in srgb, var(--cs-ink) 10%, transparent)
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 8%, var(--cs-table-bg))
     );
 }
 
 html[data-has-sidebar] .pagination-links a[rel='prev']:hover {
     background: linear-gradient(
         to left,
-        transparent 55%,
-        color-mix(in srgb, var(--cs-ink) 16%, transparent)
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
     );
+    box-shadow:
+        0.2rem 0.2rem 0 0
+        color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
 }
 
 html[data-has-sidebar] .pagination-links a[rel='next']:hover {
     background: linear-gradient(
         to right,
-        transparent 55%,
-        color-mix(in srgb, var(--cs-ink) 16%, transparent)
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
     );
+    box-shadow:
+        0.2rem 0.2rem 0 0
+        color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
 }
 
 html[data-has-sidebar] .pagination-links a > span {
