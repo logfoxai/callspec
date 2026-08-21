@@ -1265,7 +1265,7 @@ body > .footer {
 .code-block code {
     display: block;
     font-family: var(--mono);
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     line-height: 1.6;
     white-space: pre;
 }
@@ -1942,10 +1942,6 @@ body > .footer {
 }
 
 .response { margin-top: 0.875rem; }
-
-.response .code-block code {
-    font-size: 0.7rem;
-}
 
 .response-meta {
     font-family: var(--mono);
