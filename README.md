@@ -2,9 +2,9 @@
   <picture>
     <source srcset="assets/callspec-lockup-dark.svg?cb=14" media="(prefers-color-scheme: dark)" />
     <source srcset="assets/callspec-lockup-light.svg?cb=14" media="(prefers-color-scheme: light)" />
-    <img src="assets/callspec-lockup-light.svg?cb=14" width="240" alt="Callspec" />
+    <img src="assets/callspec-lockup-light.svg?cb=14" width="200" alt="Callspec" />
   </picture>
-  <h4 align="center">One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h4>
+  <h3 align="center">One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h3>
   <p align="center">
     <strong>For humans:</strong>
     <a href="https://callspec.logfox.ai">callspec.logfox.ai</a>
