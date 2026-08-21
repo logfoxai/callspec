@@ -14,6 +14,9 @@ test('renderTryItPanel: demo mode disables Send with tooltip wrapper', (assert) 
     assert.equal(html.includes(`title="${DEMO_MODE_TOOLTIP}"`), true);
     assert.equal(html.includes('id="send" disabled'), true);
     assert.equal(html.includes('id="copy-curl-try" disabled'), false);
+    assert.equal(html.includes('class="cs-copy-btn"'), true);
+    assert.equal(html.includes('Copy curl'), true);
+    assert.equal(html.includes('btn-ghost'), false);
     assert.equal(html.includes('readonly'), false);
 
 });

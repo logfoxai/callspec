@@ -242,7 +242,9 @@ html:not([data-has-sidebar]):has(.splash-page) {
             background: var(--cs-primary-hover-bg);
             border: none;
             border-color: var(--cs-primary-hover-bg);
-            box-shadow: none;
+            box-shadow:
+                0.2rem 0.2rem 0 0
+                color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
         }
 
         &:focus-visible {
@@ -253,6 +255,18 @@ html:not([data-has-sidebar]):has(.splash-page) {
 
     &.secondary {
         font-weight: 600;
+        box-shadow: none;
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease,
+            box-shadow 0.2s ease;
+
+        &:hover {
+            box-shadow:
+                0.2rem 0.2rem 0 0
+                color-mix(in srgb, hsl(220 8% 55%) 42%, #0a0612);
+        }
     }
 }
 
@@ -363,7 +377,9 @@ html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
         color: var(--cs-primary-hover-fg);
         background: var(--cs-primary-hover-bg);
         border-color: var(--cs-primary-hover-bg);
-        box-shadow: none;
+        box-shadow:
+            0.2rem 0.2rem 0 0
+            color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
     }
 }
 

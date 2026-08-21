@@ -11,6 +11,7 @@ import {callspecDocumentToUiSpec} from '../toUiSpec';
 import type {CallspecUiRoute} from '../types';
 import {CallspecDocumentError} from '../../callspecDocumentTypes';
 import {parseUiCallspecDocument} from '../parseUiDocument';
+import {showCopySuccess, tryCopyText} from '../../components/codeBlockTitles';
 import {codeBlock} from './highlight';
 import {exampleFromSchema} from './exampleFromSchema';
 import {initJsonEditor} from './jsonEditor';
@@ -30,7 +31,8 @@ import {initTheme, toggleTheme, type Theme} from './theme';
 import {lockIcon, tagIcon, unlockIcon} from './icons';
 import {renderIconLabel} from './iconLabel';
 import {renderRouteBadges} from './routeBadges';
-import {renderSidebar} from './sidebarNav';
+import {explorerSearchScope} from './explorerSearch';
+import {renderSidebar, renderSidebarRouteGroups} from './sidebarNav';
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {renderRoutePaginationFooter} from './routePagination';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
@@ -572,7 +574,17 @@ function copyCurl(route: CallspecUiRoute): void {
 
     cmd += ` \\\n  -d '${body.replace(/'/g, "'\\''")}'`;
 
-    void navigator.clipboard.writeText(cmd);
+    const copyBtn = document.getElementById('copy-curl-try');
+
+    void tryCopyText(cmd).then((ok) => {
+
+        if (ok && copyBtn instanceof HTMLButtonElement) {
+
+            showCopySuccess(copyBtn);
+
+        }
+
+    });
 
 }
 
@@ -747,6 +759,22 @@ async function boot(): Promise<void> {
 
         };
 
+        const bindRouteNavigators = (root: ParentNode): void => {
+
+            root.querySelectorAll('[data-route]').forEach((btn) => {
+
+                btn.addEventListener('click', () => {
+
+                    if (!(btn instanceof HTMLElement)) return;
+
+                    navigate({kind: 'route', name: btn.dataset.route ?? ''});
+
+                });
+
+            });
+
+        };
+
         const render = async (): Promise<void> => {
 
             const gen = ++renderGen;
@@ -782,6 +810,7 @@ async function boot(): Promise<void> {
                         ${renderSidebar(sidebarRoutes, view, showHome, renderDocsSearchField({
                             id: 'sidebar-search',
                             value: filters.text,
+                            label: 'Search routes',
                             className: 'cs-docs-search--sidebar',
                         }))}
                     </div>
@@ -802,76 +831,81 @@ async function boot(): Promise<void> {
             placePoweredByFooter(app, branding.footer?.poweredBy);
 
             const main = document.getElementById('main');
+            const currentView = view;
 
-            if (main && view.kind === 'home') {
+            if (main) {
 
-                main.innerHTML = renderHome(title, version, routes, branding);
-                bindMcpConnect(main);
-                bindCopyButtons(main);
-                main.querySelector('[data-mcp-routes]')?.addEventListener('click', () => {
+                if (currentView.kind === 'home') {
 
-                    filters = {...filters, mcpOnly: true};
-                    navigate({kind: 'routes'});
+                    main.innerHTML = renderHome(title, version, routes, branding);
+                    bindMcpConnect(main);
+                    bindCopyButtons(main);
+                    main.querySelector('[data-mcp-routes]')?.addEventListener('click', () => {
 
-                });
-
-                if (location.hash.includes('mcp-connect')) {
-
-                    queueMicrotask(() => {
-
-                        document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
+                        filters = {...filters, mcpOnly: true};
+                        navigate({kind: 'routes'});
 
                     });
 
-                }
+                    if (location.hash.includes('mcp-connect')) {
 
-            } else if (main && view.kind === 'routes') {
+                        queueMicrotask(() => {
 
-                main.innerHTML = renderOverview(filtered, routes, filters);
-                bindOverviewFilters(main);
-
-            } else if (main && view.kind === 'route') {
-
-                const route = routes.find((item) => item.name === view.name);
-
-                if (route) {
-
-                    const panels = await loadRoutePanels();
-
-                    if (gen !== renderGen) {
-
-                        return;
-
-                    }
-
-                    main.innerHTML = renderRoute(
-                        route,
-                        bodies.get(route.name) ?? '{}',
-                        routes,
-                        authToken,
-                        panels,
-                    );
-
-                    if (!demoMode) {
-
-                        document.getElementById('send')?.addEventListener('click', () => {
-
-                            void sendRequest(route);
+                            document.getElementById('mcp-connect')?.scrollIntoView({behavior: 'smooth'});
 
                         });
 
                     }
 
-                    const onCopyCurl = (): void => copyCurl(route);
+                } else if (currentView.kind === 'routes') {
 
-                    document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
-
-                    initJsonEditor('body');
-                    panels.bindSchemaPanels(main);
+                    main.innerHTML = renderOverview(filtered, routes, filters);
+                    bindOverviewFilters(main);
 
                 } else {
 
-                    navigate(showHome ? {kind: 'home'} : {kind: 'routes'});
+                    const route = routes.find((item) => item.name === currentView.name);
+
+                    if (route) {
+
+                        const panels = await loadRoutePanels();
+
+                        if (gen !== renderGen) {
+
+                            return;
+
+                        }
+
+                        main.innerHTML = renderRoute(
+                            route,
+                            bodies.get(route.name) ?? '{}',
+                            routes,
+                            authToken,
+                            panels,
+                        );
+
+                        if (!demoMode) {
+
+                            document.getElementById('send')?.addEventListener('click', () => {
+
+                                void sendRequest(route);
+
+                            });
+
+                        }
+
+                        const onCopyCurl = (): void => copyCurl(route);
+
+                        document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
+
+                        initJsonEditor('body');
+                        panels.bindSchemaPanels(main);
+
+                    } else {
+
+                        navigate(showHome ? {kind: 'home'} : {kind: 'routes'});
+
+                    }
 
                 }
 
@@ -898,14 +932,60 @@ async function boot(): Promise<void> {
 
                     persistRouteDraft();
                     filters = {...filters, text: value};
-                    void render();
-                    const restored = document.getElementById(id);
+                    const scope = explorerSearchScope(view);
+                    const textFiltered = applyRouteFilters(routes, {
+                        text: filters.text,
+                        auth: 'all',
+                        tag: null,
+                        mcpOnly: false,
+                    });
 
-                    if (restored instanceof HTMLInputElement) {
+                    if (scope.sidebar) {
 
-                        restored.focus();
-                        const len = restored.value.length;
-                        restored.setSelectionRange(len, len);
+                        const nav = app.querySelector('.sidebar-nav');
+
+                        if (nav instanceof HTMLElement) {
+
+                            const next = renderSidebarRouteGroups(textFiltered, view);
+                            const existing = nav.querySelector('.sidebar-top-level');
+
+                            if (existing) {
+
+                                existing.outerHTML = next;
+
+                            } else if (next) {
+
+                                nav.insertAdjacentHTML('beforeend', next);
+
+                            }
+
+                            const groups = nav.querySelector('.sidebar-top-level');
+
+                            if (groups) {
+
+                                bindRouteNavigators(groups);
+
+                            }
+
+                        }
+
+                    }
+
+                    if (scope.routesOverview) {
+
+                        const mainEl = document.getElementById('main');
+
+                        if (mainEl) {
+
+                            mainEl.innerHTML = renderOverview(
+                                applyRouteFilters(routes, filters),
+                                routes,
+                                filters,
+                            );
+                            bindOverviewFilters(mainEl);
+                            bindRouteNavigators(mainEl);
+
+                        }
 
                     }
 
@@ -961,17 +1041,7 @@ async function boot(): Promise<void> {
 
             });
 
-            app.querySelectorAll('[data-route]').forEach((btn) => {
-
-                btn.addEventListener('click', () => {
-
-                    if (!(btn instanceof HTMLElement)) return;
-
-                    navigate({kind: 'route', name: btn.dataset.route ?? ''});
-
-                });
-
-            });
+            bindRouteNavigators(app);
 
         };
 

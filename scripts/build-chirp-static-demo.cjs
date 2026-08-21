@@ -95,7 +95,7 @@ async function main() {
             notice: {
                 title: 'Demo only',
                 message: 'Browse-only — no Send or live MCP.',
-                links: [{label: 'Setup guide', href: '/development/'}],
+                links: [{label: 'Run it locally', href: '/try-the-demo-locally/'}],
             },
         },
     });

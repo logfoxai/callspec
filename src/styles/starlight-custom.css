@@ -1631,25 +1631,54 @@ html[data-has-sidebar] .pagination-links > :only-child {
 html[data-has-sidebar] .pagination-links a {
     align-items: center;
     gap: 0.85rem;
-    border: 1px solid var(--cs-line);
+    border: none;
     border-radius: calc(var(--cs-radius) - 0.15rem);
-    background: var(--cs-table-bg);
     padding: 1rem 1.15rem;
     box-shadow: none;
     color: var(--cs-muted);
     transition:
-        border-color 0.15s ease,
-        background-color 0.15s ease,
+        background 0.15s ease,
         color 0.15s ease;
 }
 
-html[data-has-sidebar] .pagination-links a:hover {
-    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
-    background: var(--cs-table-row-hover);
+html[data-has-sidebar] .pagination-links a[rel='prev'] {
+    background: linear-gradient(
+        to left,
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 8%, var(--cs-table-bg))
+    );
+}
+
+html[data-has-sidebar] .pagination-links a[rel='next'] {
+    background: linear-gradient(
+        to right,
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 8%, var(--cs-table-bg))
+    );
+}
+
+html[data-has-sidebar] .pagination-links a[rel='prev']:hover {
+    background: linear-gradient(
+        to left,
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
+    );
+}
+
+html[data-has-sidebar] .pagination-links a[rel='next']:hover {
+    background: linear-gradient(
+        to right,
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 0%,
+        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
+        color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
+    );
 }
 
 html[data-has-sidebar] .pagination-links a > span {
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     line-height: 1.35;
@@ -1660,7 +1689,7 @@ html[data-has-sidebar] .pagination-links a > span {
 html[data-has-sidebar] .pagination-links .link-title {
     color: var(--cs-ink);
     font-family: var(--cs-font-heading);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 600;
     letter-spacing: -0.015em;
     line-height: 1.3;

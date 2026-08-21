@@ -108,6 +108,7 @@ export default defineConfig({
                     label: 'Introduction',
                     items: [
                         {label: 'Getting started', slug: 'getting-started'},
+                        {label: 'Try the demo locally', slug: 'try-the-demo-locally'},
                         {label: 'Server layout', slug: 'server-layout'},
                         {label: 'Unit testing', slug: 'unit-testing'},
                         {label: 'Single-file server example', slug: 'single-file-server-example'},

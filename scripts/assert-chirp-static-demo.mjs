@@ -33,4 +33,9 @@ if (!html.includes('"demoMode":true')) {
 	process.exit(1);
 }
 
+if (!html.includes('/try-the-demo-locally/')) {
+	console.error('assert-chirp-static-demo: browse-only notice must link to the local demo guide');
+	process.exit(1);
+}
+
 console.log('assert-chirp-static-demo: ok');

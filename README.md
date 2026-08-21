@@ -2,45 +2,38 @@
   <picture>
     <source srcset="assets/callspec-lockup-dark.svg?cb=14" media="(prefers-color-scheme: dark)" />
     <source srcset="assets/callspec-lockup-light.svg?cb=14" media="(prefers-color-scheme: light)" />
-    <img src="assets/callspec-lockup-light.svg?cb=14" width="320" alt="Callspec" />
+    <img src="assets/callspec-lockup-light.svg?cb=14" width="200" alt="Callspec" />
   </picture>
+  <h3 align="center">One TypeScript route → typed SDK, docs, OpenAPI, and MCP.</h3>
+  <p align="center">
+    <strong>For humans:</strong>
+    <a href="https://callspec.logfox.ai">callspec.logfox.ai</a>
+    ·
+    <a href="https://callspec.logfox.ai/demo/">Try the demo</a>
+  </p>
+  <p align="center">
+    <a href="assets/callspec-flow.svg?cb=9">
+      <img src="assets/callspec-flow.svg?cb=9" alt="Callspec flow: define in TypeScript, mountSpec, CLI SDK, and OpenAPI export" />
+    </a>
+  </p>
 </div>
-
-# Stop duct-taping your API stack.
-
-One TypeScript route → typed SDK, docs, OpenAPI, and MCP.
 
 Most teams duct-tape the same API across REST routes, OpenAPI specs, DIY clients, docs, types, validators and MCP. That's a ton of repetitive work and brittle code that drifts.
 
 Instead, define each route once in TypeScript — inputs, outputs, and errors — and Callspec ships the server, SDK, docs, OpenAPI, and MCP from that contract. One source of truth, unit-testable, no drift.
 
-On the frontend you call `api.getProductById({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. Unit-test the real handler with `.handler(input, ctx)` — no HTTP, no `req`/`res`.
+On the frontend you call `api.searchPosts({…})` and get a **Result** back — success value or a typed error `code` you can switch on. Same methods, same types, same errors as the server and as agents on MCP. Unit-test the real handler with `.handler(input, ctx)` — no HTTP, no `req`/`res`.
 
-**For Humans:** [callspec.logfox.ai](https://callspec.logfox.ai) · [Chirp explorer](https://callspec.logfox.ai/demo/)
-
-The rest of this README is for coding agents.
+**For humans:** [callspec.logfox.ai](https://callspec.logfox.ai) · [Try the demo](https://callspec.logfox.ai/demo/)
 
 ## Skill
 
 Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste skill + prompts: [Working with Coding Agents](src/content/docs/coding-agents.md). Ignore `docs/internal/`.
 
-## Try the demo
-
-**Hosted (browse routes / MCP connect snippets):** [callspec.logfox.ai/demo](https://callspec.logfox.ai/demo/)
-
-**Live try-it + MCP locally:**
-
-```bash
-git clone https://github.com/logfoxai/callspec.git
-cd callspec && npm install
-npm run build && npm run serve:chirp-demo
-```
-
-Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
-
 ## Contents
 
 - [Getting started](src/content/docs/getting-started.md)
+- [Try the demo locally](src/content/docs/try-the-demo-locally.md)
 - [Working with Coding Agents](src/content/docs/coding-agents.md)
 - [Server layout](src/content/docs/server-layout.md)
 - [Unit testing](src/content/docs/unit-testing.md)
