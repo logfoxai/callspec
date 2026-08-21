@@ -13,7 +13,7 @@ function getPreferredTheme(): Theme {
 
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'dark';
 
 }
 
@@ -23,8 +23,17 @@ function prefersReducedMotion(): boolean {
 
 }
 
+function clearBootInlinePaint(): void {
+
+    document.documentElement.style.removeProperty('background');
+    document.documentElement.style.removeProperty('color-scheme');
+    document.body?.style.removeProperty('background');
+
+}
+
 function commitTheme(theme: Theme): void {
 
+    clearBootInlinePaint();
     document.documentElement.dataset.theme = theme;
     localStorage.setItem(STORAGE_KEY, theme);
 

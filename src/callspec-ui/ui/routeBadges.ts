@@ -1,5 +1,6 @@
 import type {CallspecUiRoute} from '../types';
 import {lockIcon, mcpIcon, unlockIcon} from './icons';
+import {renderIconLabel} from './iconLabel';
 
 type RouteBadgeOptions = {
     /** Show text labels (Bearer, MCP). Default true. */
@@ -13,17 +14,12 @@ function routeBadge(
     ariaLabel?: string,
 ): string {
 
-    const attrs = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
-    const labelHtml = label
-        ? `<span class="route-badge__label">${label}</span>`
-        : '';
-
-    return `
-        <span class="route-badge ${className}"${attrs}>
-            <span class="route-badge__icon" aria-hidden="true">${icon}</span>
-            ${labelHtml}
-        </span>
-    `.trim();
+    return renderIconLabel({
+        icon,
+        label,
+        className: `route-badge ${className}`,
+        ariaLabel,
+    });
 
 }
 

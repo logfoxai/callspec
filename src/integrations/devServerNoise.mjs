@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 /** Local Astro/Vite hosts only — never widen to arbitrary Host values. */
 export function isLocalDevHost(host) {
     if (!host) {
@@ -53,6 +56,114 @@ export function rewritePublicDirIndexRequest(pathname) {
     return null;
 }
 
+const DEMO_STATIC_FILES = new Set(['callspec.json', 'openapi.json']);
+
+const DEMO_STATIC_TYPES = {
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.svg': 'image/svg+xml',
+    '.woff2': 'font/woff2',
+    '.html': 'text/html; charset=utf-8',
+};
+
+/**
+ * Baked explorer files under publicDir (`assets/demo/…`).
+ * HTML shell is owned by the Vite HMR middleware — do not map it here.
+ * Starlight `[...slug]` otherwise 404-warns on stale hashed `/demo/assets/*`.
+ * @param {string} pathname
+ * @returns {string | null} path relative to `assets/demo`
+ */
+export function demoPublicFileRel(pathname) {
+    if (!pathname.startsWith('/demo/')) {
+        return null;
+    }
+
+    const rel = pathname.slice('/demo/'.length);
+
+    if (!rel || rel === 'index.html' || rel.includes('..') || path.isAbsolute(rel)) {
+        return null;
+    }
+
+    if (DEMO_STATIC_FILES.has(rel) || rel.startsWith('assets/') || rel.startsWith('brand/')) {
+        return rel;
+    }
+
+    return null;
+}
+
+const DEMO_STALE_FONTS = new Set([
+    'ibm-plex-sans-latin-wght-normal.woff2',
+    'ibm-plex-mono-latin-400-normal.woff2',
+    'ibm-plex-mono-latin-600-normal.woff2',
+]);
+
+/**
+ * `<base href="/demo/">` turns stale explorer font urls into `/demo/node_modules/…`
+ * or `/demo/assets/fonts/…`. Starlight `[...slug]` then 404-warns. Serve publicDir.
+ * @param {string} pathname
+ * @returns {string | null} path relative to publicDir (`assets/`)
+ */
+export function demoStaleFontRel(pathname) {
+    const clean = pathname.split('?')[0];
+
+    if (!clean.startsWith('/demo/')) {
+        return null;
+    }
+
+    const file = clean.split('/').pop() ?? '';
+
+    if (!DEMO_STALE_FONTS.has(file)) {
+        return null;
+    }
+
+    if (
+        clean.includes('/node_modules/@fontsource')
+        || clean.startsWith('/demo/assets/fonts/')
+        || clean.startsWith('/demo/fonts/')
+    ) {
+        return `fonts/${file}`;
+    }
+
+    return null;
+}
+
+function sendDemoPublicFile(publicDir, rel, res) {
+    const file = path.join(publicDir, 'demo', rel);
+
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.end('Not Found');
+        return;
+    }
+
+    const type = DEMO_STATIC_TYPES[path.extname(file)] ?? 'application/octet-stream';
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', type);
+    res.setHeader('Cache-Control', 'no-store');
+    fs.createReadStream(file).pipe(res);
+}
+
+function sendPublicDirFile(publicDir, rel, res) {
+    const file = path.join(publicDir, rel);
+
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.end('Not Found');
+        return;
+    }
+
+    const type = DEMO_STATIC_TYPES[path.extname(file)] ?? 'application/octet-stream';
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', type);
+    res.setHeader('Cache-Control', 'no-store');
+    fs.createReadStream(file).pipe(res);
+}
+
 /**
  * Vite plugin: runs ahead of Astro's sec-fetch middleware in `astro dev`.
  * No effect on static builds / `astro:build`.
@@ -76,6 +187,20 @@ export function devServerNoisePlugin() {
                             res.statusCode = 301;
                             res.setHeader('Location', demoRedirect);
                             res.end();
+                            return;
+                        }
+
+                        const staleFont = demoStaleFontRel(pathname);
+
+                        if (staleFont) {
+                            sendPublicDirFile(server.config.publicDir, staleFont, res);
+                            return;
+                        }
+
+                        const demoFile = demoPublicFileRel(pathname);
+
+                        if (demoFile) {
+                            sendDemoPublicFile(server.config.publicDir, demoFile, res);
                             return;
                         }
 

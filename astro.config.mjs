@@ -2,6 +2,7 @@ import {defineConfig} from 'astro/config';
 import {unified} from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
+import {watchChirpDemoPlugin} from './src/integrations/watchChirpDemo.mjs';
 import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
 import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
 
@@ -38,7 +39,13 @@ export default defineConfig({
         },
     },
     vite: {
-        plugins: [devServerNoisePlugin()],
+        plugins: [devServerNoisePlugin(), watchChirpDemoPlugin()],
+        // Chirp /demo/ is a Vite module graph in astro:dev (HMR), not the baked IIFE.
+        // Dark boot CSS is injected first so refresh never paints the UA white page.
+        // Loader mark is hex + overlay bars (no #mask) because <base href="/demo/"> breaks url(#id).
+        // loadingShell.mjs is imported by the Vite plugin — restart astro:dev after loader CSS edits.
+        // Loader mark stays greyscale (no --accent) so Chirp tokens cannot recolor it mid-load.
+        // Stale /demo/node_modules/@fontsource… (and /demo/assets/fonts/) remap to /fonts/.
         // Vite 8 defaults cssMinify to lightningcss, which drops unprefixed
         // backdrop-filter when -webkit- is present — Chromium then skips frost.
         // https://github.com/vitejs/vite/issues/22649
@@ -52,7 +59,8 @@ export default defineConfig({
             },
             watch: {
                 // Build output must not reload dev — corrupts Starlight content sync.
-                ignored: ['**/docs-site/**'],
+                // Baked explorer lives in publicDir; ignore it so writes do not loop.
+                ignored: ['**/docs-site/**', '**/assets/demo/**'],
             },
         },
     },
@@ -85,6 +93,7 @@ export default defineConfig({
                 MobileMenuFooter: './src/overrides/MobileMenuFooter.astro',
                 PageFrame: './src/overrides/PageFrame.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
+                Footer: './src/overrides/Footer.astro',
                 SiteTitle: './src/overrides/SiteTitle.astro',
             },
             social: [

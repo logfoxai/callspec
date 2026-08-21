@@ -220,7 +220,7 @@ const routes = {
         input: p.object({}),
         output: healthOut,
         meta: {
-            summary: 'Health check',
+            summary: 'Health Check',
             description: 'Returns OK when the API is up. Does not require authentication.',
             tags: ['system'],
         },
@@ -265,7 +265,7 @@ const routes = {
         }),
         output: userOut,
         meta: {
-            summary: 'Get User by username',
+            summary: 'Get User by Username',
             description: 'Returns information about a User specified by username.',
             tags: ['users'],
         },
@@ -285,7 +285,7 @@ const routes = {
         }),
         output: userPageOut,
         meta: {
-            summary: 'Get followers',
+            summary: 'Get Followers',
             description: 'Returns a list of Users who follow the specified User ID.',
             tags: ['users'],
         },
@@ -306,7 +306,7 @@ const routes = {
         }),
         output: userPageOut,
         meta: {
-            summary: 'Get following',
+            summary: 'Get Following',
             description: 'Returns a list of Users the specified User ID is following.',
             tags: ['users'],
         },
@@ -388,7 +388,7 @@ const routes = {
         }),
         output: tweetPageOut,
         meta: {
-            summary: 'Search recent Tweets',
+            summary: 'Search Recent Tweets',
             description: 'Returns Tweets from the last seven days matching a search query.',
             tags: ['tweets'],
         },
@@ -411,7 +411,7 @@ const routes = {
         }),
         output: tweetPageOut,
         meta: {
-            summary: 'Home timeline',
+            summary: 'Home Timeline',
             description: 'Returns the most recent Tweets from accounts the authenticated user follows.',
             tags: ['timelines'],
         },
@@ -433,7 +433,7 @@ const routes = {
         }),
         output: tweetPageOut,
         meta: {
-            summary: 'User Tweet timeline',
+            summary: 'User Tweet Timeline',
             description: 'Returns the most recent Tweets authored by the specified User.',
             tags: ['timelines'],
         },
@@ -480,7 +480,7 @@ const routes = {
         }),
         output: userPageOut,
         meta: {
-            summary: 'Get List members',
+            summary: 'Get List Members',
             description: 'Returns a list of Users who are members of the specified List.',
             tags: ['lists'],
         },

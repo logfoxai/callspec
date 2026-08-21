@@ -9,16 +9,38 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 function mockThemeEnv(opts: {
     theme: 'light' | 'dark';
     prefersReducedMotion?: boolean;
-}): {vtCalls: () => number; dataset: {theme?: string}; store: Map<string, string>} {
+}): {
+    vtCalls: () => number;
+    dataset: {theme?: string};
+    store: Map<string, string>;
+    htmlStyle: Map<string, string>;
+    bodyStyle: Map<string, string>;
+} {
 
     let vtCalls = 0;
     const dataset: {theme?: string} = {theme: opts.theme};
     const store = new Map<string, string>([['starlight-theme', opts.theme]]);
+    const htmlStyle = new Map<string, string>([['background', 'hsl(228, 22%, 6%)'], ['color-scheme', 'dark']]);
+    const bodyStyle = new Map<string, string>([['background', 'hsl(228, 22%, 6%)']]);
 
     Object.defineProperty(globalThis, 'document', {
         configurable: true,
         value: {
-            documentElement: {dataset},
+            documentElement: {
+                dataset,
+                style: {
+                    removeProperty: (name: string) => {
+                        htmlStyle.delete(name);
+                    },
+                },
+            },
+            body: {
+                style: {
+                    removeProperty: (name: string) => {
+                        bodyStyle.delete(name);
+                    },
+                },
+            },
             startViewTransition: (cb: () => void) => {
                 vtCalls += 1;
                 cb();
@@ -47,7 +69,7 @@ function mockThemeEnv(opts: {
         },
     });
 
-    return {vtCalls: () => vtCalls, dataset, store};
+    return {vtCalls: () => vtCalls, dataset, store, htmlStyle, bodyStyle};
 
 }
 
@@ -71,6 +93,9 @@ test('toggleTheme: skips view transition when reduced motion', (assert) => {
     assert.equal(next, 'light');
     assert.equal(env.dataset.theme, 'light');
     assert.equal(env.vtCalls(), 0);
+    assert.equal(env.htmlStyle.has('background'), false);
+    assert.equal(env.htmlStyle.has('color-scheme'), false);
+    assert.equal(env.bodyStyle.has('background'), false);
 
 });
 

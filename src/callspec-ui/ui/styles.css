@@ -50,7 +50,7 @@
     --sidebar-item-pad-inline: 0.5rem;
     /* Link/summary inline pad — shared with docs (`--docs-sidebar-link-pad-inline`). */
     --sidebar-link-pad-inline: var(--docs-sidebar-link-pad-inline);
-    --footer-height: 2.75rem;
+    --footer-height: 3.25rem;
     --content-width: 57.5rem; /* 920px — each route page column */
     --route-page-gap: 3.5rem;
     --route-page-width: calc(var(--content-width) * 2 + var(--route-page-gap));
@@ -172,6 +172,7 @@ html, body {
     justify-content: center;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
+    min-height: 100dvh;
 }
 
 .sr-only {
@@ -211,7 +212,7 @@ html, body {
     }
 }
 
-/* Full-bleed search band above Home — no floating inset pill. */
+/* Full-bleed search band between Home/Routes and tag routes. */
 .sidebar-search {
     flex-shrink: 0;
     padding: 0;
@@ -373,11 +374,12 @@ html, body {
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1.35rem;
+    height: 1.35rem;
 }
 
-.header-contract-btn__icon svg {
+.header-contract-btn__icon svg,
+.header-contract-btn__icon .cs-lockup__mark {
     display: block;
     width: 100%;
     height: 100%;
@@ -399,11 +401,6 @@ html, body {
 .header-contracts--drawer {
     display: none;
     margin-top: 0;
-}
-
-.loading-text {
-    color: var(--text-secondary);
-    font-size: 0.8125rem;
 }
 
 .sidebar {
@@ -439,11 +436,8 @@ html, body {
 }
 
 .sidebar-nav {
-    /*
-     * Pull in by link pad so “Home” text aligns with search icon
-     * (search uses --sidebar-pad-x; links add --sidebar-link-pad-inline).
-     */
-    padding: 0.65rem calc(var(--sidebar-pad-x) - var(--sidebar-link-pad-inline)) 2.5rem;
+    /* Full-bleed — section rules (search, Home/Routes, tags) own their own pad. */
+    padding: 0 0 2.5rem;
 }
 
 .sidebar-nav :is(ul, li) {
@@ -452,6 +446,21 @@ html, body {
     list-style: none;
 }
 
+/*
+ * Must beat `.sidebar-nav :is(ul)` (that reset was zeroing section pad).
+ * Same inline inset as search; even block pad so the hairline isn’t glued to rows.
+ */
+.sidebar-nav .sidebar-page-links,
+.sidebar-nav .sidebar-top-level {
+    padding: 0.75rem calc(var(--sidebar-pad-x) - var(--sidebar-link-pad-inline));
+}
+
+.sidebar-nav .sidebar-page-links {
+    margin: 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar-page-links > li + li,
 .sidebar-top-level > li + li {
     /* Docs: starlight-custom #starlight__sidebar .top-level > li + li */
     margin-top: 0.45rem;
@@ -612,9 +621,37 @@ html, body {
 .sidebar-link__inner {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.4rem;
     min-width: 0;
     width: 100%;
+}
+
+.sidebar-link__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--text-tertiary);
+}
+
+.sidebar-link--top .sidebar-link__icon {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.sidebar-link__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar-link--top:hover .sidebar-link__icon,
+.sidebar-link--top:focus-visible .sidebar-link__icon {
+    color: var(--sidebar-hover);
+}
+
+.sidebar-link--top.sidebar-link--active .sidebar-link__icon,
+.sidebar-link--top.sidebar-link--active:hover .sidebar-link__icon {
+    color: inherit;
 }
 
 .sidebar-link__label {
@@ -630,16 +667,16 @@ html, body {
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
-    gap: 0.2rem;
+    gap: 0;
 }
 
 .sidebar-link__badges .route-badge {
     gap: 0;
 }
 
-.sidebar-link__badges .route-badge__icon {
-    width: 0.875rem;
-    height: 0.875rem;
+.sidebar-link__badges .icon-label__icon {
+    width: 1rem;
+    height: 1rem;
 }
 
 /* Active fill uses --nav-active-fg (contrast-picked). Badge defaults are grey/green/MCP. */
@@ -703,7 +740,8 @@ html, body {
     max-width: none;
     margin: 0 0 1rem;
     margin-left: calc(-1 * var(--content-pad-x));
-    padding: 0 var(--content-pad-x) 1rem;
+    /* Equal block pad — title row is vertically centered in the band. */
+    padding: 1rem var(--content-pad-x);
     border-bottom: 1px solid var(--border);
 }
 
@@ -711,13 +749,13 @@ html, body {
     .overview-title-panel,
     .route-page__title {
         margin-bottom: 1.25rem;
-        padding-bottom: 1.25rem;
+        padding-block: 1.25rem;
     }
 }
 
 .overview-head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
     margin: 0;
@@ -739,7 +777,7 @@ html, body {
     font-size: 1.25rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    line-height: 1.25;
+    line-height: 1;
     color: var(--text);
 }
 
@@ -752,6 +790,7 @@ html, body {
 .overview-count {
     margin: 0;
     font-size: 0.8125rem;
+    line-height: 1;
     color: var(--text-secondary);
 }
 
@@ -809,26 +848,16 @@ html, body {
     cursor: pointer;
 }
 
-.filter-pill__icon {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
+.filter-pill .icon-label {
+    gap: 0.2rem;
+}
+
+.filter-pill .icon-label__icon {
     width: 0.875rem;
     height: 0.875rem;
 }
 
-.filter-pill__icon svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.filter-pill__label {
-    min-width: 0;
-}
-
-.filter-pill:hover {
+.filter-pill:hover:not(.active) {
     border-color: var(--border-strong);
     color: var(--text);
 }
@@ -841,7 +870,8 @@ html, body {
     font-weight: 600;
 }
 
-.filter-pill.active .filter-pill__icon {
+.filter-pill.active .icon-label,
+.filter-pill.active .icon-label__icon {
     color: inherit;
 }
 
@@ -852,17 +882,17 @@ html, body {
     color: var(--text-secondary);
 }
 
-.filter-pill--tag .filter-pill__icon {
+.filter-pill--tag .icon-label__icon {
     color: var(--text-tertiary);
 }
 
-.filter-pill--tag:hover {
+.filter-pill--tag:hover:not(.active) {
     background: var(--accent-soft);
     border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
     color: var(--text);
 }
 
-.filter-pill--tag:hover .filter-pill__icon {
+.filter-pill--tag:hover .icon-label__icon {
     color: var(--accent);
 }
 
@@ -872,21 +902,21 @@ html, body {
     color: var(--nav-active-fg);
 }
 
-.filter-pill--tag.active .filter-pill__icon {
+.filter-pill--tag.active .icon-label__icon {
     color: inherit;
 }
 
 /* Auth options mirror route badges (None / Bearer). */
-.filter-pill--auth .filter-pill__icon--none {
+.filter-pill--auth .icon-label--none {
     color: var(--green);
 }
 
-.filter-pill--auth .filter-pill__icon--bearer {
+.filter-pill--auth .icon-label--bearer {
     color: var(--text-secondary);
 }
 
-.filter-pill--auth.active .filter-pill__icon--none,
-.filter-pill--auth.active .filter-pill__icon--bearer {
+.filter-pill--auth.active .icon-label--none,
+.filter-pill--auth.active .icon-label--bearer {
     color: inherit;
 }
 
@@ -929,7 +959,7 @@ html, body {
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.625rem;
 }
 
 .route-card-name {
@@ -948,33 +978,42 @@ html, body {
     flex-wrap: wrap;
 }
 
-.route-badge {
+.icon-label {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
+    gap: 0.2rem;
     line-height: 1;
-    color: var(--text-secondary);
 }
 
-.route-badge__icon {
+.icon-label__icon {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
+    overflow: visible;
     width: 1rem;
     height: 1rem;
 }
 
-.route-badge__icon svg {
+.icon-label__icon svg {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-.route-badge__label {
+.icon-label__icon .icon-lock {
+    transform: translateY(-0.04em);
+}
+
+.icon-label__label {
+    line-height: 1;
     white-space: nowrap;
+}
+
+.route-badge {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .route-badge--none {
@@ -1026,6 +1065,8 @@ body > .footer {
     max-width: none;
     margin-inline: 0;
     box-sizing: border-box;
+    /* Title panel is the band under the header — don’t add a second top pad. */
+    padding-top: 0;
 }
 
 .content > .footer {
@@ -1033,55 +1074,26 @@ body > .footer {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.45rem;
     height: var(--footer-height);
     margin-top: 0.5rem;
     padding: 0 1.25rem;
-    border-top: 0.0625rem solid var(--border);
     background: transparent;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     color: var(--text-tertiary);
 }
 
-.footer-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: inherit;
-    text-decoration: none;
+.content > .footer .cs-lockup__mark {
+    width: 1.8rem;
+    height: 1.8rem;
 }
 
-.footer-link:hover {
-    color: var(--text-secondary);
-}
-
-.footer-link:hover .footer-name {
-    color: var(--text);
+.content > .footer .cs-lockup__word {
+    font-size: 1.3rem;
 }
 
 .footer-label {
     color: var(--text-tertiary);
-}
-
-.footer-name {
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.footer-logo {
-    display: block;
-    flex-shrink: 0;
-}
-
-.footer-logo-dark {
-    display: none;
-}
-
-[data-theme="dark"] .footer-logo-light {
-    display: none;
-}
-
-[data-theme="dark"] .footer-logo-dark {
-    display: block;
 }
 
 .empty-state {
@@ -1103,7 +1115,7 @@ body > .footer {
 }
 
 .route-title {
-    margin: 0 0 0.45rem;
+    margin: 0 0 0.75rem;
     font-family: var(--font-heading);
     font-size: 1.25rem;
     font-weight: 700;
@@ -1142,9 +1154,13 @@ body > .footer {
     color: var(--text);
 }
 
+.route-endpoint .badges {
+    margin-left: 0.75rem;
+}
+
 @media (min-width: 90rem) {
     .route-title {
-        margin-bottom: 0.65rem;
+        margin-bottom: 0.9rem;
         font-size: 1.5rem;
     }
 
@@ -1210,13 +1226,14 @@ body > .footer {
     cursor: pointer;
 }
 
-.schema-view-toggle__btn:hover {
+.schema-view-toggle__btn:hover:not(.schema-view-toggle__btn--active) {
     color: var(--text);
 }
 
-.schema-view-toggle__btn--active {
-    background: var(--accent-soft);
-    color: var(--text);
+.schema-view-toggle__btn--active,
+.schema-view-toggle__btn--active:hover {
+    background: var(--nav-active-bg);
+    color: var(--nav-active-fg);
 }
 
 .schema-panel__view[hidden] {
@@ -1879,9 +1896,13 @@ body > .footer {
     background: var(--accent);
     color: var(--nav-active-fg);
     border: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.btn-primary:hover { opacity: 0.88; }
+.btn-primary:hover:not(:disabled) {
+    background: var(--cs-primary-hover-bg);
+    color: var(--cs-primary-hover-fg);
+}
 
 .btn-ghost {
     background: transparent;
@@ -2030,6 +2051,11 @@ body > .footer {
         padding: 1.25rem var(--content-pad-x) 2.5rem;
         max-width: none;
     }
+
+    .main:has(.route-page),
+    .main:has(.overview) {
+        padding-top: 0;
+    }
 }
 
 .intro {
@@ -2160,29 +2186,20 @@ body > .footer {
 }
 
 .mcp-connect-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     margin: 0 0 0.25rem;
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text);
 }
 
-.mcp-connect-title__icon {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
+.mcp-connect-title .icon-label {
+    gap: 0.5rem;
+}
+
+.mcp-connect-title .icon-label__icon {
     width: 1.625rem;
     height: 1.625rem;
     color: var(--cs-mcp);
-}
-
-.mcp-connect-title__icon svg {
-    display: block;
-    width: 100%;
-    height: 100%;
 }
 
 .mcp-connect-lead {

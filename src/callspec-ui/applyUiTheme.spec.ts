@@ -19,6 +19,8 @@ test('applyUiTheme: maps theme keys to CSS vars and returns fontUrls', (assert) 
     assert.equal(result.cssVars['--nav-active-fg'], '#fafafa');
     assert.equal(result.cssVars['--cs-primary-bg'], '#0ea5e9');
     assert.equal(result.cssVars['--cs-primary-fg'], '#fafafa');
+    assert.equal(result.cssVars['--cs-primary-hover-bg'], 'color-mix(in srgb, #0ea5e9 82%, black)');
+    assert.equal(result.cssVars['--cs-primary-hover-fg'], '#fafafa');
     assert.equal(
         result.cssVars['--accent-soft'],
         'color-mix(in srgb, #0ea5e9 16%, var(--surface))',
@@ -60,6 +62,8 @@ test('applyUiTheme: accent-only sets nav active tokens from accent contrast', (a
     assert.equal(result.cssVars['--nav-active-bg'], '#111');
     assert.equal(result.cssVars['--nav-active-fg'], '#fafafa');
     assert.equal(result.cssVars['--cs-primary-bg'], '#111');
+    assert.equal(result.cssVars['--cs-primary-hover-bg'], 'color-mix(in srgb, #111 82%, black)');
+    assert.equal(result.cssVars['--cs-primary-hover-fg'], '#fafafa');
     assert.equal(
         result.cssVars['--accent-soft'],
         'color-mix(in srgb, #111 16%, var(--surface))',

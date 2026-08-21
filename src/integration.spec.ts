@@ -236,7 +236,7 @@ test('integration: callspec UI at /docs', async (assert) => {
         assert.equal(/src="\.\/assets\/app\.[a-f0-9]{8}\.js"/.test(html), true);
         assert.equal(html.includes('type="module"'), false);
         assert.equal(html.includes('Powered by'), true);
-        assert.equal(html.includes('class="footer-link"'), true);
+        assert.equal(html.includes('footer-label'), true);
         assert.equal(html.includes('callspec'), true);
         assert.equal(res.headers.get('cache-control'), 'no-cache');
 

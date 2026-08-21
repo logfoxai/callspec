@@ -2,6 +2,7 @@ import type {CallspecUiConfig} from '../branding';
 import {slugifyName} from '../../metaDefaults';
 import {codeBlock} from './highlight';
 import {mcpIcon} from './icons';
+import {renderIconLabel} from './iconLabel';
 
 type McpRoute = {
     name: string
@@ -292,8 +293,11 @@ export function renderMcpConnect(
             <div class="mcp-connect-head">
                 <div>
                     <h3 class="mcp-connect-title">
-                        <span class="mcp-connect-title__icon" aria-hidden="true">${mcpIcon()}</span>
-                        Connect MCP
+                        ${renderIconLabel({
+                            icon: mcpIcon(),
+                            label: 'Connect MCP',
+                            className: 'icon-label--mcp',
+                        })}
                     </h3>
                     <p class="mcp-connect-lead">
                         ${mcpRoutes.length} tool${mcpRoutes.length === 1 ? '' : 's'} over HTTP — paste into your agent.

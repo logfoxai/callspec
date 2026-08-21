@@ -9,8 +9,7 @@ Credentials are per-route, not in the input pred.
 
 Any route with `auth: 'bearer'` requires `authenticate` on the spec — `spec` throws at load time if it is missing.
 
-```typescript
-// server/auth.ts
+```typescript title="server/auth.ts" frame="code"
 import type {Authenticate} from 'callspec';
 
 export type Ctx = {userId: string};
@@ -22,8 +21,7 @@ export const authenticate: Authenticate<Ctx> = async (token, req) => {
 };
 ```
 
-```typescript
-// server/routes/getProfile.ts
+```typescript title="server/routes/getProfile.ts" frame="code"
 import {route} from 'callspec';
 import {predicates as p} from 'runtyp';
 import type {Ctx} from '../auth';
@@ -52,7 +50,7 @@ const api = new ApiClient({
 
 Set `meta.authHint`. OpenAPI Bearer security is derived from route `auth` automatically.
 
-`scope: 'private'` keeps a route off the public contract (unless this mount uses `visibility: 'all'`). It does not change the auth gate. See [Auth and scope](./api-reference/auth-and-scope.md).
+`scope: 'private'` is documented when this mount uses `visibility: 'all'`. It does not change the auth gate. See [Auth and scope](./api-reference/auth-and-scope.md).
 
 For richer context from headers and JWT claims, see [Request context](./request-context.md).
 

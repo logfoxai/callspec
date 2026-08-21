@@ -29,6 +29,20 @@ export function paginationRightArrowIcon(): string {
 
 }
 
+/** House for the explorer sidebar Home link. */
+export function homeIcon(): string {
+
+    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M4 10.75 12 4l8 6.75"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-6h4v6"/></svg>`;
+
+}
+
+/** List for the explorer sidebar Routes catalog link. */
+export function routesIcon(): string {
+
+    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M9 6h12"/><path d="M9 12h12"/><path d="M9 18h12"/><circle cx="5" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1" fill="currentColor" stroke="none"/></svg>`;
+
+}
+
 /** Price-tag shape for sidebar route category groups. */
 export function tagIcon(): string {
 
@@ -38,13 +52,13 @@ export function tagIcon(): string {
 
 export function unlockIcon(): string {
 
-    return `<svg ${SVG_ATTRS} aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 9.5-1"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg>`;
+    return `<svg ${SVG_ATTRS} class="icon-lock" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 9.5-1"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg>`;
 
 }
 
 export function lockIcon(): string {
 
-    return `<svg ${SVG_ATTRS} aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`;
+    return `<svg ${SVG_ATTRS} class="icon-lock" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`;
 
 }
 
@@ -55,10 +69,32 @@ export function mcpIcon(): string {
 
 }
 
-/** Callspec hex mark — matches assets/mark-*.svg, currentColor. */
-export function callspecMarkIcon(): string {
+/** Hex outline — same path as the header lockup in SiteTitle / CallspecLockup. */
+export const CALLSPEC_HEX_PATH =
+    'M30.9 4.635A2.2 2.2 0 0 1 33.1 4.635L55.149 17.365A2.2 2.2 0 0 1 56.249 19.27V44.73A2.2 2.2 0 0 1 55.149 46.635L33.1 59.365A2.2 2.2 0 0 1 30.9 59.365L8.851 46.635A2.2 2.2 0 0 1 7.751 44.73V19.27A2.2 2.2 0 0 1 8.851 17.365Z';
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M30.9 4.635A2.2 2.2 0 0 1 33.1 4.635L55.149 17.365A2.2 2.2 0 0 1 56.249 19.27V44.73A2.2 2.2 0 0 1 55.149 46.635L33.1 59.365A2.2 2.2 0 0 1 30.9 59.365L8.851 46.635A2.2 2.2 0 0 1 7.751 44.73V19.27A2.2 2.2 0 0 1 8.851 17.365ZM19.00 24.00H45.00A3.00 3.00 0 0 1 45.00 30.00H19.00A3.00 3.00 0 0 1 19.00 24.00ZM19.00 34.00H45.00A3.00 3.00 0 0 1 45.00 40.00H19.00A3.00 3.00 0 0 1 19.00 34.00Z"/></svg>`;
+/** Equals cutouts — same rects as the header lockup mask (26×6 at x=19). */
+export const CALLSPEC_EQ_BARS = [
+    {x: 19, y: 24, width: 26, height: 6, rx: 3},
+    {x: 19, y: 34, width: 26, height: 6, rx: 3},
+] as const;
+
+function evenoddPillPath(x: number, y: number, width: number, height: number): string {
+
+    const radius = height / 2;
+    const left = x + radius;
+    const right = x + width - radius;
+    const bottom = y + height;
+
+    return `M${left} ${y}H${right}A${radius} ${radius} 0 0 1 ${right} ${bottom}H${left}A${radius} ${radius} 0 0 1 ${left} ${y}Z`;
+
+}
+
+/** Evenodd path for static marks (favicon, explorer, assets). */
+export function callspecMarkPathD(): string {
+
+    return CALLSPEC_HEX_PATH + CALLSPEC_EQ_BARS.map((bar) =>
+        evenoddPillPath(bar.x, bar.y, bar.width, bar.height)).join('');
 
 }
 

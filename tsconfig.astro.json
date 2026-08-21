@@ -7,7 +7,9 @@
     "src/components/**/*.ts",
     "src/overrides/**/*.astro",
     "src/pages/**/*.astro",
-    "src/splashHeroTypes.ts"
+    "src/splashHeroTypes.ts",
+    "src/callspec-ui/ui/icons.ts",
+    "src/callspec-ui/ui/callspecLockup.ts"
   ],
   "exclude": ["dist", "node_modules", "docs-site"]
 }

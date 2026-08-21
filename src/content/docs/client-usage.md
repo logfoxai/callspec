@@ -8,8 +8,7 @@ Codes reference: [Builtin errors](./builtin-errors.md).
 
 ## Typical call
 
-```typescript
-// src/app/getProductById.ts
+```typescript title="src/app/getProductById.ts" frame="code"
 import {ApiClient} from '../generated/api';
 import {handleFailure} from './handleFailure';
 
@@ -41,8 +40,7 @@ When you add `errors: defineErrors({ … })` on the route, regenerate the client
 
 Put builtin and client-only handling in **one** place so call sites stay thin:
 
-```typescript
-// src/app/handleFailure.ts
+```typescript title="src/app/handleFailure.ts" frame="code"
 import {toast} from '../toast'; // sonner, react-hot-toast, whatever you use
 
 type Failed = {ok: false; code: string; status: number; data?: unknown};
@@ -84,8 +82,7 @@ Tighten or expand this helper as your product needs — one file, not every call
 
 ## React sketch
 
-```tsx
-// src/components/ProductView.tsx
+```tsx title="src/components/ProductView.tsx" frame="code"
 import {useState} from 'react';
 import {fetchProduct} from '../app/getProductById';
 

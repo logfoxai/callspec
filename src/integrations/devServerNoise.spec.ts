@@ -1,7 +1,9 @@
 import {test} from 'kizu';
 import {
     demoPublicDirRedirect,
+    demoStaleFontRel,
     isLocalDevHost,
+    demoPublicFileRel,
     rewritePublicDirIndexRequest,
     shouldBypassSecFetchForIdePreview,
     shouldShortCircuitDevtoolsProbe,
@@ -73,4 +75,36 @@ test('rewritePublicDirIndexRequest: Chirp demo index in dev', (assert) => {
     assert.equal(rewritePublicDirIndexRequest('/demo/'), '/demo/index.html');
     assert.equal(rewritePublicDirIndexRequest('/demo/index.html'), null);
     assert.equal(rewritePublicDirIndexRequest('/demo/callspec.json'), null);
+});
+
+test('demoPublicFileRel: explorer static files, not the HTML shell or docs', (assert) => {
+    assert.equal(demoPublicFileRel('/demo/callspec.json'), 'callspec.json');
+    assert.equal(demoPublicFileRel('/demo/openapi.json'), 'openapi.json');
+    assert.equal(demoPublicFileRel('/demo/assets/style.05a8a306.css'), 'assets/style.05a8a306.css');
+    assert.equal(demoPublicFileRel('/demo/assets/app.933f31e3.js'), 'assets/app.933f31e3.js');
+    assert.equal(demoPublicFileRel('/demo/brand/birb-icon-square.svg'), 'brand/birb-icon-square.svg');
+    assert.equal(demoPublicFileRel('/demo/'), null);
+    assert.equal(demoPublicFileRel('/demo/index.html'), null);
+    assert.equal(demoPublicFileRel('/demo/assets/../secret'), null);
+    assert.equal(demoPublicFileRel('/getting-started/'), null);
+});
+
+test('demoStaleFontRel: /demo/ + base href font misses map to publicDir fonts', (assert) => {
+
+    assert.equal(
+        demoStaleFontRel('/demo/node_modules/@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2'),
+        'fonts/ibm-plex-sans-latin-wght-normal.woff2',
+    );
+    assert.equal(
+        demoStaleFontRel('/demo/assets/fonts/ibm-plex-mono-latin-400-normal.woff2'),
+        'fonts/ibm-plex-mono-latin-400-normal.woff2',
+    );
+    assert.equal(
+        demoStaleFontRel('/demo/fonts/ibm-plex-mono-latin-600-normal.woff2'),
+        'fonts/ibm-plex-mono-latin-600-normal.woff2',
+    );
+    assert.equal(demoStaleFontRel('/fonts/ibm-plex-sans-latin-wght-normal.woff2'), null);
+    assert.equal(demoStaleFontRel('/demo/callspec.json'), null);
+    assert.equal(demoStaleFontRel('/demo/node_modules/@fontsource/evil.woff2'), null);
+
 });

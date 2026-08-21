@@ -1,6 +1,7 @@
 import {openApiPathFromSpecUrl} from '../contractPaths';
 import type {CallspecUiNotice} from '../../types';
-import {callspecMarkIcon, openApiIcon, themeMoonIcon, themeSunIcon} from './icons';
+import {renderCallspecLockupMark} from './callspecLockup';
+import {openApiIcon, themeMoonIcon, themeSunIcon} from './icons';
 import type {Theme} from './theme';
 
 function escapeHtml(text: string): string {
@@ -100,7 +101,7 @@ export function renderDocsMenuButton(): string {
 }
 
 type MobileMenuToolsOptions = {
-    /** Optional — demo keeps search at the top of the sidebar instead. */
+    /** Optional — explorer keeps search in the sidebar (below Home/Routes). */
     searchHtml?: string
     /** Contracts (or social) — left side of preferences row. */
     leadingHtml: string
@@ -205,10 +206,12 @@ export function renderHeaderContractButtons(
         ? 'header-contracts header-contracts--drawer'
         : 'header-contracts header-contracts--header-end';
 
+    const markId = variant === 'drawer' ? 'cs-eq-mask-contract-drawer' : 'cs-eq-mask-contract-header';
+
     return `
         <nav class="${className}" aria-label="Contract files">
             <a class="btn btn-ghost header-contract-btn header-contract-btn--callspec" href="${escapeHtml(specUrl)}" target="_blank" rel="noopener">
-                <span class="header-contract-btn__icon">${callspecMarkIcon()}</span>
+                <span class="header-contract-btn__icon">${renderCallspecLockupMark(markId)}</span>
                 <span class="header-contract-btn__label">callspec.json</span>
             </a>
             <a class="btn btn-ghost header-contract-btn header-contract-btn--openapi" href="${escapeHtml(openapiHref)}" target="_blank" rel="noopener">

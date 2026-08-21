@@ -10,6 +10,8 @@
 /* Mobile-first html scale — both surfaces inherit rem from this. */
 html {
     font-size: 0.875rem;
+    /* Same reserved gutter on splash + guides so the header never shifts. */
+    scrollbar-gutter: stable;
 }
 
 @media (min-width: 40em) {
@@ -63,9 +65,16 @@ html[data-theme='light'],
     --docs-text: hsl(228, 25%, 12%);
     --docs-text-secondary: hsl(228, 10%, 40%);
     --docs-text-tertiary: hsl(228, 8%, 52%);
+
+    /* Primary fill — sidebar selected, links, TOC, splash accent, footer hover. */
+    --docs-primary-bg: hsl(262, 46%, 44%);
+    --docs-primary-fg: #f8fafc;
+    --docs-primary-hover-bg: var(--docs-primary-bg);
+    --docs-primary-hover-fg: var(--docs-primary-fg);
+
     --docs-accent: var(--docs-primary-bg);
     --docs-accent-soft: color-mix(in srgb, var(--docs-primary-bg) 14%, var(--docs-bg));
-    --docs-link: color-mix(in srgb, var(--docs-primary-bg) 88%, white);
+    --docs-link: var(--docs-primary-bg);
     /* Callspec hex mark — ink (host --accent must not override). */
     --docs-callspec-mark: #000;
     /* Mark ↔ label gap — explorer contract chips + docs nav lockup. */
@@ -90,12 +99,6 @@ html[data-theme='light'],
     --docs-sidebar-hover: #000;
     --docs-header-bg: #ffffff;
 
-    /* Primary fill — CTAs + active nav (deep blue-slate, matches splash CTA hover). */
-    --docs-primary-bg: hsl(228, 18%, 32%);
-    --docs-primary-fg: #f8fafc;
-    --docs-primary-hover-bg: hsl(228, 20%, 26%);
-    --docs-primary-hover-fg: #ffffff;
-
     --docs-table-bg: hsl(0, 0%, 100%);
     --docs-table-row-hover: hsl(228, 28%, 97%);
 }
@@ -116,21 +119,22 @@ html[data-theme='dark'],
     --docs-text-secondary: hsl(228, 12%, 68%);
     --docs-text-tertiary: hsl(228, 10%, 52%);
     --docs-sidebar-hover: var(--docs-text);
+
+    /* Same hue as light — pale iris, not a grey wash. */
+    --docs-primary-bg: hsl(262, 40%, 76%);
+    --docs-primary-fg: hsl(262, 28%, 8%);
+    --docs-primary-hover-bg: var(--docs-primary-bg);
+    --docs-primary-hover-fg: var(--docs-primary-fg);
+
     --docs-accent: var(--docs-primary-bg);
     --docs-accent-soft: color-mix(in srgb, var(--docs-primary-bg) 22%, var(--docs-surface));
-    --docs-link: color-mix(in srgb, var(--docs-primary-bg) 88%, white);
+    --docs-link: var(--docs-primary-bg);
     /* Callspec hex mark — assets/mark-dark.svg */
     --docs-callspec-mark: #fff;
     --docs-code-bg: hsl(228, 14%, 15%);
     --docs-code-border: color-mix(in srgb, var(--docs-code-bg) 88%, white);
     --docs-mcp: #c084fc;
     --docs-header-bg: var(--docs-sidebar);
-
-    /* Same slate as light, lightened so it still reads as color on dark. */
-    --docs-primary-bg: color-mix(in srgb, hsl(228, 18%, 32%) 62%, white);
-    --docs-primary-fg: hsl(228, 28%, 8%);
-    --docs-primary-hover-bg: color-mix(in srgb, hsl(228, 18%, 32%) 48%, white);
-    --docs-primary-hover-fg: hsl(228, 28%, 8%);
 
     --docs-table-bg: hsl(228, 16%, 10%);
     --docs-table-row-hover: hsl(228, 14%, 13%);
@@ -163,8 +167,8 @@ html[data-theme='light'],
     --cs-mcp: var(--docs-mcp);
     --cs-code-bg: var(--docs-code-bg);
     --cs-code-border: var(--docs-code-border);
-    --cs-cyan: var(--docs-link);
-    --cs-link: var(--docs-link);
+    --cs-cyan: var(--docs-primary-bg);
+    --cs-link: var(--docs-primary-bg);
     --cs-primary-bg: var(--docs-primary-bg);
     --cs-primary-fg: var(--docs-primary-fg);
     --cs-primary-hover-bg: var(--docs-primary-hover-bg);
@@ -195,6 +199,76 @@ html[data-theme='light'],
     --callspec-mark: var(--docs-callspec-mark);
     --mark-label-gap: var(--docs-mark-label-gap);
     --font-heading: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Shared lockup — docs header/footer + explorer powered-by. */
+.cs-lockup {
+    --cs-mark: var(--docs-callspec-mark);
+    --cs-word: var(--docs-text);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--docs-mark-label-gap);
+    text-decoration: none;
+    line-height: 1;
+}
+
+.cs-lockup__mark {
+    flex: none;
+    width: 1.8rem;
+    height: 1.8rem;
+    color: var(--cs-mark);
+    transition: color 0.25s ease;
+}
+
+.cs-hex {
+    fill: currentColor;
+}
+
+.cs-eq {
+    transform-box: fill-box;
+    transform-origin: left center;
+}
+
+.cs-lockup__word {
+    font-family: var(--font-heading, var(--sl-font, inherit));
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--cs-word);
+    transition: color 0.25s ease;
+}
+
+@media (hover: hover) {
+    .cs-lockup:hover .cs-eq--top {
+        animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) both;
+    }
+
+    .cs-lockup:hover .cs-eq--bottom {
+        animation: cs-eq-type 0.34s cubic-bezier(0.22, 0.7, 0.24, 1) 0.09s both;
+    }
+}
+
+@keyframes cs-eq-type {
+    0% {
+        transform: scaleX(0);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+.cs-lockup:focus-visible {
+    outline: 2px solid var(--cs-mark);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cs-lockup:hover .cs-eq--top,
+    .cs-lockup:hover .cs-eq--bottom {
+        animation: none;
+    }
 }
 
 /* Shared frosted header treatment (guides + explorer). */

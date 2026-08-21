@@ -13,7 +13,6 @@ import {CallspecDocumentError} from '../../callspecDocumentTypes';
 import {parseUiCallspecDocument} from '../parseUiDocument';
 import {codeBlock} from './highlight';
 import {exampleFromSchema} from './exampleFromSchema';
-import {bindSchemaPanels, renderRouteErrorsSection, renderSchemaExamplePanel} from './schemaPanel';
 import {initJsonEditor} from './jsonEditor';
 import {bindMcpConnect, renderMcpConnect} from './mcpConnect';
 import {renderTryItPanel} from './tryItPanel';
@@ -29,11 +28,14 @@ import {
 } from './docsChrome';
 import {initTheme, toggleTheme, type Theme} from './theme';
 import {lockIcon, tagIcon, unlockIcon} from './icons';
+import {renderIconLabel} from './iconLabel';
 import {renderRouteBadges} from './routeBadges';
+import {renderSidebar} from './sidebarNav';
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {renderRoutePaginationFooter} from './routePagination';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
 import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
+import {callspecDocumentTitle} from '../documentTitle';
 
 type View =
     | {kind: 'home'}
@@ -290,109 +292,6 @@ function setViewHash(view: View): void {
 
 }
 
-const SIDEBAR_CARET_SVG = `
-    <svg class="sidebar-caret" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="currentColor" d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/>
-    </svg>
-`.trim();
-
-const SIDEBAR_TAG_ICON = `<span class="sidebar-group-icon">${tagIcon()}</span>`;
-
-function renderSidebarLink(
-    label: string,
-    active: boolean,
-    attrs: Record<string, string>,
-    options: {mono?: boolean, top?: boolean, badges?: string} = {},
-): string {
-
-    const attrStr = Object.entries(attrs)
-        .map(([key, value]) => ` ${key}="${escapeHtml(value)}"`)
-        .join('');
-    const monoClass = options.mono ? ' sidebar-link--mono' : '';
-    const topClass = options.top ? ' sidebar-link--top' : '';
-    const content = options.badges
-        ? `
-            <span class="sidebar-link__inner">
-                <span class="sidebar-link__label">${escapeHtml(label)}</span>
-                <span class="sidebar-link__badges">${options.badges}</span>
-            </span>
-        `.trim()
-        : escapeHtml(label);
-
-    return `
-        <li>
-            <button type="button" class="sidebar-link${active ? ' sidebar-link--active' : ''}${monoClass}${topClass}"${attrStr}>
-                ${content}
-            </button>
-        </li>
-    `;
-
-}
-
-function renderSidebar(
-    routes: CallspecUiRoute[],
-    view: View,
-    showHome: boolean,
-): string {
-
-    const groups = groupRoutesByTag(routes);
-    let topLinks = '';
-
-    if (showHome) {
-
-        topLinks += renderSidebarLink('Home', view.kind === 'home', {'data-view': 'home'}, {top: true});
-
-    }
-
-    topLinks += renderSidebarLink('Routes', view.kind === 'routes', {'data-view': 'routes'}, {top: true});
-
-    let groupHtml = '';
-
-    for (const [tag, list] of groups) {
-
-        let routeLinks = '';
-
-        for (const route of list) {
-
-            const active = view.kind === 'route' && route.name === view.name;
-
-            routeLinks += renderSidebarLink(route.name, active, {'data-route': route.name}, {
-                badges: renderRouteBadges(route, {labels: false}),
-            });
-
-        }
-
-        groupHtml += `
-            <li class="sidebar-group">
-                <details open>
-                    <summary>
-                        <span class="sidebar-group-heading">
-                            ${SIDEBAR_TAG_ICON}
-                            <span class="sidebar-group-label">${escapeHtml(tag)}</span>
-                        </span>
-                        ${SIDEBAR_CARET_SVG}
-                    </summary>
-                    <ul class="sidebar-group-list">${routeLinks}</ul>
-                </details>
-            </li>
-        `;
-
-    }
-
-    if (!topLinks && !groupHtml) {
-
-        return '<div class="empty-state"><p>No routes</p></div>';
-
-    }
-
-    return `
-        <nav class="sidebar-nav" aria-label="Sidebar">
-            <ul class="sidebar-top-level">${topLinks}${groupHtml}</ul>
-        </nav>
-    `;
-
-}
-
 function renderSdkInstall(branding: CallspecUiBranding): string {
 
     const cmd = branding.sdkInstall?.trim();
@@ -489,8 +388,7 @@ function renderOverview(
 
         return `
             <button type="button" class="filter-pill filter-pill--tag${active}" data-tag="${escapeHtml(tag)}">
-                <span class="filter-pill__icon" aria-hidden="true">${tagIcon()}</span>
-                <span class="filter-pill__label">${escapeHtml(tag)}</span>
+                ${renderIconLabel({icon: tagIcon(), label: tag})}
             </button>
         `;
 
@@ -510,12 +408,10 @@ function renderOverview(
                     <div class="filter-pills">
                         <button type="button" class="filter-pill${filters.auth === 'all' ? ' active' : ''}" data-auth="all">All</button>
                         <button type="button" class="filter-pill filter-pill--auth${filters.auth === 'none' ? ' active' : ''}" data-auth="none">
-                            <span class="filter-pill__icon filter-pill__icon--none" aria-hidden="true">${unlockIcon()}</span>
-                            <span class="filter-pill__label">None</span>
+                            ${renderIconLabel({icon: unlockIcon(), label: 'None', className: 'icon-label--none'})}
                         </button>
                         <button type="button" class="filter-pill filter-pill--auth${filters.auth === 'bearer' ? ' active' : ''}" data-auth="bearer">
-                            <span class="filter-pill__icon filter-pill__icon--bearer" aria-hidden="true">${lockIcon()}</span>
-                            <span class="filter-pill__label">Bearer</span>
+                            ${renderIconLabel({icon: lockIcon(), label: 'Bearer', className: 'icon-label--bearer'})}
                         </button>
                     </div>
                 </div>
@@ -537,9 +433,14 @@ function renderOverview(
 
 }
 
-function renderErrors(route: CallspecUiRoute): string {
+type RoutePanels = Pick<
+    typeof import('./schemaPanel'),
+    'bindSchemaPanels' | 'renderRouteErrorsSection' | 'renderSchemaExamplePanel'
+>;
 
-    return renderRouteErrorsSection(route);
+function loadRoutePanels(): Promise<typeof import('./schemaPanel')> {
+
+    return import('./schemaPanel');
 
 }
 
@@ -550,6 +451,7 @@ function renderRoute(
     bodyJson: string,
     allRoutes: CallspecUiRoute[],
     authToken: string,
+    panels: RoutePanels,
 ): string {
 
     return `
@@ -561,17 +463,17 @@ function renderRoute(
                 <div class="route-page__content">
                     ${renderRouteLead(route)}
                     <div class="route-docs">
-                        ${renderSchemaExamplePanel({
+                        ${panels.renderSchemaExamplePanel({
                             panelId: 'request',
                             title: 'Request',
                             schema: route.inputSchema,
                         })}
-                        ${renderSchemaExamplePanel({
+                        ${panels.renderSchemaExamplePanel({
                             panelId: 'response',
                             title: 'Response',
                             schema: route.outputSchema,
                         })}
-                        ${renderErrors(route)}
+                        ${panels.renderRouteErrorsSection(route)}
                     </div>
                     ${renderRoutePaginationFooter(route.name, allRoutes)}
                 </div>
@@ -708,6 +610,8 @@ async function boot(): Promise<void> {
         const parsed = parseUiCallspecDocument(doc);
         const title = config.title ?? parsed.info.title;
         const version = parsed.info.version;
+
+        document.title = callspecDocumentTitle(title);
         const branding = config.branding ?? {};
         const showHome = hasHomePage();
         const routes = callspecDocumentToUiSpec(parsed).routes;
@@ -821,13 +725,15 @@ async function boot(): Promise<void> {
 
         };
 
+        let renderGen = 0;
+
         const navigate = (next: View): void => {
 
             persistRouteDraft();
             view = next;
             setViewHash(next);
             closeNav();
-            render();
+            void render();
 
             if (location.hash.includes('mcp-connect')) {
 
@@ -841,7 +747,9 @@ async function boot(): Promise<void> {
 
         };
 
-        const render = (): void => {
+        const render = async (): Promise<void> => {
+
+            const gen = ++renderGen;
 
             drawerCleanup?.();
             drawerCleanup = null;
@@ -869,16 +777,13 @@ async function boot(): Promise<void> {
                 ${renderUiNotice(branding?.notice)}
                 ${renderTopHeader(title, branding, config.specUrl)}
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
-                    <div class="sidebar-search">
-                        ${renderDocsSearchField({
+                    <div class="sidebar-scroll">
+                        <p class="sidebar-meta sidebar-meta--mobile">v${escapeHtml(version)} · ${routes.length} routes</p>
+                        ${renderSidebar(sidebarRoutes, view, showHome, renderDocsSearchField({
                             id: 'sidebar-search',
                             value: filters.text,
                             className: 'cs-docs-search--sidebar',
-                        })}
-                    </div>
-                    <div class="sidebar-scroll">
-                        <p class="sidebar-meta sidebar-meta--mobile">v${escapeHtml(version)} · ${routes.length} routes</p>
-                        ${renderSidebar(sidebarRoutes, view, showHome)}
+                        }))}
                     </div>
                     ${renderMobileMenuTools({
                         leadingHtml: renderHeaderContractButtons(config.specUrl, {variant: 'drawer'}),
@@ -931,11 +836,20 @@ async function boot(): Promise<void> {
 
                 if (route) {
 
+                    const panels = await loadRoutePanels();
+
+                    if (gen !== renderGen) {
+
+                        return;
+
+                    }
+
                     main.innerHTML = renderRoute(
                         route,
                         bodies.get(route.name) ?? '{}',
                         routes,
                         authToken,
+                        panels,
                     );
 
                     if (!demoMode) {
@@ -953,7 +867,7 @@ async function boot(): Promise<void> {
                     document.getElementById('copy-curl-try')?.addEventListener('click', onCopyCurl);
 
                     initJsonEditor('body');
-                    bindSchemaPanels(main);
+                    panels.bindSchemaPanels(main);
 
                 } else {
 
@@ -984,7 +898,7 @@ async function boot(): Promise<void> {
 
                     persistRouteDraft();
                     filters = {...filters, text: value};
-                    render();
+                    void render();
                     const restored = document.getElementById(id);
 
                     if (restored instanceof HTMLInputElement) {
@@ -1073,7 +987,7 @@ async function boot(): Promise<void> {
                         ...filters,
                         auth: parseAuthFilter(btn.dataset.auth),
                     };
-                    render();
+                    void render();
 
                 });
 
@@ -1088,7 +1002,7 @@ async function boot(): Promise<void> {
                     const tag = btn.dataset.tag ?? '';
 
                     filters = {...filters, tag: tag || null};
-                    render();
+                    void render();
 
                 });
 
@@ -1101,7 +1015,7 @@ async function boot(): Promise<void> {
                     if (!(btn instanceof HTMLElement)) return;
 
                     filters = {...filters, mcpOnly: btn.dataset.mcpOnly === 'true'};
-                    render();
+                    void render();
 
                 });
 
@@ -1112,7 +1026,7 @@ async function boot(): Promise<void> {
         window.addEventListener('hashchange', () => {
 
             view = viewFromHash(routes, showHome);
-            render();
+            void render();
 
             if (location.hash.includes('mcp-connect')) {
 
@@ -1154,7 +1068,7 @@ async function boot(): Promise<void> {
 
         });
 
-        render();
+        void render();
 
     } catch (err) {
 
