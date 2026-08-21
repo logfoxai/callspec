@@ -1638,8 +1638,7 @@ html[data-has-sidebar] .pagination-links a {
     color: var(--cs-muted);
     transition:
         background 0.15s ease,
-        color 0.15s ease,
-        box-shadow 0.2s ease;
+        color 0.15s ease;
 }
 
 html[data-has-sidebar] .pagination-links a[rel='prev'] {
@@ -1667,9 +1666,6 @@ html[data-has-sidebar] .pagination-links a[rel='prev']:hover {
         color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
         color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
     );
-    box-shadow:
-        0.2rem 0.2rem 0 0
-        color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
 }
 
 html[data-has-sidebar] .pagination-links a[rel='next']:hover {
@@ -1679,9 +1675,6 @@ html[data-has-sidebar] .pagination-links a[rel='next']:hover {
         color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
         color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
     );
-    box-shadow:
-        0.2rem 0.2rem 0 0
-        color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
 }
 
 html[data-has-sidebar] .pagination-links a > span {
