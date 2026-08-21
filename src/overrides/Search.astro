@@ -364,7 +364,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			--pagefind-ui-primary: var(--sl-color-text);
 			--pagefind-ui-text: var(--sl-color-gray-2);
 			--pagefind-ui-font: var(--__sl-font);
-			--pagefind-ui-background: var(--sl-color-black);
+			--pagefind-ui-background: var(--cs-search-field-bg, var(--sl-color-black));
 			--pagefind-ui-border: var(--sl-color-gray-5);
 			--pagefind-ui-border-width: 1px;
 			--pagefind-ui-tag: var(--sl-color-gray-5);
@@ -449,10 +449,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			box-sizing: border-box;
 		}
 
-		[data-cs-pagefind-root] input:focus {
-			--pagefind-ui-border: var(--sl-color-accent);
-		}
-
 		[data-cs-pagefind-root] .pagefind-ui__search-clear {
 			inset-inline-end: calc(
 				var(--cs-search-dialog-inset, 0.75rem) + var(--cs-search-clear-inline-end, 0.5rem)
@@ -492,7 +488,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
 		[data-cs-pagefind-root] .pagefind-ui__result-nested {
 			position: relative;
-			background-color: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-black));
+			background-color: var(--cs-search-field-bg, var(--sl-color-black));
 			outline: none;
 		}
 

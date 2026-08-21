@@ -101,6 +101,8 @@ html[data-theme='light'],
 
     --docs-table-bg: hsl(0, 0%, 100%);
     --docs-table-row-hover: hsl(228, 28%, 97%);
+
+    --docs-elevated: #ffffff;
 }
 
 html[data-theme='dark'],
@@ -138,6 +140,8 @@ html[data-theme='dark'],
 
     --docs-table-bg: hsl(228, 16%, 10%);
     --docs-table-row-hover: hsl(228, 14%, 13%);
+
+    --docs-elevated: #33303f;
 }
 
 /* Roomier L/R chrome — past MacBook Neo widths (see html type scale above). */
@@ -175,6 +179,7 @@ html[data-theme='light'],
     --cs-primary-hover-fg: var(--docs-primary-hover-fg);
     --cs-table-bg: var(--docs-table-bg);
     --cs-table-row-hover: var(--docs-table-row-hover);
+    --cs-search-modal-bg: var(--docs-elevated);
 
     --bg: var(--docs-bg);
     --surface: var(--docs-surface);
