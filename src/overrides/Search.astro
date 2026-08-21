@@ -348,9 +348,10 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 		.dialog-frame {
 			position: relative;
-			overflow: auto;
+			overflow: hidden;
 			flex-direction: column;
 			flex-grow: 1;
+			min-height: 0;
 			gap: 1rem;
 			padding: 1rem;
 		}
