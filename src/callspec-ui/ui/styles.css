@@ -55,6 +55,7 @@
     --route-page-gap: 3.5rem;
     --route-page-width: calc(var(--content-width) * 2 + var(--route-page-gap));
     --content-pad-x: 1.25rem;
+    --explorer-code-size: 0.75rem;
 }
 
 /*
@@ -1262,7 +1263,7 @@ body > .footer {
 .code-block code {
     display: block;
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: var(--explorer-code-size);
     line-height: 1.6;
     white-space: pre;
 }
@@ -1826,7 +1827,7 @@ body > .footer {
     border-right: 0.0625rem solid var(--border);
     color: var(--text-tertiary);
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: var(--explorer-code-size);
     line-height: 1.6;
     white-space: pre;
     text-align: right;
@@ -1852,7 +1853,7 @@ body > .footer {
     padding: 0.75rem;
     border: none;
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: var(--explorer-code-size);
     line-height: 1.6;
     tab-size: 2;
     white-space: pre-wrap;
