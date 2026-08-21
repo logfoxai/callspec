@@ -220,10 +220,10 @@ html, body {
 
 .cs-docs-search--sidebar {
     flex: 1 1 auto;
-    width: 100%;
+    width: calc(100% + 0.8rem);
     max-width: none;
     height: var(--docs-search-height);
-    margin: 0;
+    margin-inline: -0.4rem;
     padding-inline: 0.85rem;
     border: 1px solid var(--border-strong);
     border-radius: 0.55rem;
