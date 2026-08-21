@@ -1,6 +1,6 @@
 import {openApiPathFromSpecUrl} from '../contractPaths';
 import type {CallspecUiNotice} from '../../types';
-import {renderCallspecLockupMark} from './callspecLockup';
+import {renderCallspecLockupMarkOverlay} from './callspecLockup';
 import {openApiIcon, themeMoonIcon, themeSunIcon} from './icons';
 import type {Theme} from './theme';
 
@@ -206,12 +206,10 @@ export function renderHeaderContractButtons(
         ? 'header-contracts header-contracts--drawer'
         : 'header-contracts header-contracts--header-end';
 
-    const markId = variant === 'drawer' ? 'cs-eq-mask-contract-drawer' : 'cs-eq-mask-contract-header';
-
     return `
         <nav class="${className}" aria-label="Contract files">
             <a class="btn btn-ghost header-contract-btn header-contract-btn--callspec" href="${escapeHtml(specUrl)}" target="_blank" rel="noopener">
-                <span class="header-contract-btn__icon">${renderCallspecLockupMark(markId)}</span>
+                <span class="header-contract-btn__icon">${renderCallspecLockupMarkOverlay()}</span>
                 <span class="header-contract-btn__label">callspec.json</span>
             </a>
             <a class="btn btn-ghost header-contract-btn header-contract-btn--openapi" href="${escapeHtml(openapiHref)}" target="_blank" rel="noopener">

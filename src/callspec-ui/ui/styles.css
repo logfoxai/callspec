@@ -390,6 +390,14 @@ html, body {
     color: var(--docs-callspec-mark);
 }
 
+.header-contract-btn__icon .cs-eq {
+    fill: var(--docs-header-bg);
+}
+
+.header-contracts--drawer .header-contract-btn__icon .cs-eq {
+    fill: var(--docs-sidebar);
+}
+
 .header-contract-btn--openapi .header-contract-btn__icon {
     color: var(--green);
 }
@@ -1086,6 +1094,10 @@ body > .footer {
 .content > .footer .cs-lockup__mark {
     width: 1.8rem;
     height: 1.8rem;
+}
+
+.content > .footer .cs-eq {
+    fill: var(--docs-bg);
 }
 
 .content > .footer .cs-lockup__word {

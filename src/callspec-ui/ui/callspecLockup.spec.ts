@@ -3,7 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {test} from 'kizu';
 import {CALLSPEC_HEX_PATH} from './icons';
-import {renderCallspecLockup, renderCallspecLockupMark} from './callspecLockup';
+import {renderCallspecLockup, renderCallspecLockupMark, renderCallspecLockupMarkOverlay} from './callspecLockup';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
@@ -47,5 +47,20 @@ test('renderCallspecLockup is the only lockup markup — docs + explorer', (asse
         explorerCss.indexOf('.empty-state'),
     );
     assert.equal(footerBlock.includes('border-top'), false);
+
+});
+
+test('explorer lockup marks do not use #mask — <base href="/demo/"> breaks url(#id)', (assert) => {
+
+    const overlay = renderCallspecLockupMarkOverlay();
+    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docsChrome.ts'), 'utf8');
+    const powered = readFileSync(path.join(root, 'src/callspec-ui/ui/poweredByFooter.ts'), 'utf8');
+
+    assert.equal(overlay.includes('mask='), false);
+    assert.equal(overlay.includes('cs-eq--top'), true);
+    assert.equal(overlay.includes(CALLSPEC_HEX_PATH), true);
+    assert.equal(chrome.includes('renderCallspecLockupMarkOverlay'), true);
+    assert.equal(chrome.includes('renderCallspecLockupMark('), false);
+    assert.equal(powered.includes("holes: 'overlay'"), true);
 
 });

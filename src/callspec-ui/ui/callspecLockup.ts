@@ -9,20 +9,24 @@ function escapeAttr(value: string): string {
 
 }
 
-/** Masked hex mark — same SVG the lockup uses (unique maskId per instance). */
-export function renderCallspecLockupMark(maskId: string): string {
+function eqBarRects(fill: string): string {
 
-    const holes = CALLSPEC_EQ_BARS.map((bar) => {
+    return CALLSPEC_EQ_BARS.map((bar) => {
         const cls = bar.y === 24 ? 'cs-eq cs-eq--top' : 'cs-eq cs-eq--bottom';
-        return `<rect class="${cls}" x="${bar.x}" y="${bar.y}" width="${bar.width}" height="${bar.height}" rx="${bar.rx}" fill="black"></rect>`;
+        return `<rect class="${cls}" x="${bar.x}" y="${bar.y}" width="${bar.width}" height="${bar.height}" rx="${bar.rx}" fill="${fill}"></rect>`;
     }).join('');
+
+}
+
+/** Masked hex mark — docs header/footer (no `<base href>`). */
+export function renderCallspecLockupMark(maskId: string): string {
 
     return [
         '<svg class="cs-lockup__mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
         '<defs>',
         `<mask id="${escapeAttr(maskId)}">`,
         '<rect x="0" y="0" width="64" height="64" fill="white"></rect>',
-        holes,
+        eqBarRects('black'),
         '</mask>',
         '</defs>',
         `<path class="cs-hex" d="${CALLSPEC_HEX_PATH}" fill="currentColor" mask="url(#${escapeAttr(maskId)})"></path>`,
@@ -31,9 +35,22 @@ export function renderCallspecLockupMark(maskId: string): string {
 
 }
 
+/** Overlay bars — explorer. `<base href="/demo/">` breaks `url(#mask)`. */
+export function renderCallspecLockupMarkOverlay(): string {
+
+    return [
+        '<svg class="cs-lockup__mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
+        `<path class="cs-hex" d="${CALLSPEC_HEX_PATH}" fill="currentColor"></path>`,
+        eqBarRects('currentColor'),
+        '</svg>',
+    ].join('');
+
+}
+
 export type CallspecLockupOptions = {
     href: string
     maskId: string
+    holes?: 'mask' | 'overlay'
     className?: string
     extraHtml?: string
     attrs?: Record<string, string>
@@ -49,7 +66,9 @@ export function renderCallspecLockup(options: CallspecLockupOptions): string {
 
     return [
         `<a href="${escapeAttr(options.href)}" class="${className}" translate="no"${extraAttrs}>`,
-        renderCallspecLockupMark(options.maskId),
+        options.holes === 'overlay'
+            ? renderCallspecLockupMarkOverlay()
+            : renderCallspecLockupMark(options.maskId),
         '<span class="cs-lockup__word" aria-hidden="true">callspec</span>',
         options.extraHtml ?? '',
         '</a>',

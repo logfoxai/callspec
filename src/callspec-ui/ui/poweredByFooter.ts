@@ -41,6 +41,7 @@ function ensurePoweredByLockup(footer: HTMLElement): void {
     footer.insertAdjacentHTML('beforeend', renderCallspecLockup({
         href: POWERED_BY_HREF,
         maskId: 'cs-eq-mask-explorer',
+        holes: 'overlay',
         extraHtml: '<span class="sr-only">callspec</span>',
         attrs: {target: '_blank', rel: 'noopener'},
     }));
