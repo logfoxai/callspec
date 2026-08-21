@@ -480,7 +480,6 @@ html[data-has-sidebar] .main-frame {
  * Starlight’s unlayered .sl-flex { display: flex }.
  */
 @media (max-width: 49.99rem) {
-    html[data-has-sidebar] header.header .header-search,
     html[data-has-sidebar] header.header .social-icons,
     html[data-has-sidebar] header.header starlight-theme-select,
     html[data-has-sidebar] header.header starlight-lang-select {

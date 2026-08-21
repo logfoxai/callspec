@@ -10,9 +10,10 @@ import {
 	shouldHandleGlobalSlash,
 } from './searchDialog.js';
 
-const overridesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../overrides');
-const mobileFooter = readFileSync(path.join(overridesDir, 'MobileMenuFooter.astro'), 'utf8');
-const header = readFileSync(path.join(overridesDir, 'Header.astro'), 'utf8');
+const srcDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const mobileFooter = readFileSync(path.join(srcDir, 'overrides/MobileMenuFooter.astro'), 'utf8');
+const header = readFileSync(path.join(srcDir, 'overrides/Header.astro'), 'utf8');
+const docsCss = readFileSync(path.join(srcDir, 'styles/starlight-custom.css'), 'utf8');
 
 test('shouldHandleGlobalSlash opens only when idle and not typing in a field', (assert) => {
 	const base = {
@@ -107,5 +108,10 @@ test('mobile drawer does not mount a second site-search / Pagefind dialog', (ass
 		header.includes('.header-search :global(button[data-open-modal])'),
 		true,
 		'hide only the header trigger on small screens',
+	);
+	assert.equal(
+		docsCss.includes('header.header .header-search,'),
+		false,
+		'unlayered CSS must not display:none the wrapper either — that beats Header.astro',
 	);
 });
