@@ -33,5 +33,9 @@ test('lib build rewrites /fonts/ to assets/fonts?no-inline so Vite emits files',
     const vite = readFileSync(path.join(root, 'vite.config.mts'), 'utf8');
 
     assert.equal(vite.includes('rewritePublicFontsForLibBuild'), true);
+    assert.equal(vite.includes('rewriteExplorerCss'), true);
+    assert.equal(vite.includes("file.endsWith('styles.css')"), true);
+    assert.equal(vite.includes("file.endsWith('docs-tokens.css')"), true);
+    assert.equal(vite.includes("source.startsWith('/fonts/')"), true);
 
 });
