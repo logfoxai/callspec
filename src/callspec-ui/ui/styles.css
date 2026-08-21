@@ -212,34 +212,32 @@ html, body {
     }
 }
 
-/* Full-bleed search band between Home/Routes and tag routes. */
+/* Inset search chip — same slot as before, not a full-bleed hairline band. */
 .sidebar-search {
     flex-shrink: 0;
-    padding: 0;
+    padding: 0.45rem var(--sidebar-pad-x) 0.55rem;
 }
 
 .cs-docs-search--sidebar {
     flex: 1 1 auto;
     width: 100%;
     max-width: none;
-    height: 2.75rem;
+    height: var(--docs-search-height);
     margin: 0;
-    padding-inline: var(--sidebar-pad-x);
-    border: 0;
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
-    background: var(--sidebar-bg);
-    box-shadow: none;
+    padding-inline: 0.85rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.55rem;
+    background: var(--surface);
 }
 
 .cs-docs-search--sidebar:hover,
 .cs-docs-search--sidebar:focus-within {
-    background: color-mix(in srgb, var(--accent) 6%, var(--sidebar-bg));
+    background: var(--surface);
 }
 
 [data-theme='light'] .cs-docs-search--sidebar {
-    background: var(--sidebar-bg);
-    box-shadow: none;
+    background: #ffffff;
+    box-shadow: 0 1px 2px hsl(228 25% 40% / 0.08);
 }
 
 .drawer-nav {
@@ -465,7 +463,6 @@ html, body {
 
 .sidebar-nav .sidebar-page-links {
     margin: 0;
-    border-bottom: 1px solid var(--border);
 }
 
 .sidebar-page-links > li + li,
