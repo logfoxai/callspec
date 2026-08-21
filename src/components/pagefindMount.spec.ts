@@ -1,7 +1,7 @@
 import {test} from 'kizu';
 import {bindPagefindMount, type PagefindMountEl} from './pagefindMount.js';
 
-function hostWith(mount: PagefindMountEl | null) {
+function hostWith(mount: PagefindMountEl | null): {querySelector(selector: string): PagefindMountEl | null} {
 	return {
 		querySelector(selector: string): PagefindMountEl | null {
 			return selector === '[data-cs-pagefind-root]' ? mount : null;
