@@ -97,7 +97,7 @@ export function collectResultRows(root: ParentNode): HTMLElement[] {
 		root.querySelectorAll<HTMLElement>(
 			'.pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)), .pagefind-ui__result-nested',
 		),
-	).filter((row) => resultLinkForRow(row) !== null);
+	).filter((row) => resultLinkForRow(row) !== null && !row.closest?.('[data-cs-search-stale]'));
 }
 
 /** Idle suggestion chips. */

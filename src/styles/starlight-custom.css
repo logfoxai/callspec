@@ -662,27 +662,88 @@ header.header .social-icons a svg {
 site-search dialog[open] .dialog-frame {
     --cs-search-dialog-inset: 0.75rem;
     --cs-search-scrollbar-size: 0.5rem;
+    --cs-search-input-block-size: calc(64px * var(--pagefind-ui-scale, 0.92));
+    --cs-search-icon-size: calc(20px * var(--pagefind-ui-scale, 0.92));
+    --cs-search-icon-inline-start: calc(20px * var(--pagefind-ui-scale, 0.92));
+    --cs-search-clear-size: 1.875rem;
+    --cs-search-clear-icon-size: 1.25rem;
+    --cs-search-clear-inline-end: 0.5rem;
+    --cs-search-content-pad-start: calc(var(--cs-search-dialog-inset) + 0.5rem);
 }
 
 /* Search field inset — flush modal shell, inset components only. */
+[data-cs-pagefind-root] .pagefind-ui__form::before {
+    width: var(--cs-search-icon-size);
+    height: var(--cs-search-icon-size);
+    top: calc(
+        var(--cs-search-dialog-inset) +
+            (var(--cs-search-input-block-size) - var(--cs-search-icon-size)) / 2
+    );
+    left: calc(var(--cs-search-dialog-inset) + var(--cs-search-icon-inline-start));
+    --pagefind-ui-text: var(--sl-color-gray-1);
+    opacity: 1;
+}
+
 [data-cs-pagefind-root] .pagefind-ui__search-input {
     margin: var(--cs-search-dialog-inset) var(--cs-search-dialog-inset) 0;
     width: auto;
+    height: var(--cs-search-input-block-size);
+    line-height: var(--cs-search-input-block-size);
+    box-sizing: border-box;
+    padding-inline-end: calc(
+        var(--cs-search-clear-size) + var(--cs-search-clear-inline-end) + 0.15rem
+    );
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-clear {
-    inset-inline-end: calc(var(--cs-search-dialog-inset) + 0.55rem);
+    inset-inline-end: calc(var(--cs-search-dialog-inset) + var(--cs-search-clear-inline-end));
+    top: calc(
+        var(--cs-search-dialog-inset) +
+            (var(--cs-search-input-block-size) - var(--cs-search-clear-size)) / 2
+    );
+    transform: none;
+    z-index: 2;
+    width: var(--cs-search-clear-size);
+    height: var(--cs-search-clear-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 0;
+    line-height: 0;
+    color: transparent;
+    overflow: hidden;
+    transition: background-color 0.15s ease;
 }
 
-/* Scroll lane: content aligns with the search bar; scrollbar sits in the right inset. */
+/*
+ * Scroll lane: left edge aligns with the search bar; scrollbar sits in the right inset.
+ * Left inset lives on the drawer; right inset + gutter live on the scroller.
+ */
+[data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer {
+    padding-inline-start: var(--cs-search-dialog-inset);
+    box-sizing: border-box;
+}
+
 [data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer .pagefind-ui__results-area,
 [data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer [data-cs-search-stale]:not([hidden]) {
-    padding-inline-start: var(--cs-search-dialog-inset);
+    padding-inline-start: 0;
     padding-inline-end: var(--cs-search-dialog-inset);
+    box-sizing: border-box;
 }
 
 [data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__drawer .pagefind-ui__results-area {
     scrollbar-gutter: stable;
+}
+
+[data-cs-pagefind-root]:has(.pagefind-ui__result) .pagefind-ui__message {
+    padding-inline-start: var(--cs-search-content-pad-start);
+    padding-inline-end: var(--cs-search-dialog-inset);
+    box-sizing: border-box;
 }
 
 site-search dialog[open] .cs-search-loading {
@@ -751,11 +812,14 @@ html[data-theme='light']
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+    min-width: 0;
     align-self: stretch;
     box-sizing: border-box;
     cursor: pointer;
-    padding: var(--sl-search-result-nested-pad-block) var(--sl-search-result-pad-inline-end);
-    padding-inline-start: var(--sl-search-result-pad-inline-start);
+    overflow: hidden;
+    padding-block: var(--sl-search-result-nested-pad-block-start, calc(0.375rem * var(--pagefind-ui-scale, 0.92)))
+        var(--sl-search-result-nested-pad-block, calc(0.5rem * var(--pagefind-ui-scale, 0.92)));
+    padding-inline: var(--sl-search-result-pad-inline-start) var(--sl-search-result-pad-inline-end);
 }
 
 /* Pagefind sets nested links position:relative — shrinks the ::after hit target to the title line. */
@@ -783,17 +847,24 @@ html[data-theme='light']
     line-height: 1.35;
 }
 
-[data-cs-pagefind-root] .pagefind-ui__result-excerpt {
+[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-excerpt {
     width: 100%;
+    min-width: 0;
     box-sizing: border-box;
     font-size: 0.6875rem;
     font-weight: 400;
     line-height: 1.45;
     color: var(--pagefind-ui-text, var(--sl-color-gray-2));
     display: -webkit-box;
+    /* autoprefixer strips bare -webkit-box-orient; keep line-clamp working in prod builds. */
+    /* autoprefixer: ignore next */
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
+    max-height: calc(2 * 1.45 * 0.6875rem);
+    overflow-wrap: break-word;
+    word-break: normal;
     pointer-events: none;
 }
 
@@ -893,40 +964,34 @@ html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested .pa
         inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
-[data-cs-pagefind-root] .pagefind-ui__search-clear {
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1.35rem;
-    height: 1.35rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background-color: transparent;
-    cursor: pointer;
+[data-cs-pagefind-root] .pagefind-ui__search-clear:hover {
+    background-color: var(--sl-color-gray-5);
 }
 
-[data-cs-pagefind-root] .pagefind-ui__search-clear:is(:hover, :focus, :focus-visible) {
+[data-cs-pagefind-root] .pagefind-ui__search-clear:is(:focus, :focus-visible, :active) {
     outline: none;
     background-color: var(--sl-color-accent);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-clear::before {
     content: '';
-    width: 0.75rem;
-    height: 0.75rem;
+    width: var(--cs-search-clear-icon-size);
+    height: var(--cs-search-clear-icon-size);
     flex-shrink: 0;
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13.41 12 6.3-6.29a1 1 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1 1 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 .33 1.64 1 1 0 0 0 1.09-.22l6.29-6.3 6.29 6.3a1 1 0 0 0 1.64-.33 1 1 0 0 0-.22-1.09L13.41 12Z'/%3E%3C/svg%3E")
         center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13.41 12 6.3-6.29a1 1 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1 1 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 .33 1.64 1 1 0 0 0 1.09-.22l6.29-6.3 6.29 6.3a1 1 0 0 0 1.64-.33 1 1 0 0 0-.22-1.09L13.41 12Z'/%3E%3C/svg%3E")
         center / contain no-repeat;
-    background-color: var(--sl-color-text-accent);
+    background-color: var(--sl-color-gray-2);
+    transition: background-color 0.15s ease;
 }
 
-[data-cs-pagefind-root] .pagefind-ui__search-clear:is(:hover, :focus, :focus-visible)::before {
-    background-color: var(--sl-color-white);
+[data-cs-pagefind-root] .pagefind-ui__search-clear:hover:not(:focus):not(:focus-visible):not(:active)::before {
+    background-color: var(--sl-color-gray-1);
+}
+
+[data-cs-pagefind-root] .pagefind-ui__search-clear:is(:focus, :focus-visible, :active)::before {
+    background-color: var(--sl-color-black);
 }
 
 site-search dialog[open] .search-container {
@@ -1159,16 +1224,27 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
     height: auto;
     min-height: 0;
     padding: 0.35rem 0 0.75rem;
+    box-sizing: border-box;
 }
 
-/* Zero-results: compact card — quoted term via i18n; Discord help injected in JS */
+/* Idle drawer content (searching / no matches) — align with the inset search field. */
+[data-cs-pagefind-root]:not(:has(.pagefind-ui__results > .pagefind-ui__result))
+    .pagefind-ui__drawer:not(.pagefind-ui__hidden)
+    .pagefind-ui__results-area {
+    margin-top: 0;
+    padding-inline-start: var(--cs-search-content-pad-start);
+    padding-inline-end: var(--cs-search-dialog-inset);
+    padding-bottom: var(--cs-search-dialog-inset);
+    box-sizing: border-box;
+}
+
+/* Zero-results — flat stack; left edge comes from results-area inset only */
 [data-cs-pagefind-root]:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
     display: block;
-    margin: 0.15rem 0 0;
-    padding: 1rem 1.1rem;
-    border-radius: 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--sl-color-gray-5) 75%, var(--sl-color-accent));
-    background: color-mix(in srgb, var(--sl-color-black) 55%, transparent);
+    margin: 0;
+    padding: 0.35rem 0 0;
+    border: 0;
+    background: transparent;
     color: var(--cs-ink);
     font-size: 0.9375rem;
     font-weight: 600;
@@ -1183,8 +1259,8 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
 }
 
 .cs-search-empty-help {
-    margin: 0.65rem 0 0;
-    padding: 0 0.15rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
     color: var(--cs-muted);
     font-size: 0.8125rem;
     line-height: 1.45;
@@ -1536,8 +1612,7 @@ html[data-theme='light'] .cs-search-idle__chips button {
 }
 
 html[data-theme='light'] [data-cs-pagefind-root]:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
-    background: #fff;
-    border-color: var(--sl-color-gray-5);
+    color: var(--cs-ink);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button {

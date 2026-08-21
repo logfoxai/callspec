@@ -13,5 +13,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "src/callspec-ui/ui/**", "src/cs-pagefind/**", "src/typecheck/**", "src/**/*.spec.ts", "src/content.config.ts", "src/content/**"]
+  "exclude": ["node_modules", "dist", "src/callspec-ui/ui/**", "src/cs-pagefind/**", "src/typecheck/**", "src/**/*.spec.ts", "src/content.config.ts", "src/content/**", "src/integrations/*.ts"]
 }

@@ -7,9 +7,9 @@ This page is for **working in this repo** (library, guide site, explorer UI). To
 ```bash
 npm install
 npm run validate       # build, lint, knip, typecheck:routes, test + coverage, astro:build
-npm run astro:dev      # guide site — http://127.0.0.1:4321 (refuses if that port is taken; then wipes caches)
+npm run astro:dev      # guide site + search + HMR — http://127.0.0.1:4321 (refuses if that port is taken; then wipes caches)
 npm run astro:build    # static site → docs-site/ (+ hosted Chirp explorer at /demo/)
-npm run astro:preview  # serve the production guide site locally
+npm run astro:build:pagefind  # rebuild docs-site + search index while astro:dev keeps running
 ```
 
 `astro:dev` and `astro:build` fail if something is already bound to **4321**. Live Chirp (try-it + MCP) is `npm run serve:chirp-demo` — documented on [Try the demo locally](./try-the-demo-locally.md).
@@ -18,8 +18,9 @@ npm run astro:preview  # serve the production guide site locally
 
 | Command | What you get |
 |---------|----------------|
-| `npm run astro:dev` | Markdown guides plus the Chirp explorer at `/demo/` (Vite HMR for explorer UI; spec JSON rebakes when Chirp routes change) |
-| `npm run astro:build` | Guide site plus the **hosted** Chirp explorer at `/demo/` (browse-only; banner points at the local live API) |
+| `npm run astro:dev` | Markdown guides, docs search (Pagefind index from the last build), and the Chirp explorer at `/demo/` (Vite HMR for explorer UI + search-modal CSS) |
+| `npm run astro:build` | Guide site plus the **hosted** Chirp explorer at `/demo/` (browse-only; banner points at the local live API). Run once before first dev search. |
+| `npm run astro:build:pagefind` | Rebuild `docs-site/` + Pagefind index while `astro:dev` keeps running (no port check). Use after editing doc pages when search results should update. |
 
 The guide site is [Astro](https://astro.build/) with the [Starlight](https://starlight.astro.build/) docs theme. Source: `src/content/docs/`; config: `astro.config.mjs`; output: `docs-site/`. Production: [callspec.logfox.ai](https://callspec.logfox.ai) · explorer: [/demo/](https://callspec.logfox.ai/demo/).
 

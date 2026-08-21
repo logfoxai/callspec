@@ -1,6 +1,7 @@
 import {defineConfig} from 'astro/config';
 import {unified} from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
+import {devPagefindPlugin} from './src/integrations/devPagefind.mjs';
 import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
 import {pagefindShimIntegration} from './src/integrations/pagefindShim.mjs';
 import {watchChirpDemoPlugin} from './src/integrations/watchChirpDemo.mjs';
@@ -40,7 +41,7 @@ export default defineConfig({
         },
     },
     vite: {
-        plugins: [devServerNoisePlugin(), watchChirpDemoPlugin()],
+        plugins: [devServerNoisePlugin(), watchChirpDemoPlugin(), ...(isDev ? [devPagefindPlugin()] : [])],
         // Chirp /demo/ is a Vite module graph in astro:dev (HMR), not the baked IIFE.
         // Dark boot CSS is injected first so refresh never paints the UA white page.
         // Loader mark is hex + overlay bars (no #mask) because <base href="/demo/"> breaks url(#id).

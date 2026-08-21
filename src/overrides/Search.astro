@@ -40,26 +40,18 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			<button data-close-modal class="sl-flex md:sl-hidden">
 				{Astro.locals.t('search.cancelLabel')}
 			</button>
-			{
-				import.meta.env.DEV ? (
-					<div style="margin: auto; text-align: center; white-space: pre-line;" dir="ltr">
-						<p>{Astro.locals.t('search.devWarning')}</p>
-					</div>
-				) : (
-					<div class="search-container">
-						<div
-							class="cs-search-loading"
-							data-cs-search-loading
-							aria-live="polite"
-							aria-busy="true"
-						>
-							<div class="cs-search-loading__field" aria-hidden="true" />
-							<p class="cs-search-loading__label">Loading search…</p>
-						</div>
-						<div id="starlight__search" data-cs-pagefind-root />
-					</div>
-				)
-			}
+			<div class="search-container">
+				<div
+					class="cs-search-loading"
+					data-cs-search-loading
+					aria-live="polite"
+					aria-busy="true"
+				>
+					<div class="cs-search-loading__field" aria-hidden="true" />
+					<p class="cs-search-loading__label">Loading search…</p>
+				</div>
+				<div id="starlight__search" data-cs-pagefind-root />
+			</div>
 		</div>
 	</dialog>
 </site-search>
@@ -181,7 +173,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 				if (label) label.textContent = 'Search failed to load. Close and try again.';
 			};
 			const loadPagefind = () => {
-				if (import.meta.env.DEV) return Promise.resolve();
 				if (pagefindPromise) return pagefindPromise;
 				pagefindPromise = (async () => {
 					try {
@@ -419,7 +410,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			--sl-search-result-pad-inline-start: calc(3.75rem * var(--pagefind-ui-scale));
 			--sl-search-result-pad-inline-end: calc(1.25rem * var(--pagefind-ui-scale));
 			--sl-search-result-pad-block: calc(0.9375rem * var(--pagefind-ui-scale));
-			--sl-search-result-nested-pad-block: calc(0.625rem * var(--pagefind-ui-scale));
+			--sl-search-result-nested-pad-block: calc(0.5rem * var(--pagefind-ui-scale));
+			--sl-search-result-nested-pad-block-start: calc(0.375rem * var(--pagefind-ui-scale));
 			--sl-search-corners: calc(0.3125rem * var(--pagefind-ui-scale));
 			--sl-search-page-icon-size: calc(1.875rem * var(--pagefind-ui-scale));
 			--sl-search-page-icon-inline-start: calc(
@@ -432,6 +424,18 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__form::before {
+			width: var(--cs-search-icon-size, calc(20px * var(--pagefind-ui-scale, 0.92)));
+			height: var(--cs-search-icon-size, calc(20px * var(--pagefind-ui-scale, 0.92)));
+			top: calc(
+				var(--cs-search-dialog-inset, 0.75rem) +
+					(var(--cs-search-input-block-size, calc(64px * var(--pagefind-ui-scale, 0.92))) -
+						var(--cs-search-icon-size, calc(20px * var(--pagefind-ui-scale, 0.92)))) /
+					2
+			);
+			left: calc(
+				var(--cs-search-dialog-inset, 0.75rem) +
+					var(--cs-search-icon-inline-start, calc(20px * var(--pagefind-ui-scale, 0.92)))
+			);
 			--pagefind-ui-text: var(--sl-color-gray-1);
 			opacity: 1;
 		}
@@ -440,6 +444,9 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			color: var(--sl-color-white);
 			font-weight: 400;
 			width: calc(100% - var(--sl-search-cancel-space));
+			height: var(--cs-search-input-block-size, calc(64px * var(--pagefind-ui-scale, 0.92)));
+			line-height: var(--cs-search-input-block-size, calc(64px * var(--pagefind-ui-scale, 0.92)));
+			box-sizing: border-box;
 		}
 
 		[data-cs-pagefind-root] input:focus {
@@ -447,41 +454,22 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__search-clear {
-			top: 50%;
-			inset-inline-end: calc(var(--cs-search-dialog-inset, 0.75rem) + 0.55rem);
-			transform: translateY(-50%);
-			width: 1.35rem;
-			height: 1.35rem;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			padding: 0;
-			border: 0;
-			border-radius: 999px;
-			background-color: transparent;
-			cursor: pointer;
-		}
-
-		[data-cs-pagefind-root] .pagefind-ui__search-clear:is(:hover, :focus, :focus-visible) {
-			outline: none;
-			background-color: var(--sl-color-accent);
+			inset-inline-end: calc(
+				var(--cs-search-dialog-inset, 0.75rem) + var(--cs-search-clear-inline-end, 0.5rem)
+			);
+			top: calc(
+				var(--cs-search-dialog-inset, 0.75rem) +
+					(var(--cs-search-input-block-size, calc(64px * var(--pagefind-ui-scale, 0.92))) -
+						var(--cs-search-clear-size, 1.875rem)) /
+						2
+			);
+			width: var(--cs-search-clear-size, 1.875rem);
+			height: var(--cs-search-clear-size, 1.875rem);
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__search-clear::before {
-			content: '';
-			width: 0.75rem;
-			height: 0.75rem;
-			flex-shrink: 0;
-			-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13.41 12 6.3-6.29a1 1 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1 1 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 .33 1.64 1 1 0 0 0 1.09-.22l6.29-6.3 6.29 6.3a1 1 0 0 0 1.64-.33 1 1 0 0 0-.22-1.09L13.41 12Z'/%3E%3C/svg%3E")
-				center / contain no-repeat;
-			mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13.41 12 6.3-6.29a1 1 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1 1 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 .33 1.64 1 1 0 0 0 1.09-.22l6.29-6.3 6.29 6.3a1 1 0 0 0 1.64-.33 1 1 0 0 0-.22-1.09L13.41 12Z'/%3E%3C/svg%3E")
-				center / contain no-repeat;
-			background-color: var(--sl-color-text-accent);
-		}
-
-		[data-cs-pagefind-root]
-			.pagefind-ui__search-clear:is(:hover, :focus, :focus-visible)::before {
-			background-color: var(--sl-color-white);
+			width: var(--cs-search-clear-icon-size, 1.25rem);
+			height: var(--cs-search-clear-icon-size, 1.25rem);
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__results > * + * {
@@ -494,8 +482,10 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 		[data-cs-pagefind-root] .pagefind-ui__result-nested {
 			position: relative;
-			padding: var(--sl-search-result-nested-pad-block) var(--sl-search-result-pad-inline-end);
-			padding-inline-start: var(--sl-search-result-pad-inline-start);
+			padding-block: var(--sl-search-result-nested-pad-block-start)
+				var(--sl-search-result-nested-pad-block);
+			padding-inline: var(--sl-search-result-pad-inline-start)
+				var(--sl-search-result-pad-inline-end);
 		}
 
 		/* Shared row chrome — page headers and nested hits. */
@@ -589,8 +579,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 				0% 0% / 100% no-repeat;
 		}
 		[data-cs-pagefind-root] .pagefind-ui__result-nested:last-of-type::before {
-			-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='M8 0v12m6 0H8'/%3E%3C/svg%3E");
-			mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='M8 0v12m6 0H8'/%3E%3C/svg%3E");
+			-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='M8 0v8m6 0H8'/%3E%3C/svg%3E");
+			mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='M8 0v8m6 0H8'/%3E%3C/svg%3E");
 		}
 
 		/* Flip page and tree icons around the vertical axis when in an RTL layout. */
@@ -605,10 +595,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			inset: 0;
 			z-index: 1;
 			cursor: pointer;
-		}
-
-		[data-cs-pagefind-root] .pagefind-ui__result-excerpt {
-			overflow-wrap: anywhere;
 		}
 
 		[data-cs-pagefind-root] mark {

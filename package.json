@@ -68,7 +68,7 @@
     "astro:sync": "astro sync",
     "astro:dev": "node scripts/assert-astro-dev-free.mjs && node scripts/clean-astro-cache.mjs && astro sync && node scripts/build-chirp-static-demo.cjs && astro dev",
     "astro:build": "node scripts/assert-astro-dev-free.mjs && node scripts/clean-astro-cache.mjs && astro sync && node scripts/build-chirp-static-demo.cjs && astro build && node scripts/write-cs-pagefind-shim.mjs",
-    "astro:preview": "npm run astro:build && astro preview",
+    "astro:build:pagefind": "astro sync && node scripts/build-chirp-static-demo.cjs && astro build && node scripts/write-cs-pagefind-shim.mjs",
     "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run sync:fonts && npm run astro:build && node scripts/assert-chirp-static-demo.mjs && node scripts/assert-404-page.mjs && node scripts/assert-splash-page.mjs"
   },
   "dependencies": {

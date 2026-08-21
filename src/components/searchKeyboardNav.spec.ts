@@ -3,10 +3,12 @@ import {
 	activateSearchNavItem,
 	applySelection,
 	collectResultNavItems,
+	collectResultRows,
 	handleSearchKey,
 	markAwaitingFreshResults,
 	nextIndex,
 	resolveKeyboardSelection,
+	resultLinkForRow,
 	scrollSearchSelectionIntoView,
 	type KeyboardNavState,
 } from './searchKeyboardNav.js';
@@ -248,3 +250,33 @@ function stubEl(): {
 		},
 	};
 }
+
+test('collectResultRows skips rows inside stale snapshot hosts', (assert) => {
+	const live = stubEl();
+	live.className = 'pagefind-ui__result-title';
+	const liveLink = {getAttribute: () => '/live'} as HTMLAnchorElement;
+	live.querySelector = (selector: string) =>
+		selector === 'a.pagefind-ui__result-link' ? liveLink : null;
+
+	const staleRow = stubEl();
+	staleRow.className = 'pagefind-ui__result-nested';
+	const staleLink = {getAttribute: () => '/stale'} as HTMLAnchorElement;
+	staleRow.querySelector = (selector: string) =>
+		selector === 'a.pagefind-ui__result-link' ? staleLink : null;
+	staleRow.closest = (selector: string) =>
+		selector === '[data-cs-search-stale]' ? ({} as Element) : null;
+
+	live.closest = () => null;
+
+	const root = {
+		querySelectorAll(selector: string): HTMLElement[] {
+			if (selector.includes('pagefind-ui__result-title')) return [live];
+			if (selector.includes('pagefind-ui__result-nested')) return [staleRow];
+			return [];
+		},
+	} as unknown as ParentNode;
+
+	const rows = collectResultRows(root);
+	assert.equal(rows.length, 1);
+	assert.equal(resultLinkForRow(rows[0]!)?.getAttribute('href'), '/live');
+});
