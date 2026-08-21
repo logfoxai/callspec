@@ -55,7 +55,7 @@
     --route-page-gap: 3.5rem;
     --route-page-width: calc(var(--content-width) * 2 + var(--route-page-gap));
     --content-pad-x: 1.25rem;
-    --explorer-code-size: 0.7rem;
+    --explorer-code-size: 0.8rem;
 }
 
 /*
