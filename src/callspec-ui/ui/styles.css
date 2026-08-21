@@ -2258,7 +2258,7 @@ body > .footer {
 
 .mcp-endpoint-note {
     margin: 0.625rem 0 0;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     line-height: 1.5;
     color: var(--text-secondary);
 }
@@ -2347,14 +2347,14 @@ body > .footer {
 
 .mcp-client-hint {
     margin: 0 0 0.875rem;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     line-height: 1.55;
     color: var(--text-secondary);
 }
 
 .mcp-client-hint code {
     font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
 }
 
 .mcp-code-panel {
@@ -2395,7 +2395,7 @@ body > .footer {
 .mcp-steps {
     margin: 0;
     padding-left: 1.2rem;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     line-height: 1.65;
     color: var(--text-secondary);
 }
@@ -2408,10 +2408,6 @@ body > .footer {
     margin: 0;
     border: 0;
     border-radius: 0;
-}
-
-.mcp-client-panel .code-block code {
-    font-size: 0.84rem;
 }
 
 .btn-sm {
