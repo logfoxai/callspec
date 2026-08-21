@@ -1644,32 +1644,32 @@ html[data-has-sidebar] .pagination-links a {
 html[data-has-sidebar] .pagination-links a[rel='prev'] {
     background: linear-gradient(
         to left,
-        transparent,
-        color-mix(in srgb, var(--cs-ink) 8%, transparent)
+        transparent 55%,
+        color-mix(in srgb, var(--cs-ink) 10%, transparent)
     );
 }
 
 html[data-has-sidebar] .pagination-links a[rel='next'] {
     background: linear-gradient(
         to right,
-        transparent,
-        color-mix(in srgb, var(--cs-ink) 8%, transparent)
+        transparent 55%,
+        color-mix(in srgb, var(--cs-ink) 10%, transparent)
     );
 }
 
 html[data-has-sidebar] .pagination-links a[rel='prev']:hover {
     background: linear-gradient(
         to left,
-        transparent,
-        color-mix(in srgb, var(--cs-ink) 13%, transparent)
+        transparent 55%,
+        color-mix(in srgb, var(--cs-ink) 16%, transparent)
     );
 }
 
 html[data-has-sidebar] .pagination-links a[rel='next']:hover {
     background: linear-gradient(
         to right,
-        transparent,
-        color-mix(in srgb, var(--cs-ink) 13%, transparent)
+        transparent 55%,
+        color-mix(in srgb, var(--cs-ink) 16%, transparent)
     );
 }
 
