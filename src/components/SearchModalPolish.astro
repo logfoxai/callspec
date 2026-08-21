@@ -29,25 +29,64 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 <template id="cs-search-pending-template">
 	<div class="cs-search-pending" data-cs-search-pending hidden aria-hidden="true">
-		<div class="cs-search-pending__row"></div>
-		<div class="cs-search-pending__row"></div>
-		<div class="cs-search-pending__row cs-search-pending__row--short"></div>
+		<div class="cs-search-pending__section">
+			<div class="cs-search-pending__page">
+				<span class="cs-search-pending__doc-icon" aria-hidden="true"></span>
+				<span class="cs-search-pending__bar cs-search-pending__bar--title"></span>
+			</div>
+			<div class="cs-search-pending__nested">
+				<span class="cs-search-pending__bar cs-search-pending__bar--hit"></span>
+				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt"></span>
+				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w72"></span>
+			</div>
+			<div class="cs-search-pending__nested">
+				<span class="cs-search-pending__bar cs-search-pending__bar--hit cs-search-pending__bar--w88"></span>
+				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w94"></span>
+			</div>
+		</div>
+		<div class="cs-search-pending__section">
+			<div class="cs-search-pending__page">
+				<span class="cs-search-pending__doc-icon" aria-hidden="true"></span>
+				<span class="cs-search-pending__bar cs-search-pending__bar--title cs-search-pending__bar--w58"></span>
+			</div>
+			<div class="cs-search-pending__nested">
+				<span class="cs-search-pending__bar cs-search-pending__bar--hit cs-search-pending__bar--w76"></span>
+				<span class="cs-search-pending__bar cs-search-pending__bar--excerpt cs-search-pending__bar--w80"></span>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
 	import {isSearchIdle} from './searchIdleState';
+	import {isDocsSearchQueryReady} from './docsSearchQuery';
 	import {
+		activateSearchNavItem,
 		applySelection,
+		collectResultNavItems,
 		collectResultRows,
 		collectSuggestionChips,
 		handleSearchKey,
 		markAwaitingFreshResults,
 		resolveKeyboardSelection,
 		resultLinkForRow,
+		scrollSearchSelectionIntoView,
 		type KeyboardNavMode,
 		type KeyboardNavState,
 	} from './searchKeyboardNav';
+	import {shouldShowSearchPending} from './searchDialogPhase';
+	import {
+		beginStaleResultsHold,
+		captureStaleResults,
+		clearStaleResults,
+		INITIAL_STALE_RESULTS_STATE,
+		liveResultsFingerprint,
+		resolveStaleResultsHold,
+		shouldDiscardStaleResults,
+		shouldShowStaleResults,
+		syncStaleResults,
+		type StaleResultsState,
+	} from './searchStaleResults';
 
 	function ensureIdlePanel(frame: Element): HTMLElement | null {
 		const existing = frame.querySelector<HTMLElement>('[data-cs-search-idle]');
@@ -95,6 +134,10 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		return pending;
 	}
 
+	function syncPendingVisibility(pending: HTMLElement, show: boolean) {
+		pending.hidden = !show;
+	}
+
 	function setQuery(root: Element, query: string) {
 		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
 		if (!input) return;
@@ -105,13 +148,17 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 	}
 
 	function isZeroResults(root: Element): boolean {
-		if (root.querySelector('.pagefind-ui__result')) return false;
+		if (root.querySelector('.pagefind-ui__results > .pagefind-ui__result')) return false;
 		const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
 		if (!message.trim()) return false;
 		return !/searching/i.test(message);
 	}
 
-	function syncPanels(root: Element, idle: HTMLElement) {
+	function syncPanels(
+		root: Element,
+		idle: HTMLElement,
+		staleResultsState: StaleResultsState,
+	): StaleResultsState {
 		const siteSearch = root.closest('site-search');
 		const searchReady =
 			Boolean(siteSearch?.hasAttribute('data-cs-search-ready')) ||
@@ -120,42 +167,89 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
 		const drawerHidden = !drawer || drawer.classList.contains('pagefind-ui__hidden');
 		const query = input?.value ?? '';
+		const queryReady = isDocsSearchQueryReady(query);
+		const trimmed = query.trim();
+		root.toggleAttribute(
+			'data-cs-search-short-query',
+			trimmed.length > 0 && !queryReady,
+		);
 		const idleNow = isSearchIdle(searchReady, drawerHidden, query);
-		const zeroNow = searchReady && !idleNow && isZeroResults(root);
+		const hasLiveResults = Boolean(
+			root.querySelector('.pagefind-ui__results > .pagefind-ui__result'),
+		);
+		const zeroNow = searchReady && queryReady && !idleNow && isZeroResults(root);
 		const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
 		const searchingMessage = /searching/i.test(message);
-		// Only treat as searching once Pagefind opens the drawer / shows its
-		// searching copy — not during the debounce window when the drawer is still hidden
-		// (that would reserve min-height with no visible skeleton).
+		const staleHost = root.querySelector('[data-cs-search-stale]');
+		const hasStaleSnapshot = Boolean(staleHost?.childElementCount);
+		const showStale = shouldShowStaleResults(
+			hasStaleSnapshot,
+			hasLiveResults,
+			staleResultsState.holding,
+			queryReady,
+			idleNow,
+			zeroNow,
+		);
+		const discardStale = shouldDiscardStaleResults(idleNow, zeroNow, queryReady);
 		const searchingNow =
 			searchReady &&
+			queryReady &&
 			!idleNow &&
-			!root.querySelector('.pagefind-ui__result') &&
+			!(hasLiveResults || showStale) &&
 			!zeroNow &&
 			(!drawerHidden || searchingMessage);
+		const nextStaleState = resolveStaleResultsHold(
+			staleResultsState,
+			hasLiveResults,
+			liveResultsFingerprint(root),
+			searchingMessage || searchingNow,
+			discardStale,
+		);
+		syncStaleResults(root, showStale, discardStale || !nextStaleState.holding);
+		const hasVisibleResults = hasLiveResults || showStale;
+		const holdingStale = hasStaleSnapshot && (staleResultsState.holding || nextStaleState.holding);
 		idle.hidden = !idleNow;
 
 		const help = ensureEmptyHelp(root);
 		if (help) help.hidden = !zeroNow;
 
 		const dialog = root.closest('dialog');
-		if (!dialog) return;
+		if (!dialog) return staleResultsState;
+
+		let phase: string;
 		if (!searchReady) {
-			dialog.dataset.csSearch = 'loading';
+			phase = 'loading';
 		} else if (idleNow) {
-			dialog.dataset.csSearch = 'idle';
-		} else if (root.querySelector('.pagefind-ui__result')) {
-			dialog.dataset.csSearch = 'results';
+			phase = 'idle';
+		} else if (hasVisibleResults) {
+			phase = 'results';
 		} else if (zeroNow) {
-			dialog.dataset.csSearch = 'empty';
+			phase = 'empty';
 		} else if (searchingNow) {
-			dialog.dataset.csSearch = 'searching';
+			phase = 'searching';
 		} else {
-			dialog.dataset.csSearch = 'querying';
+			phase = 'querying';
+		}
+
+		if (dialog.dataset.csSearch !== phase) {
+			dialog.dataset.csSearch = phase;
 		}
 
 		const pending = ensurePending(root);
-		if (pending) pending.hidden = dialog.dataset.csSearch !== 'searching';
+		if (pending) {
+			syncPendingVisibility(
+				pending,
+				shouldShowSearchPending(
+					phase,
+					hasVisibleResults,
+					zeroNow,
+					drawerHidden,
+					holdingStale,
+				),
+			);
+		}
+
+		return nextStaleState;
 	}
 
 	function bindSiteSearch(siteSearch: HTMLElement) {
@@ -175,7 +269,9 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			lastFingerprint: '',
 			awaitingFreshResults: false,
 			sawSearchingWhileAwaiting: false,
+			userMovedResults: false,
 		};
+		let staleResultsState: StaleResultsState = INITIAL_STALE_RESULTS_STATE;
 
 		const navMode = (): KeyboardNavMode => {
 			const mode = dialog?.dataset.csSearch;
@@ -193,16 +289,17 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			return mode;
 		};
 
-		const selectableItems = (mode: KeyboardNavMode, rows: HTMLElement[], chips: HTMLElement[]): HTMLElement[] => {
+		const selectableItems = (mode: KeyboardNavMode, navItems: HTMLElement[], chips: HTMLElement[]): HTMLElement[] => {
 			if (mode === 'idle') return chips;
-			if (mode === 'results' && !navState.awaitingFreshResults) return rows;
+			if (mode === 'results' && !navState.awaitingFreshResults) return navItems;
 			return [];
 		};
 
 		const syncSelection = () => {
-			syncPanels(root, idle);
+			staleResultsState = syncPanels(root, idle, staleResultsState);
 			const mode = navMode();
 			const rows = collectResultRows(root);
+			const navItems = collectResultNavItems(root);
 			const chips = collectSuggestionChips(idle);
 			const fp = fingerprintFor(mode, rows, chips);
 			const message = root.querySelector('.pagefind-ui__message')?.textContent ?? '';
@@ -212,13 +309,38 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 				navState,
 				mode,
 				fp,
-				mode === 'idle' ? chips.length : rows.length,
+				mode === 'idle' ? chips.length : navItems.length,
 				isSearching,
 			);
-			const items = selectableItems(mode, rows, chips);
-			applySelection(rows, -1);
+			const items = selectableItems(mode, navItems, chips);
+			applySelection(navItems, -1);
 			applySelection(chips, -1);
 			applySelection(items, navState.selectedIndex);
+		};
+
+		let syncFrame = 0;
+		const scheduleSync = () => {
+			if (syncFrame) cancelAnimationFrame(syncFrame);
+			syncFrame = requestAnimationFrame(() => {
+				syncFrame = 0;
+				syncSelection();
+			});
+		};
+		const sync = () => scheduleSync();
+
+		const noteSearchEdit = () => {
+			if (captureStaleResults(root)) {
+				staleResultsState = beginStaleResultsHold(
+					staleResultsState,
+					liveResultsFingerprint(root),
+				);
+			}
+			navState = markAwaitingFreshResults(navState);
+		};
+
+		const afterSearchEdit = () => {
+			queueMicrotask(syncSelection);
+			scheduleSync();
 		};
 
 		idle.addEventListener('click', (event) => {
@@ -227,11 +349,11 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			const suggestion = target.closest<HTMLElement>('[data-cs-search-suggestion]');
 			const query = suggestion?.dataset.csSearchSuggestion;
 			if (!query) return;
+			noteSearchEdit();
 			setQuery(root, query);
-			syncSelection();
+			afterSearchEdit();
 		});
 
-		const sync = () => syncSelection();
 		const observer = new MutationObserver(sync);
 		observer.observe(root, {
 			subtree: true,
@@ -244,20 +366,26 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			attributeFilter: ['data-cs-search-ready'],
 		});
 
-		root.addEventListener('input', () => {
-			navState = markAwaitingFreshResults(navState);
-			syncSelection();
-		});
-		root.addEventListener('keyup', sync);
+		root.addEventListener(
+			'input',
+			() => {
+				noteSearchEdit();
+				afterSearchEdit();
+			},
+			{capture: true},
+		);
 
 		if (dialog) {
 			observer.observe(dialog, {attributes: true, attributeFilter: ['open']});
 			dialog.addEventListener('close', () => {
+				clearStaleResults(root);
+				staleResultsState = INITIAL_STALE_RESULTS_STATE;
 				navState = {
 					selectedIndex: -1,
 					lastFingerprint: '',
 					awaitingFreshResults: false,
 					sawSearchingWhileAwaiting: false,
+					userMovedResults: false,
 				};
 				syncSelection();
 			});
@@ -266,25 +394,38 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 				(event) => {
 					if (!dialog.open) return;
 					const mode = navMode();
-					const rows = collectResultRows(root);
+					const navItems = collectResultNavItems(root);
 					const chips = collectSuggestionChips(idle);
-					const items = selectableItems(mode, rows, chips);
+					const items = selectableItems(mode, navItems, chips);
 					const result = handleSearchKey(event.key, navState.selectedIndex, items.length);
 					if (result.preventDefault) event.preventDefault();
 					if (result.selectedIndex !== navState.selectedIndex) {
-						navState = {...navState, selectedIndex: result.selectedIndex};
+						navState = {
+							...navState,
+							selectedIndex: result.selectedIndex,
+							userMovedResults: mode === 'results' ? true : navState.userMovedResults,
+						};
 						applySelection(items, navState.selectedIndex);
-						items[navState.selectedIndex]?.scrollIntoView({block: 'nearest'});
+						scrollSearchSelectionIntoView(
+							root,
+							navState.selectedIndex,
+							items[navState.selectedIndex],
+							items.length,
+						);
 					}
 					if (!result.activate) return;
 					const item = items[navState.selectedIndex];
 					if (!item) return;
 					if (mode === 'idle') {
 						const query = item.dataset.csSearchSuggestion;
-						if (query) setQuery(root, query);
+						if (query) {
+							noteSearchEdit();
+							setQuery(root, query);
+							afterSearchEdit();
+						}
 						return;
 					}
-					resultLinkForRow(item)?.click();
+					activateSearchNavItem(item);
 				},
 				true,
 			);

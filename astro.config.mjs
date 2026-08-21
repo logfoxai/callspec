@@ -2,6 +2,7 @@ import {defineConfig} from 'astro/config';
 import {unified} from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
 import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
+import {pagefindShimIntegration} from './src/integrations/pagefindShim.mjs';
 import {watchChirpDemoPlugin} from './src/integrations/watchChirpDemo.mjs';
 import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
 import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
@@ -179,5 +180,6 @@ export default defineConfig({
                 },
             ],
         }),
+        pagefindShimIntegration(),
     ],
 });

@@ -208,7 +208,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 							bundlePath,
 							basePath: indexPath,
 							showImages: false,
-							debounceTimeoutMs: 150,
+							debounceTimeoutMs: 0,
 							translations,
 							showSubResults: true,
 							processResult: (result: {url: string; sub_results: Array<{url: string}>}) => {
@@ -352,8 +352,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			flex-direction: column;
 			flex-grow: 1;
 			min-height: 0;
-			gap: 1rem;
-			padding: 1rem;
+			gap: var(--cs-search-field-gap, 0.65rem);
+			padding: 0;
 		}
 
 		button[data-close-modal] {
@@ -400,7 +400,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			}
 
 			.dialog-frame {
-				padding: 1.5rem;
+				padding: 0;
 			}
 		}
 	}
@@ -447,25 +447,41 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__search-clear {
-			inset-inline-end: var(--sl-search-cancel-space);
-			width: calc(60px * var(--pagefind-ui-scale));
+			top: 50%;
+			inset-inline-end: calc(var(--cs-search-dialog-inset, 0.75rem) + 0.55rem);
+			transform: translateY(-50%);
+			width: 1.35rem;
+			height: 1.35rem;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
 			padding: 0;
+			border: 0;
+			border-radius: 999px;
 			background-color: transparent;
-			overflow: hidden;
+			cursor: pointer;
 		}
-		[data-cs-pagefind-root] .pagefind-ui__search-clear:focus {
-			outline: 1px solid var(--sl-color-accent);
+
+		[data-cs-pagefind-root] .pagefind-ui__search-clear:is(:hover, :focus, :focus-visible) {
+			outline: none;
+			background-color: var(--sl-color-accent);
 		}
+
 		[data-cs-pagefind-root] .pagefind-ui__search-clear::before {
 			content: '';
+			width: 0.75rem;
+			height: 0.75rem;
+			flex-shrink: 0;
 			-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13.41 12 6.3-6.29a1 1 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1 1 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 .33 1.64 1 1 0 0 0 1.09-.22l6.29-6.3 6.29 6.3a1 1 0 0 0 1.64-.33 1 1 0 0 0-.22-1.09L13.41 12Z'/%3E%3C/svg%3E")
-				center / 50% no-repeat;
+				center / contain no-repeat;
 			mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13.41 12 6.3-6.29a1 1 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1 1 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 .33 1.64 1 1 0 0 0 1.09-.22l6.29-6.3 6.29 6.3a1 1 0 0 0 1.64-.33 1 1 0 0 0-.22-1.09L13.41 12Z'/%3E%3C/svg%3E")
-				center / 50% no-repeat;
+				center / contain no-repeat;
 			background-color: var(--sl-color-text-accent);
-			display: block;
-			width: 100%;
-			height: 100%;
+		}
+
+		[data-cs-pagefind-root]
+			.pagefind-ui__search-clear:is(:hover, :focus, :focus-visible)::before {
+			background-color: var(--sl-color-white);
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__results > * + * {
@@ -478,34 +494,40 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 		[data-cs-pagefind-root] .pagefind-ui__result-nested {
 			position: relative;
-			margin-inline-start: var(--sl-search-tree-diagram-size);
-			padding: var(--sl-search-result-nested-pad-block) 0.7rem;
-			padding-inline-start: 0.65rem;
+			padding: var(--sl-search-result-nested-pad-block) var(--sl-search-result-pad-inline-end);
+			padding-inline-start: var(--sl-search-result-pad-inline-start);
 		}
 
-		[data-cs-pagefind-root] .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)),
+		/* Shared row chrome — page headers and nested hits. */
+		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
 		[data-cs-pagefind-root] .pagefind-ui__result-nested {
 			position: relative;
-			background-color: transparent;
-			border-radius: 0.5rem;
+			background-color: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-black));
 			outline: none;
-			transition: background-color 0.12s ease;
 		}
 
-		[data-cs-pagefind-root] .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)):hover,
+		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title:hover,
 		[data-cs-pagefind-root]
-			.pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)):focus-within,
-		[data-cs-pagefind-root]
-			.pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *))[data-cs-search-selected='true'],
+			.pagefind-ui__result-inner
+			> .pagefind-ui__result-title[data-cs-search-selected='true'],
 		[data-cs-pagefind-root] .pagefind-ui__result-nested:hover,
-		[data-cs-pagefind-root] .pagefind-ui__result-nested:focus-within,
 		[data-cs-pagefind-root] .pagefind-ui__result-nested[data-cs-search-selected='true'] {
 			outline: none;
+			background-color: color-mix(
+				in srgb,
+				var(--sl-color-accent) 28%,
+				var(--sl-color-accent-low)
+			);
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-thumb,
 		[data-cs-pagefind-root] .pagefind-ui__result-inner {
 			margin-top: 0;
+		}
+
+		[data-cs-pagefind-root] .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner > :first-child {
+			border-top-left-radius: 0.75rem;
+			border-top-right-radius: 0.75rem;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-inner > :first-child {
@@ -534,13 +556,16 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 		[data-cs-pagefind-root] .pagefind-ui__result-inner {
 			align-items: stretch;
-			gap: 1px;
+			gap: 0;
+			border-radius: calc(0.65rem * var(--pagefind-ui-scale));
+			overflow: hidden;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-link {
 			position: unset;
 			--pagefind-ui-text: var(--sl-color-white);
 			font-weight: 600;
+			text-decoration: none;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-link:hover {
@@ -555,7 +580,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			content: '';
 			position: absolute;
 			inset-block: 0;
-			inset-inline-start: calc(-1 * var(--sl-search-tree-diagram-size));
+			inset-inline-start: var(--sl-search-tree-diagram-inline-start);
 			width: var(--sl-search-tree-diagram-size);
 			background: var(--sl-color-gray-4);
 			-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' viewBox='0 0 16 1000' preserveAspectRatio='xMinYMin slice'%3E%3Cpath d='M8 0v1000m6-988H8'/%3E%3C/svg%3E")
@@ -578,6 +603,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			content: '';
 			position: absolute;
 			inset: 0;
+			z-index: 1;
+			cursor: pointer;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-excerpt {
@@ -585,7 +612,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		}
 
 		[data-cs-pagefind-root] mark {
-			color: var(--sl-color-gray-2);
 			background-color: transparent;
 			font-weight: 600;
 		}
