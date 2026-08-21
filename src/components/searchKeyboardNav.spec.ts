@@ -10,6 +10,7 @@ import {
 	resolveKeyboardSelection,
 	resultLinkForRow,
 	scrollSearchSelectionIntoView,
+	shouldHandleSearchListKeyboard,
 	type KeyboardNavState,
 } from './searchKeyboardNav.js';
 
@@ -68,6 +69,15 @@ test('handleSearchKey moves selection with arrows and activates on Enter', (asse
 		selectedIndex: 1,
 		activate: false,
 	});
+});
+
+test('shouldHandleSearchListKeyboard only when the search input is focused', (assert) => {
+	const input = {tagName: 'INPUT'} as Element;
+	const clear = {tagName: 'BUTTON'} as Element;
+	assert.equal(shouldHandleSearchListKeyboard(input, input), true);
+	assert.equal(shouldHandleSearchListKeyboard(clear, input), false);
+	assert.equal(shouldHandleSearchListKeyboard(null, input), false);
+	assert.equal(shouldHandleSearchListKeyboard(input, null), false);
 });
 
 test('awaiting stays blocked until fingerprint changes or search cycle completes', (assert) => {

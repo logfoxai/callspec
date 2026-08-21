@@ -65,6 +65,14 @@ export function handleSearchKey(
 	return {preventDefault: false, selectedIndex, activate: false};
 }
 
+/** Result-list keys apply only while the query field is focused — not on clear / other controls. */
+export function shouldHandleSearchListKeyboard(
+	activeElement: Element | null,
+	searchInput: Element | null,
+): boolean {
+	return Boolean(searchInput && activeElement === searchInput);
+}
+
 /** Visible Pagefind “load more” control, when present. */
 export function collectLoadMoreButton(root: ParentNode): HTMLElement | null {
 	const button = root.querySelector<HTMLElement>('.pagefind-ui__button');

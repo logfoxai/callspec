@@ -629,6 +629,7 @@ header.header .social-icons a svg {
  * Also kills the 15rem min-height shell that leaves a hollow void when idle / empty.
  */
 site-search dialog[open] {
+    --cs-search-field-bg: var(--sl-color-black);
     background:
         linear-gradient(
             165deg,
@@ -771,21 +772,27 @@ site-search dialog[open] .cs-search-idle {
     display: none !important;
 }
 
-.cs-search-idle__eyebrow {
-    margin: 0;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--docs-text-tertiary);
-}
-
 .cs-search-idle__lead {
-    margin: 0.35rem 0 0;
+    margin: 0;
     color: var(--docs-text-secondary);
     font-size: 0.875rem;
     line-height: 1.5;
     max-width: 28rem;
+}
+
+.cs-search-idle__try {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.85rem 0 0;
+}
+
+.cs-search-idle__try-label {
+    color: var(--docs-text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.2;
 }
 
 .cs-search-idle__chips {
@@ -793,35 +800,36 @@ site-search dialog[open] .cs-search-idle {
     flex-wrap: wrap;
     gap: 0.4rem;
     list-style: none;
-    margin: 0.85rem 0 0;
+    margin: 0;
     padding: 0;
 }
 
 .cs-search-idle__chips button {
     appearance: none;
-    border: 1px solid color-mix(in srgb, var(--docs-border-strong) 55%, transparent);
-    background: color-mix(in srgb, var(--sl-color-black) 32%, var(--cs-search-modal-bg));
-    color: var(--docs-text);
-    border-radius: 999px;
-    padding: 0.32rem 0.7rem;
+    border: 0;
+    border-radius: 0.55rem;
+    background: var(--cs-search-field-bg, var(--sl-color-black));
+    color: var(--cs-ink);
+    padding: 0.35rem 0.75rem;
     font: inherit;
     font-size: 0.8125rem;
     font-weight: 500;
+    line-height: 1.2;
     letter-spacing: -0.01em;
     cursor: pointer;
+    box-shadow: none;
     transition:
-        border-color 140ms ease,
-        background-color 140ms ease,
-        color 140ms ease,
+        background-color 0.15s ease,
+        color 0.15s ease,
         transform 140ms ease;
 }
 
 .cs-search-idle__chips button:hover,
 .cs-search-idle__chips button:focus-visible,
 .cs-search-idle__chips button[data-cs-search-selected='true'] {
-    border-color: color-mix(in srgb, var(--docs-primary-bg) 50%, var(--docs-border));
-    background: color-mix(in srgb, var(--docs-primary-bg) 14%, var(--cs-search-modal-bg));
-    color: var(--docs-text);
+    border: 0;
+    background: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
+    color: var(--sl-color-white);
     outline: none;
 }
 
@@ -1682,6 +1690,7 @@ html[data-theme='light'] .cs-search-loading__field {
 }
 
 html[data-theme='light'] site-search dialog[open] {
+    --cs-search-field-bg: hsl(0 0% 100%);
     background:
         linear-gradient(
             165deg,
@@ -1702,17 +1711,15 @@ html[data-theme='light'] site-search dialog::backdrop {
 }
 
 html[data-theme='light'] .cs-search-idle__chips button {
-    background: color-mix(in srgb, var(--docs-code-bg) 55%, var(--cs-search-modal-bg));
-    border-color: var(--docs-border);
+    background: var(--cs-search-field-bg, hsl(0 0% 100%));
     color: var(--cs-ink);
 }
 
 html[data-theme='light'] .cs-search-idle__chips button:hover,
 html[data-theme='light'] .cs-search-idle__chips button:focus-visible,
 html[data-theme='light'] .cs-search-idle__chips button[data-cs-search-selected='true'] {
-    border-color: color-mix(in srgb, var(--docs-primary-bg) 35%, var(--docs-border));
-    background: color-mix(in srgb, var(--docs-primary-bg) 10%, var(--cs-search-modal-bg));
-    color: var(--cs-ink);
+    background: color-mix(in srgb, var(--sl-color-accent) 22%, hsl(0 0% 100%));
+    color: var(--sl-color-black);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root]:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
