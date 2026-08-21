@@ -678,33 +678,34 @@ site-search dialog::backdrop {
     --pagefind-ui-scale: 0.92;
 }
 
-/* Pagefind defaults (~21px titles / ~16px excerpts) read oversized in this modal. */
-[data-cs-pagefind-root] .pagefind-ui__result-title {
-    font-size: 0.8125rem;
+/*
+ * Pagefind titles are inline-block + inner is flex-start — the hover pill
+ * shrink-wraps. Nested links also paint a ↳ on top of Starlight’s tree.
+ */
+[data-cs-pagefind-root] .pagefind-ui__result-inner {
+    align-items: stretch;
 }
 
-[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-link {
-    font-size: 0.75rem;
-}
-
-[data-cs-pagefind-root] .pagefind-ui__result-excerpt {
-    font-size: 0.6875rem;
-    line-height: 1.45;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-}
-
-/* Nested hits: heading only. Pagefind excerpts cut mid-sentence. */
-[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-excerpt {
-    display: none;
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
+[data-cs-pagefind-root] .pagefind-ui__result-nested {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__result-nested {
-    margin-inline-start: var(--sl-search-tree-diagram-size, 2.3rem);
-    padding-block: 0.4rem;
-    padding-inline: 0.65rem 0.7rem;
+    margin-inline-start: var(--sl-search-tree-diagram-size, 2.5rem);
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-link::before {
+    content: none;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-excerpt {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.45;
 }
 
 /*
