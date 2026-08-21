@@ -32,23 +32,10 @@ The rest of this README is for coding agents.
 
 Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste skill + prompts: [Working with Coding Agents](src/content/docs/coding-agents.md). Ignore `docs/internal/`.
 
-## Try the demo
-
-**Hosted (browse routes / MCP connect snippets):** [callspec.logfox.ai/demo](https://callspec.logfox.ai/demo/)
-
-**Live try-it + MCP locally:**
-
-```bash
-git clone https://github.com/logfoxai/callspec.git
-cd callspec && npm install
-npm run build && npm run serve:chirp-demo
-```
-
-Open [http://127.0.0.1:3456/v1/docs](http://127.0.0.1:3456/v1/docs) — fictional **Chirp API v2**. Bearer token `demo` for authenticated routes and MCP.
-
 ## Contents
 
 - [Getting started](src/content/docs/getting-started.md)
+- [Try the demo locally](src/content/docs/try-the-demo-locally.md)
 - [Working with Coding Agents](src/content/docs/coding-agents.md)
 - [Server layout](src/content/docs/server-layout.md)
 - [Unit testing](src/content/docs/unit-testing.md)

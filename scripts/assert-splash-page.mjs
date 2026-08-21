@@ -29,6 +29,7 @@ const required = [
 	'Stop duct-taping your API stack.',
 	'/getting-started/',
 	'/demo/',
+	'/try-the-demo-locally/',
 ];
 for (const needle of required) {
 	if (!html.includes(needle)) {
