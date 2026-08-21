@@ -26,8 +26,6 @@ On the frontend you call `api.getProductById({…})` and get a **Result** back �
 
 **For humans:** [callspec.logfox.ai](https://callspec.logfox.ai) · [Try the demo](https://callspec.logfox.ai/demo/)
 
-The rest of this README is for coding agents.
-
 ## Skill
 
 Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste skill + prompts: [Working with Coding Agents](src/content/docs/coding-agents.md). Ignore `docs/internal/`.
