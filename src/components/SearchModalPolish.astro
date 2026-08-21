@@ -76,6 +76,13 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 	} from './searchKeyboardNav';
 	import {shouldShowSearchPending} from './searchDialogPhase';
 	import {
+		INITIAL_SEARCH_PENDING_DELAY_STATE,
+		isSearchPendingVisible,
+		resolveSearchPendingDelayState,
+		SEARCH_PENDING_SHOW_DELAY_MS,
+		type SearchPendingDelayState,
+	} from './searchPendingDelay';
+	import {
 		beginStaleResultsHold,
 		captureStaleResults,
 		clearStaleResults,
@@ -142,6 +149,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 	function syncPendingVisibility(pending: HTMLElement, show: boolean) {
 		pending.hidden = !show;
+		pending.setAttribute('aria-hidden', show ? 'false' : 'true');
 	}
 
 	function configureSearchInput(root: Element) {
@@ -173,7 +181,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		root: Element,
 		idle: HTMLElement,
 		staleResultsState: StaleResultsState,
-	): StaleResultsState {
+	): {nextStaleState: StaleResultsState; wantShowPending: boolean} {
 		const siteSearch = root.closest('site-search');
 		const searchReady =
 			Boolean(siteSearch?.hasAttribute('data-cs-search-ready')) ||
@@ -229,7 +237,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		if (help) help.hidden = !zeroNow;
 
 		const dialog = root.closest('dialog');
-		if (!dialog) return staleResultsState;
+		if (!dialog) return {nextStaleState: staleResultsState, wantShowPending: false};
 
 		let phase: string;
 		if (!searchReady) {
@@ -250,21 +258,14 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			dialog.dataset.csSearch = phase;
 		}
 
-		const pending = ensurePending(root);
-		if (pending) {
-			syncPendingVisibility(
-				pending,
-				shouldShowSearchPending(
-					phase,
-					hasVisibleResults,
-					zeroNow,
-					drawerHidden,
-					holdingStale,
-				),
-			);
-		}
+		const wantShowPending = shouldShowSearchPending(
+			phase,
+			hasVisibleResults,
+			zeroNow,
+			holdingStale,
+		);
 
-		return nextStaleState;
+		return {nextStaleState, wantShowPending};
 	}
 
 	function bindSiteSearch(siteSearch: HTMLElement) {
@@ -287,6 +288,36 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			userMovedResults: false,
 		};
 		let staleResultsState: StaleResultsState = INITIAL_STALE_RESULTS_STATE;
+		let pendingDelayState: SearchPendingDelayState = INITIAL_SEARCH_PENDING_DELAY_STATE;
+		let pendingTimer: ReturnType<typeof setTimeout> | null = null;
+
+		const syncPending = (wantShow: boolean) => {
+			const pending = ensurePending(root);
+			if (!pending) return;
+
+			if (!wantShow) {
+				if (pendingTimer) clearTimeout(pendingTimer);
+				pendingTimer = null;
+				pendingDelayState = INITIAL_SEARCH_PENDING_DELAY_STATE;
+				syncPendingVisibility(pending, false);
+				return;
+			}
+
+			pendingDelayState = resolveSearchPendingDelayState(pendingDelayState, true, false);
+			if (isSearchPendingVisible(pendingDelayState)) {
+				syncPendingVisibility(pending, true);
+				return;
+			}
+
+			syncPendingVisibility(pending, false);
+			if (pendingTimer) return;
+
+			pendingTimer = setTimeout(() => {
+				pendingTimer = null;
+				pendingDelayState = resolveSearchPendingDelayState(pendingDelayState, true, true);
+				syncSelection();
+			}, SEARCH_PENDING_SHOW_DELAY_MS);
+		};
 
 		const navMode = (): KeyboardNavMode => {
 			const mode = dialog?.dataset.csSearch;
@@ -312,7 +343,9 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 
 		const syncSelection = () => {
 			configureSearchInput(root);
-			staleResultsState = syncPanels(root, idle, staleResultsState);
+			const panelSync = syncPanels(root, idle, staleResultsState);
+			staleResultsState = panelSync.nextStaleState;
+			syncPending(panelSync.wantShowPending);
 			const mode = navMode();
 			const rows = collectResultRows(root);
 			const navItems = collectResultNavItems(root);
@@ -396,6 +429,11 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			dialog.addEventListener('close', () => {
 				clearStaleResults(root);
 				staleResultsState = INITIAL_STALE_RESULTS_STATE;
+				if (pendingTimer) clearTimeout(pendingTimer);
+				pendingTimer = null;
+				pendingDelayState = INITIAL_SEARCH_PENDING_DELAY_STATE;
+				const pending = ensurePending(root);
+				if (pending) syncPendingVisibility(pending, false);
 				navState = {
 					selectedIndex: -1,
 					lastFingerprint: '',

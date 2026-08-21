@@ -10,12 +10,12 @@ test('isSearchActivePhase covers in-flight and results phases', (assert) => {
 	assert.equal(isSearchActivePhase('loading'), false);
 });
 
-test('shouldShowSearchPending only while the drawer is hidden', (assert) => {
-	assert.equal(shouldShowSearchPending('querying', false, false, true), true);
-	assert.equal(shouldShowSearchPending('searching', false, false, true), true);
-	assert.equal(shouldShowSearchPending('searching', false, false, false), false);
-	assert.equal(shouldShowSearchPending('searching', true, false, true), false);
-	assert.equal(shouldShowSearchPending('querying', false, true, true), false);
-	assert.equal(shouldShowSearchPending('results', false, false, true), false);
-	assert.equal(shouldShowSearchPending('searching', false, false, true, true), false);
+test('shouldShowSearchPending only while searching with no settled results', (assert) => {
+	assert.equal(shouldShowSearchPending('searching', false, false), true);
+	assert.equal(shouldShowSearchPending('searching', false, false, false), true);
+	assert.equal(shouldShowSearchPending('querying', false, false), false);
+	assert.equal(shouldShowSearchPending('searching', true, false), false);
+	assert.equal(shouldShowSearchPending('searching', false, true), false);
+	assert.equal(shouldShowSearchPending('results', false, false), false);
+	assert.equal(shouldShowSearchPending('searching', false, false, true), false);
 });

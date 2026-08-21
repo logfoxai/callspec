@@ -874,14 +874,14 @@ html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested {
 
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button {
     background: var(--cs-search-field-bg);
-    border-color: var(--cs-line);
+    border: 0;
     color: var(--cs-ink);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button:hover {
-    background: color-mix(in srgb, var(--docs-primary-bg) 10%, var(--cs-search-field-bg));
-    border-color: color-mix(in srgb, var(--docs-primary-bg) 35%, var(--cs-line));
-    color: var(--cs-ink);
+    background: color-mix(in srgb, var(--sl-color-accent) 22%, hsl(0 0% 100%));
+    border: 0;
+    color: var(--sl-color-black);
 }
 
 html[data-theme='light']
@@ -1043,6 +1043,11 @@ html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested .pa
 [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
 [data-cs-pagefind-root] .pagefind-ui__result-nested {
     background-color: var(--cs-search-field-bg);
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title:is(:hover, [data-cs-search-selected='true']),
+[data-cs-pagefind-root] .pagefind-ui__result-nested:is(:hover, [data-cs-search-selected='true']) {
+    background-color: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-input {
@@ -1266,7 +1271,7 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
 }
 
 [data-cs-pagefind-root] .pagefind-ui__button[data-cs-search-selected='true'] {
-    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
+    border: 0;
     background: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
     color: var(--sl-color-white);
 }
@@ -1282,7 +1287,7 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
     height: auto;
     min-height: 2.35rem;
     padding: 0.55rem 1.1rem;
-    border: 1px solid var(--cs-line);
+    border: 0;
     border-radius: 0.55rem;
     background: var(--cs-search-field-bg);
     color: var(--cs-ink);
@@ -1293,14 +1298,13 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
     box-shadow: none;
     transition:
         background-color 0.15s ease,
-        border-color 0.15s ease,
         color 0.15s ease;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__button:hover {
-    border-color: color-mix(in srgb, var(--sl-color-accent) 40%, var(--cs-line));
-    background: color-mix(in srgb, var(--sl-color-accent) 14%, var(--cs-search-field-bg));
-    color: var(--cs-ink);
+    border: 0;
+    background: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
+    color: var(--sl-color-white);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__results > * + * {

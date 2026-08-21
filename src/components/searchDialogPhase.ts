@@ -12,14 +12,13 @@ export function isSearchExpandedPhase(phase: string): phase is SearchActivePhase
 	return isSearchActivePhase(phase);
 }
 
-/** Skeleton below the input while Pagefind’s drawer is still closed (debounce / pre-drawer). */
+/** Skeleton while Pagefind is searching and the drawer has no hits yet. */
 export function shouldShowSearchPending(
 	phase: string,
 	hasResults: boolean,
 	zeroResults: boolean,
-	drawerHidden: boolean,
 	holdingStale = false,
 ): boolean {
-	if (hasResults || zeroResults || !drawerHidden || holdingStale) return false;
-	return phase === 'querying' || phase === 'searching';
+	if (hasResults || zeroResults || holdingStale) return false;
+	return phase === 'searching';
 }
