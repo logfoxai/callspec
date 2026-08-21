@@ -86,8 +86,20 @@ const shouldRenderSearch =
 			content: none;
 		}
 
-		/* Guides <50rem: chrome moves into the Menu drawer. */
-		:global([data-has-sidebar]) .header-search,
+		/* Guides <50rem: chrome moves into the Menu drawer.
+		 * Hide only the header search *button* — never .header-search itself,
+		 * or showModal() opens an invisible dialog in a display:none subtree.
+		 */
+		:global([data-has-sidebar]) .header-search {
+			flex: 0 0 0;
+			width: 0;
+			min-width: 0;
+			margin: 0;
+			padding: 0;
+			overflow: visible;
+		}
+
+		:global([data-has-sidebar]) .header-search :global(button[data-open-modal]),
 		:global([data-has-sidebar]) .header-tools :global(starlight-theme-select),
 		:global([data-has-sidebar]) .header-tools :global(starlight-lang-select),
 		:global([data-has-sidebar]) .social-icons {
@@ -100,6 +112,13 @@ const shouldRenderSearch =
 			}
 
 			:global([data-has-sidebar]) .header-search {
+				display: flex;
+				flex: 1 1 auto;
+				width: auto;
+				min-width: 0;
+			}
+
+			:global([data-has-sidebar]) .header-search :global(button[data-open-modal]) {
 				display: flex;
 			}
 

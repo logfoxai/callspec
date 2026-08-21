@@ -98,4 +98,14 @@ test('mobile drawer does not mount a second site-search / Pagefind dialog', (ass
 	assert.equal(/<Search[\s/>]/.test(mobileFooter), false);
 	assert.equal(mobileFooter.includes('data-cs-open-docs-search'), true);
 	assert.equal(header.includes('data-cs-docs-search-primary'), true);
+	assert.equal(
+		header.includes(':global([data-has-sidebar]) .header-search,'),
+		false,
+		'never display:none the wrapper — showModal() cannot paint a dialog in a hidden subtree',
+	);
+	assert.equal(
+		header.includes('.header-search :global(button[data-open-modal])'),
+		true,
+		'hide only the header trigger on small screens',
+	);
 });
