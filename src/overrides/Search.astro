@@ -67,6 +67,13 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 <script>
 	import {pagefindUserConfig} from 'virtual:starlight/pagefind-config';
 	import {bindPagefindMount} from '../components/pagefindMount';
+	import {
+		isEditableSearchTarget,
+		openPrimaryDocsSearch,
+		shouldCloseOnOutsideClick,
+		shouldCloseSearchOnEscape,
+		shouldHandleGlobalSlash,
+	} from '../components/searchDialog';
 
 	let pagefindMountSeq = 0;
 
@@ -78,13 +85,22 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			const dialog = this.querySelector('dialog')!;
 			const dialogFrame = this.querySelector('.dialog-frame')!;
 
+			const focusSearchInput = () => {
+				this.querySelector<HTMLInputElement>('.pagefind-ui__search-input')?.focus();
+			};
+
 			/** Close the modal if a user clicks on a link or outside of the modal. */
 			const onClick = (event: MouseEvent) => {
-				const isLink = 'href' in (event.target || {});
+				const target = event.target;
+				const targetIsLink =
+					(typeof target === 'object' && target !== null && 'href' in target) ||
+					(target instanceof Element && Boolean(target.closest('a[href]')));
 				if (
-					isLink ||
-					(document.body.contains(event.target as Node) &&
-						!dialogFrame.contains(event.target as Node))
+					shouldCloseOnOutsideClick({
+						targetIsLink,
+						targetInDocument: document.body.contains(target as Node),
+						targetInDialogFrame: dialogFrame.contains(target as Node),
+					})
 				) {
 					closeModal();
 				}
@@ -92,11 +108,14 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 			const openModal = (event?: MouseEvent) => {
 				void loadPagefind();
-				dialog.showModal();
-				document.body.toggleAttribute('data-search-modal-open', true);
-				this.querySelector('input')?.focus();
 				event?.stopPropagation();
-				window.addEventListener('click', onClick);
+				if (!dialog.open) {
+					dialog.showModal();
+					document.body.toggleAttribute('data-search-modal-open', true);
+					window.addEventListener('click', onClick);
+				}
+				focusSearchInput();
+				requestAnimationFrame(focusSearchInput);
 			};
 
 			const closeModal = () => dialog.close();
@@ -112,19 +131,30 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 				document.body.toggleAttribute('data-search-modal-open', false);
 				window.removeEventListener('click', onClick);
 			});
+			dialog.addEventListener(
+				'keydown',
+				(event) => {
+					if (!shouldCloseSearchOnEscape(event.key)) return;
+					event.preventDefault();
+					event.stopPropagation();
+					closeModal();
+				},
+				true,
+			);
 
-			// `/` opens search (GitHub-style). Skip when typing in a field or when the modal is open.
+			// `/` opens search (GitHub-style). Skip when typing in a field or when any search dialog is open.
 			window.addEventListener('keydown', (e) => {
-				if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-				if (dialog.open) return;
 				const el = e.target;
-				if (!(el instanceof HTMLElement)) return;
-				const tag = el.tagName;
 				if (
-					tag === 'INPUT' ||
-					tag === 'TEXTAREA' ||
-					tag === 'SELECT' ||
-					el.isContentEditable
+					!shouldHandleGlobalSlash({
+						key: e.key,
+						metaKey: e.metaKey,
+						ctrlKey: e.ctrlKey,
+						altKey: e.altKey,
+						shiftKey: e.shiftKey,
+						anySearchDialogOpen: Boolean(document.querySelector('site-search dialog[open]')),
+						targetIsEditable: el instanceof HTMLElement && isEditableSearchTarget(el),
+					})
 				) {
 					return;
 				}
@@ -191,7 +221,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 						});
 						this.querySelector('[data-cs-search-loading]')?.remove();
 						this.toggleAttribute('data-cs-search-ready', true);
-						if (dialog.open) this.querySelector('input')?.focus();
+						if (dialog.open) focusSearchInput();
 					} catch (err) {
 						console.error('Callspec search failed to load', err);
 						pagefindPromise = null;
@@ -210,6 +240,19 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		}
 	}
 	customElements.define('site-search', SiteSearch);
+
+	function bindDocsSearchTriggers() {
+		document.querySelectorAll('[data-cs-open-docs-search]').forEach((btn) => {
+			if (!(btn instanceof HTMLElement) || btn.dataset.csOpenBound === '1') return;
+			btn.dataset.csOpenBound = '1';
+			btn.addEventListener('click', (event) => {
+				event.stopPropagation();
+				openPrimaryDocsSearch(document);
+			});
+		});
+	}
+	bindDocsSearchTriggers();
+	document.addEventListener('astro:page-load', bindDocsSearchTriggers);
 </script>
 
 <style>
@@ -441,8 +484,12 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		[data-cs-pagefind-root] .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)),
 		[data-cs-pagefind-root] .pagefind-ui__result-nested {
 			position: relative;
-			background-color: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-black));
+			background-color: transparent;
+			border-radius: var(--sl-search-corners);
 			outline: none;
+			transition:
+				background-color 0.12s ease,
+				box-shadow 0.12s ease;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)):hover,
@@ -454,11 +501,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		[data-cs-pagefind-root] .pagefind-ui__result-nested:focus-within,
 		[data-cs-pagefind-root] .pagefind-ui__result-nested[data-cs-search-selected='true'] {
 			outline: none;
-			background-color: color-mix(
-				in srgb,
-				var(--sl-color-accent) 28%,
-				var(--sl-color-accent-low)
-			);
+			background-color: color-mix(in srgb, var(--sl-color-accent) 22%, var(--sl-color-gray-6));
+			box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sl-color-accent) 58%, transparent);
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-thumb,
