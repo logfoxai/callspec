@@ -686,14 +686,17 @@ site-search dialog::backdrop {
     align-items: stretch;
 }
 
-[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
-[data-cs-pagefind-root] .pagefind-ui__result-nested {
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title {
     display: block;
     width: 100%;
     box-sizing: border-box;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__result-nested {
+    display: block;
+    width: auto;
+    align-self: stretch;
+    box-sizing: border-box;
     margin-inline-start: var(--sl-search-tree-diagram-size, 2.5rem);
 }
 
