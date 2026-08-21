@@ -1678,7 +1678,7 @@ html[data-has-sidebar] .pagination-links a[rel='next']:hover {
 }
 
 html[data-has-sidebar] .pagination-links a > span {
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     line-height: 1.35;
@@ -1689,7 +1689,7 @@ html[data-has-sidebar] .pagination-links a > span {
 html[data-has-sidebar] .pagination-links .link-title {
     color: var(--cs-ink);
     font-family: var(--cs-font-heading);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 600;
     letter-spacing: -0.015em;
     line-height: 1.3;
