@@ -265,7 +265,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
         &:hover {
             box-shadow:
                 0.2rem 0.2rem 0 0
-                color-mix(in srgb, var(--cs-primary-hover-bg) 42%, #0a0612);
+                color-mix(in srgb, hsl(220 8% 55%) 42%, #0a0612);
         }
     }
 }
