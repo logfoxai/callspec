@@ -1085,6 +1085,7 @@ body > .footer {
     gap: 0.45rem;
     height: var(--footer-height);
     margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
     padding: 0 1.25rem;
     background: transparent;
     font-size: 0.9rem;
