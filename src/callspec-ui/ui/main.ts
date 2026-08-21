@@ -11,6 +11,7 @@ import {callspecDocumentToUiSpec} from '../toUiSpec';
 import type {CallspecUiRoute} from '../types';
 import {CallspecDocumentError} from '../../callspecDocumentTypes';
 import {parseUiCallspecDocument} from '../parseUiDocument';
+import {showCopySuccess, tryCopyText} from '../../components/codeBlockTitles';
 import {codeBlock} from './highlight';
 import {exampleFromSchema} from './exampleFromSchema';
 import {initJsonEditor} from './jsonEditor';
@@ -572,7 +573,17 @@ function copyCurl(route: CallspecUiRoute): void {
 
     cmd += ` \\\n  -d '${body.replace(/'/g, "'\\''")}'`;
 
-    void navigator.clipboard.writeText(cmd);
+    const copyBtn = document.getElementById('copy-curl-try');
+
+    void tryCopyText(cmd).then((ok) => {
+
+        if (ok && copyBtn instanceof HTMLButtonElement) {
+
+            showCopySuccess(copyBtn);
+
+        }
+
+    });
 
 }
 

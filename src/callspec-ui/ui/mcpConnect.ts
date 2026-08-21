@@ -1,5 +1,5 @@
 import type {CallspecUiConfig} from '../branding';
-import {COPY_FEEDBACK_MS, copyButtonMarkup, paintCopyButton, tryCopyText} from '../../components/codeBlockTitles';
+import {copyButtonMarkup, showCopySuccess, tryCopyText} from '../../components/codeBlockTitles';
 import {slugifyName} from '../../metaDefaults';
 import {codeBlock} from './highlight';
 import {mcpIcon} from './icons';
@@ -304,9 +304,7 @@ export function renderMcpConnect(
                 <label class="mcp-endpoint-label">Endpoint</label>
                 <div class="mcp-endpoint-field">
                     <code class="mcp-endpoint-url">${escapeHtml(mcpUrl)}</code>
-                    <button type="button" class="mcp-endpoint-copy" data-copy="${escapeHtml(mcpUrl)}" aria-label="Copy endpoint URL">
-                        Copy
-                    </button>
+                    ${copyButtonMarkup({copyValue: mcpUrl})}
                 </div>
                 ${authHint ? `<p class="mcp-endpoint-note">${escapeHtml(authHint)}</p>` : ''}
             </div>
@@ -327,22 +325,6 @@ export function renderMcpConnect(
             </div>
         </section>
     `;
-
-}
-
-function flashCopyButton(btn: HTMLElement): void {
-
-    const original = btn.textContent ?? 'Copy';
-
-    btn.textContent = 'Copied';
-    btn.classList.add('is-copied');
-
-    window.setTimeout(() => {
-
-        btn.textContent = original;
-        btn.classList.remove('is-copied');
-
-    }, 1400);
 
 }
 
@@ -404,23 +386,7 @@ function selectMcpClient(
 
 export function bindMcpConnect(root: HTMLElement): void {
 
-    root.querySelectorAll('[data-copy]').forEach((btn) => {
-
-        btn.addEventListener('click', () => {
-
-            const text = (btn as HTMLElement).dataset.copy ?? '';
-
-            void navigator.clipboard.writeText(text).then(() => {
-
-                flashCopyButton(btn as HTMLElement);
-
-            });
-
-        });
-
-    });
-
-    root.querySelectorAll('[data-copy-target]').forEach((node) => {
+    root.querySelectorAll('[data-copy], [data-copy-target]').forEach((node) => {
 
         if (!(node instanceof HTMLButtonElement)) {
 
@@ -428,41 +394,20 @@ export function bindMcpConnect(root: HTMLElement): void {
 
         }
 
-        let resetTimer: ReturnType<typeof setTimeout> | undefined;
-
         node.addEventListener('click', () => {
 
-            const targetId = node.dataset.copyTarget ?? '';
-            const el = document.getElementById(targetId);
+            const fromValue = node.dataset.copy;
+            const targetId = node.dataset.copyTarget;
+            const fromTarget = targetId ? document.getElementById(targetId)?.textContent ?? '' : '';
+            const text = fromValue ?? fromTarget;
 
-            if (!el) {
+            void tryCopyText(text).then((ok) => {
 
-                return;
+                if (ok) {
 
-            }
-
-            void tryCopyText(el.textContent ?? '').then((ok) => {
-
-                if (!ok) {
-
-                    return;
+                    showCopySuccess(node);
 
                 }
-
-                paintCopyButton(node, true);
-
-                if (resetTimer !== undefined) {
-
-                    clearTimeout(resetTimer);
-
-                }
-
-                resetTimer = setTimeout(() => {
-
-                    paintCopyButton(node, false);
-                    resetTimer = undefined;
-
-                }, COPY_FEEDBACK_MS);
 
             });
 

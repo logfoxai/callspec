@@ -16,6 +16,11 @@ test('copyButtonContent matches app-frontend idle / copied labels', (assert) => 
     assert.equal(copyButtonContent(true), {label: 'Copied!', state: 'copied'});
 });
 
+test('copyButtonContent keeps a custom idle label after Copied!', (assert) => {
+    assert.equal(copyButtonContent(false, 'Copy curl'), {label: 'Copy curl', state: 'idle'});
+    assert.equal(copyButtonContent(true, 'Copy curl'), {label: 'Copied!', state: 'copied'});
+});
+
 test('copyButtonMarkup is the docs chrome idle control', (assert) => {
     const html = copyButtonMarkup({copyTarget: 'cursor-mcp-config'});
     assert.equal(html.includes('class="cs-copy-btn"'), true);
@@ -23,6 +28,19 @@ test('copyButtonMarkup is the docs chrome idle control', (assert) => {
     assert.equal(html.includes('cs-copy-label'), true);
     assert.equal(html.includes('Copy to clipboard'), true);
     assert.equal(html.includes('data-copy-target="cursor-mcp-config"'), true);
+});
+
+test('copyButtonMarkup accepts id, copy value, and a custom idle label', (assert) => {
+    const html = copyButtonMarkup({
+        id: 'copy-curl-try',
+        copyValue: 'http://127.0.0.1:3000/v1/mcp',
+        label: 'Copy curl',
+    });
+    assert.equal(html.includes('id="copy-curl-try"'), true);
+    assert.equal(html.includes('data-copy="http://127.0.0.1:3000/v1/mcp"'), true);
+    assert.equal(html.includes('data-cs-copy-idle-label="Copy curl"'), true);
+    assert.equal(html.includes('>Copy curl</span>'), true);
+    assert.equal(html.includes('class="btn'), false);
 });
 
 test('COPY_FEEDBACK_MS matches useCopyToClipboard reset window', (assert) => {

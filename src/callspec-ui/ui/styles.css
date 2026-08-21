@@ -1889,6 +1889,7 @@ body > .footer {
 
 .actions {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
     margin-top: 0.25rem;
 }
@@ -2234,8 +2235,10 @@ body > .footer {
 
 .mcp-endpoint-field {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    gap: 0.35rem;
     overflow: hidden;
+    padding-inline-end: 0.4rem;
     border: 0.0625rem solid var(--docs-code-border);
     border-radius: var(--radius);
     background: var(--hljs-bg);
@@ -2250,25 +2253,6 @@ body > .footer {
     font-size: 0.75rem;
     line-height: 1.5;
     word-break: break-all;
-    color: var(--text);
-}
-
-.mcp-endpoint-copy {
-    flex-shrink: 0;
-    padding: 0 1rem;
-    border: 0;
-    border-left: 0.0625rem solid var(--docs-code-border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.mcp-endpoint-copy:hover {
-    background: var(--accent-soft);
     color: var(--text);
 }
 
@@ -2406,11 +2390,6 @@ body > .footer {
     font-weight: 600;
     text-transform: uppercase;
     color: var(--text-tertiary);
-}
-
-.mcp-endpoint-copy.is-copied {
-    color: var(--green);
-    border-color: var(--badge-public-border);
 }
 
 .mcp-steps {

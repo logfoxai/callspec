@@ -1,3 +1,4 @@
+import {copyButtonMarkup} from '../../components/codeBlockTitles';
 import type {CallspecUiRoute} from '../types';
 import {jsonEditorHtml} from './jsonEditor';
 
@@ -52,7 +53,7 @@ export function renderTryItPanel(options: TryItPanelOptions): string {
                         </div>
                         <div class="actions">
                             ${renderSendButton(demoMode)}
-                            <button type="button" class="btn btn-ghost" id="copy-curl-try">Copy curl</button>
+                            ${copyButtonMarkup({id: 'copy-curl-try', label: 'Copy curl'})}
                         </div>
                         <div class="response" id="response"></div>
                         </div>

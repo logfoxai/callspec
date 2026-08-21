@@ -2,10 +2,13 @@
 export const COPY_FEEDBACK_MS = 1500;
 
 /** Idle / copied labels — same strings as app-frontend `Code` copy button. */
-export function copyButtonContent(isCopied: boolean): {label: string; state: 'idle' | 'copied'} {
+export function copyButtonContent(
+    isCopied: boolean,
+    idleLabel = 'Copy',
+): {label: string; state: 'idle' | 'copied'} {
     return isCopied
         ? {label: 'Copied!', state: 'copied'}
-        : {label: 'Copy', state: 'idle'};
+        : {label: idleLabel, state: 'idle'};
 }
 
 /** Expressive Code joins multi-line `data-code` with U+007F. */
@@ -117,8 +120,19 @@ const COPY_ICON_SVG =
 const CHECK_ICON_SVG =
     '<svg class="cs-copy-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>';
 
+function idleLabelOf(button: HTMLButtonElement): string {
+    return button.dataset.csCopyIdleLabel || copyButtonContent(false).label;
+}
+
+function escapeAttr(value: string): string {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+}
+
 export function paintCopyButton(button: HTMLButtonElement, isCopied: boolean): void {
-    const {label, state} = copyButtonContent(isCopied);
+    const {label, state} = copyButtonContent(isCopied, idleLabelOf(button));
     button.classList.toggle('cs-copied', isCopied);
     button.dataset.csCopyState = state;
     button.title = isCopied ? 'Copied!' : 'Copy to clipboard';
@@ -133,14 +147,39 @@ export function paintCopyButton(button: HTMLButtonElement, isCopied: boolean): v
     button.append(icon, text);
 }
 
-/** Idle chrome used by docs EC and explorer MCP panels. */
-export function copyButtonMarkup(attrs: {copyTarget?: string} = {}): string {
-    const {label} = copyButtonContent(false);
-    const target = attrs.copyTarget === undefined ? '' : ` data-copy-target="${attrs.copyTarget}"`;
+const copyResetTimers = new WeakMap<HTMLButtonElement, ReturnType<typeof setTimeout>>();
+
+/** Green “Copied!” then restore the idle label after COPY_FEEDBACK_MS. */
+export function showCopySuccess(button: HTMLButtonElement): void {
+    paintCopyButton(button, true);
+    const previous = copyResetTimers.get(button);
+    if (previous !== undefined) {
+        clearTimeout(previous);
+    }
+    copyResetTimers.set(button, setTimeout(() => {
+        paintCopyButton(button, false);
+        copyResetTimers.delete(button);
+    }, COPY_FEEDBACK_MS));
+}
+
+/** Idle chrome used by docs EC and explorer MCP / Try it copy controls. */
+export function copyButtonMarkup(attrs: {
+    copyTarget?: string
+    copyValue?: string
+    id?: string
+    label?: string
+} = {}): string {
+    const {label} = copyButtonContent(false, attrs.label);
+    const extra = [
+        attrs.id === undefined ? '' : ` id="${escapeAttr(attrs.id)}"`,
+        attrs.copyTarget === undefined ? '' : ` data-copy-target="${escapeAttr(attrs.copyTarget)}"`,
+        attrs.copyValue === undefined ? '' : ` data-copy="${escapeAttr(attrs.copyValue)}"`,
+        attrs.label === undefined ? '' : ` data-cs-copy-idle-label="${escapeAttr(attrs.label)}"`,
+    ].join('');
     return (
-        `<button type="button" class="cs-copy-btn" title="Copy to clipboard" data-cs-copy-state="idle"${target}>` +
+        `<button type="button" class="cs-copy-btn" title="Copy to clipboard" data-cs-copy-state="idle"${extra}>` +
         `<span class="cs-copy-icon" aria-hidden="true">${COPY_ICON_SVG}</span>` +
-        `<span class="cs-copy-label">${label}</span>` +
+        `<span class="cs-copy-label">${escapeAttr(label)}</span>` +
         `</button>`
     );
 }
@@ -189,7 +228,6 @@ function ensureCopyInHeader(frame: HTMLElement, header: HTMLElement): void {
     button.type = 'button';
     paintCopyButton(button, false);
 
-    let resetTimer: ReturnType<typeof setTimeout> | undefined;
     button.addEventListener('click', (event) => {
         // Own the clipboard path so we only show “Copied!” after a real success.
         event.preventDefault();
@@ -197,17 +235,9 @@ function ensureCopyInHeader(frame: HTMLElement, header: HTMLElement): void {
 
         const text = ecDataCodeToText(button.dataset.code ?? '');
         void tryCopyText(text).then((ok) => {
-            if (!ok) {
-                return;
+            if (ok) {
+                showCopySuccess(button);
             }
-            paintCopyButton(button, true);
-            if (resetTimer !== undefined) {
-                clearTimeout(resetTimer);
-            }
-            resetTimer = setTimeout(() => {
-                paintCopyButton(button, false);
-                resetTimer = undefined;
-            }, COPY_FEEDBACK_MS);
         });
     });
 }
