@@ -689,6 +689,32 @@ site-search dialog::backdrop {
 [data-cs-pagefind-root] .pagefind-ui__result-excerpt {
     font-size: 0.6875rem;
     line-height: 1.45;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+/* Nested hits: heading only. Pagefind excerpts cut mid-sentence. */
+[data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-excerpt {
+    display: none;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-nested {
+    margin-inline-start: var(--sl-search-tree-diagram-size, 2.3rem);
+    padding-block: 0.4rem;
+    padding-inline: 0.65rem 0.7rem;
+}
+
+/*
+ * Unlayered so this beats Pagefind/Starlight @layer rules.
+ * Mix with transparent (not gray-5) — accent is already a light tint, so
+ * mixing into gray just washes out to “empty box.”
+ */
+[data-cs-pagefind-root] .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)):is(:hover, :focus-within, [data-cs-search-selected='true']),
+[data-cs-pagefind-root] .pagefind-ui__result-nested:is(:hover, :focus-within, [data-cs-search-selected='true']) {
+    background-color: color-mix(in srgb, var(--sl-color-accent) 26%, transparent);
+    box-shadow: none;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-input {
