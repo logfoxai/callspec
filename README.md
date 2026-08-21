@@ -9,7 +9,7 @@
     <strong>For humans:</strong>
     <a href="https://callspec.logfox.ai">callspec.logfox.ai</a>
     ·
-    <a href="https://callspec.logfox.ai/demo/">Chirp explorer</a>
+    <a href="https://callspec.logfox.ai/demo/">Try the demo</a>
   </p>
   <p align="center">
     <a href="assets/callspec-flow.svg?cb=8">
