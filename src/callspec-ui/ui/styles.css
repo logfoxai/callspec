@@ -1120,7 +1120,7 @@ body > .footer {
     max-width: var(--content-width);
 }
 
-@media (min-width: 64rem) {
+@media (min-width: 90rem) {
     .route-header {
         max-width: var(--route-page-width);
     }
@@ -1405,7 +1405,7 @@ body > .footer {
     min-width: 0;
 }
 
-@media (min-width: 64rem) {
+@media (min-width: 90rem) {
     .route-page__body {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
