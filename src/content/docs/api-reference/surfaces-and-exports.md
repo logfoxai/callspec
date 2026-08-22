@@ -2,7 +2,7 @@
 
 ## Errors
 
-Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md). Builtin and client-only codes: [Builtin errors](../builtin-errors.md).
+Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md). Builtin and client-only codes: [Builtin errors](../builtin-errors.md). Host middleware: [The rest of your app](../the-rest-of-your-app.md).
 
 ## Native Callspec document
 
@@ -47,7 +47,7 @@ Whitelabel via flat **`meta`** fields (`title`, `intro`, `website`, `logo`, `the
 
 | Import | Use |
 |--------|-----|
-| `callspec` | Server: route, spec, mountSpec, defineErrors, err, logRequest, BUILTIN_ERROR.<br>Types: Callspec, RoutesMap, MountSpecOptions, ExportVisibility, RouteFailure, RouteContractInput, HandlerFor, RouteHandler, Authenticate, WiredRoute |
+| `callspec` | Server: route, spec, mountSpec, defineErrors, err, isRouteFailure, sendRouteFailureResponse, formatRouteFailureBody, logRequest, BUILTIN_ERROR.<br>Types: Callspec, RoutesMap, MountSpecOptions, ExportVisibility, RouteFailure, RouteContractInput, HandlerFor, RouteHandler, Authenticate, WiredRoute |
 | `callspec/client` | Runtime client: CallspecClient, isCallspecOk, CLIENT_ERROR, BUILTIN_ERROR, CallspecRouteResult, … |
 | `callspec/document` | emitCallspec, emitOpenApi, parseCallspecDocument, generateClientFile |
 
