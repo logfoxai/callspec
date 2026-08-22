@@ -9,6 +9,9 @@ import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-lin
 import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
 
 const isDev = process.env.NODE_ENV !== 'production';
+const site = 'https://callspec.logfox.ai';
+const ogImage = `${site}/og.png`;
+const ogImageAlt = 'Callspec — typed SDK, docs, OpenAPI, and MCP from one route';
 
 export default defineConfig({
     // Hover-prefetching every sidebar link hammers Vite in dev and freezes tabs.
@@ -20,7 +23,7 @@ export default defineConfig({
             rehypePlugins: [rehypeWrapTables],
         }),
     },
-    site: 'https://callspec.logfox.ai',
+    site,
     outDir: './docs-site',
     // Brand / docs static media — single source of truth (also used by README)
     publicDir: './assets',
@@ -70,7 +73,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Callspec',
-            description: 'Stop duct-taping your API stack. One TypeScript route → typed SDK, docs, OpenAPI, and MCP.',
+            description: 'Spec-first TypeScript RPC. Define a route once and get a typed SDK, docs, OpenAPI, and MCP from the same contract.',
             // Custom 404 is src/pages/404.astro — Starlight's injected route would collide.
             disable404Route: true,
             logo: {
@@ -79,6 +82,36 @@ export default defineConfig({
                 replacesTitle: true,
             },
             favicon: '/favicon.svg',
+            head: [
+                {
+                    tag: 'meta',
+                    attrs: {property: 'og:image', content: ogImage},
+                },
+                {
+                    tag: 'meta',
+                    attrs: {property: 'og:image:type', content: 'image/png'},
+                },
+                {
+                    tag: 'meta',
+                    attrs: {property: 'og:image:width', content: '1200'},
+                },
+                {
+                    tag: 'meta',
+                    attrs: {property: 'og:image:height', content: '630'},
+                },
+                {
+                    tag: 'meta',
+                    attrs: {property: 'og:image:alt', content: ogImageAlt},
+                },
+                {
+                    tag: 'meta',
+                    attrs: {name: 'twitter:image', content: ogImage},
+                },
+                {
+                    tag: 'meta',
+                    attrs: {name: 'twitter:image:alt', content: ogImageAlt},
+                },
+            ],
             // Code block chrome lives in ec.config.mjs (ui-components Code look)
             expressiveCode: true,
             customCss: [
