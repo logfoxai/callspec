@@ -16,10 +16,8 @@ Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer).
 
 ```typescript title="src/routes/getProductById.ts" frame="code"
 import {route, err} from 'callspec';
-// runtyp predicates — validate on the wire and drive TypeScript types
 import {predicates as p, Infer} from 'runtyp';
 
-// Shape once — wire validation + TS type
 const product = p.object({
     id: p.string(),
     name: p.string(),
