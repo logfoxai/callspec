@@ -34,10 +34,10 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 5. Never re-declare **builtin** codes on route `errors:`. Domain codes must be registered (`defineErrors`).
 6. When `!result.ok`, branch on **`result.code`**, not HTTP status. Don’t show `UNKNOWN_ERROR.data` to users.
 7. Don’t wire Express error middleware / jsout on the `mountSpec` router — it owns the catch path.
-8. After route/error changes: regenerate the client; commit pinned contract if the repo pins one.
+8. After route/error changes: regenerate the client; update the pinned contract if the repo has one.
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.
-11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `routes.ts` = `spec()` registry only.
+11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `spec.ts` = `spec()` registry only.
 ````
 
 ## Prompt: work with Callspec
@@ -68,10 +68,10 @@ Goals:
 
 Do this in order:
 1. Install callspec + runtyp (+ express peer). Sketch meta + authenticate if routes need bearer auth.
-2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; routes.ts = spec() registry only.
+2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; spec.ts = spec() registry only.
 3. Convert each endpoint to route({ input, output, errors?, auth, mcp?, meta, handler }) — handlers return values or err.*; do not throw for expected failures.
 4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
-5. Emit/pin callspec.json; generate the TypeScript client into the frontend; switch call sites to Result (result.ok / result.code).
+5. Generate the TypeScript client (live mount or optional pinned callspec.json); switch call sites to Result (result.ok / result.code).
 6. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.
 
 Constraints:

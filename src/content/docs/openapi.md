@@ -40,7 +40,7 @@ Same document `mountSpec` would serve — for CI or offline packaging:
 ```typescript
 import {writeFileSync} from 'fs';
 import {emitOpenApi} from 'callspec/document';
-import {api} from '../server/routes';
+import {api} from '../src/spec';
 
 const basePath = '/v1'; // must match Express mount + mountSpec basePath if set
 

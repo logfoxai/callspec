@@ -37,7 +37,7 @@ Or emit without HTTP:
 ```typescript
 import {writeFileSync} from 'fs';
 import {emitCallspec} from 'callspec/document';
-import {api} from '../server/routes';
+import {api} from '../src/spec';
 
 writeFileSync(
     'callspec.json',
@@ -63,4 +63,4 @@ writeFileSync(
 }
 ```
 
-Commit the contract file, the generated SDK, or both — match `check:api` to what you keep in git.
+Commit the contract file, the generated SDK, or both — match `check:api` to what you keep in git. `spec()` remains the source of truth either way.

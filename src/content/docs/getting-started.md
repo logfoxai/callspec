@@ -16,7 +16,7 @@ Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer).
 
 ## 2. Define a route
 
-```typescript title="server/routes/getProductById.ts" frame="code"
+```typescript title="src/routes/getProductById.ts" frame="code"
 import {route, err} from 'callspec';
 // runtyp predicates — validate on the wire and drive TypeScript types
 import {predicates as p, Infer} from 'runtyp';
@@ -57,7 +57,7 @@ Related: [runtyp](https://github.com/logfoxai/runtyp) · [Builtin errors](./buil
 
 ## 3. Define the API
 
-```typescript title="server/routes.ts" frame="code"
+```typescript title="src/spec.ts" frame="code"
 import {spec} from 'callspec';
 import {getProductById} from './routes/getProductById';
 
@@ -72,10 +72,10 @@ Related: [route & spec](./api-reference/route-and-spec.md) · [Server layout](./
 
 ## 4. Mount and run
 
-```typescript title="server/index.ts" frame="code"
+```typescript title="src/index.ts" frame="code"
 import {mountSpec} from 'callspec';
 import express from 'express';
-import {api} from './routes';
+import {api} from './spec';
 
 const app = express();
 const router = express.Router();
@@ -96,7 +96,7 @@ app.listen(port, () => {
 ```
 
 ```bash
-npx tsx server/index.ts
+npx tsx src/index.ts
 ```
 
 Open [http://127.0.0.1:3000/v1/docs](http://127.0.0.1:3000/v1/docs).
@@ -106,10 +106,10 @@ Related: [Docs UI](./docs-ui.md) · [mountSpec](./api-reference/mount-spec.md) �
 ## 5. Generate the SDK
 
 ```bash
-# Live mount (server running) - pass the mount point
+# Live mount (server running) — pass the mount point
 npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 
-# From a pinned file — fetch the contract, then codegen offline / in CI
+# Optional — pin the contract for CI / offline codegen
 curl -fsS http://127.0.0.1:3000/v1/callspec.json -o callspec.json
 npx callspec ./callspec.json --output src/generated/api.ts
 ```
