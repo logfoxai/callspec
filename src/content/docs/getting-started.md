@@ -11,7 +11,7 @@ npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
 
-Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer).
+Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer), runtyp 2.5.0 (peer).
 
 ## 2. Define a route
 
