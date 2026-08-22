@@ -48,7 +48,7 @@ export const getProductById = route({
 
 Callspec validates `input` and `output` against the preds automatically — bad wire data is rejected before your handler runs, and successful responses are checked on the way out.
 
-`auth` is who can call the route. `scope` is who can see it in docs and specs — default `'public'`. Use `scope: 'private'` for routes you document on your own mounts (`visibility: 'all'` in dev/stage). See [Auth and scope](./api-reference/auth-and-scope.md).
+`auth` is who can call the route. `scope` is who can see it in docs and specs — default `'public'`. Use `scope: 'private'` for routes you do not want to document for some users (`visibility: 'all'` in dev/stage). See [Auth and scope](./api-reference/auth-and-scope.md).
 
 Related: [runtyp](https://github.com/logfoxai/runtyp) · [Builtin errors](./builtin-errors.md) · [Error handling](./error-handling.md) · [Unit testing](./unit-testing.md) · [`route`](./api-reference/route.md)
 
