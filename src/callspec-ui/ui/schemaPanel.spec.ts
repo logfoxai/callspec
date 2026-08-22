@@ -9,8 +9,8 @@ test('error-card schema toggle stays in-flow (no seam overlap)', (assert) => {
         errors: {},
     });
 
-    assert.equal(html.includes('error-card-schema__head'), true);
-    assert.equal(html.includes('error-card-schema__toggle'), false);
+    assert.equal(html.includes('schema-panel-shell__toolbar'), true);
+    assert.equal(html.includes('error-card-schema__head'), false);
 
 });
 
@@ -36,6 +36,8 @@ test('renderSchemaExamplePanel: schema and example views with toggle', (assert) 
     assert.equal(html.includes('schema-panel__view'), true);
     assert.equal(html.includes('data-schema-toggle="request"'), true);
     assert.equal(html.includes('message'), true);
+    assert.equal(html.includes('class="section-head"'), true);
+    assert.equal(html.includes('schema-panel-shell'), false);
 
 });
 

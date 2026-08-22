@@ -62,7 +62,8 @@ export default defineConfig({
             watch: {
                 // Build output must not reload dev — corrupts Starlight content sync.
                 // Baked explorer lives in publicDir; ignore it so writes do not loop.
-                ignored: ['**/docs-site/**', '**/assets/demo/**'],
+                // c8 HTML reports during `npm test` / validate must not restart dev mid-session.
+                ignored: ['**/docs-site/**', '**/assets/demo/**', '**/coverage/**'],
             },
         },
     },

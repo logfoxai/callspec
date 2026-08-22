@@ -34,7 +34,6 @@ import {renderRouteBadges} from './routeBadges';
 import {explorerSearchScope} from './explorerSearch';
 import {renderSidebar, renderSidebarRouteGroups} from './sidebarNav';
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
-import {renderRoutePaginationFooter} from './routePagination';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
 import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
 import {callspecDocumentTitle} from '../documentTitle';
@@ -477,7 +476,6 @@ function renderRoute(
                         })}
                         ${panels.renderRouteErrorsSection(route)}
                     </div>
-                    ${renderRoutePaginationFooter(route.name, allRoutes)}
                 </div>
                 ${renderTryItPanel({
                     route,
