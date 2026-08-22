@@ -59,7 +59,6 @@ Related: [runtyp](https://github.com/logfoxai/runtyp) · [Builtin errors](./buil
 import {spec} from 'callspec';
 import {getProductById} from './routes/getProductById';
 
-// One registry — routes (+ optional authenticate, exports)
 export const api = spec({
     meta: {title: 'My API', version: '1.0.0'},
     routes: {getProductById},
