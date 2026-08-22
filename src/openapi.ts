@@ -3,6 +3,8 @@ import type {RoutesMap} from './types';
 import {joinRoutePath} from './metaDefaults';
 import {exportedRoutes, hasBearerRoutes, type ExportVisibility} from './routeVisibility';
 import {openApiErrorResponses} from './routeErrorDocument';
+import {isMultipartRoute} from './file';
+import {inputJsonSchema} from './fileSchema';
 
 export type OpenApiOptions = {
     title: string
@@ -24,6 +26,8 @@ export function emitOpenApi(
     for (const [name, route] of Object.entries(exportedRoutes(routes, options.visibility))) {
 
         const outputSchema = toJsonSchema(route.output);
+        const multipart = isMultipartRoute(route.input);
+        const requestContentType = multipart ? 'multipart/form-data' : 'application/json';
 
         const errorResponses = openApiErrorResponses(route.errors, {
             includeUnauthorized: route.auth === 'bearer',
@@ -38,8 +42,8 @@ export function emitOpenApi(
                 requestBody: {
                     required: true,
                     content: {
-                        'application/json': {
-                            schema: toJsonSchema(route.input),
+                        [requestContentType]: {
+                            schema: inputJsonSchema(route.input),
                         },
                     },
                 },

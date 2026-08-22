@@ -46,6 +46,8 @@ spec({
 | Errors | Same codes as HTTP / the generated SDK (`NOT_FOUND`, domain errors, …) |
 | Auth | Per-route `auth` — bearer tools reject missing/invalid tokens like private HTTP |
 
+Do not set `mcp: true` on [`file()`](./file-uploads.md) routes — MCP tools are JSON only.
+
 ## Observability
 
 HTTP access logs (`logRequest` on the mount) still cover `POST /mcp` as one request line.

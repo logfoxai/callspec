@@ -74,6 +74,12 @@ function schemaToRuntypExpr(schema: unknown): string {
 
         }
 
+        if (schema.format === 'binary') {
+
+            return 'p.any()';
+
+        }
+
         if (schema.format === 'email') {
 
             return 'p.email()';

@@ -10,6 +10,8 @@ import {
 } from './callspecDocument';
 import {documentRouteErrors} from './routeErrorDocument';
 import {omitUndefined} from './objectUtils';
+import {isMultipartRoute} from './file';
+import {inputJsonSchema} from './fileSchema';
 
 export type EmitCallspecOptions = {
     title: string
@@ -45,7 +47,8 @@ export function emitCallspec(
             tags: [...route.meta.tags],
             auth: route.auth,
             scope: route.scope,
-            input: toJsonSchema(route.input) as JsonSchema,
+            encoding: isMultipartRoute(route.input) ? 'multipart' : undefined,
+            input: inputJsonSchema(route.input),
             output: toJsonSchema(route.output) as JsonSchema,
             errors: documentRouteErrors(route.errors),
             mcp: {

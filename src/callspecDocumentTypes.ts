@@ -18,6 +18,8 @@ export type CallspecDocumentRoute = {
     tags: string[]
     auth: 'none' | 'bearer'
     scope: 'public' | 'private'
+    /** Present on file-upload routes. Omitted for JSON RPC. */
+    encoding?: 'json' | 'multipart'
     input: JsonSchema
     output: JsonSchema
     errors?: Record<string, CallspecDocumentRouteError>

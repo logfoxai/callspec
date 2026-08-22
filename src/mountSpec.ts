@@ -13,6 +13,8 @@ import {
 } from './callspecDocumentSource';
 import {executeRoute} from './executeRoute';
 import {emitCallspec} from './emitCallspec';
+import {isMultipartRoute, multipartLimits, routeFileFields} from './file';
+import {parseMultipart} from './parseMultipart';
 import {listMcpTools} from './mcpTools';
 import type {ExportVisibility} from './routeVisibility';
 import {mountMcp} from './mountMcp';
@@ -149,7 +151,21 @@ export function mountSpec<Ctx>(
             try {
 
                 const ctx = await resolveRouteContext(route, spec.authenticate, req as Request);
-                const result = await executeRoute(route, req.body, ctx);
+
+                if (route.auth === 'bearer' && (ctx === undefined || ctx === null)) {
+
+                    throw new CallspecUnauthorizedError();
+
+                }
+
+                const rawInput = isMultipartRoute(route.input)
+                    ? await parseMultipart(
+                        req as Request,
+                        routeFileFields(route.input),
+                        multipartLimits(route.input),
+                    )
+                    : req.body;
+                const result = await executeRoute(route, rawInput, ctx);
 
                 if (isRouteFailure(result)) {
 

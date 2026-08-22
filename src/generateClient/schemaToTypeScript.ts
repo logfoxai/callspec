@@ -159,6 +159,8 @@ function schemaType(
 
         if (schema.format === 'date-time' || schema.format === 'date') return 'Date';
 
+        if (schema.format === 'binary') return 'Blob';
+
         return 'string';
 
     }

@@ -16,7 +16,7 @@ It is a **projection for the ecosystem**, not the source of truth for Callspecâ€
 ## Whatâ€™s in the document
 
 - Each public RPC method as a `POST` path
-- Request/response schemas from route preds
+- Request/response schemas from route preds (`multipart/form-data` when the route uses [`file()`](./file-uploads.md))
 - Errors grouped by HTTP status (builtins + route domain errors)
 - Bearer security when `auth: 'bearer'`
 - `scope: 'private'` routes omitted unless `visibility: 'all'`

@@ -33,3 +33,5 @@ export type {RouteFailure, RouteHandler, Authenticate, RouteAuth, RouteScope, Ro
 export {DEFAULT_ROUTE_ERROR_STATUS} from './types';
 export type {RoutesMap} from './types';
 export type {RouteHandlerDef, HandlerFor} from './routeHandler';
+export {file, DEFAULT_FILE_MAX_BYTES} from './file';
+export type {UploadedFile, FilePredOptions} from './file';

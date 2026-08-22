@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
+    "busboy": "1.6.0",
     "highlight.js": "11.11.1",
     "jsout": "^5.0.0-next.3",
     "jsout-express": "^1.1.9",
@@ -97,6 +98,7 @@
     "@astrojs/markdown-remark": "7.2.2",
     "@astrojs/starlight": "0.41.7",
     "@fontsource/caveat": "5.3.0",
+    "@types/busboy": "1.5.4",
     "@types/express": "^4.17.17",
     "@types/node": "^25.5.0",
     "astro": "7.2.0",
