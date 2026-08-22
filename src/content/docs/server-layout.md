@@ -25,8 +25,6 @@ my-api/
 └── package.json
 ```
 
-The generated `ApiClient` lives in the **consumer** (`npx callspec <mount> --output …`), not in this tree.
-
 ## What goes where
 
 | Kind | Put it | Example |
