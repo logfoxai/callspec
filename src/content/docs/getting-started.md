@@ -1,6 +1,6 @@
 # Getting started
 
-This page walks through a minimal server and client. Prefer one file? Copy the [single-file server example](./single-file-server-example.md).
+This page walks through install, a split server, and the client. One-file primer: [single-file server example](./single-file-server-example.md).
 
 For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + copy-paste prompts).
 
