@@ -32,7 +32,7 @@ Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste 
 
 ## Contents
 
-- [Single-file server example](src/content/docs/single-file-server-example.md)
+- [Minimal single-file server example](src/content/docs/single-file-server-example.md)
 - [Getting started](src/content/docs/getting-started.md)
 - [Server layout](src/content/docs/server-layout.md)
 - [Unit testing](src/content/docs/unit-testing.md)

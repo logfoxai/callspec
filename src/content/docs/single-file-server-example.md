@@ -1,4 +1,4 @@
-# Single-file server example
+# Minimal single-file server example
 
 Routes, `spec()`, and `mountSpec()` in one copy-paste module. When you outgrow a single file, see [Server layout](./server-layout.md). For auth, see [Authentication](./authentication.md).
 
