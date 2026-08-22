@@ -36,7 +36,6 @@ const api = spec({
 
 const app = express();
 const router = express.Router();
-router.use(express.json());
 mountSpec(router, api);
 app.use('/v1', router);
 
@@ -49,4 +48,4 @@ app.listen(3000, () => {
 });
 ```
 
-Surfaces and path options: [mountSpec](./api-reference/mount-spec.md).
+`mountSpec` parses JSON on the router (`{ json: { limit } }` / `{ json: false }` to configure or skip). Surfaces and path options: [mountSpec](./api-reference/mount-spec.md).

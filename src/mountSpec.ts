@@ -1,4 +1,5 @@
-import type {Request, RequestHandler, Router} from 'express';
+import express from 'express';
+import type {ErrorRequestHandler, Request, RequestHandler, Router} from 'express';
 import {
     CallspecUnauthorizedError,
     CallspecValidationError,
@@ -69,11 +70,39 @@ export type MountSpecOptions = {
     handleUnhandledError?: (err: unknown, req: Request) => RouteFailure | undefined
     /** Override unhandled-error logging. Default uses jsout `logger.error`. */
     logUnhandledError?: (err: unknown, req: Request) => void
+    /**
+     * JSON body parser on this router (`express.json`). Default on.
+     * Pass `{ limit }` or other `express.json` options, or `false` to skip the
+     * parser and parse-error middleware (host already parsed, or test harness).
+     */
+    json?: false | NonNullable<Parameters<typeof express.json>[0]>
 };
 
 function noopLogUnhandledError(_err: unknown, _req: Request): void {
 
 }
+
+function isJsonParseError(err: unknown): boolean {
+
+    return err instanceof SyntaxError && 'body' in err;
+
+}
+
+const handleJsonParseError: ErrorRequestHandler = (err, _req, res, next) => {
+
+    if (isJsonParseError(err)) {
+
+        res.status(400).json({
+            error: BUILTIN_ERROR.VALIDATION_ERROR,
+            errors: {body: 'Malformed JSON'},
+        });
+        return;
+
+    }
+
+    next(err);
+
+};
 
 export function mountSpec<Ctx>(
     router: Router,
@@ -95,6 +124,13 @@ export function mountSpec<Ctx>(
     if (loggingEnabled) {
 
         router.use(logRequest);
+
+    }
+
+    if (options.json !== false) {
+
+        router.use(express.json(options.json));
+        router.use(handleJsonParseError);
 
     }
 

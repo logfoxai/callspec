@@ -16,7 +16,7 @@ What it encodes, in short:
 - Generate SDKs from `callspec.json` (`npx callspec …`), not OpenAPI
 - Default `auth` is `bearer`; `scope: 'private'` still requires auth
 - On `!result.ok`, branch on `result.code`
-- Don’t put Express error middleware on the `mountSpec` router
+- Don’t put Express error middleware or `express.json()` on the `mountSpec` router — it owns JSON parse and the catch path
 - When splitting files, follow [Server layout](./server-layout.md) — one `route()` per file with an inline handler
 - Uploads: `file()` on an input field. Same handler and generated client as JSON; wire is multipart. MCP is JSON-only
 
@@ -27,7 +27,7 @@ Install or attach the skill first, then:
 ```text
 We're using Callspec (https://github.com/logfoxai/callspec) for typed TypeScript RPC.
 
-Follow the Callspec skill (return err.* for expected failures; codegen from callspec.json not OpenAPI; branch on result.code; don't put Express error middleware on the mountSpec router).
+Follow the Callspec skill (return err.* for expected failures; codegen from callspec.json not OpenAPI; branch on result.code; don't put Express error middleware or express.json() on the mountSpec router).
 
 Task: <what you want changed — e.g. add a route, fix error handling, regenerate the SDK>
 

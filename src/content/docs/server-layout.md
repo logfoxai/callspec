@@ -6,7 +6,7 @@ Callspec doesn't require a particular folder layout. This is the split we recomm
 2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([`route`](./api-reference/route.md#separate-handler-binding)).
 3. **Shared domain preds** live under `src/schemas/` and are imported by routes (`output: product`). Infer TS types with `Infer<typeof product>` when local data (e.g. fixtures) should match. Route-only wire shapes (`{ id }`, filters) stay in the route file.
 4. **`spec.ts` is only the registry** — `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
-5. **`index.ts` only mounts** — Express + `mountSpec`. No route logic.
+5. **`index.ts` only mounts** — Express + `mountSpec` (JSON parse is on by default). No route logic.
 
 ```text
 my-api/
@@ -107,11 +107,12 @@ import {api} from './spec';
 const app = express();
 const router = express.Router();
 
-router.use(express.json());
 mountSpec(router, api);
 app.use('/v1', router);
 
 app.listen(3000);
 ```
+
+`mountSpec` parses `application/json` on this router. Pass `{ json: { limit: '1mb' } }` to set a size limit, or `{ json: false }` if the host already parsed the body.
 
 Auth: [Authentication](./authentication.md). Default mount URLs: [mountSpec](./api-reference/mount-spec.md).

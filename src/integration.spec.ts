@@ -78,13 +78,48 @@ function createTestApp(): http.Server {
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
-
     mountSpec(router, fixtureSpec, {logging: false});
 
     app.use('/v1', router);
 
     return http.createServer(app);
+
+}
+
+async function withCustomMount(
+    setup: (router: express.Router) => void,
+    fn: (base: string) => Promise<void>,
+): Promise<void> {
+
+    const app = express();
+    const router = express.Router();
+
+    setup(router);
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') {
+
+        throw new Error('expected server address');
+
+    }
+
+    const base = `http://127.0.0.1:${addr.port}/v1`;
+
+    try {
+
+        await fn(base);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
 
 }
 
@@ -391,6 +426,127 @@ test('integration: validation error on bad input', async (assert) => {
         });
 
         assert.equal(res.status, 400);
+
+    });
+
+});
+
+test('integration: mountSpec parses JSON without a host express.json()', async (assert) => {
+
+    await withCustomMount((router) => {
+
+        mountSpec(router, fixtureSpec, {logging: false});
+
+    }, async (base) => {
+
+        const res = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: 'world'}),
+        });
+
+        assert.equal(res.status, 200);
+        assert.equal(await res.json(), {hello: 'world'});
+
+    });
+
+});
+
+test('integration: malformed JSON is VALIDATION_ERROR and is not logged as unhandled', async (assert) => {
+
+    let logged: unknown;
+
+    await withCustomMount((router) => {
+
+        mountSpec(router, fixtureSpec, {
+            logging: false,
+            logUnhandledError: (err) => {
+
+                logged = err;
+
+            },
+        });
+
+    }, async (base) => {
+
+        const res = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{not json',
+        });
+
+        assert.equal(res.status, 400);
+        assert.equal(await res.json(), {
+            error: 'VALIDATION_ERROR',
+            errors: {body: 'Malformed JSON'},
+        });
+        assert.equal(logged, undefined);
+
+    });
+
+});
+
+test('integration: json false uses a host parser and does not map parse errors', async (assert) => {
+
+    await withCustomMount((router) => {
+
+        router.use(express.json());
+        mountSpec(router, fixtureSpec, {logging: false, json: false});
+
+    }, async (base) => {
+
+        const ok = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: 'world'}),
+        });
+
+        assert.equal(ok.status, 200);
+        assert.equal(await ok.json(), {hello: 'world'});
+
+        const bad = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{not json',
+        });
+
+        const raw = await bad.text();
+        let parsed: {error?: string, errors?: {body?: string}} = {};
+
+        try {
+
+            parsed = JSON.parse(raw) as {error?: string, errors?: {body?: string}};
+
+        } catch {
+
+            parsed = {};
+
+        }
+
+        assert.equal(
+            parsed.error === 'VALIDATION_ERROR' && parsed.errors?.body === 'Malformed JSON',
+            false,
+        );
+
+    });
+
+});
+
+test('integration: json limit is passed through to express.json', async (assert) => {
+
+    await withCustomMount((router) => {
+
+        mountSpec(router, fixtureSpec, {logging: false, json: {limit: 20}});
+
+    }, async (base) => {
+
+        const res = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: 'x'.repeat(100)}),
+        });
+
+        assert.equal(res.status, 413);
 
     });
 

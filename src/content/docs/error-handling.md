@@ -20,12 +20,14 @@ Framework validation and auth **throw** `CallspecValidationError` / `CallspecUna
 For RPC routes mounted with `mountSpec`, **errors and logging are owned by callspec** — you do not wire jsout or jsout-express on that router for normal operation.
 
 ```typescript
-mountSpec(router, spec); // request log + catch path + INTERNAL_ERROR — zero extra middleware
+mountSpec(router, spec); // JSON parse + request log + catch path + INTERNAL_ERROR — no extra host middleware
 ```
+
+Do **not** wire host error middleware or jsout on this router. Pass `{ json: false }` only when the host already parsed the body (or in a test harness with its own parser).
 
 ### Catch order (per request)
 
-After `executeRoute` returns or throws:
+Malformed JSON is handled in `express.json` middleware **before** `executeRoute`. After `executeRoute` returns or throws:
 
 <div class="cs-table-scroll">
 
@@ -47,36 +49,42 @@ After `executeRoute` returns or throws:
   <tbody>
     <tr>
       <td>1</td>
+      <td>Malformed JSON (<code>SyntaxError</code> with <code>body</code> from <code>express.json</code>) — before <code>executeRoute</code></td>
+      <td>400 <code>VALIDATION_ERROR</code> + <code>errors: { body: "Malformed JSON" }</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td>2</td>
       <td>Handler <strong>returns</strong> <code>RouteFailure</code></td>
       <td>Wire failure (<code>sendRouteFailureResponse</code>)</td>
       <td>None</td>
     </tr>
     <tr>
-      <td>2</td>
+      <td>3</td>
       <td>Handler <strong>throws</strong> <code>RouteFailure</code></td>
       <td>Wire failure</td>
       <td>None</td>
     </tr>
     <tr>
-      <td>3</td>
+      <td>4</td>
       <td><code>CallspecValidationError</code> (input validation)</td>
       <td>400 <code>VALIDATION_ERROR</code> + <code>errors</code></td>
       <td>None</td>
     </tr>
     <tr>
-      <td>4</td>
+      <td>5</td>
       <td><code>CallspecUnauthorizedError</code> (private route, bad/missing token)</td>
       <td>401 <code>UNAUTHORIZED</code></td>
       <td>None</td>
     </tr>
     <tr>
-      <td>5</td>
+      <td>6</td>
       <td><code>handleUnhandledError(err, req)</code> returns <code>RouteFailure</code></td>
       <td>Wire failure</td>
       <td><strong>You</strong> choose (<code>mountSpec</code> skips default error log)</td>
     </tr>
     <tr>
-      <td>6</td>
+      <td>7</td>
       <td>Anything else (bug, rejected promise, unknown throw)</td>
       <td>500 <code>INTERNAL_ERROR</code></td>
       <td>jsout <code>logger.error</code> via <code>logUnhandledError</code></td>
@@ -88,7 +96,7 @@ After `executeRoute` returns or throws:
 
 **Success** is step 0: HTTP **200** + route output JSON — no error log.
 
-Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures: synchronous `throw new Error('…')`, rejected async handlers, driver/library throws, etc.
+Steps 1–5 are intentional contract outcomes. Step 7 is for unexpected failures: synchronous `throw new Error('…')`, rejected async handlers, driver/library throws, etc.
 
 ### Logging
 
@@ -119,19 +127,19 @@ Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures
     <tr>
       <td>Unhandled bug</td>
       <td><code>logUnhandledError</code></td>
-      <td>Catch step 6 only</td>
+      <td>Catch step 7 only</td>
       <td><code>logger.error(undefined, err, { url, method })</code></td>
     </tr>
     <tr>
       <td>Infra / known throw</td>
       <td>Your <code>handleUnhandledError</code></td>
-      <td>Catch step 5</td>
+      <td>Catch step 6</td>
       <td>Your level — e.g. <code>logger.warn</code> for query timeout, no log for benign cases</td>
     </tr>
     <tr>
       <td>Intentional failure</td>
       <td>—</td>
-      <td>Steps 1–4</td>
+      <td>Steps 1–5</td>
       <td>No error log</td>
     </tr>
   </tbody>
@@ -144,8 +152,9 @@ Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures
 | Option | Default | Purpose |
 |--------|---------|---------|
 | `logging` | `true` | `false` silences request logging and default error logging (use in tests) |
-| `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 6 |
-| `logUnhandledError` | jsout `logger.error` | Override only the step-6 error log |
+| `json` | on | `false` skips `express.json` and parse-error middleware; `{ limit }` (and other `express.json` options) pass through |
+| `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 7 |
+| `logUnhandledError` | jsout `logger.error` | Override only the step-7 error log |
 
 Custom middleware around this router: [Outside Callspec](./outside-callspec.md). File uploads belong on the spec — see [File uploads](./file-uploads.md).
 
