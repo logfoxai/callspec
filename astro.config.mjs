@@ -11,7 +11,7 @@ import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
 const isDev = process.env.NODE_ENV !== 'production';
 const site = 'https://callspec.logfox.ai';
 const ogImage = `${site}/og.png`;
-const ogImageAlt = 'Callspec — Stop duct-taping your API stack.';
+const ogImageAlt = 'Callspec — typed SDK, docs, OpenAPI, and MCP from one route';
 
 export default defineConfig({
     // Hover-prefetching every sidebar link hammers Vite in dev and freezes tabs.
@@ -73,7 +73,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: 'Callspec',
-            description: 'Stop duct-taping your API stack. One TypeScript route → typed SDK, docs, OpenAPI, and MCP.',
+            description: 'Spec-first TypeScript RPC. Define a route once and get a typed SDK, docs, OpenAPI, and MCP from the same contract.',
             // Custom 404 is src/pages/404.astro — Starlight's injected route would collide.
             disable404Route: true,
             logo: {
