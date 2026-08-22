@@ -67,7 +67,7 @@ Goals:
 - Frontend uses generated ApiClient from callspec.json (npx callspec …), not a hand-rolled client and not OpenAPI as the SDK source
 
 Do this in order:
-1. Install callspec + runtyp + express (peers). Sketch meta + authenticate if routes need bearer auth.
+1. Install callspec, runtyp, and express.
 2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; spec.ts = spec() registry only.
 3. Convert each endpoint to route({ input, output, errors?, auth, mcp?, meta, handler }) — handlers return values or err.*; do not throw for expected failures.
 4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
