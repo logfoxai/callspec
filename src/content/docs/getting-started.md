@@ -1,6 +1,6 @@
 # Getting started
 
-This page walks through install, a split server, and the client.
+This page walks through install, a simple API server, and the client.
 
 For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + copy-paste prompts).
 
