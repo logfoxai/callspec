@@ -12,7 +12,7 @@ Examples use [kizu](https://github.com/mhweiner/kizu) — same runner callspec u
 
 ## Basic handler test
 
-```typescript title="server/routes/getProductById.spec.ts" frame="code"
+```typescript title="src/routes/getProductById.spec.ts" frame="code"
 import {test} from 'kizu';
 import {err} from 'callspec';
 import {getProductById} from './getProductById';
@@ -78,7 +78,7 @@ Input validation, Bearer auth, and response serialization live outside the handl
 ## Suggested layout
 
 ```text
-server/routes/
+src/routes/
 ├── getProductById.ts
 ├── getProductById.spec.ts
 ├── listProducts.ts
@@ -90,7 +90,7 @@ Colocate tests with routes, or use a `__tests__/` folder — Callspec does not p
 ## Running tests
 
 ```bash
-npx kizu -f 'server/**/*.spec.ts'
+npx kizu -f 'src/**/*.spec.ts'
 ```
 
 Add kizu to devDependencies and wire a `"test"` script in your app — callspec itself uses `c8 kizu -f 'src/**/*.spec.ts'` for coverage.

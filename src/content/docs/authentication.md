@@ -9,7 +9,7 @@ Credentials are per-route, not in the input pred.
 
 Any route with `auth: 'bearer'` requires `authenticate` on the spec — `spec` throws at load time if it is missing.
 
-```typescript title="server/auth.ts" frame="code"
+```typescript title="src/auth.ts" frame="code"
 import type {Authenticate} from 'callspec';
 
 export type Ctx = {userId: string};
@@ -21,7 +21,7 @@ export const authenticate: Authenticate<Ctx> = async (token, req) => {
 };
 ```
 
-```typescript title="server/routes/getProfile.ts" frame="code"
+```typescript title="src/routes/getProfile.ts" frame="code"
 import {route} from 'callspec';
 import {predicates as p} from 'runtyp';
 import type {Ctx} from '../auth';

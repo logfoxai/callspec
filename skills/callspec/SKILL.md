@@ -19,7 +19,7 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 5. Never re-declare **builtin** codes on route `errors:`. Domain codes must be registered (`defineErrors`).
 6. When `!result.ok`, branch on **`result.code`**, not HTTP status. Don’t show `UNKNOWN_ERROR.data` to users.
 7. Don’t wire Express error middleware / jsout on the `mountSpec` router — it owns the catch path.
-8. After route/error changes: regenerate the client; commit pinned contract if the repo pins one.
+8. After route/error changes: regenerate the client; update the pinned contract if the repo has one.
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.
-11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `routes.ts` = `spec()` registry only.
+11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `spec.ts` = `spec()` registry only.

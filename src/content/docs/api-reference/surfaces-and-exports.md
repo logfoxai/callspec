@@ -6,7 +6,7 @@ Errors are **typed return possibilities**, not mystery exceptions. Full guide: [
 
 ## Native Callspec document
 
-`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json`. Pinning, codegen, and `emitCallspec`: [SDK generation](../sdk-generation.md).
+`callspec.json` is Callspec's native contract (`callspec: "2.0"`). `mountSpec` serves it at `/callspec.json`. Optional pinning, codegen, and `emitCallspec`: [SDK generation](../sdk-generation.md).
 
 ## OpenAPI
 

@@ -144,7 +144,7 @@ export const api = spec({
 `exports` land in `callspec.json` and appear on the generated **`schemas`** object (plus top-level Infer types):
 
 ```bash
-npx callspec ./callspec.json --output src/generated/api.ts
+npx callspec http://127.0.0.1:3000/v1 --output src/generated/api.ts
 ```
 
 ```typescript
