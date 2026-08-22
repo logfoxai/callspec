@@ -13,7 +13,9 @@ export const getProductById = route({
 });
 ```
 
-When **any** route has `mcp: true`, `mountSpec` serves MCP at **`{mount}/mcp`** (override with `mcpPath`). By default only `scope: 'public'` routes appear in `tools/list`. Private MCP tools are listed when this mount uses `visibility: 'all'`. HTTP still works either way.
+The tool name defaults to the route key. Override it or pass MCP annotations with the object form — see [`route` § MCP](./api-reference/route.md#mcp).
+
+When **any** route has `mcp` set, `mountSpec` serves MCP at **`{mount}/mcp`** (override with `mcpPath`). By default only `scope: 'public'` routes appear in `tools/list`. Private MCP tools are listed when this mount uses `visibility: 'all'`. HTTP still works either way.
 
 ## Connect a client
 
@@ -76,5 +78,6 @@ Pass `onCall: () => {}` to keep HTTP access logs but silence call events. Pass `
 ## Related
 
 - [Docs UI](./docs-ui.md) — connect panel and try-it for humans
+- [`route` § MCP](./api-reference/route.md#mcp) — `mcp: true` vs `{ name?, annotations? }`
 - [`mountSpec` options](./api-reference/mount-spec.md) — `mcpPath`, `docs`, `onCall`
 - [Builtin errors](./builtin-errors.md) — codes tools and clients share

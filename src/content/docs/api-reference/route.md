@@ -44,11 +44,30 @@ route({ input, output, meta, handler, … })
 | `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
 | `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
 | `scope` | `'public'` | `'public'` — on the public contract (docs, OpenAPI, SDK, MCP `tools/list`). `'private'` — documented when `visibility` is `'all'`. Still mounted. |
-| `mcp` | — | Expose as an MCP tool. `true`, or `{ name?, annotations? }` to override the tool name or MCP annotations. |
+| `mcp` | — | Opt the route into MCP `tools/list`. `true`, or `{ name?, annotations? }` — see [MCP](#mcp). |
 
 Returns a **wired route** (`WiredRoute`) for `spec({ routes })`. Call `.handler(input, ctx)` in tests — no HTTP. See [Unit testing](../unit-testing.md).
 
 Domain errors: `defineErrors()` + `errors:` on the route — [Error handling](../error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`. Bearer context: annotate `handler: async (input, ctx: Ctx) => …` — [Authentication](../authentication.md) and [Request context](../request-context.md).
+
+## MCP
+
+Omit `mcp` to keep the route HTTP-only. Set `mcp: true` (as in the example above) to list it as a tool. The tool **name** defaults to the route key (`getProductById`); the tool **title** is `meta.summary`.
+
+Use the object form to override the tool name or pass MCP annotations through to `tools/list` (Callspec does not validate the keys):
+
+```typescript
+export const getProductById = route({
+    // …
+    mcp: {
+        name: 'catalog_get_product',
+        annotations: {readOnlyHint: true, idempotentHint: true},
+    },
+    handler: async (input, _ctx) => { /* … */ },
+});
+```
+
+`name` must be unique among tools on that mount. Any route with `mcp` set turns on `{mount}/mcp`. Connect, auth, and `onCall`: [MCP Server](../mcp.md).
 
 ## Route meta
 
