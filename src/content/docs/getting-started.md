@@ -7,7 +7,6 @@ For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + cop
 ## 1. Install backend dependencies
 
 ```bash
-# callspec = RPC runtime; runtyp = typed validators for input/output; express = HTTP server
 npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
