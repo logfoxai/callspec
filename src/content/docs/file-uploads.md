@@ -1,8 +1,6 @@
 # File uploads
 
-Put the file on a Callspec route. `mountSpec` accepts `multipart/form-data`, validates the file, and your handler gets a buffer — same auth, errors, `callspec.json`, OpenAPI, and generated client as JSON RPC.
-
-Use this when a service today has a leftover Express upload handler (Logfox `POST /upload`) that should live in the spec.
+A route can accept a file. Add `file()` to the input pred — `mountSpec` then accepts `multipart/form-data`, validates type and size, and passes a buffer to the handler. Auth, errors, `callspec.json`, OpenAPI, and the generated client are the same as JSON RPC.
 
 ## Route
 
@@ -50,7 +48,7 @@ if (!result.ok) {
 }
 ```
 
-Do not `fetch` a non-spec `/upload` URL. The generated method posts `multipart/form-data` to `POST {baseUrl}/upload`.
+The generated method posts `multipart/form-data` to `POST {baseUrl}/upload`.
 
 ## Contract
 
