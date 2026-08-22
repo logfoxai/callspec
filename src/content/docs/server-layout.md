@@ -1,6 +1,6 @@
 # Server layout
 
-Split so each route, shared pred, and the registry stay easy to find and test.
+Callspec doesn't care about your folders. This is the split we recommend — each route, shared pred, and the registry stay easy to find and test.
 
 1. **One route per file** — `src/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
 2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([Handlers](./api-reference/handlers.md)).
