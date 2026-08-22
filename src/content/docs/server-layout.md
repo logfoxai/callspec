@@ -1,6 +1,6 @@
 # Server layout
 
-Callspec doesn't care about your folders. A single file is fine for demos — see [Single-file server example](./single-file-server-example.md). When the API grows (or you're past a toy), **split** so each route, shared pred, and the registry stay easy to find and test.
+Callspec doesn't care about your folders. The [single-file server example](./single-file-server-example.md) is the whole model in one file. When the API grows, **split** so each route, shared pred, and the registry stay easy to find and test.
 
 1. **One route per file** — `src/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
 2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([Handlers](./api-reference/handlers.md)).
