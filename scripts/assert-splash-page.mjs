@@ -40,6 +40,10 @@ const required = [
 	'/docs-ui-branding/',
 	'/sdk-generation/',
 	'/coding-agents/',
+	'<title>Callspec</title>',
+	'property="og:title" content="Callspec"',
+	'property="og:image" content="https://callspec.logfox.ai/og.png"',
+	'name="twitter:image" content="https://callspec.logfox.ai/og.png"',
 ];
 for (const needle of required) {
 	if (!html.includes(needle)) {
@@ -52,6 +56,8 @@ const forbidden = [
 	'not-found-page',
 	'not-found-hero',
 	'Page not found',
+	'<title>Home | Callspec</title>',
+	'property="og:title" content="Home"',
 ];
 for (const needle of forbidden) {
 	if (html.includes(needle)) {
@@ -63,6 +69,12 @@ for (const needle of forbidden) {
 const panels = html.match(/<div class="content-panel/g) ?? [];
 if (panels.length !== 1) {
 	console.error(`assert-splash-page: expected 1 content-panel on splash, got ${panels.length}`);
+	process.exit(1);
+}
+
+const ogPng = path.join(root, 'docs-site', 'og.png');
+if (!fs.existsSync(ogPng)) {
+	console.error('assert-splash-page: missing docs-site/og.png (copy publicDir assets/og.png)');
 	process.exit(1);
 }
 
