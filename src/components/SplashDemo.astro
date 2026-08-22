@@ -1,6 +1,6 @@
 ---
 /**
- * Try path — hosted Chirp explorer (browse-only) + link to run it locally.
+ * Docs UI section — screenshot + CTAs into the explorer and local Chirp guide.
  */
 import SplashHeroActions from './SplashHeroActions.astro';
 import DemoScreenshot from './DemoScreenshot.astro';
@@ -11,18 +11,25 @@ const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
 
 <section class="splash-demo" aria-labelledby="splash-demo-title">
 	<header class="splash-demo__intro">
-		<h2 id="splash-demo-title" class="splash-demo__title">Try it</h2>
+		<h2 id="splash-demo-title" class="splash-demo__title">Built-in docs UI</h2>
 		<p class="splash-demo__lede">
-			Chirp is Callspec's sample API. The hosted demo is browse-only — run it locally to execute
-			routes and connect MCP.
+			Try-it panels, search, OpenAPI, and MCP connect — shipped with your API, no extra wiring.
+			Whitelabel with your logo, accent, and nav links when you want; the defaults are simple and
+			ready to go.
 		</p>
 		<SplashHeroActions
 			actions={[
-				{text: 'See the demo', link: '/demo/', variant: 'primary'},
+				{
+					text: 'See the demo',
+					link: '/demo/',
+					variant: 'primary',
+					icon: {type: 'icon', name: 'laptop'},
+				},
 				{
 					text: 'Run it locally',
 					link: '/try-the-demo-locally/',
 					variant: 'secondary',
+					icon: {type: 'icon', name: 'laptop'},
 					attrs: {
 						title: 'Start the live Chirp API — execute routes and connect MCP',
 					},
@@ -36,4 +43,10 @@ const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
 		linkAttrs={demoShotAttrs}
 		class="splash-demo__shot"
 	/>
+
+	<p class="splash-demo__footer">
+		<a class="splash-demo__link" href="/docs-ui/">Docs UI</a>
+		<span class="splash-demo__sep" aria-hidden="true">·</span>
+		<a class="splash-demo__link" href="/docs-ui-branding/">Branding</a>
+	</p>
 </section>

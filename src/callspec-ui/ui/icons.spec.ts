@@ -34,7 +34,5 @@ test('callspec mark equals match the header lockup cutout, not the wider shipped
     assert.equal(markDark.includes('M22 24H42A3 3 0 0 1 42 30H22A3 3 0 0 1 22 24Z'), true);
     assert.equal(lockupLight.includes('M22 24H42A3 3 0 0 1 42 30H22A3 3 0 0 1 22 24Z'), true);
     assert.equal(lockupDark.includes('M22 24H42A3 3 0 0 1 42 30H22A3 3 0 0 1 22 24Z'), true);
-    assert.equal(lockupLight.includes('@font-face'), false);
-    assert.equal(lockupDark.includes('@font-face'), false);
 
 });

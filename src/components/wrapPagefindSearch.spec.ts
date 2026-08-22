@@ -28,3 +28,22 @@ test('wrapPagefindSearch drops inverted short-prefix hits', async (assert) => {
 	assert.equal(useful.results.length, 1);
 	assert.equal((await useful.results[0]!.data()).meta?.title, 'MCP');
 });
+
+test('wrapPagefindSearch skips Pagefind until query is at least 3 characters', async (assert) => {
+	let calls = 0;
+	const rawSearch = async (): Promise<{results: []}> => {
+		calls += 1;
+		return {results: []};
+	};
+
+	const search = wrapPagefindSearch(rawSearch);
+
+	assert.equal((await search('')).results.length, 0);
+	assert.equal(calls, 0, 'empty query does not hit Pagefind');
+
+	assert.equal((await search('te')).results.length, 0);
+	assert.equal(calls, 0, 'two-character query does not hit Pagefind');
+
+	assert.equal((await search('tes')).results.length, 0);
+	assert.equal(calls, 1, 'three-character query runs Pagefind');
+});

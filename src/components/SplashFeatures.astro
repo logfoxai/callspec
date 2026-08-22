@@ -3,15 +3,8 @@
  * Homepage highlight strip — product pillars + OSS trust card.
  * The FOSS card leads on wide layouts and is omitted at 2×2 / stacked breakpoints.
  */
-
-const icons = {
-	unlock: `<svg viewBox="0 0 48 48" fill="none"><path d="M16 22V15.5a8 8 0 0 1 15.6-2.4" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><rect x="12" y="22" width="24" height="18" rx="3.5" stroke="currentColor" stroke-width="2.25"/><path d="M24 28.5v5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></svg>`,
-	shield: `<svg viewBox="0 0 48 48" fill="none"><path d="M24 6L10 12v12c0 9.2 5.8 17.7 14 20.7 8.2-3 14-11.5 14-20.7V12L24 6Z" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/><path d="M17.5 24.5 22 29l8.5-9.5" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-	rpc: `<svg viewBox="0 0 48 48" fill="none"><path d="M12 18c0-3.3 2.7-6 6-6h4" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><path d="M22 12h4c3.3 0 6 2.7 6 6v12" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><path d="M10 24h10M28 24h10" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><circle cx="24" cy="24" r="2.25" fill="currentColor"/></svg>`,
-	test: `<svg viewBox="0 0 48 48" fill="none"><path d="M14 8h20l-2 6H16l-2-6Z" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/><path d="M12 14h24l-4 24H16L12 14Z" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/><path d="M19 22h10M19 28h10M19 34h6" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><path d="M30 32l2.5 2.5L38 29" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-	/** Official MCP connector mark (modelcontextprotocol favicon), currentColor */
-	mcp: `<svg viewBox="0 0 180 180" fill="none"><path d="M18 84.853 85.882 16.971c9.373-9.373 24.569-9.373 33.941 0s9.373 24.569 0 33.941L68.558 102.177" stroke="currentColor" stroke-width="12" stroke-linecap="round"/><path d="m69.265 101.47 50.558-50.558c9.373-9.373 24.569-9.373 33.942 0l.353.353c9.373 9.373 9.373 24.569 0 33.941L92.725 146.6c-3.124 3.124-3.124 8.189 0 11.313l12.606 12.607" stroke="currentColor" stroke-width="12" stroke-linecap="round"/><path d="m102.853 33.941-50.205 50.205c-9.372 9.372-9.372 24.568 0 33.941s24.569 9.372 33.941 0l50.205-50.205" stroke="currentColor" stroke-width="12" stroke-linecap="round"/></svg>`,
-} as const;
+import SplashIcon from './SplashIcon.astro';
+import type {SplashIconName} from './SplashIcon.astro';
 
 const features = [
 	{
@@ -24,12 +17,14 @@ const features = [
 	{
 		tone: 'cyan',
 		title: 'RPC routes',
-		copy: 'Methods like getProductById, not REST resource\u00A0soup.',
+		copy:
+			'Methods like getProductById — not <a href="https://leehanchung.github.io/blogs/2025/05/17/mcp-is-not-rest-api/" target="_blank" rel="noopener noreferrer">bikeshedding REST</a>.',
+		copyHtml: true,
 		icon: 'rpc',
 		wideOnly: false,
 	},
 	{
-		tone: 'violet',
+		tone: 'rose',
 		title: 'Structured errors',
 		copy: 'Errors as values with typed codes — no try/catch\u00A0needed.',
 		icon: 'shield',
@@ -49,25 +44,34 @@ const features = [
 		icon: 'mcp',
 		wideOnly: false,
 	},
-] as const;
+] as const satisfies ReadonlyArray<{
+	tone: string;
+	title: string;
+	copy: string;
+	copyHtml?: boolean;
+	icon: SplashIconName;
+	wideOnly: boolean;
+}>;
 ---
 
-<section class="splash-features" aria-labelledby="splash-features-title">
-	<h2 id="splash-features-title" class="splash-features__heading">Why Callspec</h2>
+<section class="splash-features" aria-label="Product highlights">
 	<ul class="splash-features__list">
 		{
-			features.map(({tone, title, copy, icon, wideOnly}) => (
+			features.map(({tone, title, copy, copyHtml, icon, wideOnly}) => (
 				<li class:list={['splash-features__item', wideOnly && 'splash-features__item--wide-only']}>
 					<span class="splash-features__media">
-						<span
-							class="splash-features__icon"
-							data-tone={tone}
-							aria-hidden="true"
-							set:html={icons[icon]}
-						/>
+						<span class="splash-features__icon" data-tone={tone} aria-hidden="true">
+							<SplashIcon name={icon} />
+						</span>
 					</span>
-					<h2 class="splash-features__title">{title}</h2>
-					<p class="splash-features__copy">{copy}</p>
+					<h3 class="splash-features__title">{title}</h3>
+					{
+						copyHtml ? (
+							<p class="splash-features__copy splash-features__copy--rpc" set:html={copy} />
+						) : (
+							<p class="splash-features__copy">{copy}</p>
+						)
+					}
 				</li>
 			))
 		}

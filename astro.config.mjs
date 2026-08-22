@@ -1,7 +1,9 @@
 import {defineConfig} from 'astro/config';
 import {unified} from '@astrojs/markdown-remark';
 import starlight from '@astrojs/starlight';
+import {devPagefindPlugin} from './src/integrations/devPagefind.mjs';
 import {devServerNoisePlugin} from './src/integrations/devServerNoise.mjs';
+import {pagefindShimIntegration} from './src/integrations/pagefindShim.mjs';
 import {watchChirpDemoPlugin} from './src/integrations/watchChirpDemo.mjs';
 import {remarkStarlightMdLinks} from './src/integrations/remark-starlight-md-links.mjs';
 import {rehypeWrapTables} from './src/integrations/rehype-wrap-tables.mjs';
@@ -39,7 +41,7 @@ export default defineConfig({
         },
     },
     vite: {
-        plugins: [devServerNoisePlugin(), watchChirpDemoPlugin()],
+        plugins: [devServerNoisePlugin(), watchChirpDemoPlugin(), ...(isDev ? [devPagefindPlugin()] : [])],
         // Chirp /demo/ is a Vite module graph in astro:dev (HMR), not the baked IIFE.
         // Dark boot CSS is injected first so refresh never paints the UA white page.
         // Loader mark is hex + overlay bars (no #mask) because <base href="/demo/"> breaks url(#id).
@@ -60,7 +62,8 @@ export default defineConfig({
             watch: {
                 // Build output must not reload dev — corrupts Starlight content sync.
                 // Baked explorer lives in publicDir; ignore it so writes do not loop.
-                ignored: ['**/docs-site/**', '**/assets/demo/**'],
+                // c8 HTML reports during `npm test` / validate must not restart dev mid-session.
+                ignored: ['**/docs-site/**', '**/assets/demo/**', '**/coverage/**'],
             },
         },
     },
@@ -101,6 +104,11 @@ export default defineConfig({
                     icon: 'github',
                     label: 'GitHub',
                     href: 'https://github.com/logfoxai/callspec',
+                },
+                {
+                    icon: 'discord',
+                    label: 'Discord',
+                    href: 'https://discord.gg/2wyYnBDhWQ',
                 },
             ],
             sidebar: [
@@ -179,5 +187,6 @@ export default defineConfig({
                 },
             ],
         }),
+        pagefindShimIntegration(),
     ],
 });

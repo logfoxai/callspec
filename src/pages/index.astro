@@ -3,12 +3,22 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import '../components/splash.css';
 import SplashHomeHero from '../components/SplashHomeHero.astro';
 import SplashFlow from '../components/SplashFlow.astro';
-import SplashFeatures from '../components/SplashFeatures.astro';
 import SplashDemo from '../components/SplashDemo.astro';
+import SplashSdk from '../components/SplashSdk.astro';
+import SplashAgents from '../components/SplashAgents.astro';
 
 const actions = [
-	{text: 'Get started', link: '/getting-started/'},
-	{text: 'See the demo', link: '/demo/', variant: 'secondary' as const},
+	{
+		text: 'Get started',
+		link: '/getting-started/',
+		icon: {type: 'icon', name: 'open-book'},
+	},
+	{
+		text: 'See the demo',
+		link: '/demo/',
+		variant: 'secondary' as const,
+		icon: {type: 'icon', name: 'laptop'},
+	},
 ];
 ---
 
@@ -28,7 +38,8 @@ const actions = [
 			actions={actions}
 		/>
 		<SplashFlow />
-		<SplashFeatures />
 		<SplashDemo />
+		<SplashSdk />
+		<SplashAgents />
 	</div>
 </StarlightPage>

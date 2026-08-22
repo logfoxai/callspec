@@ -18,8 +18,6 @@ test('metaBrandingFromCallspecMeta: passes theme, navbarLinks, footer, favicon',
             accent: '#0ea5e9',
             background: '#fff',
             surface: '#f8fafc',
-            fontFamily: 'Inter, sans-serif',
-            fontUrls: ['https://fonts.example/inter.css'],
         },
         navbarLinks: [
             {label: 'Dashboard', href: 'https://app.acme.example'},
@@ -41,8 +39,6 @@ test('metaBrandingFromCallspecMeta: passes theme, navbarLinks, footer, favicon',
         accent: '#0ea5e9',
         background: '#fff',
         surface: '#f8fafc',
-        fontFamily: 'Inter, sans-serif',
-        fontUrls: ['https://fonts.example/inter.css'],
     });
     assert.equal(branding.navbarLinks, [
         {label: 'Dashboard', href: 'https://app.acme.example'},

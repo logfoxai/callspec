@@ -1,6 +1,14 @@
 /** Attribute used for keyboard-selected search rows / idle chips. */
 const SEARCH_SELECTED_ATTR = 'data-cs-search-selected';
 
+export const INITIAL_KEYBOARD_NAV_STATE: KeyboardNavState = {
+	selectedIndex: -1,
+	lastFingerprint: '',
+	awaitingFreshResults: false,
+	sawSearchingWhileAwaiting: false,
+	userMovedResults: false,
+};
+
 export type SelectableItem = {
 	setAttribute(name: string, value: string): void;
 	removeAttribute(name: string): void;
@@ -65,13 +73,47 @@ export function handleSearchKey(
 	return {preventDefault: false, selectedIndex, activate: false};
 }
 
+/** Result-list keys apply only while the query field is focused — not on clear / other controls. */
+export function shouldHandleSearchListKeyboard(
+	activeElement: Element | null,
+	searchInput: Element | null,
+): boolean {
+	return Boolean(searchInput && activeElement === searchInput);
+}
+
+/** Visible Pagefind “load more” control, when present. */
+export function collectLoadMoreButton(root: ParentNode): HTMLElement | null {
+	const button = root.querySelector<HTMLElement>('.pagefind-ui__button');
+	if (!button || button.closest('.pagefind-ui__hidden')) return null;
+	return button;
+}
+
+/** Result rows plus load-more when Pagefind shows it. */
+export function collectResultNavItems(root: ParentNode): HTMLElement[] {
+	const rows = collectResultRows(root);
+	const loadMore = collectLoadMoreButton(root);
+	return loadMore ? [...rows, loadMore] : rows;
+}
+
+export function isLoadMoreButton(item: HTMLElement): boolean {
+	return item.classList.contains('pagefind-ui__button');
+}
+
+export function activateSearchNavItem(item: HTMLElement): void {
+	if (isLoadMoreButton(item)) {
+		item.click();
+		return;
+	}
+	resultLinkForRow(item)?.click();
+}
+
 /** Page title / nested rows that already have a navigable link (skip placeholders). */
 export function collectResultRows(root: ParentNode): HTMLElement[] {
 	return Array.from(
 		root.querySelectorAll<HTMLElement>(
 			'.pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)), .pagefind-ui__result-nested',
 		),
-	).filter((row) => resultLinkForRow(row) !== null);
+	).filter((row) => resultLinkForRow(row) !== null && !row.closest?.('[data-cs-search-stale]'));
 }
 
 /** Idle suggestion chips. */
@@ -83,6 +125,58 @@ export function resultLinkForRow(row: HTMLElement): HTMLAnchorElement | null {
 	return row.querySelector<HTMLAnchorElement>('a.pagefind-ui__result-link');
 }
 
+/** Scroll container for Pagefind hits (results-area when present, else drawer). */
+export function findSearchResultsScroller(root: ParentNode): HTMLElement | null {
+	return (
+		root.querySelector<HTMLElement>('.pagefind-ui__results-area') ??
+		root.querySelector<HTMLElement>('.pagefind-ui__drawer')
+	);
+}
+
+/**
+ * Keep keyboard selection visible. Index 0 scrolls the drawer flush to the top so
+ * the match count and first row are fully shown — `nearest` leaves a stale offset.
+ */
+export function scrollSearchSelectionIntoView(
+	root: ParentNode,
+	selectedIndex: number,
+	item: HTMLElement | undefined,
+	itemCount: number,
+): void {
+	if (selectedIndex === 0) {
+		const scroller = findSearchResultsScroller(root);
+		if (scroller) {
+			scroller.scrollTop = 0;
+			return;
+		}
+	}
+	if (item && selectedIndex === itemCount - 1) {
+		item.scrollIntoView({block: 'end'});
+		return;
+	}
+	item?.scrollIntoView({block: 'nearest'});
+}
+
+/** Strip keyboard highlight from a prior modal session. */
+export function clearSearchSelection(root: ParentNode): void {
+	for (const el of Array.from(root.querySelectorAll(`[${SEARCH_SELECTED_ATTR}]`))) {
+		el.removeAttribute(SEARCH_SELECTED_ATTR);
+	}
+}
+
+/** Pagefind keeps results mounted while the dialog is closed — reset scroll position. */
+export function resetSearchResultsScroll(root: ParentNode): void {
+	const scroller = findSearchResultsScroller(root);
+	if (scroller) scroller.scrollTop = 0;
+}
+
+/** Fresh keyboard-nav state when the search dialog closes or reopens. */
+export function resetSearchNavSession(root: ParentNode): KeyboardNavState {
+	clearSearchSelection(root);
+	resetSearchResultsScroll(root);
+	return {...INITIAL_KEYBOARD_NAV_STATE};
+}
+
 export type KeyboardNavMode = 'idle' | 'results' | 'other';
 
 export type KeyboardNavState = {
@@ -92,6 +186,8 @@ export type KeyboardNavState = {
 	awaitingFreshResults: boolean;
 	/** True if Pagefind showed a searching state while awaiting. */
 	sawSearchingWhileAwaiting: boolean;
+	/** True after ↓/↑ in the results list — blocks auto-highlight on fresh hits. */
+	userMovedResults: boolean;
 };
 
 export function markAwaitingFreshResults(state: KeyboardNavState): KeyboardNavState {
@@ -100,6 +196,7 @@ export function markAwaitingFreshResults(state: KeyboardNavState): KeyboardNavSt
 		awaitingFreshResults: true,
 		selectedIndex: -1,
 		sawSearchingWhileAwaiting: false,
+		userMovedResults: false,
 	};
 }
 
@@ -121,6 +218,7 @@ export function resolveKeyboardSelection(
 			lastFingerprint: fingerprint,
 			awaitingFreshResults: false,
 			sawSearchingWhileAwaiting: false,
+			userMovedResults: false,
 		};
 	}
 
@@ -131,12 +229,14 @@ export function resolveKeyboardSelection(
 				lastFingerprint: fingerprint,
 				awaitingFreshResults: false,
 				sawSearchingWhileAwaiting: false,
+				userMovedResults: false,
 			};
 		}
 		return {
 			...state,
 			awaitingFreshResults: false,
 			sawSearchingWhileAwaiting: false,
+			userMovedResults: false,
 			selectedIndex: clampIndex(state.selectedIndex, itemCount),
 		};
 	}
@@ -144,32 +244,45 @@ export function resolveKeyboardSelection(
 	const sawSearching =
 		state.sawSearchingWhileAwaiting || (state.awaitingFreshResults && isSearching);
 
+	const clearResultsNav = {
+		selectedIndex: -1,
+		userMovedResults: false,
+	};
+
 	// results (including in-flight querying, which still uses this mode)
 	if (fingerprint !== state.lastFingerprint) {
-		if (state.awaitingFreshResults) {
+		if (state.awaitingFreshResults || !state.userMovedResults) {
 			return {
-				selectedIndex: itemCount > 0 ? 0 : -1,
+				...clearResultsNav,
 				lastFingerprint: fingerprint,
 				awaitingFreshResults: false,
 				sawSearchingWhileAwaiting: false,
 			};
 		}
-		let selectedIndex = state.selectedIndex;
-		if (selectedIndex < 0 && itemCount > 0) selectedIndex = 0;
-		else selectedIndex = clampIndex(selectedIndex, itemCount);
 		return {
-			selectedIndex,
+			selectedIndex: clampIndex(state.selectedIndex, itemCount),
 			lastFingerprint: fingerprint,
 			awaitingFreshResults: false,
 			sawSearchingWhileAwaiting: false,
+			userMovedResults: true,
 		};
 	}
 
 	if (state.awaitingFreshResults) {
-		// Same hrefs after a completed search cycle → accept (same-hit query edit).
+		// Fast searches may never show a searching state — accept once live hits are back.
+		if (!isSearching && itemCount > 0) {
+			return {
+				...clearResultsNav,
+				lastFingerprint: fingerprint,
+				awaitingFreshResults: false,
+				sawSearchingWhileAwaiting: false,
+			};
+		}
+
+		// Same hits after a visible searching cycle (query tweak, identical results).
 		if (sawSearching && !isSearching) {
 			return {
-				selectedIndex: itemCount > 0 ? 0 : -1,
+				...clearResultsNav,
 				lastFingerprint: fingerprint,
 				awaitingFreshResults: false,
 				sawSearchingWhileAwaiting: false,
@@ -177,8 +290,16 @@ export function resolveKeyboardSelection(
 		}
 		return {
 			...state,
-			selectedIndex: -1,
+			...clearResultsNav,
 			sawSearchingWhileAwaiting: sawSearching,
+		};
+	}
+
+	if (!state.userMovedResults) {
+		return {
+			...state,
+			selectedIndex: -1,
+			sawSearchingWhileAwaiting: false,
 		};
 	}
 

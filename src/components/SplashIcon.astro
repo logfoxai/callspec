@@ -1,0 +1,39 @@
+---
+/**
+ * Splash homepage icons — Phosphor for UI marks, official SVG for MCP brand.
+ */
+import ClipboardText from 'phosphor-astro/ClipboardText.astro';
+import Flask from 'phosphor-astro/Flask.astro';
+import Function from 'phosphor-astro/Function.astro';
+import LockOpen from 'phosphor-astro/LockOpen.astro';
+import Scroll from 'phosphor-astro/Scroll.astro';
+import ShieldCheck from 'phosphor-astro/ShieldCheck.astro';
+import {mcpIcon} from '../callspec-ui/ui/icons';
+
+export type SplashIconName = 'mcp' | 'clipboard' | 'skill' | 'unlock' | 'shield' | 'rpc' | 'test';
+
+interface Props {
+	name: SplashIconName;
+}
+
+const {name} = Astro.props;
+const svgProps = {'aria-hidden': 'true' as const};
+---
+
+{
+	name === 'mcp' ? (
+		<Fragment set:html={mcpIcon()} />
+	) : name === 'clipboard' ? (
+		<ClipboardText {...svgProps} />
+	) : name === 'skill' ? (
+		<Scroll {...svgProps} />
+	) : name === 'unlock' ? (
+		<LockOpen {...svgProps} />
+	) : name === 'shield' ? (
+		<ShieldCheck {...svgProps} />
+	) : name === 'rpc' ? (
+		<Function {...svgProps} />
+	) : name === 'test' ? (
+		<Flask {...svgProps} />
+	) : null
+}

@@ -1,0 +1,63 @@
+---
+/**
+ * Homepage agents beat — MCP tools and the shipped coding-agent skill.
+ */
+import SplashIcon from './SplashIcon.astro';
+import type {SplashIconName} from './SplashIcon.astro';
+
+const cards = [
+	{
+		tone: 'mcp',
+		title: 'MCP from your routes',
+		copy: 'Set mcp: true on a route — mountSpec exposes it as a tool with the same validation, auth, and error codes as HTTP.',
+		icon: 'mcp',
+	},
+	{
+		tone: 'teal',
+		title: 'Connect from docs',
+		copy: 'The explorer home panel ships copy-paste snippets — server URL, bearer hints, and tool names ready for Cursor or Claude.',
+		icon: 'clipboard',
+	},
+	{
+		tone: 'violet',
+		title: 'Agent skill included',
+		copy: 'The npm package ships SKILL.md so agents follow Callspec conventions — Result errors, callspec.json codegen, route layout.',
+		icon: 'skill',
+	},
+] as const satisfies ReadonlyArray<{
+	tone: string;
+	title: string;
+	copy: string;
+	icon: SplashIconName;
+}>;
+---
+
+<section class="splash-agents" aria-labelledby="splash-agents-title">
+	<header class="splash-agents__intro">
+		<h2 id="splash-agents-title" class="splash-agents__title">Built for coding agents</h2>
+		<p class="splash-agents__lede">
+			Humans browse docs, apps call the SDK — agents hit the same routes over MCP. No second spec,
+			no REST-shaped tool definitions.
+		</p>
+	</header>
+
+	<ul class="splash-agents__grid">
+		{
+			cards.map(({tone, title, copy, icon}) => (
+				<li class="splash-agents__card">
+					<span class="splash-agents__icon" data-tone={tone} aria-hidden="true">
+						<SplashIcon name={icon} />
+					</span>
+					<h3 class="splash-agents__card-title">{title}</h3>
+					<p class="splash-agents__card-copy">{copy}</p>
+				</li>
+			))
+		}
+	</ul>
+
+	<p class="splash-agents__footer">
+		<a class="splash-agents__link" href="/mcp/">MCP server</a>
+		<span class="splash-agents__sep" aria-hidden="true">·</span>
+		<a class="splash-agents__link" href="/coding-agents/">Working with coding agents</a>
+	</p>
+</section>

@@ -1,9 +1,19 @@
 import {test} from 'kizu';
 import {isSearchIdle} from './searchIdleState.js';
 
-test('idle only when search is ready, drawer is hidden, and query is empty', (assert) => {
+test('idle when search is ready and query is empty or shorter than 3 characters', (assert) => {
 	assert.equal(isSearchIdle(true, true, ''), true);
 	assert.equal(isSearchIdle(true, true, '   '), true);
+	assert.equal(
+		isSearchIdle(true, true, 'te'),
+		true,
+		'queries under 3 characters stay on idle chips',
+	);
+	assert.equal(
+		isSearchIdle(true, false, 'te'),
+		true,
+		'short queries stay idle even if Pagefind left the drawer open',
+	);
 	assert.equal(
 		isSearchIdle(true, true, 'mcp'),
 		false,

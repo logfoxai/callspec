@@ -1,10 +1,12 @@
 ---
 /**
- * Mobile drawer chrome — search + theme (header drops these below 50rem on guides).
+ * Mobile drawer chrome — search trigger (opens the header dialog) + theme.
+ * Do not mount a second Search component: two site-search elements both handle `/`
+ * and stack two dialogs, so focus, Esc, and outside-click all fail.
  */
+import {Icon} from '@astrojs/starlight/components';
 import config from 'virtual:starlight/user-config';
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
-import Search from 'virtual:starlight/components/Search';
 import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
 
@@ -16,7 +18,16 @@ const shouldRenderSearch =
 	{
 		shouldRenderSearch && (
 			<div class="cs-mobile-menu-tools__search">
-				<Search />
+				<button
+					type="button"
+					data-cs-open-docs-search
+					aria-label={Astro.locals.t('search.label')}
+					aria-keyshortcuts="/"
+				>
+					<Icon name="magnifier" />
+					<span class="cs-search-label" aria-hidden="true">{Astro.locals.t('search.label')}</span>
+					<kbd class="cs-search-kbd">/</kbd>
+				</button>
 			</div>
 		)
 	}
@@ -47,20 +58,40 @@ const shouldRenderSearch =
 			width: 100%;
 		}
 
-		.cs-mobile-menu-tools__search :global(site-search > button) {
+		.cs-mobile-menu-tools__search :global([data-cs-open-docs-search]) {
+			display: flex;
+			align-items: center;
 			width: 100%;
 			max-width: none;
+			height: var(--docs-search-height, 2.25rem);
+			padding-inline: 0.85rem;
 			justify-content: flex-start;
+			gap: 0.55rem;
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.55rem;
+			background-color: var(--sl-color-gray-6);
+			color: var(--sl-color-gray-2);
+			cursor: pointer;
+			font-size: var(--sl-text-sm);
 		}
 
 		.cs-mobile-menu-tools__search :global(.cs-search-label) {
-			display: inline !important;
+			display: inline;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 
-		.cs-mobile-menu-tools__search :global(button[data-open-modal]) {
-			width: 100% !important;
-			padding-inline: 0.85rem !important;
-			justify-content: flex-start !important;
+		.cs-mobile-menu-tools__search :global(.cs-search-kbd) {
+			display: inline-flex;
+			align-items: center;
+			margin-inline-start: auto;
+			border-radius: 0.25rem;
+			font-size: var(--sl-text-2xs);
+			padding-inline: 0.375rem;
+			background-color: var(--sl-color-gray-5);
+			border: 0;
+			color: var(--sl-color-gray-2);
 		}
 
 		.social-icons {

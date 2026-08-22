@@ -83,22 +83,6 @@ test('exportCallspecUi writes index.html and assets for S3 upload', (assert) => 
     assert.equal(hasHashedJs, true);
     assert.equal(hasHashedCss, true);
     assert.equal(assetNames.includes('mark-light.svg'), true);
-    assert.equal(assetNames.some((name) => name.endsWith('.woff2')), true);
-
-    const cssName = assetNames.find((name) => name.endsWith('.css'));
-
-    assert.equal(typeof cssName, 'string');
-
-    const css = fs.readFileSync(path.join(assetsDir, cssName ?? ''), 'utf8');
-    const fontUrls = [...css.matchAll(/url\(([^)]+\.woff2)\)/g)].map((match) => match[1]);
-
-    assert.equal(fontUrls.length >= 2, true);
-
-    for (const url of fontUrls) {
-
-        assert.equal(url.startsWith('/'), false);
-
-    }
 
     fs.rmSync(outDir, {recursive: true, force: true});
 

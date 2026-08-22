@@ -28,6 +28,13 @@ test('renderCallspecLockup is the only lockup markup — docs + explorer', (asse
     assert.equal(html.includes('cs-lockup__word'), true);
     assert.equal(html.includes(mark), true);
 
+    const overlayHtml = renderCallspecLockup({
+        href: '/',
+        maskId: 'cs-eq-mask-overlay',
+        holes: 'overlay',
+    });
+    assert.equal(overlayHtml.includes('data-holes="overlay"'), true);
+
     assert.equal(astro.includes('renderCallspecLockup'), true);
     assert.equal(title.includes('CallspecLockup'), true);
     assert.equal(footer.includes('CallspecLockup'), true);

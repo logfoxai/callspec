@@ -76,21 +76,6 @@ test('custom pages are Astro, not collection MDX', (assert) => {
 
 });
 
-test('vite UI @font-face urls resolve to public /fonts/ files', (assert) => {
-
-    const tokensPath = path.join(root, 'src/callspec-ui/ui/docs-tokens.css');
-    const tokens = readFileSync(tokensPath, 'utf8');
-    const urls = [...tokens.matchAll(/url\(['"]([^'"]+\.woff2)['"]\)/g)].map((match) => match[1]);
-
-    assert.equal(urls.length >= 3, true);
-    assert.equal(urls.every((url) => url.startsWith('/fonts/')), true);
-
-    for (const url of urls) {
-        assert.equal(existsSync(path.join(root, 'assets', url.slice(1))), true);
-    }
-
-});
-
 test('docs highlight aliases the primary fill token', (assert) => {
 
     const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
@@ -102,6 +87,17 @@ test('docs highlight aliases the primary fill token', (assert) => {
     assert.equal(starlight.includes('--sl-color-text-accent: var(--docs-primary-bg)'), true);
     assert.equal(starlight.includes('--sl-color-accent-high: var(--docs-primary-bg)'), true);
     assert.equal(shared.includes('--docs-primary-hover-bg: var(--docs-primary-bg)'), true);
+
+});
+
+test('lockup mark svg is block-level so explorer matches docs alignment', (assert) => {
+
+    const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
+
+    assert.equal(shared.includes('.cs-lockup__mark {\n    display: block;'), true);
+    assert.equal(shared.includes('.cs-lockup__mark svg'), false);
+    assert.equal(shared.includes("--cs-lockup-word-size: 1.3rem"), true);
+    assert.equal(shared.includes(".cs-lockup[data-holes='overlay'] .cs-eq"), true);
 
 });
 

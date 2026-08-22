@@ -51,6 +51,17 @@ function renderViewToggle(panelId: string): string {
 
 }
 
+function renderSchemaPanelShell(toggleHtml: string, viewsHtml: string): string {
+
+    return `
+        <div class="schema-panel-shell">
+            <div class="schema-panel-shell__toolbar">${toggleHtml}</div>
+            ${viewsHtml}
+        </div>
+    `;
+
+}
+
 function renderSchemaPanelViews(panelId: string, schemaView: string, exampleView: string): string {
 
     return `
@@ -112,13 +123,13 @@ function renderCatalogErrorCard(entry: CatalogRouteError): string {
             <div class="error-card-body">
                 <p class="error-summary">${escapeHtml(entry.summary)}</p>
                 <div class="error-card-schema">
-                    <div class="error-card-schema__head">
-                        ${renderViewToggle(panelId)}
-                    </div>
-                    ${renderSchemaPanelViews(
-                        panelId,
-                        codeBlock(jsonPreview(entry.schema)),
-                        codeBlock(jsonPreview(entry.example)),
+                    ${renderSchemaPanelShell(
+                        renderViewToggle(panelId),
+                        renderSchemaPanelViews(
+                            panelId,
+                            codeBlock(jsonPreview(entry.schema)),
+                            codeBlock(jsonPreview(entry.example)),
+                        ),
                     )}
                 </div>
             </div>

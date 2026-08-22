@@ -26,10 +26,20 @@ const required = [
 	'splash-flow',
 	'splash-features',
 	'splash-demo',
+	'splash-sdk',
+	'splash-agents',
+	'Built for coding agents',
+	'Typed SDK from the same spec',
 	'Stop duct-taping your API stack.',
+	'splash-hero__browser',
+	'/api/v2/orgs/acme-corp/teams/platform/products/catalog/items/',
 	'/getting-started/',
 	'/demo/',
 	'/try-the-demo-locally/',
+	'/docs-ui/',
+	'/docs-ui-branding/',
+	'/sdk-generation/',
+	'/coding-agents/',
 ];
 for (const needle of required) {
 	if (!html.includes(needle)) {
