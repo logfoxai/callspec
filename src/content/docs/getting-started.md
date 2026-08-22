@@ -78,7 +78,6 @@ const app = express();
 const router = express.Router();
 router.use(express.json());
 
-// Serves RPC, docs UI, callspec.json, openapi.json, and MCP (if any route has mcp: true)
 mountSpec(router, api);
 app.use('/v1', router);
 
