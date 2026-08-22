@@ -2,10 +2,6 @@
 
 Callspec doesn't care about your folders. A single file is fine for demos — see [Single-file server example](./single-file-server-example.md). When the API grows (or you're past a toy), **split** so each route, shared pred, and the registry stay easy to find and test.
 
-`mountSpec` serves `{mount}/callspec.json` at runtime. Pinning that file in git is optional — [SDK generation](./sdk-generation.md).
-
-## Best practice (split layout)
-
 1. **One route per file** — `src/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
 2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([Handlers](./api-reference/handlers.md)).
 3. **Shared domain preds** live under `src/schemas/` and are imported by routes (`output: product`). Infer TS types with `Infer<typeof product>` when local data (e.g. fixtures) should match. Route-only wire shapes (`{ id }`, filters) stay in the route file.
