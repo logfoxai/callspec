@@ -8,8 +8,6 @@ Callspec doesn't care about your folders. A single file is fine for demos — se
 4. **`spec.ts` is only the registry** — `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
 5. **`index.ts` only mounts** — Express + `mountSpec`. No route logic.
 
-Test handlers with `.handler(input, ctx)` — no HTTP. See [Unit testing](./unit-testing.md).
-
 ```text
 my-api/
 ├── src/
@@ -24,18 +22,6 @@ my-api/
 │       └── listProducts.ts
 └── package.json
 ```
-
-## What goes where
-
-| Kind | Put it | Example |
-|------|--------|---------|
-| Shared domain entity | One schema module, imported by routes | `Product`, `User` |
-| Route-only wire shape | In the route file | `{ id }` input; list wrappers |
-| Frontend form/filter pred | Schema module + `spec({ exports })` | `product` — [Shared validation](./shared-validation.md) |
-| Wired route | Own file under `routes/`, via `route()` | `export const getProductById = route({…})` |
-| Registry | `spec.ts` only | `spec({ routes: { getProductById } })` |
-
-Share domain preds. Keep ID/filter/pagination shapes with the route unless they're reused.
 
 ## Shared schemas
 
@@ -67,7 +53,6 @@ const products: Product[] = [
     {id: 'sku-2', name: 'Gadget', priceCents: 1299},
 ];
 
-// handler stays inline — types flow from the preds
 export const getProductById = route({
     input: p.object({id: p.string()}),
     output: product,
