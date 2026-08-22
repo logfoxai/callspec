@@ -1,8 +1,6 @@
 # File uploads
 
-A route can accept a file. Add `file()` to the input pred — `mountSpec` then accepts `multipart/form-data`, validates type and size, and passes a buffer to the handler. Auth, errors, `callspec.json`, OpenAPI, and the generated client are the same as JSON RPC.
-
-## Route
+Add `file()` to a route input. The request is `multipart/form-data`. The handler gets `{ filename, mimeType, size, buffer }`.
 
 ```typescript title="src/routes/upload.ts" frame="code"
 import {route, file} from 'callspec';
@@ -18,50 +16,25 @@ export const upload = route({
     output: p.object({url: p.string()}),
     meta: {summary: 'Upload a photo', tags: ['user']},
     handler: async (input, ctx) => {
-        // input.file.buffer / filename / mimeType / size
         const key = await storePhoto(input.file, ctx);
         return {url: key};
     },
 });
 ```
 
-`file()` in the input object makes the route **multipart**. Extra form fields (strings) sit next to the file in the same `p.object`.
+| `file()` option | Default | Description |
+|-----------------|---------|-------------|
+| `maxBytes` | 10MB | oversize → `VALIDATION_ERROR` |
+| `mime` | any | allow-list of `Content-Type` values |
 
-| `file()` option | Default | Meaning |
-|-----------------|---------|---------|
-| `maxBytes` | 10MB | Reject larger files as `VALIDATION_ERROR` |
-| `mime` | any | Allow-list of `Content-Type` values (e.g. JPEG/PNG) |
+String fields can sit next to the file in the same `p.object`. The file is buffered in memory up to `maxBytes`.
 
-The handler input type is `{ filename, mimeType, size, buffer }`. Storage, resize, and S3 keys stay in the service.
-
-## Client
-
-Regenerate the SDK. File fields are `Blob` (`File` works — it extends `Blob`):
+The generated client types the field as `Blob` (`File` works) and posts multipart:
 
 ```typescript
 const result = await api.upload({
     file: input.files[0],
 });
-
-if (!result.ok) {
-    // same result.code contract as JSON routes
-}
 ```
 
-The generated method posts `multipart/form-data` to `POST {baseUrl}/upload`.
-
-## Contract
-
-- `callspec.json` marks the route `encoding: "multipart"` and the file field `format: "binary"`
-- OpenAPI uses `multipart/form-data` (not `application/json`)
-- Auth is the same `auth` / `authenticate` as other routes
-- Wrong type, oversize, or a JSON body on an upload route → `VALIDATION_ERROR`
-- MCP is JSON-only — do not set `mcp: true` on upload routes
-
-The docs UI Try It panel is still JSON. Call the generated client (or curl with `-F file=@photo.png`) to exercise uploads.
-
-## Limits
-
-`mountSpec` buffers the file in memory up to `maxBytes`. That is enough for avatars and similar. Streaming or presigned direct-to-storage is out of scope here.
-
-Related: [Error handling](./error-handling.md) · [SDK generation](./sdk-generation.md) · [route & spec](./api-reference/route-and-spec.md)
+`callspec.json` sets `encoding: "multipart"`. OpenAPI uses `multipart/form-data`. Do not set `mcp: true` on these routes.

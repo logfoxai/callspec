@@ -106,7 +106,7 @@ export function ProductView() {
 }
 ```
 
-See [Authentication](./authentication.md) for Bearer headers and [Error handling](./error-handling.md) for the Result contract and client normalization. File fields on generated methods are `Blob` — see [File uploads](./file-uploads.md).
+See [Authentication](./authentication.md) for Bearer headers and [Error handling](./error-handling.md) for the Result contract and client normalization.
 
 ## Dates
 

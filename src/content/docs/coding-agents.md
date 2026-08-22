@@ -18,7 +18,7 @@ What it encodes, in short:
 - On `!result.ok`, branch on `result.code`
 - Don’t put Express error middleware on the `mountSpec` router
 - When splitting files, follow [Server layout](./server-layout.md) — one `route()` per file with an inline handler
-- Uploads: `file()` on an input field makes the route multipart — same auth/errors/client as JSON; MCP is JSON-only
+- Uploads: `file()` on an input field makes the route multipart; MCP is JSON-only
 
 ## Prompt: work with Callspec
 

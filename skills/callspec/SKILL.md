@@ -23,4 +23,4 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.
 11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `spec.ts` = `spec()` registry only.
-12. **Uploads:** `file()` on an input field makes the route multipart — same auth/errors/client as JSON. Do not keep a leftover Express `/upload` handler. MCP is JSON-only.
+12. **Uploads:** `file()` on an input field makes the route multipart. MCP is JSON-only.
