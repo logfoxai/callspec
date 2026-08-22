@@ -670,6 +670,28 @@ header.header .social-icons a {
     margin: 0;
     /* Neutral — Starlight defaults social icons to accent. */
     color: var(--sl-color-white);
+    transition: color 120ms ease;
+}
+
+header.header .social-icons a[href*='github']:hover {
+    color: var(--sl-color-gray-3);
+}
+
+header.header .social-icons a[href*='discord']:hover {
+    color: #5865f2;
+}
+
+/* Mobile drawer — same social targets as header. */
+.cs-mobile-menu-tools .social-icons a {
+    transition: color 120ms ease;
+}
+
+.cs-mobile-menu-tools .social-icons a[href*='github']:hover {
+    color: var(--sl-color-gray-3);
+}
+
+.cs-mobile-menu-tools .social-icons a[href*='discord']:hover {
+    color: #5865f2;
 }
 
 header.header .social-icons a svg {

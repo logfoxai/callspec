@@ -105,6 +105,11 @@ export default defineConfig({
                     label: 'GitHub',
                     href: 'https://github.com/logfoxai/callspec',
                 },
+                {
+                    icon: 'discord',
+                    label: 'Discord',
+                    href: 'https://discord.gg/2wyYnBDhWQ',
+                },
             ],
             sidebar: [
                 {
