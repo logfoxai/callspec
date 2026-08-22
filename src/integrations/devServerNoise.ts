@@ -99,10 +99,28 @@ export function demoPublicFileRel(pathname: string): string | null {
     return null;
 }
 
+/** Starlight `[...slug]` catches `/fonts/*` in dev before publicDir. Serve committed woff2. */
+export function publicFontRel(pathname: string): string | null {
+    const clean = pathname.split('?')[0];
+
+    if (!clean.startsWith('/fonts/')) {
+        return null;
+    }
+
+    const file = clean.slice('/fonts/'.length);
+
+    if (!file || file.includes('..') || file.includes('/') || !file.endsWith('.woff2')) {
+        return null;
+    }
+
+    return `fonts/${file}`;
+}
+
 const DEMO_STALE_FONTS = new Set([
     'ibm-plex-sans-latin-wght-normal.woff2',
     'ibm-plex-mono-latin-400-normal.woff2',
     'ibm-plex-mono-latin-600-normal.woff2',
+    'caveat-latin-600-normal.woff2',
 ]);
 
 /**
@@ -199,6 +217,13 @@ export function devServerNoisePlugin(): Plugin {
 
                         if (staleFont) {
                             sendPublicDirFile(server.config.publicDir, staleFont, res);
+                            return;
+                        }
+
+                        const publicFont = publicFontRel(pathname);
+
+                        if (publicFont) {
+                            sendPublicDirFile(server.config.publicDir, publicFont, res);
                             return;
                         }
 

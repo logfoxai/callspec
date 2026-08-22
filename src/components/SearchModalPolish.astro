@@ -75,10 +75,9 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 		type KeyboardNavState,
 		shouldHandleSearchListKeyboard,
 	} from './searchKeyboardNav';
-	import {shouldShowSearchPending} from './searchDialogPhase';
+	import {shouldShowSearchPending} from './searchPendingDelay';
 	import {
 		INITIAL_SEARCH_PENDING_DELAY_STATE,
-		isSearchPendingVisible,
 		resolveSearchPendingDelayState,
 		SEARCH_PENDING_SHOW_DELAY_MS,
 		type SearchPendingDelayState,
@@ -300,7 +299,7 @@ const discordInvite = 'https://discord.gg/2wyYnBDhWQ';
 			}
 
 			pendingDelayState = resolveSearchPendingDelayState(pendingDelayState, true, false);
-			if (isSearchPendingVisible(pendingDelayState)) {
+			if (pendingDelayState.visible) {
 				syncPendingVisibility(pending, true);
 				return;
 			}

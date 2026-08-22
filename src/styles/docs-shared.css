@@ -29,6 +29,7 @@ html {
 /*
  * Wide type bumps — start after MacBook Neo (~1204–1408 CSS px).
  * 72rem (1152px) was firing on Neo and scaled the whole UI up.
+ * Desktop “On this page” TOC also waits until 90rem (starlight-custom.css).
  */
 @media (min-width: 90rem) {
     html {
@@ -79,8 +80,8 @@ html[data-theme='light'],
     --docs-callspec-mark: #000;
     /* Mark ↔ label gap — explorer contract chips + docs nav lockup. */
     --docs-mark-label-gap: 0.18rem;
-    /* Neutral inset — same hue family as page chrome, not cyan-tinted. */
-    --docs-code-bg: hsl(228, 14%, 94%);
+    /* Neutral inset — slightly cooler/darker than page chrome so blocks read as panels. */
+    --docs-code-bg: hsl(228, 18%, 91%);
     --docs-code-border: var(--docs-border);
     --docs-mcp: #9333ea;
     --docs-radius: 0.75rem;
@@ -100,9 +101,22 @@ html[data-theme='light'],
     --docs-header-bg: #ffffff;
 
     --docs-table-bg: hsl(0, 0%, 100%);
-    --docs-table-row-hover: hsl(228, 28%, 97%);
+    --docs-table-row-hover: hsl(228, 14%, 90%);
+    --docs-pagination-hover: color-mix(in srgb, var(--docs-primary-bg) 34%, var(--docs-code-bg));
+    --docs-pagination-hover-fg: var(--docs-text);
 
     --docs-elevated: #ffffff;
+    /*
+     * Search modal stack — field inset darker than result cards (modal → field → cards).
+     */
+    --docs-search-field: hsl(228, 14%, 90%);
+    --docs-search-item: var(--docs-code-bg);
+    --docs-search-hover: color-mix(in srgb, var(--docs-primary-bg) 34%, var(--docs-search-item));
+    --docs-search-hover-fg: var(--docs-text);
+    --docs-search-modal-shadow:
+        0 6px 16px hsl(228 25% 25% / 0.1),
+        0 20px 56px hsl(228 30% 25% / 0.16),
+        0 36px 88px hsl(228 30% 30% / 0.22);
 }
 
 html[data-theme='dark'],
@@ -122,26 +136,40 @@ html[data-theme='dark'],
     --docs-text-tertiary: hsl(228, 10%, 52%);
     --docs-sidebar-hover: var(--docs-text);
 
-    /* Same hue as light — pale iris, not a grey wash. */
-    --docs-primary-bg: hsl(262, 40%, 76%);
+    /* Rich iris — same 262° axis as light, higher chroma, mid tone for dark UI. */
+    --docs-primary-bg: hsl(262, 52%, 62%);
     --docs-primary-fg: hsl(262, 28%, 8%);
     --docs-primary-hover-bg: var(--docs-primary-bg);
     --docs-primary-hover-fg: var(--docs-primary-fg);
 
     --docs-accent: var(--docs-primary-bg);
-    --docs-accent-soft: color-mix(in srgb, var(--docs-primary-bg) 22%, var(--docs-surface));
+    --docs-accent-soft: color-mix(in oklab, var(--docs-primary-bg) 26%, var(--docs-surface));
     --docs-link: var(--docs-primary-bg);
     /* Callspec hex mark — assets/mark-dark.svg */
     --docs-callspec-mark: #fff;
     --docs-code-bg: hsl(228, 14%, 15%);
     --docs-code-border: color-mix(in srgb, var(--docs-code-bg) 88%, white);
-    --docs-mcp: #c084fc;
+    --docs-mcp: hsl(262, 58%, 72%);
     --docs-header-bg: var(--docs-sidebar);
 
     --docs-table-bg: hsl(228, 16%, 10%);
     --docs-table-row-hover: hsl(228, 14%, 13%);
+    --docs-pagination-hover: color-mix(in srgb, var(--docs-primary-bg) 48%, var(--docs-table-bg));
+    --docs-pagination-hover-fg: var(--docs-text);
 
-    --docs-elevated: #33303f;
+    /*
+     * Search modal stack — neutral grey planes; primary tint only on hover/selection.
+     */
+    --docs-elevated: hsl(228, 11%, 15%);
+    --docs-search-inner: hsl(228, 8%, 20%);
+    --docs-search-field: color-mix(in srgb, var(--docs-search-inner) 93%, white);
+    --docs-search-item: var(--docs-search-inner);
+    --docs-search-hover: color-mix(in srgb, var(--docs-primary-bg) 48%, var(--docs-search-item));
+    --docs-search-hover-fg: var(--docs-text);
+    --docs-search-modal-shadow:
+        0 6px 18px hsl(228 40% 2% / 0.42),
+        0 22px 52px hsl(228 40% 2% / 0.48),
+        0 44px 112px hsl(228 40% 2% / 0.62);
 }
 
 /* Roomier L/R chrome — past MacBook Neo widths (see html type scale above). */
@@ -179,7 +207,17 @@ html[data-theme='light'],
     --cs-primary-hover-fg: var(--docs-primary-hover-fg);
     --cs-table-bg: var(--docs-table-bg);
     --cs-table-row-hover: var(--docs-table-row-hover);
+    --cs-pagination-hover-bg: var(--docs-pagination-hover);
+    --cs-pagination-hover-fg: var(--docs-pagination-hover-fg);
     --cs-search-modal-bg: var(--docs-elevated);
+    --cs-search-modal-shadow: var(--docs-search-modal-shadow);
+    --cs-search-field-bg: var(--docs-search-field);
+    --cs-search-item-bg: var(--docs-search-item);
+    --cs-search-hover-bg: var(--docs-search-hover);
+    --cs-search-hover-fg: var(--docs-search-hover-fg);
+    --cs-search-field-fg: var(--docs-text);
+    --cs-search-result-fg: var(--docs-text);
+    --cs-search-card-radius: 0.75rem;
 
     --bg: var(--docs-bg);
     --surface: var(--docs-surface);

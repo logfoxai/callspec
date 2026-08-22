@@ -58,6 +58,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 <script>
 	import {pagefindUserConfig} from 'virtual:starlight/pagefind-config';
+	import {DOCS_SEARCH_PAGE_SIZE} from '../components/docsSearchQuery';
 	import {bindPagefindMount} from '../components/pagefindMount';
 	import {
 		isEditableSearchTarget,
@@ -204,6 +205,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 							element,
 							baseUrl: import.meta.env.BASE_URL,
 							bundlePath,
+							pageSize: DOCS_SEARCH_PAGE_SIZE,
 							showImages: false,
 							debounceTimeoutMs: 0,
 							translations,
@@ -329,7 +331,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		dialog {
 			margin: 0;
 			background-color: var(--sl-color-gray-6);
-			border: 1px solid var(--sl-color-gray-5);
+			border: 0;
 			width: 100%;
 			max-width: 100%;
 			height: 100%;
@@ -370,18 +372,18 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		}
 
 		[data-cs-pagefind-root] {
-			--pagefind-ui-primary: var(--sl-color-text);
-			--pagefind-ui-text: var(--sl-color-gray-2);
+			--pagefind-ui-primary: var(--cs-ink);
+			--pagefind-ui-text: var(--cs-muted);
 			--pagefind-ui-font: var(--__sl-font);
-			--pagefind-ui-background: var(--cs-search-field-bg, var(--sl-color-black));
-			--pagefind-ui-border: var(--sl-color-gray-5);
-			--pagefind-ui-border-width: 1px;
+			--pagefind-ui-background: var(--cs-search-field-bg, var(--docs-bg));
+			--pagefind-ui-border: transparent;
+			--pagefind-ui-border-width: 0;
 			--pagefind-ui-tag: var(--sl-color-gray-5);
 			--sl-search-cancel-space: 5rem;
 		}
 
 		:root[data-theme='light'] [data-cs-pagefind-root] {
-			--pagefind-ui-tag: var(--sl-color-gray-6);
+			--pagefind-ui-tag: var(--docs-code-bg);
 		}
 
 		@media (min-width: 50rem) {
@@ -445,12 +447,12 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 				var(--cs-search-dialog-inset, 0.75rem) +
 					var(--cs-search-icon-inline-start, calc(20px * var(--pagefind-ui-scale, 0.92)))
 			);
-			--pagefind-ui-text: var(--sl-color-gray-1);
+			--pagefind-ui-text: var(--cs-muted);
 			opacity: 1;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__search-input {
-			color: var(--sl-color-white);
+			color: var(--cs-search-field-fg);
 			font-weight: 400;
 			width: calc(100% - var(--sl-search-cancel-space));
 			height: var(--cs-search-input-block-size, calc(64px * var(--pagefind-ui-scale, 0.92)));
@@ -497,7 +499,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
 		[data-cs-pagefind-root] .pagefind-ui__result-nested {
 			position: relative;
-			background-color: var(--cs-search-field-bg, var(--sl-color-black));
+			background-color: var(--cs-search-item-bg);
 			outline: none;
 		}
 
@@ -508,11 +510,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		[data-cs-pagefind-root] .pagefind-ui__result-nested:hover,
 		[data-cs-pagefind-root] .pagefind-ui__result-nested[data-cs-search-selected='true'] {
 			outline: none;
-			background-color: color-mix(
-				in srgb,
-				var(--sl-color-accent) 28%,
-				var(--sl-color-accent-low)
-			);
+			background-color: var(--cs-search-hover-bg);
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-thumb,
@@ -520,16 +518,9 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 			margin-top: 0;
 		}
 
-		[data-cs-pagefind-root] .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner > :first-child {
-			border-top-left-radius: 0.75rem;
-			border-top-right-radius: 0.75rem;
-		}
-
-		[data-cs-pagefind-root] .pagefind-ui__result-inner > :first-child {
-			border-radius: var(--sl-search-corners) var(--sl-search-corners) 0 0;
-		}
-		[data-cs-pagefind-root] .pagefind-ui__result-inner > :last-child {
-			border-radius: 0 0 var(--sl-search-corners) var(--sl-search-corners);
+		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
+		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-nested {
+			border-radius: 0;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title {
@@ -552,13 +543,13 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 		[data-cs-pagefind-root] .pagefind-ui__result-inner {
 			align-items: stretch;
 			gap: 0;
-			border-radius: calc(0.65rem * var(--pagefind-ui-scale));
+			border-radius: var(--cs-search-card-radius);
 			overflow: hidden;
 		}
 
 		[data-cs-pagefind-root] .pagefind-ui__result-link {
 			position: unset;
-			--pagefind-ui-text: var(--sl-color-white);
+			--pagefind-ui-text: var(--cs-search-result-fg);
 			font-weight: 600;
 			text-decoration: none;
 		}

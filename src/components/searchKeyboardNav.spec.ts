@@ -8,7 +8,6 @@ import {
 	markAwaitingFreshResults,
 	nextIndex,
 	resetSearchNavSession,
-	resetSearchResultsScroll,
 	resolveKeyboardSelection,
 	resultLinkForRow,
 	scrollSearchSelectionIntoView,
@@ -35,18 +34,6 @@ test('resetSearchNavSession clears highlight and scroll for a new dialog open', 
 	assert.equal(next.awaitingFreshResults, false);
 	assert.equal(next.userMovedResults, false);
 	assert.equal(selected.getAttribute('data-cs-search-selected'), null);
-	assert.equal(scroller.scrollTop, 0);
-});
-
-test('resetSearchResultsScroll zeroes the results scroller', (assert) => {
-	const scroller = {scrollTop: 999};
-	const root = {
-		querySelector(selector: string): {scrollTop: number} | null {
-			return selector === '.pagefind-ui__results-area' ? scroller : null;
-		},
-	} as unknown as ParentNode;
-
-	resetSearchResultsScroll(root);
 	assert.equal(scroller.scrollTop, 0);
 });
 

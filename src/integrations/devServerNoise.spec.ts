@@ -4,6 +4,7 @@ import {
     demoStaleFontRel,
     isLocalDevHost,
     demoPublicFileRel,
+    publicFontRel,
     rewritePublicDirIndexRequest,
     shouldBypassSecFetchForIdePreview,
     shouldShortCircuitDevtoolsProbe,
@@ -106,5 +107,22 @@ test('demoStaleFontRel: /demo/ + base href font misses map to publicDir fonts', 
     assert.equal(demoStaleFontRel('/fonts/ibm-plex-sans-latin-wght-normal.woff2'), null);
     assert.equal(demoStaleFontRel('/demo/callspec.json'), null);
     assert.equal(demoStaleFontRel('/demo/node_modules/@fontsource/evil.woff2'), null);
+
+});
+
+test('publicFontRel: /fonts/* woff2 maps to publicDir fonts', (assert) => {
+
+    assert.equal(
+        publicFontRel('/fonts/caveat-latin-600-normal.woff2'),
+        'fonts/caveat-latin-600-normal.woff2',
+    );
+    assert.equal(
+        publicFontRel('/fonts/ibm-plex-sans-latin-wght-normal.woff2?v=1'),
+        'fonts/ibm-plex-sans-latin-wght-normal.woff2',
+    );
+    assert.equal(publicFontRel('/fonts/evil.ttf'), null);
+    assert.equal(publicFontRel('/fonts/nested/evil.woff2'), null);
+    assert.equal(publicFontRel('/fonts/../secret.woff2'), null);
+    assert.equal(publicFontRel('/getting-started/'), null);
 
 });

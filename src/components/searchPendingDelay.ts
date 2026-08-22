@@ -1,6 +1,17 @@
 /** Wait before showing the skeleton so fast searches do not flash placeholder chrome. */
 export const SEARCH_PENDING_SHOW_DELAY_MS = 180;
 
+/** Skeleton while Pagefind is searching and the drawer has no hits yet. */
+export function shouldShowSearchPending(
+	phase: string,
+	hasResults: boolean,
+	zeroResults: boolean,
+	holdingStale = false,
+): boolean {
+	if (hasResults || zeroResults || holdingStale) return false;
+	return phase === 'searching';
+}
+
 export type SearchPendingDelayState = {
 	armed: boolean;
 	visible: boolean;
@@ -27,8 +38,4 @@ export function resolveSearchPendingDelayState(
 		return {armed: false, visible: true};
 	}
 	return {armed: true, visible: false};
-}
-
-export function isSearchPendingVisible(state: SearchPendingDelayState): boolean {
-	return state.visible;
 }

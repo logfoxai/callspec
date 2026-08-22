@@ -40,7 +40,13 @@ function actionIconHtml(action: SplashHeroAction): string | undefined {
 
 				const htmlIcon = actionIconHtml(action);
 				const namedIcon = htmlIcon ? undefined : actionIconName(action);
-				const iconPlacement = htmlIcon || namedIcon === 'github' ? 'start' : 'end';
+				const iconPlacement =
+					htmlIcon ||
+					namedIcon === 'github' ||
+					namedIcon === 'laptop' ||
+					namedIcon === 'open-book'
+						? 'start'
+						: 'end';
 
 				return (
 					<LinkButton

@@ -7,7 +7,7 @@ function scheduleNextFrame(callback: () => void): void {
 	setTimeout(callback, 0);
 }
 
-export function scheduleSearchInputFocus(input: HTMLInputElement, focus: (el: HTMLInputElement) => void): void {
+function scheduleSearchInputFocus(input: HTMLInputElement, focus: (el: HTMLInputElement) => void): void {
 	queueMicrotask(() => {
 		focus(input);
 		scheduleNextFrame(() => focus(input));

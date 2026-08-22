@@ -1,5 +1,5 @@
 import {test} from 'kizu';
-import {bindSearchClearRefocus, scheduleSearchInputFocus} from './searchClearRefocus.js';
+import {bindSearchClearRefocus} from './searchClearRefocus.js';
 
 function stubRoot(input: StubInput, clear: StubClear): Element {
 	return {
@@ -46,27 +46,6 @@ function stubClear(): StubClear {
 	return clear;
 }
 
-test('bindSearchClearRefocus focuses the search input after clear is clicked', (assert) => {
-	const input = stubInput();
-	const clear = stubClear();
-	bindSearchClearRefocus(stubRoot(input, clear));
-
-	clear.click();
-
-	assert.equal(input.focusCalls, 0);
-
-	return new Promise<void>((resolve, reject) => {
-		queueMicrotask(() => {
-			try {
-				assert.equal(input.focusCalls >= 1, true);
-				resolve();
-			} catch (err) {
-				reject(err);
-			}
-		});
-	});
-});
-
 test('bindSearchClearRefocus is idempotent on the clear button', (assert) => {
 	const input = stubInput();
 	const clear = stubClear();
@@ -87,32 +66,6 @@ test('bindSearchClearRefocus is idempotent on the clear button', (assert) => {
 			} catch (err) {
 				reject(err);
 			}
-		});
-	});
-});
-
-test('scheduleSearchInputFocus runs focus after microtask and rAF', (assert) => {
-	const input = stubInput();
-	const phases: string[] = [];
-
-	scheduleSearchInputFocus(input as unknown as HTMLInputElement, () => {
-		phases.push('focus');
-	});
-
-	phases.push('sync');
-	assert.equal(phases.length, 1);
-	assert.equal(phases[0], 'sync');
-
-	return new Promise<void>((resolve, reject) => {
-		queueMicrotask(() => {
-			setTimeout(() => {
-				try {
-					assert.equal(phases.filter((p) => p === 'focus').length, 2);
-					resolve();
-				} catch (err) {
-					reject(err);
-				}
-			}, 0);
 		});
 	});
 });

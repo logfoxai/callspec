@@ -1322,7 +1322,7 @@ body > .footer {
 
 .pagination-link:hover {
     border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-    background: var(--cs-table-row-hover);
+    background: var(--cs-pagination-hover-bg);
 }
 
 .pagination-link > span {
@@ -1343,10 +1343,6 @@ body > .footer {
     line-height: 1.3;
     text-transform: none;
     transition: color 0.15s ease;
-}
-
-.pagination-link:hover .link-title {
-    color: var(--accent);
 }
 
 .pagination-link svg {

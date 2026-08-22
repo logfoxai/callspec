@@ -5,6 +5,7 @@
 import SplashHeroActions from './SplashHeroActions.astro';
 import SplashPile from './SplashPile.astro';
 import type {SplashHeroActionList} from '../splashHeroTypes';
+import {splitHeadlineForTape} from './splashHeadlineTape';
 
 const PAGE_TITLE_ID = '_top';
 
@@ -17,11 +18,20 @@ interface Props {
 const {title, headline, actions = []} = Astro.props;
 
 const homePitch = 'One TypeScript route → typed SDK, docs, OpenAPI, and MCP.';
+const tapeHeadline = splitHeadlineForTape(headline);
 ---
 
 <section class="splash-hero">
 	<h1 id={PAGE_TITLE_ID} class="sr-only" data-page-title set:html={title} />
-	{headline && <h2 class="splash-hero__headline">{headline}</h2>}
+	{tapeHeadline ? (
+		<h2 class="splash-hero__headline">
+			{tapeHeadline.before}
+			<span class="splash-hero__tape"><span class="splash-hero__tape-label">{tapeHeadline.phrase}</span></span>
+			{tapeHeadline.after}
+		</h2>
+	) : (
+		headline && <h2 class="splash-hero__headline">{headline}</h2>
+	)}
 	<p class="splash-hero__pitch">{homePitch}</p>
 	<SplashHeroActions actions={actions} />
 	<div class="splash-hero__stage">

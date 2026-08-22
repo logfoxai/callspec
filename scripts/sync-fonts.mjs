@@ -20,6 +20,7 @@ const fonts = [
     ],
     ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2', 'ibm-plex-mono-latin-400-normal.woff2'],
     ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2', 'ibm-plex-mono-latin-600-normal.woff2'],
+    ['@fontsource/caveat/files/caveat-latin-600-normal.woff2', 'caveat-latin-600-normal.woff2'],
 ];
 
 const retired = [

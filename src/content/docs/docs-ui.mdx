@@ -9,20 +9,15 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 
 <DemoScreenshot />
 
-## What people do here
+## Surfaces on this mount
 
-| Goal | How |
-|------|-----|
-| Try an RPC | Open a route → fill the form → run. Same validation and error codes as production HTTP. Sticky try-it panel on wide viewports. |
-| See the contract | Input/output schemas and declared domain errors on each route detail page; prev/next within the tag group. |
-| Find a route | Header search filters the sidebar (and route list) by name, summary, description, and tags. Press `/` to focus. |
-| Browse on mobile | Hamburger opens a full nav drawer (routes, search, theme). |
-| Connect an agent | Home page **MCP connect** panel — endpoint URL + Cursor/Claude-style snippets (`authHint` when bearer tools exist). |
-| Hand someone OpenAPI | `{mount}/openapi.json` is served next to the UI when docs are on — header buttons beside the theme toggle (and in the mobile nav drawer). |
-| Pin the Callspec contract | `{mount}/callspec.json` — what `npx callspec` reads for the TypeScript SDK. |
-| Install a client SDK | Optional `meta.sdkInstall` string on the home page with a copy button. |
+With docs enabled (default), each API mount exposes:
 
-**Home is always on** — title, version, route/MCP counts, optional SDK install hint, Browse API, and the MCP connect panel. Optional `meta.intro` is only the welcome blurb. Theme colors, navbar links, favicon, footer, and optional plain-text `notice`: [Branding](./docs-ui-branding.md). Route list is grouped by `tags`.
+- **Explorer** — `{mount}/docs` — try routes, inspect schemas and errors; home page MCP connect panel
+- **`callspec.json`** — `{mount}/callspec.json` — contract for `npx callspec` ([SDK generation](./sdk-generation.md))
+- **`openapi.json`** — `{mount}/openapi.json` — OpenAPI export ([OpenAPI](./openapi.md))
+
+Whitelabel title, theme, navbar, footer, MCP/auth hints, optional `meta.sdkInstall`: [Branding](./docs-ui-branding.md).
 
 ## Minimal setup
 

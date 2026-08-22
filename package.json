@@ -96,6 +96,7 @@
     "@astrojs/markdown-remark": "7.2.2",
     "@astrojs/starlight": "0.41.7",
     "@fontsource-variable/ibm-plex-sans": "5.3.0",
+    "@fontsource/caveat": "5.3.0",
     "@fontsource/ibm-plex-mono": "5.3.0",
     "@types/express": "^4.17.17",
     "@types/node": "^25.5.0",

@@ -2,7 +2,18 @@ import {test} from 'kizu';
 import {
 	INITIAL_SEARCH_PENDING_DELAY_STATE,
 	resolveSearchPendingDelayState,
+	shouldShowSearchPending,
 } from './searchPendingDelay.js';
+
+test('shouldShowSearchPending only while searching with no settled results', (assert) => {
+	assert.equal(shouldShowSearchPending('searching', false, false), true);
+	assert.equal(shouldShowSearchPending('searching', false, false, false), true);
+	assert.equal(shouldShowSearchPending('querying', false, false), false);
+	assert.equal(shouldShowSearchPending('searching', true, false), false);
+	assert.equal(shouldShowSearchPending('searching', false, true), false);
+	assert.equal(shouldShowSearchPending('results', false, false), false);
+	assert.equal(shouldShowSearchPending('searching', false, false, true), false);
+});
 
 test('resolveSearchPendingDelayState hides immediately when search settles', (assert) => {
 	const armed = resolveSearchPendingDelayState(INITIAL_SEARCH_PENDING_DELAY_STATE, true, false);

@@ -6,13 +6,25 @@
   "ignoreDependencies": [
     "@fontsource-variable/ibm-plex-sans",
     "@fontsource/ibm-plex-mono",
+    "@fontsource/caveat",
     "@pagefind/default-ui",
     "astro-expressive-code"
   ],
   "ignoreIssues": {
     "src/defineErrors.ts": ["types"],
     "src/splashHeroTypes.ts": ["types", "exports"],
-    "src/components/splashCtaIcons.ts": ["exports"]
+    "src/components/splashCtaIcons.ts": ["exports"],
+    "src/components/splashHeadlineTape.ts": ["exports"],
+    "src/components/searchPendingDelay.ts": ["exports"],
+    "src/components/searchStaleResults.ts": ["exports"],
+    "src/callspec-ui/ui/explorerFontsLib.ts": ["files"],
+    "src/callspec-ui/ui/loadingShell.ts": ["files"],
+    "src/integrations/assertAstroDevFree.ts": ["files"],
+    "src/integrations/cleanAstroCache.ts": ["files"],
+    "src/integrations/devServerNoise.ts": ["files"],
+    "src/integrations/pagefindShim.ts": ["files"],
+    "src/integrations/rehype-wrap-tables.ts": ["files"],
+    "src/integrations/remark-starlight-md-links.ts": ["files"]
   },
   "entry": [
     "src/callspec-ui/ui/main.ts",

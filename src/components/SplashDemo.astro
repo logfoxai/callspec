@@ -18,11 +18,17 @@ const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
 		</p>
 		<SplashHeroActions
 			actions={[
-				{text: 'See the demo', link: '/demo/', variant: 'primary'},
+				{
+					text: 'See the demo',
+					link: '/demo/',
+					variant: 'primary',
+					icon: {type: 'icon', name: 'laptop'},
+				},
 				{
 					text: 'Run it locally',
 					link: '/try-the-demo-locally/',
 					variant: 'secondary',
+					icon: {type: 'icon', name: 'laptop'},
 					attrs: {
 						title: 'Start the live Chirp API — execute routes and connect MCP',
 					},

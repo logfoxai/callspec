@@ -60,7 +60,7 @@
     --sl-color-hairline-light: var(--docs-border);
     --sl-color-hairline-shade: var(--docs-border);
 
-    --cs-inline-code-bg: hsl(228, 14%, 93%);
+    --cs-inline-code-bg: hsl(228, 16%, 92%);
     --cs-inline-code-border: transparent;
     --cs-inline-code-fg: hsl(228, 16%, 34%);
 
@@ -69,7 +69,7 @@
 
     --cs-table-head-bg: hsl(228, 22%, 96%);
     --cs-table-row-alt: hsl(228, 24%, 98.5%);
-    --cs-table-code-bg: hsl(228, 16%, 94%);
+    --cs-table-code-bg: hsl(228, 17%, 91%);
 }
 
 /* Primary CTAs — shared across splash hero, docs pages, and search idle chips */
@@ -475,6 +475,61 @@ html[data-has-sidebar] .main-frame {
 }
 
 /*
+ * Desktop “On this page” — delay Starlight’s 72rem TOC flip until 90rem.
+ * Mobile TOC lives inside .right-sidebar-container — never display:none that wrapper.
+ */
+@media (max-width: 89.99rem) {
+    html[data-has-toc] {
+        /* Starlight zeros this at 72rem; desktop TOC is delayed to 90rem below. */
+        --sl-mobile-toc-height: 3rem;
+    }
+
+    html[data-has-sidebar][data-has-toc] {
+        --__toc-width: 0rem;
+    }
+
+    html[data-has-sidebar][data-has-toc] .right-sidebar-panel {
+        display: none !important;
+    }
+
+    html[data-has-sidebar][data-has-toc] .right-sidebar-container {
+        flex: 0 0 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        overflow: visible;
+    }
+
+    html[data-has-sidebar][data-has-toc] .right-sidebar {
+        position: static;
+        width: auto !important;
+        height: auto !important;
+        padding-top: 0;
+        border: 0;
+        overflow: visible;
+    }
+}
+
+@media (min-width: 72rem) and (max-width: 89.99rem) {
+    html[data-has-sidebar][data-has-toc] .lg\:sl-hidden {
+        display: block !important;
+    }
+}
+
+html[data-has-toc] {
+    scroll-padding-top: calc(1.5rem + var(--sl-nav-height) + var(--sl-mobile-toc-height));
+}
+
+@media (min-width: 90rem) {
+    html[data-has-toc] {
+        scroll-padding-top: calc(1.5rem + var(--sl-nav-height));
+    }
+
+    html[data-has-sidebar][data-has-toc] .main-frame {
+        padding-top: calc(var(--sl-nav-height) + 1px);
+    }
+}
+
+/*
  * Guides <50rem: logo + Menu only.
  * Must be unlayered — Header.astro rules in @layer starlight.core lose to
  * Starlight’s unlayered .sl-flex { display: flex }.
@@ -628,16 +683,24 @@ header.header .social-icons a svg {
  * `* { margin: 0 }` wins and the modal sticks to the top-left.
  * Also kills the 15rem min-height shell that leaves a hollow void when idle / empty.
  */
+site-search dialog {
+    border: none;
+    outline: none;
+    user-select: none;
+}
+
+site-search dialog:focus,
+site-search dialog:focus-visible {
+    outline: none;
+}
+
 site-search dialog[open] {
-    --cs-search-field-bg: var(--sl-color-black);
-    background:
-        linear-gradient(
-            165deg,
-            color-mix(in srgb, var(--cs-search-modal-bg) 90%, var(--sl-color-accent-low)) 0%,
-            var(--cs-search-modal-bg) 48%,
-            color-mix(in srgb, var(--cs-search-modal-bg) 92%, black) 100%
-        );
-    border-color: color-mix(in srgb, var(--sl-color-gray-4) 75%, var(--sl-color-accent));
+    background: var(--cs-search-modal-bg);
+    box-shadow: var(--cs-search-modal-shadow);
+}
+
+site-search dialog .pagefind-ui__search-input {
+    user-select: text;
 }
 
 @media (min-width: 50rem) {
@@ -646,9 +709,6 @@ site-search dialog[open] {
         width: min(92vw, 36rem);
         max-width: 36rem;
         border-radius: 1rem;
-        box-shadow:
-            0 0 0 1px color-mix(in srgb, var(--sl-color-accent) 18%, transparent),
-            0 28px 80px hsl(228 40% 4% / 0.55);
     }
 
     site-search dialog[open]:not(:has(.pagefind-ui__result)) {
@@ -684,7 +744,7 @@ site-search dialog[open] .dialog-frame {
             (var(--cs-search-input-block-size) - var(--cs-search-icon-size)) / 2
     );
     left: calc(var(--cs-search-dialog-inset) + var(--cs-search-icon-inline-start));
-    --pagefind-ui-text: var(--sl-color-gray-1);
+    --pagefind-ui-text: var(--cs-muted);
     opacity: 1;
 }
 
@@ -694,6 +754,7 @@ site-search dialog[open] .dialog-frame {
     height: var(--cs-search-input-block-size);
     line-height: var(--cs-search-input-block-size);
     box-sizing: border-box;
+    color: var(--cs-search-field-fg);
     padding-inline-end: calc(
         var(--cs-search-clear-size) + var(--cs-search-clear-inline-end) + 0.15rem
     );
@@ -808,7 +869,7 @@ site-search dialog[open] .cs-search-idle {
     appearance: none;
     border: 0;
     border-radius: 0.55rem;
-    background: var(--cs-search-field-bg, var(--sl-color-black));
+    background: var(--cs-search-item-bg);
     color: var(--cs-ink);
     padding: 0.35rem 0.75rem;
     font: inherit;
@@ -828,8 +889,8 @@ site-search dialog[open] .cs-search-idle {
 .cs-search-idle__chips button:focus-visible,
 .cs-search-idle__chips button[data-cs-search-selected='true'] {
     border: 0;
-    background: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
-    color: var(--sl-color-white);
+    background: var(--cs-search-hover-bg);
+    color: var(--cs-search-hover-fg);
     outline: none;
 }
 
@@ -838,19 +899,18 @@ site-search dialog[open] .cs-search-idle {
 }
 
 site-search dialog::backdrop {
-    background:
-        radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--docs-primary-bg) 28%, transparent), transparent 55%),
-        hsl(228 24% 4% / 0.72);
+    background: hsl(228 24% 4% / 0.72);
     -webkit-backdrop-filter: blur(6px) saturate(1.15);
     backdrop-filter: blur(6px) saturate(1.15);
 }
 
 /* Pagefind field + results inside the dialog */
 [data-cs-pagefind-root] {
-    --cs-search-field-bg: var(--sl-color-black);
     --pagefind-ui-border-radius: 0.7rem;
     --pagefind-ui-scale: 0.92;
     --pagefind-ui-background: var(--cs-search-field-bg);
+    --pagefind-ui-text: var(--cs-search-result-fg);
+    --pagefind-ui-primary: var(--cs-search-result-fg);
     --pagefind-ui-border-width: 0;
     --pagefind-ui-border: transparent;
 }
@@ -868,28 +928,35 @@ site-search dialog::backdrop {
     width: 100%;
     gap: 0;
     padding: 0;
+    background-color: var(--cs-search-item-bg);
+    border-radius: var(--cs-search-card-radius);
+    overflow: hidden;
+}
+
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
+[data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-nested {
+    border-radius: 0;
 }
 
 html[data-theme='light'] [data-cs-pagefind-root] {
-    --cs-search-field-bg: hsl(0 0% 100%);
     --pagefind-ui-background: var(--cs-search-field-bg);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested {
-    background-color: var(--cs-search-field-bg);
+    background-color: var(--cs-search-item-bg);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button {
-    background: var(--cs-search-field-bg);
+    background: var(--cs-search-item-bg);
     border: 0;
     color: var(--cs-ink);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__button:hover {
-    background: color-mix(in srgb, var(--sl-color-accent) 22%, hsl(0 0% 100%));
+    background: var(--cs-search-hover-bg);
     border: 0;
-    color: var(--sl-color-black);
+    color: var(--cs-search-hover-fg);
 }
 
 html[data-theme='light']
@@ -899,7 +966,7 @@ html[data-theme='light']
 html[data-theme='light']
     [data-cs-pagefind-root]
     .pagefind-ui__result-nested:is(:hover, [data-cs-search-selected='true']) {
-    background-color: color-mix(in srgb, var(--sl-color-accent) 22%, hsl(0 0% 100%));
+    background-color: var(--cs-search-hover-bg);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title {
@@ -930,7 +997,7 @@ html[data-theme='light']
     position: static;
     font-size: 0.75rem;
     line-height: 1.35;
-    color: var(--sl-color-white);
+    color: var(--cs-search-result-fg);
     text-decoration: none;
 }
 
@@ -957,7 +1024,7 @@ html[data-theme='light']
     font-size: 0.6875rem;
     font-weight: 400;
     line-height: 1.45;
-    color: var(--pagefind-ui-text, var(--sl-color-gray-2));
+    color: var(--docs-text-secondary);
     display: -webkit-box;
     /* autoprefixer strips bare -webkit-box-orient; keep line-clamp working in prod builds. */
     /* autoprefixer: ignore next */
@@ -989,18 +1056,18 @@ html[data-theme='light']
     .pagefind-ui__result-inner
     > .pagefind-ui__result-title:is(:hover, [data-cs-search-selected='true'])
     mark {
-    color: var(--sl-color-white);
+    color: var(--cs-search-hover-fg);
 }
 
 [data-cs-pagefind-root]
     .pagefind-ui__result-inner
     > .pagefind-ui__result-title:is(:hover, [data-cs-search-selected='true'])::before {
-    background: #fff;
+    background: var(--cs-search-hover-fg);
 }
 
 [data-cs-pagefind-root]
     .pagefind-ui__result-nested:is(:hover, [data-cs-search-selected='true'])::before {
-    background: #fff;
+    background: var(--cs-search-hover-fg);
 }
 
 html[data-theme='light']
@@ -1025,7 +1092,7 @@ html[data-theme='light']
     .pagefind-ui__result-inner
     > .pagefind-ui__result-title:is(:hover, [data-cs-search-selected='true'])
     mark {
-    color: var(--sl-color-white);
+    color: var(--cs-search-hover-fg);
 }
 
 html[data-theme='light']
@@ -1035,27 +1102,22 @@ html[data-theme='light']
 html[data-theme='light']
     [data-cs-pagefind-root]
     .pagefind-ui__result-nested:is(:hover, [data-cs-search-selected='true'])::before {
-    background: #fff;
+    background: var(--cs-search-hover-fg);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title .pagefind-ui__result-link {
-    color: var(--sl-color-white);
+    color: var(--cs-search-result-fg);
     text-decoration: none;
-}
-
-html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title .pagefind-ui__result-link,
-html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested .pagefind-ui__result-link {
-    color: var(--sl-color-black);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title,
 [data-cs-pagefind-root] .pagefind-ui__result-nested {
-    background-color: var(--cs-search-field-bg);
+    background-color: var(--cs-search-item-bg);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__result-inner > .pagefind-ui__result-title:is(:hover, [data-cs-search-selected='true']),
 [data-cs-pagefind-root] .pagefind-ui__result-nested:is(:hover, [data-cs-search-selected='true']) {
-    background-color: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
+    background-color: var(--cs-search-hover-bg);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-input {
@@ -1063,7 +1125,7 @@ html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested .pa
     letter-spacing: -0.01em;
     border: 0;
     background-color: var(--cs-search-field-bg);
-    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
+    box-shadow: none;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-input::placeholder {
@@ -1075,9 +1137,7 @@ html[data-theme='light'] [data-cs-pagefind-root] .pagefind-ui__result-nested .pa
     outline: none;
     border: 0;
     background-color: var(--cs-search-field-bg);
-    box-shadow:
-        0 0 0 1px var(--sl-color-accent),
-        inset 0 1px 0 hsl(0 0% 100% / 0.04);
+    box-shadow: none;
 }
 
 [data-cs-pagefind-root] .pagefind-ui__search-clear:hover {
@@ -1266,22 +1326,10 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .page
     overflow-y: auto;
 }
 
-site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner,
-site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner > .pagefind-ui__result-title,
-site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data-cs-search-stale]:not([hidden]) .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner,
-site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data-cs-search-stale]:not([hidden]) .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner > .pagefind-ui__result-title,
-[data-cs-pagefind-root] .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner,
-[data-cs-pagefind-root] .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner > .pagefind-ui__result-title,
-[data-cs-pagefind-root] [data-cs-search-stale]:not([hidden]) .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner,
-[data-cs-pagefind-root] [data-cs-search-stale]:not([hidden]) .pagefind-ui__results > .pagefind-ui__result:first-child .pagefind-ui__result-inner > .pagefind-ui__result-title {
-    border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
-}
-
 [data-cs-pagefind-root] .pagefind-ui__button[data-cs-search-selected='true'] {
     border: 0;
-    background: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
-    color: var(--sl-color-white);
+    background: var(--cs-search-hover-bg);
+    color: var(--cs-search-hover-fg);
 }
 
 /*
@@ -1297,7 +1345,7 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
     padding: 0.55rem 1.1rem;
     border: 0;
     border-radius: 0.55rem;
-    background: var(--cs-search-field-bg);
+    background: var(--cs-search-item-bg);
     color: var(--cs-ink);
     font-family: var(--sl-font);
     font-size: 0.8125rem;
@@ -1311,8 +1359,8 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
 
 [data-cs-pagefind-root] .pagefind-ui__button:hover {
     border: 0;
-    background: color-mix(in srgb, var(--sl-color-accent) 28%, var(--sl-color-accent-low));
-    color: var(--sl-color-white);
+    background: var(--cs-search-hover-bg);
+    color: var(--cs-search-hover-fg);
 }
 
 [data-cs-pagefind-root] .pagefind-ui__results > * + * {
@@ -1456,7 +1504,7 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
     gap: 0;
     width: 100%;
     overflow: hidden;
-    border-radius: 0.75rem;
+    border-radius: var(--cs-search-card-radius);
 }
 
 .cs-search-pending__title,
@@ -1464,7 +1512,8 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
     position: relative;
     width: 100%;
     box-sizing: border-box;
-    background: var(--cs-search-field-bg, var(--sl-color-black));
+    background: var(--cs-search-item-bg);
+    border-radius: 0;
 }
 
 .cs-search-pending__title {
@@ -1513,16 +1562,6 @@ site-search dialog[open]:has(.pagefind-ui__result) [data-cs-pagefind-root] [data
 .cs-search-pending__nested--last::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='M8 0v8m6 0H8'/%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='M8 0v8m6 0H8'/%3E%3C/svg%3E");
-}
-
-.cs-search-pending__inner > :first-child {
-    border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
-}
-
-.cs-search-pending__inner > :last-child {
-    border-bottom-left-radius: 0.75rem;
-    border-bottom-right-radius: 0.75rem;
 }
 
 .cs-search-pending__bar {
@@ -1690,36 +1729,23 @@ html[data-theme='light'] .cs-search-loading__field {
 }
 
 html[data-theme='light'] site-search dialog[open] {
-    --cs-search-field-bg: hsl(0 0% 100%);
-    background:
-        linear-gradient(
-            165deg,
-            #fff 0%,
-            var(--cs-search-modal-bg) 52%,
-            color-mix(in srgb, var(--cs-search-modal-bg) 96%, var(--sl-color-accent-low)) 100%
-        );
-    border-color: var(--sl-color-gray-5);
-    box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--docs-primary-bg) 18%, transparent),
-        0 24px 60px hsl(228 30% 30% / 0.18);
+    background: var(--cs-search-modal-bg);
 }
 
 html[data-theme='light'] site-search dialog::backdrop {
-    background:
-        radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--docs-primary-bg) 18%, transparent), transparent 55%),
-        hsl(228 20% 20% / 0.35);
+    background: hsl(228 20% 20% / 0.35);
 }
 
 html[data-theme='light'] .cs-search-idle__chips button {
-    background: var(--cs-search-field-bg, hsl(0 0% 100%));
+    background: var(--cs-search-item-bg);
     color: var(--cs-ink);
 }
 
 html[data-theme='light'] .cs-search-idle__chips button:hover,
 html[data-theme='light'] .cs-search-idle__chips button:focus-visible,
 html[data-theme='light'] .cs-search-idle__chips button[data-cs-search-selected='true'] {
-    background: color-mix(in srgb, var(--sl-color-accent) 22%, hsl(0 0% 100%));
-    color: var(--sl-color-black);
+    background: var(--cs-search-hover-bg);
+    color: var(--cs-search-hover-fg);
 }
 
 html[data-theme='light'] [data-cs-pagefind-root]:has(.pagefind-ui__results:not(:has(.pagefind-ui__result))) .pagefind-ui__message {
@@ -2259,8 +2285,8 @@ html[data-theme='light'] .expressive-code {
 }
 
 /*
- * Guide layout — full-width main column, TOC flush right, article centered.
- * Starlight's `--sl-content-margin-inline: auto` does not work through var() (computes as 0).
+ * Guide layout — full-width main column, article centered from 72rem.
+ * Right TOC column joins at 90rem (see TOC delay rules above).
  */
 @media (min-width: 72rem) {
     html[data-has-sidebar][data-has-toc] .lg\:sl-flex {
@@ -2274,18 +2300,26 @@ html[data-theme='light'] .expressive-code {
         max-width: none;
     }
 
+    html[data-has-sidebar] .main-pane .content-panel .sl-container {
+        margin-inline: auto;
+    }
+}
+
+@media (min-width: 90rem) {
     html[data-has-sidebar][data-has-toc] .right-sidebar-container {
         flex: 0 0 var(--sl-sidebar-width);
         width: var(--sl-sidebar-width) !important;
+        overflow: hidden;
     }
 
     html[data-has-sidebar][data-has-toc] .right-sidebar {
+        position: fixed;
         inset-inline: auto 0;
         width: var(--sl-sidebar-width);
-    }
-
-    html[data-has-sidebar] .main-pane .content-panel .sl-container {
-        margin-inline: auto;
+        height: 100vh;
+        padding-top: var(--sl-nav-height);
+        border-inline-start: 1px solid var(--sl-color-hairline);
+        overflow-y: auto;
     }
 
     html[data-has-sidebar] .right-sidebar-panel .sl-container {
@@ -2315,46 +2349,24 @@ html[data-has-sidebar] .pagination-links a {
     border-radius: calc(var(--cs-radius) - 0.15rem);
     padding: 1rem 1.15rem;
     box-shadow: none;
+    background: var(--cs-table-bg);
     color: var(--cs-muted);
     transition:
         background 0.15s ease,
         color 0.15s ease;
 }
 
-html[data-has-sidebar] .pagination-links a[rel='prev'] {
-    background: linear-gradient(
-        to left,
-        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 0%,
-        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 48%,
-        color-mix(in srgb, var(--cs-ink) 8%, var(--cs-table-bg))
-    );
+html[data-has-sidebar] .pagination-links a:hover {
+    background: var(--cs-pagination-hover-bg);
+    color: var(--cs-muted);
 }
 
-html[data-has-sidebar] .pagination-links a[rel='next'] {
-    background: linear-gradient(
-        to right,
-        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 0%,
-        color-mix(in srgb, var(--cs-primary-bg) 12%, var(--cs-table-bg)) 48%,
-        color-mix(in srgb, var(--cs-ink) 8%, var(--cs-table-bg))
-    );
+html[data-theme='light'][data-has-sidebar] .pagination-links a {
+    background: var(--docs-code-bg);
 }
 
-html[data-has-sidebar] .pagination-links a[rel='prev']:hover {
-    background: linear-gradient(
-        to left,
-        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 0%,
-        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
-        color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
-    );
-}
-
-html[data-has-sidebar] .pagination-links a[rel='next']:hover {
-    background: linear-gradient(
-        to right,
-        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 0%,
-        color-mix(in srgb, var(--cs-primary-bg) 18%, var(--cs-table-bg)) 48%,
-        color-mix(in srgb, var(--cs-ink) 12%, var(--cs-table-bg))
-    );
+html[data-theme='light'][data-has-sidebar] .pagination-links a:hover {
+    background: var(--cs-pagination-hover-bg);
 }
 
 html[data-has-sidebar] .pagination-links a > span {
@@ -2375,10 +2387,6 @@ html[data-has-sidebar] .pagination-links .link-title {
     line-height: 1.3;
     text-transform: none;
     transition: color 0.15s ease;
-}
-
-html[data-has-sidebar] .pagination-links a:hover .link-title {
-    color: var(--sl-color-text-accent);
 }
 
 html[data-has-sidebar] .pagination-links svg {

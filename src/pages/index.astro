@@ -7,8 +7,17 @@ import SplashFeatures from '../components/SplashFeatures.astro';
 import SplashDemo from '../components/SplashDemo.astro';
 
 const actions = [
-	{text: 'Get started', link: '/getting-started/'},
-	{text: 'See the demo', link: '/demo/', variant: 'secondary' as const},
+	{
+		text: 'Get started',
+		link: '/getting-started/',
+		icon: {type: 'icon', name: 'open-book'},
+	},
+	{
+		text: 'See the demo',
+		link: '/demo/',
+		variant: 'secondary' as const,
+		icon: {type: 'icon', name: 'laptop'},
+	},
 ];
 ---
 

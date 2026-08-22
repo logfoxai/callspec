@@ -23,11 +23,6 @@ test('bindPagefindMount gives each site-search its own Pagefind selector', (asse
 	);
 	assert.equal(header.id, 'starlight__search-1');
 	assert.equal(mobile.id, 'starlight__search-2');
-	assert.equal(
-		header.id === mobile.id,
-		false,
-		'header + mobile Search must not share #starlight__search',
-	);
 });
 
 test('bindPagefindMount returns null when this instance has no mount', (assert) => {

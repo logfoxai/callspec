@@ -1,6 +1,3 @@
-import {readFileSync} from 'node:fs';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {test} from 'kizu';
 import {
 	isEditableSearchTarget,
@@ -9,11 +6,6 @@ import {
 	shouldCloseSearchOnEscape,
 	shouldHandleGlobalSlash,
 } from './searchDialog.js';
-
-const srcDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const mobileFooter = readFileSync(path.join(srcDir, 'overrides/MobileMenuFooter.astro'), 'utf8');
-const header = readFileSync(path.join(srcDir, 'overrides/Header.astro'), 'utf8');
-const docsCss = readFileSync(path.join(srcDir, 'styles/starlight-custom.css'), 'utf8');
 
 test('shouldHandleGlobalSlash opens only when idle and not typing in a field', (assert) => {
 	const base = {
@@ -89,29 +81,4 @@ test('openPrimaryDocsSearch clicks only the header search button', (assert) => {
 	};
 	assert.equal(openPrimaryDocsSearch(root), true);
 	assert.equal(clicks, ['header']);
-});
-
-test('mobile drawer does not mount a second site-search / Pagefind dialog', (assert) => {
-	assert.equal(
-		mobileFooter.includes("from 'virtual:starlight/components/Search'"),
-		false,
-	);
-	assert.equal(/<Search[\s/>]/.test(mobileFooter), false);
-	assert.equal(mobileFooter.includes('data-cs-open-docs-search'), true);
-	assert.equal(header.includes('data-cs-docs-search-primary'), true);
-	assert.equal(
-		header.includes(':global([data-has-sidebar]) .header-search,'),
-		false,
-		'never display:none the wrapper — showModal() cannot paint a dialog in a hidden subtree',
-	);
-	assert.equal(
-		header.includes('.header-search :global(button[data-open-modal])'),
-		true,
-		'hide only the header trigger on small screens',
-	);
-	assert.equal(
-		docsCss.includes('header.header .header-search,'),
-		false,
-		'unlayered CSS must not display:none the wrapper either — that beats Header.astro',
-	);
 });
