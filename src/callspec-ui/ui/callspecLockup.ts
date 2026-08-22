@@ -63,9 +63,10 @@ export function renderCallspecLockup(options: CallspecLockupOptions): string {
     const extraAttrs = Object.entries(options.attrs ?? {})
         .map(([key, value]) => ` ${escapeAttr(key)}="${escapeAttr(value)}"`)
         .join('');
+    const holesAttr = options.holes === 'overlay' ? ' data-holes="overlay"' : '';
 
     return [
-        `<a href="${escapeAttr(options.href)}" class="${className}" translate="no"${extraAttrs}>`,
+        `<a href="${escapeAttr(options.href)}" class="${className}" translate="no"${holesAttr}${extraAttrs}>`,
         options.holes === 'overlay'
             ? renderCallspecLockupMarkOverlay()
             : renderCallspecLockupMark(options.maskId),

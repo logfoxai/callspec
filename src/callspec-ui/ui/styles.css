@@ -42,8 +42,8 @@
 }
 
 :root {
-    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
-    --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    --mono: var(--font-mono);
+    --sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --sidebar: 18.75rem;
     --sidebar-pad-x: var(--docs-sidebar-pad-x);
     /* Nest rail — Starlight --sl-sidebar-item-padding-inline */
@@ -1088,19 +1088,6 @@ body > .footer {
     background: transparent;
     font-size: 0.9rem;
     color: var(--text-tertiary);
-}
-
-.content > .footer .cs-lockup__mark {
-    width: 1.8rem;
-    height: 1.8rem;
-}
-
-.content > .footer .cs-eq {
-    fill: var(--docs-bg);
-}
-
-.content > .footer .cs-lockup__word {
-    font-size: 1.3rem;
 }
 
 .footer-label {

@@ -90,6 +90,17 @@ test('docs highlight aliases the primary fill token', (assert) => {
 
 });
 
+test('lockup mark svg is block-level so explorer matches docs alignment', (assert) => {
+
+    const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
+
+    assert.equal(shared.includes('.cs-lockup__mark {\n    display: block;'), true);
+    assert.equal(shared.includes('.cs-lockup__mark svg'), false);
+    assert.equal(shared.includes("--cs-lockup-word-size: 1.3rem"), true);
+    assert.equal(shared.includes(".cs-lockup[data-holes='overlay'] .cs-eq"), true);
+
+});
+
 test('powered-by footer is placed in .content', (assert) => {
 
     const place = readFileSync(path.join(root, 'src/callspec-ui/ui/poweredByFooter.ts'), 'utf8');

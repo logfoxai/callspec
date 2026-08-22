@@ -3,6 +3,7 @@
  * Marketing homepage hero — headline, pitch, lead, and pile graphic.
  */
 import SplashHeroActions from './SplashHeroActions.astro';
+import SplashFeatures from './SplashFeatures.astro';
 import SplashPile from './SplashPile.astro';
 import type {SplashHeroActionList} from '../splashHeroTypes';
 import {splitHeadlineForTape} from './splashHeadlineTape';
@@ -19,6 +20,10 @@ const {title, headline, actions = []} = Astro.props;
 
 const homePitch = 'One TypeScript route → typed SDK, docs, OpenAPI, and MCP.';
 const tapeHeadline = splitHeadlineForTape(headline);
+
+/** Absurd REST path — the pile graphic is what you get when you bikeshed URLs instead of RPC. */
+const heroRestPath =
+	'/api/v2/orgs/acme-corp/teams/platform/products/catalog/items/12345/variants/67890/inventory/snapshots/latest?include=openapi,docs,sdk,mcp,validators,types&expand=errors,metadata&fields=id,name,sku,price,currency,stock,warehouse,supplier,audit&filter[status]=active&sort=-updated_at&page[size]=50&page[cursor]=eyJpZCI6ImN1cnNvciJ9';
 ---
 
 <section class="splash-hero">
@@ -34,17 +39,34 @@ const tapeHeadline = splitHeadlineForTape(headline);
 	)}
 	<p class="splash-hero__pitch">{homePitch}</p>
 	<SplashHeroActions actions={actions} />
+	<SplashFeatures />
 	<div class="splash-hero__stage">
-		<div class="splash-hero__lead">
-			<p>
-				Most teams duct-tape the same API across REST routes, OpenAPI specs, DIY clients, 
-				docs, types, validators and MCP. That's a ton of repetitive work and brittle code that drifts.</p>
-			<p>
-				Instead, define each route once in TypeScript — inputs, outputs, and errors — and Callspec ships the server, SDK, docs, OpenAPI, and MCP from that contract. One source of truth, unit-testable, no drift.
-			</p>
-		</div>
-		<div class="splash-hero__visual">
-			<SplashPile />
+		<div class="splash-hero__band">
+			<div class="splash-hero__lead">
+				<p>
+					Most teams duct-tape the same API across REST routes, OpenAPI specs, DIY clients,
+					docs, types, validators and MCP. That's a ton of repetitive work and brittle code that drifts.
+				</p>
+			</div>
+			<figure class="splash-hero__browser">
+				<div class="splash-hero__chrome">
+					<span class="splash-hero__dots" aria-hidden="true"></span>
+					<div class="splash-hero__url">
+						<span class="splash-hero__method">GET</span>
+						<span class="splash-hero__path">{heroRestPath}</span>
+					</div>
+				</div>
+				<div class="splash-hero__viewport">
+					<SplashPile />
+				</div>
+			</figure>
+			<div class="splash-hero__follow">
+				<p>
+					Instead, define each route once in TypeScript — inputs, outputs, and errors — and Callspec
+					ships the server, SDK, docs, OpenAPI, and MCP from that contract. One source of truth,
+					unit-testable, no drift.
+				</p>
+			</div>
 		</div>
 	</div>
 </section>

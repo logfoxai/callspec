@@ -4,8 +4,7 @@
     "report"
   ],
   "ignoreDependencies": [
-    "@fontsource-variable/geist",
-    "@fontsource/jetbrains-mono",
+    "@fontsource-variable/inter",
     "@fontsource/caveat",
     "@pagefind/default-ui",
     "astro-expressive-code",

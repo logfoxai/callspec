@@ -9,8 +9,8 @@
 
 :root,
 ::backdrop {
-    --sl-font: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-    --sl-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+    --sl-font: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --sl-font-mono: var(--font-mono);
     --sl-color-accent-low: color-mix(in srgb, var(--docs-primary-bg) 22%, var(--docs-bg));
     --sl-color-accent: var(--docs-primary-bg);
     --sl-color-accent-high: var(--docs-primary-bg);
@@ -145,7 +145,6 @@ html[data-has-sidebar] .content-panel:first-of-type h1,
 html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, h4),
 .splash-hero__headline,
 .splash-how__title,
-.splash-features__heading,
 .splash-features__title,
 .splash-demo__title,
 .splash-sdk__title,

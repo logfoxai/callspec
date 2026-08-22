@@ -18,7 +18,7 @@ const features = [
 		tone: 'cyan',
 		title: 'RPC routes',
 		copy:
-			'Methods like getProductById — not <a href="https://katcipis.github.io/blog/restless-restful/" target="_blank" rel="noopener noreferrer">bikeshedding REST</a>.',
+			'Methods like getProductById — not <a href="https://leehanchung.github.io/blogs/2025/05/17/mcp-is-not-rest-api/" target="_blank" rel="noopener noreferrer">bikeshedding REST</a>.',
 		copyHtml: true,
 		icon: 'rpc',
 		wideOnly: false,
@@ -54,8 +54,7 @@ const features = [
 }>;
 ---
 
-<section class="splash-features" aria-labelledby="splash-features-title">
-	<h2 id="splash-features-title" class="splash-features__heading">Why Callspec</h2>
+<section class="splash-features" aria-label="Product highlights">
 	<ul class="splash-features__list">
 		{
 			features.map(({tone, title, copy, copyHtml, icon, wideOnly}) => (
@@ -65,7 +64,7 @@ const features = [
 							<SplashIcon name={icon} />
 						</span>
 					</span>
-					<h2 class="splash-features__title">{title}</h2>
+					<h3 class="splash-features__title">{title}</h3>
 					{
 						copyHtml ? (
 							<p class="splash-features__copy splash-features__copy--rpc" set:html={copy} />

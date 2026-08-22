@@ -72,6 +72,7 @@
     "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run sync:fonts && npm run astro:build && node scripts/assert-chirp-static-demo.mjs && node scripts/assert-404-page.mjs && node scripts/assert-splash-page.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
     "highlight.js": "11.11.1",
     "jsout": "^5.0.0-next.3",
     "jsout-express": "^1.1.9",
@@ -95,9 +96,7 @@
   "devDependencies": {
     "@astrojs/markdown-remark": "7.2.2",
     "@astrojs/starlight": "0.41.7",
-    "@fontsource-variable/geist": "5.3.0",
     "@fontsource/caveat": "5.3.0",
-    "@fontsource/jetbrains-mono": "5.3.0",
     "@types/express": "^4.17.17",
     "@types/node": "^25.5.0",
     "astro": "7.2.0",

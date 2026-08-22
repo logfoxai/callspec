@@ -38,7 +38,7 @@ body:has(#app.loading) > .footer {
     align-items: center;
     gap: 1.15rem;
     color: #d8dbe6;
-    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     opacity: 0;
     transform: scale(0.92);
     animation: cs-boot-enter 0.55s ease 0.4s both;
@@ -63,21 +63,17 @@ html[data-theme='light'] .cs-boot {
     animation: none;
     transform: none;
 }
-.cs-boot .cs-lockup__mark svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
 .cs-boot .cs-lockup__word {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     font-size: 2rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
     color: inherit;
     display: flex;
     align-items: center;
     height: var(--cs-lockup-mark-size);
     line-height: 1;
+    transform: translateY(-0.06em);
 }
 .cs-boot .cs-hex {
     fill: currentColor;

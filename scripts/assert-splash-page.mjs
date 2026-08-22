@@ -31,6 +31,8 @@ const required = [
 	'Built for coding agents',
 	'Typed SDK from the same spec',
 	'Stop duct-taping your API stack.',
+	'splash-hero__browser',
+	'/api/v2/orgs/acme-corp/teams/platform/products/catalog/items/',
 	'/getting-started/',
 	'/demo/',
 	'/try-the-demo-locally/',
