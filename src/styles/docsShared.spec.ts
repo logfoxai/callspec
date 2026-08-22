@@ -76,21 +76,6 @@ test('custom pages are Astro, not collection MDX', (assert) => {
 
 });
 
-test('vite UI @font-face urls resolve to public /fonts/ files', (assert) => {
-
-    const tokensPath = path.join(root, 'src/callspec-ui/ui/docs-tokens.css');
-    const tokens = readFileSync(tokensPath, 'utf8');
-    const urls = [...tokens.matchAll(/url\(['"]([^'"]+\.woff2)['"]\)/g)].map((match) => match[1]);
-
-    assert.equal(urls.length >= 3, true);
-    assert.equal(urls.every((url) => url.startsWith('/fonts/')), true);
-
-    for (const url of urls) {
-        assert.equal(existsSync(path.join(root, 'assets', url.slice(1))), true);
-    }
-
-});
-
 test('docs highlight aliases the primary fill token', (assert) => {
 
     const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');

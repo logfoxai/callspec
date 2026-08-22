@@ -15,17 +15,30 @@ const destDir = path.join(root, 'assets/fonts');
 
 const fonts = [
     [
-        '@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2',
-        'ibm-plex-sans-latin-wght-normal.woff2',
+        '@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2',
+        'plus-jakarta-sans-latin-wght-normal.woff2',
     ],
-    ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2', 'ibm-plex-mono-latin-400-normal.woff2'],
-    ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2', 'ibm-plex-mono-latin-600-normal.woff2'],
+    [
+        '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2',
+        'geist-latin-wght-normal.woff2',
+    ],
+    [
+        '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2',
+        'jetbrains-mono-latin-400-normal.woff2',
+    ],
+    [
+        '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2',
+        'jetbrains-mono-latin-600-normal.woff2',
+    ],
     ['@fontsource/caveat/files/caveat-latin-600-normal.woff2', 'caveat-latin-600-normal.woff2'],
 ];
 
 const retired = [
     'inter-latin-wght-normal.woff2',
     'space-grotesk-latin-wght-normal.woff2',
+    'ibm-plex-sans-latin-wght-normal.woff2',
+    'ibm-plex-mono-latin-400-normal.woff2',
+    'ibm-plex-mono-latin-600-normal.woff2',
 ];
 
 fs.mkdirSync(destDir, {recursive: true});

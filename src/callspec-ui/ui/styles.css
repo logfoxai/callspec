@@ -42,8 +42,8 @@
 }
 
 :root {
-    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
-    --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+    --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
     --sidebar: 18.75rem;
     --sidebar-pad-x: var(--docs-sidebar-pad-x);
     /* Nest rail — Starlight --sl-sidebar-item-padding-inline */

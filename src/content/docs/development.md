@@ -7,12 +7,12 @@ This page is for **working in this repo** (library, guide site, explorer UI). To
 ```bash
 npm install
 npm run validate       # build, lint, knip, typecheck:routes, test + coverage, astro:build
-npm run astro:dev      # guide site + search + HMR — http://127.0.0.1:4321 (refuses if that port is taken; then wipes caches)
+npm run astro:dev      # guide site + search + HMR — http://127.0.0.1:4321 (or next free port up to 4330)
 npm run astro:build    # static site → docs-site/ (+ hosted Chirp explorer at /demo/)
 npm run astro:build:pagefind  # rebuild docs-site + search index while astro:dev keeps running
 ```
 
-`astro:dev` and `astro:build` fail if something is already bound to **4321**. Live Chirp (try-it + MCP) is `npm run serve:chirp-demo` — documented on [Try the demo locally](./try-the-demo-locally.md).
+`astro:dev` wipes compiler caches on start (after the port check). `astro:build` and `npm run validate` do **not** — they only refuse to run while dev is listening on **4321–4330**, so they never delete `.astro` out from under a live session. Use `npm run astro:build:pagefind` to rebuild search while dev keeps running. Live Chirp (try-it + MCP) is `npm run serve:chirp-demo` — documented on [Try the demo locally](./try-the-demo-locally.md).
 
 ## Guide site vs `/demo/`
 

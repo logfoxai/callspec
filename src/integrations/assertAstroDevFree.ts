@@ -3,6 +3,9 @@ import net from 'node:net';
 /** Starlight default — documented in development.md as http://127.0.0.1:4321 */
 export const ASTRO_DEV_PORT = 4321;
 
+/** Astro increments when 4321 is taken — scan the usual fallback range. */
+export const ASTRO_DEV_PORT_MAX = 4330;
+
 export function portInUse(port: number): Promise<boolean> {
     return new Promise((resolve) => {
         const socket = net.connect({port, host: '127.0.0.1'});
@@ -16,10 +19,43 @@ export function portInUse(port: number): Promise<boolean> {
     });
 }
 
-export async function assertAstroDevFree(port: number = ASTRO_DEV_PORT): Promise<void> {
-    if (await portInUse(port)) {
-        throw new Error(
-            `Astro is already running on http://127.0.0.1:${port}. Stop that process before starting another — a second astro:dev wipes .astro and Starlight then reports missing sidebar slugs.`,
-        );
+export async function astroDevPortsInUse(
+    from: number = ASTRO_DEV_PORT,
+    to: number = ASTRO_DEV_PORT_MAX,
+): Promise<number[]> {
+    const busy: number[] = [];
+
+    for (let port = from; port <= to; port++) {
+        if (await portInUse(port)) {
+            busy.push(port);
+        }
+    }
+
+    return busy;
+}
+
+function astroDevBusyMessage(ports: number[]): string {
+    const primary = ports[0];
+    const also = ports.length > 1 ? ` (also ${ports.slice(1).join(', ')})` : '';
+
+    return (
+        `Astro dev appears to be running on http://127.0.0.1:${primary}${also}. ` +
+        'Stop it before starting another or running astro:build — wiping .astro while dev is up breaks Starlight sidebar slugs.'
+    );
+}
+
+export async function assertAstroDevFree(port?: number): Promise<void> {
+    if (port !== undefined) {
+        if (await portInUse(port)) {
+            throw new Error(astroDevBusyMessage([port]));
+        }
+
+        return;
+    }
+
+    const busy = await astroDevPortsInUse();
+
+    if (busy.length > 0) {
+        throw new Error(astroDevBusyMessage(busy));
     }
 }

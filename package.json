@@ -67,11 +67,12 @@
     "serve:chirp-demo": "node scripts/serve-chirp-demo.cjs",
     "astro:sync": "astro sync",
     "astro:dev": "node scripts/assert-astro-dev-free.mjs && node scripts/clean-astro-cache.mjs && astro sync && node scripts/build-chirp-static-demo.cjs && astro dev",
-    "astro:build": "node scripts/assert-astro-dev-free.mjs && node scripts/clean-astro-cache.mjs && astro sync && node scripts/build-chirp-static-demo.cjs && astro build && node scripts/write-cs-pagefind-shim.mjs",
+    "astro:build": "node scripts/assert-astro-dev-free.mjs && astro sync && node scripts/build-chirp-static-demo.cjs && astro build && node scripts/write-cs-pagefind-shim.mjs",
     "astro:build:pagefind": "astro sync && node scripts/build-chirp-static-demo.cjs && astro build && node scripts/write-cs-pagefind-shim.mjs",
     "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run sync:fonts && npm run astro:build && node scripts/assert-chirp-static-demo.mjs && node scripts/assert-404-page.mjs && node scripts/assert-splash-page.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "highlight.js": "11.11.1",
     "jsout": "^5.0.0-next.3",
     "jsout-express": "^1.1.9",
@@ -95,9 +96,9 @@
   "devDependencies": {
     "@astrojs/markdown-remark": "7.2.2",
     "@astrojs/starlight": "0.41.7",
-    "@fontsource-variable/ibm-plex-sans": "5.3.0",
+    "@fontsource-variable/geist": "5.3.0",
     "@fontsource/caveat": "5.3.0",
-    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
     "@types/express": "^4.17.17",
     "@types/node": "^25.5.0",
     "astro": "7.2.0",

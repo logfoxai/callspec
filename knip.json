@@ -4,8 +4,9 @@
     "report"
   ],
   "ignoreDependencies": [
-    "@fontsource-variable/ibm-plex-sans",
-    "@fontsource/ibm-plex-mono",
+    "@fontsource-variable/geist",
+    "@fontsource-variable/plus-jakarta-sans",
+    "@fontsource/jetbrains-mono",
     "@fontsource/caveat",
     "@pagefind/default-ui",
     "astro-expressive-code"

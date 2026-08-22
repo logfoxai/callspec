@@ -117,9 +117,10 @@ export function publicFontRel(pathname: string): string | null {
 }
 
 const DEMO_STALE_FONTS = new Set([
-    'ibm-plex-sans-latin-wght-normal.woff2',
-    'ibm-plex-mono-latin-400-normal.woff2',
-    'ibm-plex-mono-latin-600-normal.woff2',
+    'plus-jakarta-sans-latin-wght-normal.woff2',
+    'geist-latin-wght-normal.woff2',
+    'jetbrains-mono-latin-400-normal.woff2',
+    'jetbrains-mono-latin-600-normal.woff2',
     'caveat-latin-600-normal.woff2',
 ]);
 

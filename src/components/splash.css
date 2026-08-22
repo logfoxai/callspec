@@ -45,18 +45,26 @@ html:not([data-has-sidebar]):has(.splash-page) {
         --cs-line: #2a2f3c;
         --splash-demo-bg: hsl(220 14% 12%);
         --splash-demo-stripe: hsl(220 12% 16% / 0.85);
-        --splash-secondary-border: hsl(228 10% 38%);
-        --splash-secondary-bg: hsl(228 14% 22%);
+        --splash-hero-secondary-bg: hsl(228 14% 26%);
+        --splash-demo-secondary-bg: hsl(228 12% 32%);
+        --splash-primary-hover-bg: hsl(262 58% 72%);
+        --splash-primary-hover-fg: hsl(262 28% 8%);
+        --splash-primary-shadow:
+            inset 0 1px 0 hsl(0 0% 100% / 0.2),
+            0.1rem 0.1rem 0 0 hsl(262 30% 28%);
+        --splash-primary-shadow-hover:
+            0.1rem 0.1rem 0 0 hsl(262 26% 20%);
+        --splash-primary-shadow-active:
+            0.05rem 0.05rem 0 0 hsl(262 28% 24%);
         --splash-secondary-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.16),
-            0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 36%, #0a0612),
-            0.22rem 0.28rem 1.15rem hsl(228 32% 4% / 0.42);
+            0.1rem 0.1rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 22%, #0a0612),
+            0.12rem 0.16rem 0.7rem hsl(228 32% 4% / 0.22);
         --splash-secondary-shadow-hover:
-            0.16rem 0.16rem 0 0 color-mix(in srgb, var(--splash-secondary-hover-bg) 52%, #0a0612);
+            0.12rem 0.12rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 28%, #0a0612);
         --splash-secondary-shadow-active:
-            0.08rem 0.08rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 30%, #0a0612);
-        --splash-secondary-hover-bg: hsl(262 52% 62%);
-        --splash-secondary-hover-fg: #10131a;
+            0.06rem 0.06rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 18%, #0a0612);
+        --splash-secondary-hover-bg: hsl(228 12% 34%);
+        --splash-secondary-hover-fg: var(--cs-ink);
         color-scheme: dark;
 
         &,
@@ -88,17 +96,26 @@ html:not([data-has-sidebar]):has(.splash-page) {
         --cs-line: #dde1ea;
         --splash-demo-bg: hsl(210 24% 86%);
         --splash-demo-stripe: hsl(198 18% 80% / 0.85);
-        --splash-secondary-border: hsl(228 12% 74%);
+        --splash-hero-secondary-bg: hsl(228 14% 84%);
+        --splash-demo-secondary-bg: hsl(210 28% 97%);
+        --splash-primary-hover-bg: hsl(262 52% 58%);
+        --splash-primary-hover-fg: #f8fafc;
+        --splash-primary-shadow:
+            inset 0 1px 0 hsl(0 0% 100% / 0.16),
+            0.1rem 0.1rem 0 0 hsl(262 26% 18%);
+        --splash-primary-shadow-hover:
+            0.1rem 0.1rem 0 0 hsl(262 24% 14%);
+        --splash-primary-shadow-active:
+            0.05rem 0.05rem 0 0 hsl(262 26% 16%);
         --splash-secondary-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.62),
-            0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 34%, #0a0612),
-            0.22rem 0.28rem 1.15rem hsl(228 32% 4% / 0.16);
+            0.1rem 0.1rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 20%, #0a0612),
+            0.12rem 0.16rem 0.7rem hsl(228 32% 4% / 0.08);
         --splash-secondary-shadow-hover:
-            0.16rem 0.16rem 0 0 color-mix(in srgb, var(--splash-secondary-hover-bg) 52%, #0a0612);
+            0.12rem 0.12rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 24%, #0a0612);
         --splash-secondary-shadow-active:
-            0.08rem 0.08rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 28%, #0a0612);
-        --splash-secondary-hover-bg: hsl(262 46% 44%);
-        --splash-secondary-hover-fg: #f8fafc;
+            0.06rem 0.06rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 16%, #0a0612);
+        --splash-secondary-hover-bg: hsl(228 12% 78%);
+        --splash-secondary-hover-fg: var(--cs-ink);
         color-scheme: light;
 
         &,
@@ -268,23 +285,31 @@ html:not([data-has-sidebar]):has(.splash-page) {
 }
 
 .splash-hero__actions .sl-link-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--cs-font-heading);
     font-size: 1.2rem;
     font-weight: 600;
     letter-spacing: -0.015em;
-    padding: 1.05rem 1.85rem;
-    border-radius: 0.65rem;
+    height: 3.5rem;
     min-height: 3.5rem;
+    padding: 0 1.85rem;
+    border: 1px solid transparent;
+    border-radius: 0.65rem;
+    line-height: 1;
     gap: 0.65rem;
     transition:
         background-color 0.15s ease,
         border-color 0.15s ease,
-        color 0.15s ease;
+        color 0.15s ease,
+        box-shadow 0.15s ease;
 
     /* Beat Starlight LinkButton desktop padding/type (50rem media). */
     @media (min-width: 50rem) {
         font-size: 1.2rem;
-        padding: 1.05rem 1.85rem;
+        padding: 0 1.85rem;
     }
 
     svg,
@@ -303,28 +328,25 @@ html:not([data-has-sidebar]):has(.splash-page) {
         transform: translateX(-0.2rem);
     }
 
-    /* Get Started — ink, not the slate accent (docs links / splash pitch). */
+    /* Primary — brand purple, brighter on hover. */
     &.primary {
         font-weight: 600;
-        color: #fff;
-        border: none;
+        color: var(--cs-primary-fg);
+        border: 1px solid transparent;
         border-color: transparent;
-        background: #000;
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.14),
-            0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 34%, #0a0612),
-            0.22rem 0.28rem 1.15rem hsl(228 32% 4% / 0.38);
+        background: var(--cs-primary-bg);
+        box-shadow: var(--splash-primary-shadow);
 
         &:hover {
-            color: var(--cs-primary-hover-fg);
-            background: var(--cs-primary-hover-bg);
-            border: none;
+            color: var(--splash-primary-hover-fg);
+            background: var(--splash-primary-hover-bg);
+            border: 1px solid transparent;
             border-color: transparent;
-            box-shadow: 0.16rem 0.16rem 0 0 color-mix(in srgb, var(--cs-primary-hover-bg) 52%, #0a0612);
+            box-shadow: var(--splash-primary-shadow-hover);
         }
 
         &:active {
-            box-shadow: 0.08rem 0.08rem 0 0 color-mix(in srgb, var(--cs-primary-hover-bg) 48%, #0a0612);
+            box-shadow: var(--splash-primary-shadow-active);
         }
 
         &:focus-visible {
@@ -335,18 +357,15 @@ html:not([data-has-sidebar]):has(.splash-page) {
 
     &.secondary {
         font-weight: 600;
-        border: none;
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.07),
-            0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 36%, #0a0612),
-            0.22rem 0.28rem 1.15rem hsl(228 32% 4% / 0.36);
+        border: 1px solid transparent;
+        box-shadow: var(--splash-secondary-shadow);
 
         &:hover {
-            box-shadow: 0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 44%, #0a0612);
+            box-shadow: var(--splash-secondary-shadow-hover);
         }
 
         &:active {
-            box-shadow: 0.08rem 0.08rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 30%, #0a0612);
+            box-shadow: var(--splash-secondary-shadow-active);
         }
     }
 }
@@ -452,87 +471,50 @@ html:not([data-has-sidebar]):has(.splash-page) {
     }
 }
 
-html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
-    color: #000;
-    background: #fff;
-    box-shadow:
-        inset 0 1px 0 hsl(0 0% 100% / 0.85),
-        0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 34%, #0a0612),
-        0.22rem 0.28rem 1.15rem hsl(228 32% 4% / 0.42);
-
-    &:hover {
-        color: var(--cs-primary-hover-fg);
-        background: var(--cs-primary-hover-bg);
-        border: none;
-        box-shadow: 0.16rem 0.16rem 0 0 color-mix(in srgb, var(--cs-primary-hover-bg) 52%, #0a0612);
-    }
-
-    &:active {
-        box-shadow: 0.08rem 0.08rem 0 0 color-mix(in srgb, var(--cs-primary-hover-bg) 48%, #0a0612);
-    }
-}
-
 html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
-    background: var(--splash-secondary-bg);
-    border: 1px solid var(--splash-secondary-border);
+    background: var(--splash-hero-secondary-bg);
+    border: 1px solid transparent;
     color: var(--cs-ink);
     box-shadow: var(--splash-secondary-shadow);
 
     &:hover {
         background: var(--splash-secondary-hover-bg);
-        border-color: transparent;
+        border: 1px solid transparent;
         color: var(--splash-secondary-hover-fg);
         box-shadow: var(--splash-secondary-shadow-hover);
     }
 
     &:active {
-        border-color: var(--splash-secondary-border);
+        border: 1px solid transparent;
         box-shadow: var(--splash-secondary-shadow-active);
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero__actions .sl-link-button.primary {
-    color: #fff;
-    background: #000;
-    border: none;
-    box-shadow:
-        inset 0 1px 0 hsl(0 0% 100% / 0.14),
-        0.16rem 0.16rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 34%, #0a0612),
-        0.22rem 0.28rem 1.15rem hsl(228 32% 4% / 0.16);
-
-    &:hover {
-        color: var(--cs-primary-hover-fg);
-        background: var(--cs-primary-hover-bg);
-        border: none;
-        box-shadow: 0.16rem 0.16rem 0 0 color-mix(in srgb, var(--cs-primary-hover-bg) 52%, #0a0612);
-    }
-
-    &:active {
-        box-shadow: 0.08rem 0.08rem 0 0 color-mix(in srgb, var(--cs-primary-hover-bg) 48%, #0a0612);
-    }
+html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secondary {
+    background: var(--splash-demo-secondary-bg);
 }
 
 html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero__actions .sl-link-button.secondary {
-    background: var(--sl-color-bg);
-    border: 1px solid var(--splash-secondary-border);
+    background: var(--splash-hero-secondary-bg);
+    border: 1px solid transparent;
     color: var(--cs-ink);
     box-shadow: var(--splash-secondary-shadow);
 
     &:hover {
         background: var(--splash-secondary-hover-bg);
-        border-color: transparent;
+        border: 1px solid transparent;
         color: var(--splash-secondary-hover-fg);
         box-shadow: var(--splash-secondary-shadow-hover);
     }
 
     &:active {
-        border-color: var(--splash-secondary-border);
+        border: 1px solid transparent;
         box-shadow: var(--splash-secondary-shadow-active);
     }
 }
 
 html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.secondary {
-    background: var(--splash-demo-bg);
+    background: var(--splash-demo-secondary-bg);
 
     &:hover {
         background: var(--splash-secondary-hover-bg);

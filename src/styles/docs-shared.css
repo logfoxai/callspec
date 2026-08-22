@@ -241,7 +241,8 @@ html[data-theme='light'],
     --nav-active-fg: var(--docs-primary-fg);
     --callspec-mark: var(--docs-callspec-mark);
     --mark-label-gap: var(--docs-mark-label-gap);
-    --font-heading: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-lockup: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Shared lockup — docs header/footer + explorer powered-by. */
@@ -263,6 +264,12 @@ html[data-theme='light'],
     transition: color 0.25s ease;
 }
 
+.cs-lockup__mark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 .cs-hex {
     fill: currentColor;
 }
@@ -273,12 +280,14 @@ html[data-theme='light'],
 }
 
 .cs-lockup__word {
-    font-family: var(--font-heading, var(--sl-font, inherit));
+    font-family: var(--font-lockup);
     font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--cs-word);
     transition: color 0.25s ease;
+    /* Optical center against the hex — lowercase reads low at align-items: center. */
+    transform: translateY(-0.09em);
 }
 
 @media (hover: hover) {

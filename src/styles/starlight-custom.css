@@ -9,8 +9,8 @@
 
 :root,
 ::backdrop {
-    --sl-font: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
-    --sl-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+    --sl-font: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    --sl-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
     --sl-color-accent-low: color-mix(in srgb, var(--docs-primary-bg) 22%, var(--docs-bg));
     --sl-color-accent: var(--docs-primary-bg);
     --sl-color-accent-high: var(--docs-primary-bg);

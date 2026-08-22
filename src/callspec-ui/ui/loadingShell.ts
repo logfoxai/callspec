@@ -13,6 +13,13 @@ export const THEME_BOOT_SCRIPT = `(function(){var t=localStorage.getItem('starli
 
 /** First-paint CSS — HMR loads explorer styles after this HTML. Dark until light is known. */
 export const LOADING_BOOT_STYLE = `
+@font-face {
+    font-family: 'Plus Jakarta Sans Variable';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url('/fonts/plus-jakarta-sans-latin-wght-normal.woff2') format('woff2-variations');
+}
 html, body, #app.loading {
     background: hsl(228, 22%, 6%);
     color-scheme: dark;
@@ -38,7 +45,7 @@ body:has(#app.loading) > .footer {
     align-items: center;
     gap: 1.15rem;
     color: #d8dbe6;
-    font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
     opacity: 0;
     transform: scale(0.92);
     animation: cs-boot-enter 0.55s ease 0.4s both;
@@ -68,10 +75,12 @@ html[data-theme='light'] .cs-boot {
     height: 100%;
 }
 .cs-boot .cs-lockup__word {
+    font-family: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
     font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: inherit;
+    transform: translateY(-0.09em);
 }
 .cs-boot .cs-hex {
     fill: currentColor;

@@ -18,8 +18,8 @@ export const api = spec({
             accent: '#0ea5e9',
             background: '#0f172a',
             surface: '#1e293b',
-            fontFamily: '"IBM Plex Sans", system-ui, sans-serif',
-            fontUrls: ['https://fonts.example/plex.css'],
+            fontFamily: '"Geist Variable", system-ui, sans-serif',
+            fontUrls: ['https://fonts.example/geist.css'],
         },
         navbarLinks: [
             {label: 'Dashboard', href: 'https://app.acme.example', external: true},
