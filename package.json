@@ -72,7 +72,6 @@
     "validate": "npm run build && npm run lint && npm run deadcode:check && npm run typecheck:routes && npm test && npm run sync:fonts && npm run astro:build && node scripts/assert-chirp-static-demo.mjs && node scripts/assert-404-page.mjs && node scripts/assert-splash-page.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "highlight.js": "11.11.1",
     "jsout": "^5.0.0-next.3",
     "jsout-express": "^1.1.9",
@@ -107,6 +106,7 @@
     "express": "^4.18.2",
     "kizu": "^4.0.0",
     "knip": "^6.29.0",
+    "phosphor-astro": "^2.1.0",
     "tsx": "^4.20.5",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.0.0",

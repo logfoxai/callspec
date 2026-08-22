@@ -15,10 +15,6 @@ const destDir = path.join(root, 'assets/fonts');
 
 const fonts = [
     [
-        '@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2',
-        'plus-jakarta-sans-latin-wght-normal.woff2',
-    ],
-    [
         '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2',
         'geist-latin-wght-normal.woff2',
     ],
@@ -34,6 +30,7 @@ const fonts = [
 ];
 
 const retired = [
+    'plus-jakarta-sans-latin-wght-normal.woff2',
     'inter-latin-wght-normal.woff2',
     'space-grotesk-latin-wght-normal.woff2',
     'ibm-plex-sans-latin-wght-normal.woff2',

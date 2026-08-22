@@ -117,7 +117,6 @@ export function publicFontRel(pathname: string): string | null {
 }
 
 const DEMO_STALE_FONTS = new Set([
-    'plus-jakarta-sans-latin-wght-normal.woff2',
     'geist-latin-wght-normal.woff2',
     'jetbrains-mono-latin-400-normal.woff2',
     'jetbrains-mono-latin-600-normal.woff2',

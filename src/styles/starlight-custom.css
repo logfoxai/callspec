@@ -147,7 +147,9 @@ html[data-has-sidebar] .sl-markdown-content .sl-heading-wrapper :is(h1, h2, h3, 
 .splash-how__title,
 .splash-features__heading,
 .splash-features__title,
-.splash-demo__title {
+.splash-demo__title,
+.splash-sdk__title,
+.splash-agents__title {
     font-family: var(--cs-font-heading);
 }
 

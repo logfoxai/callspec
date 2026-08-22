@@ -242,7 +242,6 @@ html[data-theme='light'],
     --callspec-mark: var(--docs-callspec-mark);
     --mark-label-gap: var(--docs-mark-label-gap);
     --font-heading: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-lockup: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Shared lockup — docs header/footer + explorer powered-by. */
@@ -280,7 +279,7 @@ html[data-theme='light'],
 }
 
 .cs-lockup__word {
-    font-family: var(--font-lockup);
+    font-family: var(--font-heading);
     font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.02em;

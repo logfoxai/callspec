@@ -35,21 +35,21 @@ const products: Product[] = [
 ];
 
 export const getProductById = route({
-    // Request body must match this pred (RPC is POST JSON)
     input: p.object({id: p.string()}),
-    output: product, // same pred as the domain shape
-    // Docs UI / OpenAPI / MCP labels
+    output: product,
     meta: {summary: 'Get product by ID', tags: ['catalog']},
-    auth: 'none', // no Bearer; default is 'bearer'
-    mcp: true, // expose as an MCP tool when the server mounts MCP
+    auth: 'none',
+    mcp: true,
     // Keep the handler inline for LSP support
     handler: async (input, _ctx) => {
         const found = products.find((item) => item.id === input.id);
-        if (!found) return err.NOT_FOUND(); // return err.* for expected errors
-        return found; // must satisfy `output`
+        if (!found) return err.NOT_FOUND();
+        return found;
     },
 });
 ```
+
+Callspec validates `input` and `output` against the preds automatically — bad wire data is rejected before your handler runs, and successful responses are checked on the way out.
 
 `auth` is who can call the route. `scope` is who can see it in docs and specs — default `'public'`. Use `scope: 'private'` for routes you document on your own mounts (`visibility: 'all'` in dev/stage). See [Auth and scope](./api-reference/auth-and-scope.md).
 

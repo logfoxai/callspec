@@ -5,11 +5,11 @@
   ],
   "ignoreDependencies": [
     "@fontsource-variable/geist",
-    "@fontsource-variable/plus-jakarta-sans",
     "@fontsource/jetbrains-mono",
     "@fontsource/caveat",
     "@pagefind/default-ui",
-    "astro-expressive-code"
+    "astro-expressive-code",
+    "phosphor-astro"
   ],
   "ignoreIssues": {
     "src/defineErrors.ts": ["types"],
