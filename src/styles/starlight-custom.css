@@ -694,9 +694,70 @@ header.header .social-icons a[href*='discord']:hover {
     color: #5865f2;
 }
 
+header.header .social-icons a svg,
+.cs-mobile-menu-tools .social-icons a svg {
+    display: block;
+    transition: transform 140ms ease;
+    transform-origin: center;
+}
+
 header.header .social-icons a svg {
     width: 1.35rem;
     height: 1.35rem;
+}
+
+header.header .social-icons a:hover svg,
+.cs-mobile-menu-tools .social-icons a:hover svg {
+    transform: scale(1.14);
+}
+
+header.header .social-icons a[href*='discord']:hover svg,
+.cs-mobile-menu-tools .social-icons a[href*='discord']:hover svg {
+    animation: cs-discord-shudder 480ms ease-in-out;
+}
+
+@keyframes cs-discord-shudder {
+    0%,
+    100% {
+        transform: scale(1.14) rotate(0deg);
+    }
+
+    18% {
+        transform: scale(1.14) rotate(-11deg);
+    }
+
+    36% {
+        transform: scale(1.14) rotate(9deg);
+    }
+
+    54% {
+        transform: scale(1.14) rotate(-7deg);
+    }
+
+    72% {
+        transform: scale(1.14) rotate(5deg);
+    }
+
+    88% {
+        transform: scale(1.14) rotate(-2deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    header.header .social-icons a svg,
+    .cs-mobile-menu-tools .social-icons a svg {
+        transition: none;
+    }
+
+    header.header .social-icons a:hover svg,
+    .cs-mobile-menu-tools .social-icons a:hover svg {
+        transform: none;
+    }
+
+    header.header .social-icons a[href*='discord']:hover svg,
+    .cs-mobile-menu-tools .social-icons a[href*='discord']:hover svg {
+        animation: none;
+    }
 }
 
 /*
