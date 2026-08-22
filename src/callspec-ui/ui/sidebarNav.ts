@@ -26,6 +26,76 @@ const SIDEBAR_CARET_SVG = `
 
 const SIDEBAR_TAG_ICON = `<span class="sidebar-group-icon">${tagIcon()}</span>`;
 
+export type SidebarGroupsRenderOptions = {
+    /** When true, every tag group is expanded (sidebar route search). */
+    expandAll?: boolean
+    /** User-expanded groups preserved across re-renders. */
+    openTags?: ReadonlySet<string>
+}
+
+function sidebarGroupShouldOpen(
+    tag: string,
+    routes: CallspecUiRoute[],
+    view: SidebarView,
+    options: SidebarGroupsRenderOptions,
+): boolean {
+
+    if (options.expandAll) {
+
+        return true;
+
+    }
+
+    if (options.openTags?.has(tag)) {
+
+        return true;
+
+    }
+
+    return view.kind === 'route' && routes.some((route) => route.name === view.name);
+
+}
+
+/** Preserve user-expanded tag groups across sidebar re-renders. */
+function readOpenSidebarTags(root: ParentNode): Set<string> {
+
+    const open = new Set<string>();
+
+    root.querySelectorAll('.sidebar-group details[open]').forEach((details) => {
+
+        const label = details.querySelector('.sidebar-group-label')?.textContent?.trim();
+
+        if (label) {
+
+            open.add(label);
+
+        }
+
+    });
+
+    return open;
+
+}
+
+/** Collapsed by default; expand all while searching; else preserve DOM or active route. */
+export function sidebarRouteGroupsOptions(
+    view: SidebarView,
+    searchText: string,
+    prevNav: ParentNode | null,
+): SidebarGroupsRenderOptions {
+
+    if (searchText.trim().length > 0) {
+
+        return {expandAll: true};
+
+    }
+
+    return {
+        openTags: prevNav ? readOpenSidebarTags(prevNav) : undefined,
+    };
+
+}
+
 function renderSidebarLink(
     label: string,
     active: boolean,
@@ -68,6 +138,7 @@ function renderSidebarLink(
 export function renderSidebarRouteGroups(
     routes: CallspecUiRoute[],
     view: SidebarView,
+    options: SidebarGroupsRenderOptions = {},
 ): string {
 
     const groups = groupRoutesByTag(routes);
@@ -87,9 +158,11 @@ export function renderSidebarRouteGroups(
 
         }
 
+        const openAttr = sidebarGroupShouldOpen(tag, list, view, options) ? ' open' : '';
+
         groupHtml += `
             <li class="sidebar-group">
-                <details open>
+                <details${openAttr}>
                     <summary>
                         <span class="sidebar-group-heading">
                             ${SIDEBAR_TAG_ICON}
@@ -115,6 +188,7 @@ export function renderSidebar(
     view: SidebarView,
     showHome: boolean,
     searchHtml = '',
+    groupOptions: SidebarGroupsRenderOptions = {},
 ): string {
 
     let pageLinks = '';
@@ -133,7 +207,7 @@ export function renderSidebar(
         icon: routesIcon(),
     });
 
-    const groupsHtml = renderSidebarRouteGroups(routes, view);
+    const groupsHtml = renderSidebarRouteGroups(routes, view, groupOptions);
 
     if (!pageLinks && !groupsHtml) {
 

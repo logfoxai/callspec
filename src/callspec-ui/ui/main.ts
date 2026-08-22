@@ -32,7 +32,7 @@ import {lockIcon, tagIcon, unlockIcon} from './icons';
 import {renderIconLabel} from './iconLabel';
 import {renderRouteBadges} from './routeBadges';
 import {explorerSearchScope} from './explorerSearch';
-import {renderSidebar, renderSidebarRouteGroups} from './sidebarNav';
+import {renderSidebar, renderSidebarRouteGroups, sidebarRouteGroupsOptions} from './sidebarNav';
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
 import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
@@ -798,6 +798,9 @@ async function boot(): Promise<void> {
             // Footer lives in .content; park it on <body> so the wipe doesn't destroy it.
             parkPoweredByFooter();
 
+            const prevNav = app.querySelector('.sidebar-nav');
+            const sidebarGroupOptions = sidebarRouteGroupsOptions(view, filters.text, prevNav);
+
             app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
                 ${renderUiNotice(branding?.notice)}
@@ -810,7 +813,7 @@ async function boot(): Promise<void> {
                             value: filters.text,
                             label: 'Search routes',
                             className: 'cs-docs-search--sidebar',
-                        }))}
+                        }), sidebarGroupOptions)}
                     </div>
                     ${renderMobileMenuTools({
                         leadingHtml: renderHeaderContractButtons(config.specUrl, {variant: 'drawer'}),
@@ -944,7 +947,8 @@ async function boot(): Promise<void> {
 
                         if (nav instanceof HTMLElement) {
 
-                            const next = renderSidebarRouteGroups(textFiltered, view);
+                            const groupOptions = sidebarRouteGroupsOptions(view, filters.text, nav);
+                            const next = renderSidebarRouteGroups(textFiltered, view, groupOptions);
                             const existing = nav.querySelector('.sidebar-top-level');
 
                             if (existing) {
