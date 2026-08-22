@@ -148,7 +148,7 @@ export default defineConfig({
                 {
                     label: 'Introduction',
                     items: [
-                        {label: 'Minimal single-file server example', slug: 'single-file-server-example'},
+                        {label: 'Single-file server example', slug: 'single-file-server-example'},
                         {label: 'Getting started', slug: 'getting-started'},
                         {label: 'Server layout', slug: 'server-layout'},
                         {label: 'Unit testing', slug: 'unit-testing'},
