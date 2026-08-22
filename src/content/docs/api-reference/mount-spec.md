@@ -43,5 +43,5 @@ With `app.use('/v1', router)` and defaults, a server on port 3000 exposes:
 | RPC | `POST http://127.0.0.1:3000/v1/{methodName}` |
 | MCP | `http://127.0.0.1:3000/v1/mcp` (when any route has `mcp: true`) |
 
-← [`route` & `spec`](./route-and-spec.md) · Next: [Auth and scope](./auth-and-scope.md)
+← [`spec`](./spec.md) · Next: [Auth and scope](./auth-and-scope.md)
 

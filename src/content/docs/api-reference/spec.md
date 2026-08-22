@@ -1,37 +1,6 @@
-# route & spec
+# spec
 
-`route()` wires one HTTP/MCP endpoint. `spec()` collects those routes plus spec-level metadata, optional shared preds, and auth. Pass the result to `mountSpec()` to serve RPC, the docs UI, `callspec.json`, OpenAPI, and MCP.
-
-## route
-
-```typescript
-route({ input, output, meta, handler, … })
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `input` | — | Runtyp pred for the request body (POST JSON). Validated before your handler runs. |
-| `output` | — | Runtyp pred for a successful response. |
-| `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
-| `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |
-| `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
-| `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
-| `scope` | `'public'` | `'public'` — on the public contract (docs, OpenAPI, SDK, MCP `tools/list`). `'private'` — documented when `visibility` is `'all'`. Still mounted. |
-| `mcp` | — | Expose as an MCP tool. `true`, or `{ name?, annotations? }` to override the tool name or MCP annotations. |
-
-Returns a **wired route** (`WiredRoute`) for `spec({ routes })`. Call `.handler(input, ctx)` in tests — no HTTP. See [Handlers](./handlers.md) and [Unit testing](../unit-testing.md).
-
-### Route meta
-
-Every route needs `meta` with at least `summary` and `tags`. These show up in the docs UI route list, OpenAPI operation text, and MCP tool titles.
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `summary` | yes | Short label — docs sidebar, OpenAPI summary, MCP tool title. |
-| `tags` | yes | Grouping in the docs UI and OpenAPI tags (e.g. `['catalog']`, `['users']`). |
-| `description` | no | Longer prose for OpenAPI/MCP when the summary is not enough. |
-
-## spec
+`spec()` collects [wired routes](./route.md) plus spec-level metadata, optional shared preds, and auth. Pass the result to [`mountSpec()`](./mount-spec.md) to serve RPC, the docs UI, `callspec.json`, OpenAPI, and MCP.
 
 ```typescript
 spec({ routes, meta?, exports?, authenticate? })
@@ -46,13 +15,13 @@ spec({ routes, meta?, exports?, authenticate? })
 
 Throws at load time if any route uses `auth: 'bearer'` and `authenticate` is missing.
 
-### Routes map
+## Routes map
 
 Keys become **RPC method names** — `routes: { getProductById }` is called as `POST /v1/getProductById` (plus your Express mount prefix). Values must come from `route({ …, handler })`, not bare preds.
 
 By default only `scope: 'public'` routes appear in `callspec.json`, OpenAPI, SDK codegen, and MCP `tools/list`. Private routes still run on the server. Pass `visibility: 'all'` on `mountSpec` (or `emitCallspec`) to document them on that mount. See [Auth and scope](./auth-and-scope.md).
 
-### Spec meta
+## Spec meta
 
 `meta` is flat JSON on the spec. It flows into emitted documents and into the **docs UI** when you `mountSpec`. It does **not** turn docs on or off — that is `mountSpec(router, spec, { docs?, docsPath? })` ([`mountSpec` options](./mount-spec.md)).
 
@@ -100,7 +69,7 @@ const meta = {
 export const api = spec({meta, routes: {getUserById, …}});
 ```
 
-#### Logo URLs
+### Logo URLs
 
 Paths in `logo.light` / `logo.dark` are resolved **relative to the docs UI URL** (e.g. `./brand/mark.png` under `/v1/docs` → `/v1/docs/brand/mark.png`). Use absolute URLs (`https://…`) when the asset is hosted elsewhere.
 
@@ -114,7 +83,7 @@ mountSpec(router, api, {docsPath: '/docs'});
 
 If `dark` is omitted, the light logo is used in both themes.
 
-#### Docs UI surfaces
+### Docs UI surfaces
 
 `mountSpec` serves the built-in explorer by default at `{mount}/docs`. The UI loads `{mount}/callspec.json`, lists public routes, lets you try RPCs, browse schemas, and connect MCP clients.
 
@@ -127,7 +96,7 @@ If `dark` is omitted, the light logo is used in both themes.
 
 More: [Docs UI](../docs-ui.md) · [Branding](../docs-ui-branding.md) · [`mountSpec`](./mount-spec.md)
 
-### Exports
+## Exports
 
 Optional map of **named runtyp preds** that are not routes — shared form shapes, filters, enums for the frontend:
 
@@ -153,7 +122,7 @@ import {schemas, type Product} from './generated/api';
 
 See [Shared validation](../shared-validation.md) and [SDK generation](../sdk-generation.md).
 
-### authenticate
+## authenticate
 
 ```typescript
 import type {Authenticate} from 'callspec';
@@ -170,4 +139,4 @@ export const api = spec({meta, routes, authenticate});
 
 Callspec extracts `Authorization: Bearer …`, calls your hook, and passes the returned context to handlers on bearer routes. Return `undefined` for invalid tokens → 401. See [Authentication](../authentication.md) and [Request context](../request-context.md).
 
-← [Handlers](./handlers.md) · Next: [`mountSpec`](./mount-spec.md)
+← [`route`](./route.md) · Next: [`mountSpec`](./mount-spec.md)

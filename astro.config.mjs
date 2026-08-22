@@ -29,7 +29,9 @@ export default defineConfig({
     publicDir: './assets',
     // Old thin API reference landing → first real page.
     redirects: {
-        '/api-reference': '/api-reference/handlers',
+        '/api-reference': '/api-reference/route',
+        '/api-reference/handlers': '/api-reference/route',
+        '/api-reference/route-and-spec': '/api-reference/route',
     },
     // Dev server only: Origin-bearing cross-site requests (proxies / some IDE previews).
     // Cursor Simple Browser often sends cross-site no-cors *without* Origin — that
@@ -158,8 +160,8 @@ export default defineConfig({
                 {
                     label: 'API reference',
                     items: [
-                        {label: 'Handlers', slug: 'api-reference/handlers'},
-                        {label: 'route & spec', slug: 'api-reference/route-and-spec'},
+                        {label: 'route', slug: 'api-reference/route'},
+                        {label: 'spec', slug: 'api-reference/spec'},
                         {label: 'mountSpec', slug: 'api-reference/mount-spec'},
                         {label: 'Auth and scope', slug: 'api-reference/auth-and-scope'},
                         {
