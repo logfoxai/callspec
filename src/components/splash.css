@@ -44,6 +44,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
         --cs-muted: #9aa3b5;
         --cs-line: #2a2f3c;
         --splash-hero-stage-bg: hsl(228 16% 9%);
+        --splash-hero-viewport-bg: hsl(228 15% 14%);
         --splash-demo-bg: hsl(220 14% 12%);
         --splash-demo-stripe: hsl(220 12% 16% / 0.85);
         --splash-hero-secondary-bg: hsl(228 14% 26%);
@@ -97,6 +98,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
         --cs-muted: #5a6170;
         --cs-line: #dde1ea;
         --splash-hero-stage-bg: hsl(228 16% 92%);
+        --splash-hero-viewport-bg: hsl(228 22% 97%);
         --splash-demo-bg: hsl(262 18% 88%);
         --splash-demo-stripe: hsl(262 14% 81% / 0.32);
         --splash-hero-secondary-bg: hsl(228 14% 84%);
@@ -555,7 +557,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
         justify-content: center;
         min-height: clamp(10rem, 20vh, 15rem);
         padding: clamp(1.35rem, 3vw, 2.25rem) clamp(1.25rem, 3vw, 2.5rem);
-        background: var(--splash-hero-viewport-bg, hsl(228 18% 9%));
+        background: var(--splash-hero-viewport-bg);
 
         .splash-pile-img {
             width: min(52%, 28rem);
@@ -572,7 +574,6 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero_
     --splash-hero-url-bg: hsl(0 0% 100%);
     --splash-hero-url-fg: hsl(228 14% 34%);
     --splash-hero-method-fg: hsl(142 45% 32%);
-    --splash-hero-viewport-bg: hsl(228 22% 97%);
 
     .splash-hero__browser {
         box-shadow:

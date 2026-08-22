@@ -1,27 +1,24 @@
 # Getting started
 
-This page walks through a minimal server and client. Prefer one file? Copy the [single-file server example](./single-file-server-example.md).
+This page walks through a simple server and the client.
 
 For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + copy-paste prompts).
 
 ## 1. Install backend dependencies
 
 ```bash
-# callspec = RPC runtime; runtyp = typed validators for input/output; express = HTTP server
 npm i callspec runtyp express
 npm i -D tsx typescript @types/express
 ```
 
-Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer).
+Requirements: Node.js **18+** (runtime), TypeScript 5+, Express 4.x (peer), runtyp 2.5.0 (peer).
 
 ## 2. Define a route
 
 ```typescript title="src/routes/getProductById.ts" frame="code"
 import {route, err} from 'callspec';
-// runtyp predicates — validate on the wire and drive TypeScript types
 import {predicates as p, Infer} from 'runtyp';
 
-// Shape once — wire validation + TS type
 const product = p.object({
     id: p.string(),
     name: p.string(),
@@ -61,7 +58,6 @@ Related: [runtyp](https://github.com/logfoxai/runtyp) · [Builtin errors](./buil
 import {spec} from 'callspec';
 import {getProductById} from './routes/getProductById';
 
-// One registry — routes (+ optional authenticate, exports)
 export const api = spec({
     meta: {title: 'My API', version: '1.0.0'},
     routes: {getProductById},
@@ -81,7 +77,6 @@ const app = express();
 const router = express.Router();
 router.use(express.json());
 
-// Serves RPC, docs UI, callspec.json, openapi.json, and MCP (if any route has mcp: true)
 mountSpec(router, api);
 app.use('/v1', router);
 

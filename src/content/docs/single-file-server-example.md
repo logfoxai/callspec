@@ -1,6 +1,6 @@
 # Single-file server example
 
-Routes, `spec()`, and `mountSpec()` in one copy-paste module. When you outgrow a single file, see [Server layout](./server-layout.md). For auth, see [Authentication](./authentication.md).
+A very minimal example Callspec server all in one file — so you can see the whole model. For a real API, use [Server layout](./server-layout.md).
 
 ```typescript
 import express from 'express';

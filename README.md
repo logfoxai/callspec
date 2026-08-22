@@ -32,12 +32,12 @@ Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste 
 
 ## Contents
 
+- [Single-file server example](src/content/docs/single-file-server-example.md)
 - [Getting started](src/content/docs/getting-started.md)
-- [Try the demo locally](src/content/docs/try-the-demo-locally.md)
-- [Working with Coding Agents](src/content/docs/coding-agents.md)
 - [Server layout](src/content/docs/server-layout.md)
 - [Unit testing](src/content/docs/unit-testing.md)
-- [Single-file server example](src/content/docs/single-file-server-example.md)
+- [Try the demo locally](src/content/docs/try-the-demo-locally.md)
+- [Working with Coding Agents](src/content/docs/coding-agents.md)
 - [Authentication](src/content/docs/authentication.md)
 - [Request context](src/content/docs/request-context.md)
 - [API reference — Handlers](src/content/docs/api-reference/handlers.md)
