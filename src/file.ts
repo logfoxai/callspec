@@ -109,7 +109,9 @@ export function multipartLimits(input: Pred<unknown>): {fileSize: number, files:
 
     return {
         fileSize: sizes.length ? Math.max(...sizes) : DEFAULT_FILE_MAX_BYTES,
-        files: Math.max(fields.length, 1),
+        // Busboy counts discarded extra file parts toward `files`. Leave slack
+        // so an unused field before the real one does not starve the route.
+        files: Math.max(fields.length, 1) + 8,
     };
 
 }

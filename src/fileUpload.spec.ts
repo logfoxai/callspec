@@ -199,6 +199,20 @@ test('integration: multipart upload uses the same auth and error contract', asyn
         assert.equal(rejectedType.status, 400);
         assert.equal((await rejectedType.json() as {error?: string}).error, 'VALIDATION_ERROR');
 
+        const extraPart = new FormData();
+
+        extraPart.append('ignored', pngBlob(), 'other.png');
+        extraPart.append('file', pngBlob(), 'avatar.png');
+
+        const extraOk = await fetch(`${base}/upload`, {
+            method: 'POST',
+            headers: {Authorization: 'Bearer user-token'},
+            body: extraPart,
+        });
+
+        assert.equal(extraOk.status, 200);
+        assert.equal((await extraOk.json() as {filename?: string}).filename, 'avatar.png');
+
         const tooBig = new FormData();
 
         tooBig.append('file', new Blob([new Uint8Array(80)], {type: 'image/png'}), 'big.png');
