@@ -202,7 +202,6 @@ test('integration: docs UI loads callspec.json at custom docsPath', async (asser
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, fixtureSpec, {docsPath: '/explorer', logging: false});
     app.use('/v1', router);
 
@@ -299,7 +298,6 @@ test('integration: docs UI loads callspec.json when mountSpec uses basePath', as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, fixtureSpec, {basePath: '/v1', logging: false});
     app.use(router);
 
@@ -591,7 +589,6 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -640,7 +637,6 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -694,7 +690,6 @@ test('integration: MCP unhandled throw does not leak Error.message', async (asse
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -760,7 +755,6 @@ test('integration: handleUnhandledError maps throw to wire failure', async (asse
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {
         logging: false,
         handleUnhandledError: (err) => {
@@ -834,7 +828,6 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {
         logging: false,
         logUnhandledError: (err) => {
@@ -917,7 +910,6 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -1001,7 +993,6 @@ test('integration: declared domain failure is returned on the wire', async (asse
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -1099,7 +1090,6 @@ test('integration: MCP tools/call emits structured onCall events', async (assert
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {
         logging: false,
         onCall: (event) => {
@@ -1161,8 +1151,6 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
-
     mountSpec(router, noMcpSpec, {logging: false});
 
     app.use('/v1', router);
@@ -1197,8 +1185,6 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
 
     const app = express();
     const router = express.Router();
-
-    router.use(express.json());
 
     mountSpec(router, fixtureSpec, {docs: false, logging: false});
 
@@ -1248,8 +1234,6 @@ test('integration: default meta title and version when omitted', async (assert) 
 
     const app = express();
     const router = express.Router();
-
-    router.use(express.json());
 
     mountSpec(router, sparseSpec, {logging: false});
 
@@ -1315,7 +1299,6 @@ test('integration: visibility public omits private routes from contracts; all in
         const app = express();
         const router = express.Router();
 
-        router.use(express.json());
         mountSpec(router, visibilitySpec, {logging: false, visibility});
         app.use(router);
 

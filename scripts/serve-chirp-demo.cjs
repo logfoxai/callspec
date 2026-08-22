@@ -13,8 +13,6 @@ const app = express();
 const router = express.Router();
 const brandAssetsDir = path.join(__dirname, '../assets/chirp');
 
-router.use(express.json());
-
 mountSpec(router, api);
 
 router.use('/docs/brand', express.static(brandAssetsDir, {index: false}));
