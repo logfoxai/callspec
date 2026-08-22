@@ -437,7 +437,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
     }
 
     .splash-hero__stage {
-        --splash-hero-browser-max: min(92rem, calc(100vw - 2rem));
+        --splash-hero-browser-max: min(76rem, calc(100vw - 3rem));
 
         position: relative;
         width: 100vw;
