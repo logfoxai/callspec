@@ -242,12 +242,14 @@ html[data-theme='light'],
     --callspec-mark: var(--docs-callspec-mark);
     --mark-label-gap: var(--docs-mark-label-gap);
     --font-heading: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-lockup: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* Shared lockup — docs header/footer + explorer powered-by. */
 .cs-lockup {
     --cs-mark: var(--docs-callspec-mark);
     --cs-word: var(--docs-text);
+    --cs-lockup-mark-size: 1.8rem;
     display: inline-flex;
     align-items: center;
     gap: var(--docs-mark-label-gap);
@@ -257,8 +259,8 @@ html[data-theme='light'],
 
 .cs-lockup__mark {
     flex: none;
-    width: 1.8rem;
-    height: 1.8rem;
+    width: var(--cs-lockup-mark-size);
+    height: var(--cs-lockup-mark-size);
     color: var(--cs-mark);
     transition: color 0.25s ease;
 }
@@ -279,14 +281,16 @@ html[data-theme='light'],
 }
 
 .cs-lockup__word {
-    font-family: var(--font-heading);
+    font-family: var(--font-lockup);
     font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--cs-word);
     transition: color 0.25s ease;
-    /* Optical center against the hex — lowercase reads low at align-items: center. */
-    transform: translateY(-0.09em);
+    display: flex;
+    align-items: center;
+    height: var(--cs-lockup-mark-size);
+    line-height: 1;
 }
 
 @media (hover: hover) {

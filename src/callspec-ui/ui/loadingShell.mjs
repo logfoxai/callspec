@@ -52,12 +52,13 @@ html[data-theme='light'] .cs-boot {
     gap: 0.18rem;
     line-height: 1;
     color: inherit;
+    --cs-lockup-mark-size: 2.75rem;
 }
 .cs-boot .cs-lockup__mark {
     display: block;
     flex: none;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: var(--cs-lockup-mark-size);
+    height: var(--cs-lockup-mark-size);
     color: inherit;
     animation: none;
     transform: none;
@@ -68,12 +69,15 @@ html[data-theme='light'] .cs-boot {
     height: 100%;
 }
 .cs-boot .cs-lockup__word {
-    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: inherit;
-    transform: translateY(-0.09em);
+    display: flex;
+    align-items: center;
+    height: var(--cs-lockup-mark-size);
+    line-height: 1;
 }
 .cs-boot .cs-hex {
     fill: currentColor;
