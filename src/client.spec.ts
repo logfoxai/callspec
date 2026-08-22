@@ -120,6 +120,36 @@ test('CallspecClient without output pred leaves bare ISO strings as strings', as
 
 });
 
+test('CallspecClient maps JSON null success to undefined', async (assert) => {
+
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () => new Response('null', {
+        status: 200,
+        headers: {'Content-Type': 'application/json'},
+    })) as typeof fetch;
+
+    try {
+
+        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
+        const result = await runtime.callResult<undefined>('destroyUserSessions', {});
+
+        assert.equal(isCallspecOk(result), true);
+
+        if (result.ok) {
+
+            assert.equal(result.value, undefined);
+
+        }
+
+    } finally {
+
+        globalThis.fetch = originalFetch;
+
+    }
+
+});
+
 test('joinCallspecUrl avoids double slashes', (assert) => {
 
     assert.equal(joinCallspecUrl('https://api.test/v1/', 'healthcheck'), 'https://api.test/v1/healthcheck');

@@ -12,6 +12,7 @@ import {documentRouteErrors} from './routeErrorDocument';
 import {omitUndefined} from './objectUtils';
 import {isMultipartRoute} from './file';
 import {inputJsonSchema} from './fileSchema';
+import {predToJsonSchema} from './routeDefaults';
 
 export type EmitCallspecOptions = {
     title: string
@@ -49,7 +50,7 @@ export function emitCallspec(
             scope: route.scope,
             encoding: isMultipartRoute(route.input) ? 'multipart' : undefined,
             input: inputJsonSchema(route.input),
-            output: toJsonSchema(route.output) as JsonSchema,
+            output: predToJsonSchema(route.output),
             errors: documentRouteErrors(route.errors),
             mcp: {
                 enabled: Boolean(route.mcp),

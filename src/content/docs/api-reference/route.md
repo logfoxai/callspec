@@ -32,15 +32,15 @@ export const getProductById = route({
 ```
 
 ```typescript
-route({ input, output, meta, handler, … })
+route({ input?, output?, meta, handler, … })
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `input` | — | Runtyp pred for the request body (POST JSON, or multipart when a field is [`file()`](../file-uploads.md)). Validated before your handler runs. |
-| `output` | — | Runtyp pred for a successful response. |
+| `input` | `p.object({})` | Runtyp pred for the request body (POST JSON, or multipart when a field is [`file()`](../file-uploads.md)). Omit when there are no request fields — unknown keys are still rejected. Explicit `input: p.object({})` is the same. |
+| `output` | void | Runtyp pred for a successful response. Omit for no success payload: handler may `return undefined`; HTTP is `200` + JSON `null`; the generated client maps that to `value: undefined`. If the route truly returns `{}`, write `output: p.object({})`. Keep `p.optional(p.string())` (and similar) when the payload is optional, not void. |
 | `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
-| `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |
+| `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)` even when `input` / `output` are omitted. |
 | `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
 | `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
 | `scope` | `'public'` | `'public'` — on the public contract (docs, OpenAPI, SDK, MCP `tools/list`). `'private'` — documented when `visibility` is `'all'`. Still mounted. |

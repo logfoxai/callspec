@@ -217,7 +217,6 @@ const meta = {
 const routes = {
 
     healthcheck: route({
-        input: p.object({}),
         output: healthOut,
         meta: {
             summary: 'Health Check',

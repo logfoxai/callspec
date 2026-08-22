@@ -72,11 +72,10 @@ import {predicates as p} from 'runtyp';
 import {productList} from '../schemas/product';
 
 export const listProducts = route({
-    input: p.object({}),
     output: productList,
     meta: {summary: 'List products', tags: ['catalog']},
     auth: 'none',
-    handler: async () => ({
+    handler: async (_input, _ctx) => ({
         items: [{id: 'sku-1', name: 'Widget', priceCents: 999}],
         count: 1,
     }),

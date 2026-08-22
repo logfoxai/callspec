@@ -81,6 +81,45 @@ test('executeRoute validation error', async (assert) => {
 
 });
 
+test('executeRoute treats missing body as empty object for omitted input', async (assert) => {
+
+    const r = route({
+        output: p.object({ok: p.boolean()}),
+        meta: {summary: 'x', description: 'x', tags: ['t']},
+        auth: 'none',
+        handler: async (_input, _ctx) => ({ok: true}),
+    });
+
+    assert.equal(await executeRoute(r, undefined, undefined), {ok: true});
+    assert.equal(await executeRoute(r, null, undefined), {ok: true});
+
+    try {
+
+        await executeRoute(r, {extra: 1}, undefined);
+        assert.fail('expected validation error');
+
+    } catch (err) {
+
+        assert.equal(err instanceof CallspecValidationError, true, 'unknown keys');
+
+    }
+
+});
+
+test('executeRoute optional string output still returns undefined', async (assert) => {
+
+    const r = route({
+        input: p.object({email: p.string()}),
+        output: p.optional(p.string()),
+        meta: {summary: 'Reset', tags: ['auth']},
+        auth: 'none',
+        handler: async (_input, _ctx) => undefined,
+    });
+
+    assert.equal(await executeRoute(r, {email: 'a@b.c'}, undefined), undefined);
+
+});
+
 test('executeRoute coerces ISO date input and serializes Date output', async (assert) => {
 
     const iso = '2024-01-15T12:00:00.000Z';

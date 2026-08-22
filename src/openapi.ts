@@ -1,10 +1,10 @@
-import {toJsonSchema} from 'runtyp';
 import type {RoutesMap} from './types';
 import {joinRoutePath} from './metaDefaults';
 import {exportedRoutes, hasBearerRoutes, type ExportVisibility} from './routeVisibility';
 import {openApiErrorResponses} from './routeErrorDocument';
 import {isMultipartRoute} from './file';
 import {inputJsonSchema} from './fileSchema';
+import {predToJsonSchema} from './routeDefaults';
 
 export type OpenApiOptions = {
     title: string
@@ -25,7 +25,7 @@ export function emitOpenApi(
 
     for (const [name, route] of Object.entries(exportedRoutes(routes, options.visibility))) {
 
-        const outputSchema = toJsonSchema(route.output);
+        const outputSchema = predToJsonSchema(route.output);
         const multipart = isMultipartRoute(route.input);
         const requestContentType = multipart ? 'multipart/form-data' : 'application/json';
 

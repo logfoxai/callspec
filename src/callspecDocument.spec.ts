@@ -46,6 +46,38 @@ const api = spec({
     authenticate: () => ({userId: 'test'}),
 });
 
+test('emitCallspec: omitted output is JSON Schema null', (assert) => {
+
+    const doc = emitCallspec({
+        destroyUserSessions: route({
+            meta: {summary: 'Destroy sessions', tags: ['auth']},
+            auth: 'none',
+            handler: async (_input, _ctx) => undefined,
+        }),
+        whoami: route({
+            output: p.object({userId: p.string()}),
+            meta: {summary: 'Whoami', tags: ['auth']},
+            auth: 'none',
+            handler: async (_input, _ctx) => ({userId: 'u1'}),
+        }),
+    }, {title: 'API', version: '1.0.0'});
+
+    assert.equal(JSON.stringify(doc.routes.destroyUserSessions.output), JSON.stringify({type: 'null'}));
+    assert.equal(
+        (doc.routes.whoami.input as {type?: string; additionalProperties?: boolean}).type,
+        'object',
+    );
+    assert.equal(
+        (doc.routes.whoami.input as {additionalProperties?: boolean}).additionalProperties,
+        false,
+    );
+    assert.equal(
+        JSON.stringify((doc.routes.whoami.input as {properties?: unknown}).properties),
+        JSON.stringify({}),
+    );
+
+});
+
 test('emitCallspec: emits versioned document with metadata', (assert) => {
 
     const doc = emitCallspec(api.routes, {

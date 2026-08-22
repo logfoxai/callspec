@@ -40,6 +40,35 @@ const api = spec({
 
 type OpenApiOperation = Record<string, unknown>;
 
+test('emitOpenApi: omitted output is 200 schema null', (assert) => {
+
+    const ping = route({
+        meta: {summary: 'Ping', tags: ['health']},
+        auth: 'none',
+        handler: async (_input, _ctx) => undefined,
+    });
+
+    const doc = emitOpenApi({ping}, {
+        title: 'Void API',
+        version: '1.0.0',
+        basePath: '/v1',
+    });
+
+    const paths = doc.paths as Record<string, {
+        post?: {
+            responses?: {'200'?: {content?: {'application/json'?: {schema?: unknown}}}}
+            requestBody?: {content?: {'application/json'?: {schema?: Record<string, unknown>}}}
+        }
+    }>;
+    const success = paths['/v1/ping']?.post?.responses?.['200']?.content?.['application/json']?.schema;
+    const input = paths['/v1/ping']?.post?.requestBody?.content?.['application/json']?.schema;
+
+    assert.equal(JSON.stringify(success), JSON.stringify({type: 'null'}));
+    assert.equal(input?.type, 'object');
+    assert.equal(input?.additionalProperties, false);
+
+});
+
 test('emitOpenApi: valid OpenAPI 3.1 structure', (assert) => {
 
     const doc = emitOpenApi(api.routes, {

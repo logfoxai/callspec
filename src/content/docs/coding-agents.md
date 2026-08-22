@@ -2,23 +2,23 @@
 
 Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools — so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
 
-Human walkthrough: [Getting started](./getting-started.md). Topic guides: [README Contents](https://github.com/logfoxai/callspec#contents). Ignore `docs/internal/`.
+Human walkthrough: [Getting started](./getting-started.md). Topic guides: [README Contents](../../README.md#contents). Ignore `docs/internal/`.
 
 ## Callspec skill
 
-The rules live in **[`skills/callspec/SKILL.md`](https://github.com/logfoxai/callspec/blob/main/skills/callspec/SKILL.md)** (also shipped on npm under `skills/`). Point agents at that file — do not keep a second copy here.
+The rules live in **[`skills/callspec/SKILL.md`](../../skills/callspec/SKILL.md)** (also shipped on npm under `skills/`). Point agents at that file — do not keep a second copy here.
 
 **Cursor:** save as `.cursor/skills/callspec/SKILL.md` (or symlink that path to `node_modules/callspec/skills/callspec/SKILL.md` / this repo). Other tools: attach the file, or paste it once into chat if the agent cannot read the repo.
 
-What it encodes, in short:
+What it encodes, in short — footguns and conventions, not the API reference:
 
 - Return `err.*` for expected failures; a bare `throw` becomes `INTERNAL_ERROR`
 - Generate SDKs from `callspec.json` (`npx callspec …`), not OpenAPI
 - Default `auth` is `bearer`; `scope: 'private'` still requires auth
 - On `!result.ok`, branch on `result.code`
-- Don’t put Express error middleware or `express.json()` on the `mountSpec` router — it owns JSON parse and the catch path
-- When splitting files, follow [Server layout](./server-layout.md) — one `route()` per file with an inline handler
-- Uploads: `file()` on an input field. Same handler and generated client as JSON; wire is multipart. MCP is JSON-only
+- Don’t put Express error middleware or `express.json()` on the `mountSpec` router
+- When splitting files, follow [Server layout](./server-layout.md)
+- Uploads: `file()` on an input field — multipart wire; MCP stays JSON-only
 
 ## Prompt: work with Callspec
 
@@ -31,7 +31,7 @@ Follow the Callspec skill (return err.* for expected failures; codegen from call
 
 Task: <what you want changed — e.g. add a route, fix error handling, regenerate the SDK>
 
-Read guides under https://github.com/logfoxai/callspec/tree/main/src/content/docs — start with getting-started.md, server-layout.md, error-handling.md, and sdk-generation.md as needed. Ignore docs/internal/.
+Read guides under src/content/docs/ in this repo (index: README.md Contents) — start with getting-started.md, server-layout.md, error-handling.md, sdk-generation.md. Prefer the checkout; if fetching from GitHub over HTTP, use raw.githubusercontent.com/logfoxai/callspec/main/ + path. Ignore docs/internal/.
 ```
 
 ## Prompt: migrate to Callspec
@@ -49,7 +49,7 @@ Goals:
 Do this in order:
 1. Install callspec, runtyp, and express.
 2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; spec.ts = spec() registry only.
-3. Convert each endpoint to route({ input, output, errors?, auth, mcp?, meta, handler }) — handlers return values or err.*; do not throw for expected failures.
+3. Convert each endpoint to `route({ … })` per [route](./api-reference/route.md) — handlers return values or `err.*`; do not throw for expected failures.
 4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
 5. Generate the TypeScript client (live mount or optional pinned callspec.json); switch call sites to Result (result.ok / result.code).
 6. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.

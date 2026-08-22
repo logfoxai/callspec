@@ -27,7 +27,6 @@ import {predicates as p} from 'runtyp';
 import type {Ctx} from '../auth';
 
 export const getProfile = route({
-    input: p.object({}),
     output: p.object({userId: p.string()}),
     meta: {summary: 'Get profile', tags: ['users']},
     auth: 'bearer',

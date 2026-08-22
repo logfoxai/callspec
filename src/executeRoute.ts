@@ -1,4 +1,5 @@
 import {CallspecUnauthorizedError, CallspecValidationError, isRouteFailure} from './errors';
+import {isVoidSuccessPred} from './routeDefaults';
 import {deserializeWithPred, serializeResponse} from './serializer';
 import type {RouteDef} from './types';
 
@@ -14,7 +15,8 @@ export async function executeRoute<TInput, TOutput, Ctx>(
 
     }
 
-    const inputResult = route.input(deserializeWithPred(rawInput, route.input));
+    const body = rawInput === undefined || rawInput === null ? {} : rawInput;
+    const inputResult = route.input(deserializeWithPred(body, route.input));
 
     if (!inputResult.isValid) {
 
@@ -30,6 +32,14 @@ export async function executeRoute<TInput, TOutput, Ctx>(
 
     }
 
-    return serializeResponse(result);
+    const serialized = serializeResponse(result);
+
+    if (isVoidSuccessPred(route.output) && serialized === undefined) {
+
+        return null;
+
+    }
+
+    return serialized;
 
 }

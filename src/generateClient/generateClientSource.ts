@@ -3,6 +3,7 @@ import {generateSchemasSection} from './generateSchemasSection';
 import {
     assertGeneratableSchema,
     sanitizeMethodName,
+    isEmptyObjectSchema,
     schemaToTypes,
     typeNameForRoute,
 } from './schemaToTypeScript';
@@ -164,9 +165,12 @@ export function generateClientSource(
         }
 
         const callOptionsArg = `, { ${callOptionParts.join(', ')} }`;
+        const inputArg = isEmptyObjectSchema(route.input)
+            ? `input?: ${inputTypeName}`
+            : `input: ${inputTypeName}`;
 
         methods.push(`
-    async ${methodName}(input: ${inputTypeName}): Promise<${resultTypeName}> {
+    async ${methodName}(${inputArg}): Promise<${resultTypeName}> {
         return this.runtime.callResult<${outputTypeName}${routeErrorTypeName ? `, ${routeErrorTypeName}` : ''}>(${JSON.stringify(routeName)}, input${callOptionsArg});
     }`);
 

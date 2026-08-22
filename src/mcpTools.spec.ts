@@ -23,6 +23,29 @@ const routes = {
     }),
 };
 
+test('listMcpTools: omitted output schema is JSON null', (assert) => {
+
+    const tools = listMcpTools({
+        logout: route({
+            meta: {summary: 'Logout', tags: ['auth']},
+            auth: 'none',
+            mcp: true,
+            handler: async (_input, _ctx) => undefined,
+        }),
+    });
+
+    assert.equal(JSON.stringify(tools[0]?.outputSchema), JSON.stringify({type: 'null'}));
+    assert.equal(
+        (tools[0]?.inputSchema as {type?: string; additionalProperties?: boolean}).type,
+        'object',
+    );
+    assert.equal(
+        (tools[0]?.inputSchema as {additionalProperties?: boolean}).additionalProperties,
+        false,
+    );
+
+});
+
 test('listMcpTools: default visibility omits scope private tools', (assert) => {
 
     assert.equal(listMcpTools(routes).map((tool) => tool.name).join(','), 'greet');

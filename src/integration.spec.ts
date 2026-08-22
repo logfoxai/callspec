@@ -1367,3 +1367,148 @@ test('integration: visibility public omits private routes from contracts; all in
     }
 
 });
+
+test('integration: omitted input accepts {} and no body, rejects extra keys', async (assert) => {
+
+    const api = spec({
+        meta: {title: 'Empty Input API', version: '1.0.0'},
+        routes: {
+            whoami: route({
+                output: p.object({userId: p.string()}),
+                meta: {summary: 'Whoami', tags: ['auth']},
+                auth: 'none',
+                handler: async (_input, _ctx) => ({userId: 'u1'}),
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    const base = `http://127.0.0.1:${addr.port}/v1`;
+
+    try {
+
+        const empty = await fetch(`${base}/whoami`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{}',
+        });
+
+        assert.equal(empty.status, 200);
+        assert.equal(await empty.json(), {userId: 'u1'});
+
+        const noBody = await fetch(`${base}/whoami`, {method: 'POST'});
+
+        assert.equal(noBody.status, 200);
+        assert.equal(await noBody.json(), {userId: 'u1'});
+
+        const extra = await fetch(`${base}/whoami`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({extra: 1}),
+        });
+
+        assert.equal(extra.status, 400);
+        assert.equal((await extra.json() as {error?: string}).error, 'VALIDATION_ERROR');
+
+        const doc = await (await fetch(`${base}/callspec.json`)).json() as {
+            routes: {whoami: {input: {type?: string, additionalProperties?: boolean}}}
+        };
+
+        assert.equal(doc.routes.whoami.input.type, 'object');
+        assert.equal(doc.routes.whoami.input.additionalProperties, false);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
+
+test('integration: omitted output is HTTP 200 null and MCP structured null', async (assert) => {
+
+    const api = spec({
+        meta: {title: 'Void API', version: '1.0.0'},
+        routes: {
+            logout: route({
+                meta: {summary: 'Logout', tags: ['auth']},
+                auth: 'none',
+                mcp: true,
+                handler: async (_input, _ctx) => undefined,
+            }),
+        },
+    });
+
+    const app = express();
+    const router = express.Router();
+
+    router.use(express.json());
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') throw new Error('expected server address');
+
+    const base = `http://127.0.0.1:${addr.port}/v1`;
+
+    try {
+
+        const res = await fetch(`${base}/logout`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{}',
+        });
+
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), 'null');
+
+        const openApi = await (await fetch(`${base}/openapi.json`)).json() as {
+            paths: Record<string, {
+                post?: {responses?: {'200'?: {content?: {'application/json'?: {schema?: unknown}}}}}
+            }>
+        };
+        const successSchema = openApi.paths['/logout']?.post?.responses?.['200']
+            ?.content?.['application/json']?.schema;
+
+        assert.equal(JSON.stringify(successSchema), JSON.stringify({type: 'null'}));
+
+        const mcp = await fetch(`${base}/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'tools/call',
+                params: {name: 'logout', arguments: {}},
+            }),
+        });
+        const mcpBody = await mcp.json() as {result: {structuredContent: unknown}};
+
+        assert.equal(mcpBody.result.structuredContent, null);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
+
+});
