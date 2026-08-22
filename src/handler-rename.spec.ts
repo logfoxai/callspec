@@ -33,8 +33,12 @@ test('public API and docs use handler naming', (assert) => {
 	assert.equal(existsSync(path.join(root, 'src/routeHandler.ts')), true);
 	assert.equal(existsSync(path.join(root, 'src/routeResolver.ts')), false);
 	assert.equal(
-		existsSync(path.join(root, 'src/content/docs/api-reference/handlers.md')),
+		existsSync(path.join(root, 'src/content/docs/api-reference/route.md')),
 		true,
+	);
+	assert.equal(
+		existsSync(path.join(root, 'src/content/docs/api-reference/handlers.md')),
+		false,
 	);
 	assert.equal(
 		existsSync(path.join(root, 'src/content/docs/api-reference/resolvers.md')),
@@ -43,5 +47,5 @@ test('public API and docs use handler naming', (assert) => {
 
 	const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
 	assert.equal(astro.includes('api-reference/resolvers'), false);
-	assert.equal(astro.includes('api-reference/handlers'), true);
+	assert.equal(astro.includes('api-reference/route'), true);
 });

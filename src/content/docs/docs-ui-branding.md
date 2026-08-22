@@ -60,7 +60,7 @@ Custom HTML, inline CSS, and external override stylesheets are **not supported**
 
 Per-route labels: `route({ meta: { summary, tags, description? } })` — sidebar grouping and route titles.
 
-Field reference: [route & spec § Spec meta](./api-reference/route-and-spec.md#spec-meta).
+Field reference: [`spec` § Spec meta](./api-reference/spec.md#spec-meta).
 
 ## Logo files
 
