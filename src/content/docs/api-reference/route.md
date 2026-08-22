@@ -1,6 +1,6 @@
 # route
 
-`route()` wires one HTTP/MCP endpoint. Prefer an inline `handler` so types flow from the preds.
+`route()` wires one HTTP/MCP endpoint. We recommend keeping `handler` **inline** so the language server can infer input and return types.
 
 ```typescript
 import {route, err} from 'callspec';
