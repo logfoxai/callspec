@@ -1,8 +1,6 @@
 # route
 
-`route()` wires one HTTP/MCP endpoint. Register the result on [`spec({ routes })`](./spec.md), then pass that spec to [`mountSpec()`](./mount-spec.md).
-
-Keep `handler` **inline** in the `route({ … })` call so `input` / success return types flow from the preds.
+`route()` wires one HTTP/MCP endpoint. Keep `handler` **inline** in the `route({ … })` call so `input` / success return types flow from the preds.
 
 ```typescript
 import {route, err} from 'callspec';
