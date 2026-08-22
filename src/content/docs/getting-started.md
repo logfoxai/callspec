@@ -1,6 +1,6 @@
 # Getting started
 
-The [single-file server example](./single-file-server-example.md) is the whole model in one file. This page is install, a split server, and the client.
+This page walks through install, a split server, and the client.
 
 For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + copy-paste prompts).
 
