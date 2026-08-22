@@ -1,6 +1,6 @@
 # Getting started
 
-This page walks through a simple API server and the client.
+This page walks through a simple server and the client.
 
 For coding agents: [Working with Coding Agents](./coding-agents.md) (skill + copy-paste prompts).
 
