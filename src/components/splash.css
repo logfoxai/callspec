@@ -53,27 +53,13 @@ html:not([data-has-sidebar]):has(.splash-page) {
         --splash-demo-secondary-hover-bg: hsl(228 10% 44%);
         --splash-primary-hover-bg: hsl(262 58% 72%);
         --splash-primary-hover-fg: hsl(262 28% 8%);
-        --splash-primary-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.2),
-            0.1rem 0.1rem 0 0 hsl(262 30% 28%);
-        --splash-primary-shadow-hover:
-            0.1rem 0.1rem 0 0 hsl(262 26% 20%);
-        --splash-primary-shadow-active:
-            0.05rem 0.05rem 0 0 hsl(262 28% 24%);
-        --splash-secondary-shadow:
-            0.1rem 0.1rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 22%, #0a0612),
-            0.12rem 0.16rem 0.7rem hsl(228 32% 4% / 0.22);
-        --splash-secondary-shadow-hover:
-            0.12rem 0.12rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 28%, #0a0612);
-        --splash-secondary-shadow-active:
-            0.06rem 0.06rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 18%, #0a0612);
         --splash-secondary-hover-bg: hsl(228 12% 34%);
         --splash-secondary-hover-fg: var(--cs-ink);
         --splash-code-wash:
-            radial-gradient(ellipse 85% 70% at 8% 0%, hsl(262 48% 52% / 0.1), transparent 58%),
-            radial-gradient(ellipse 75% 65% at 100% 100%, hsl(172 50% 40% / 0.07), transparent 55%),
+            radial-gradient(ellipse 85% 70% at 8% 0%, hsl(262 48% 52% / 0.085), transparent 58%),
+            radial-gradient(ellipse 75% 65% at 100% 100%, hsl(172 50% 40% / 0.058), transparent 55%),
             hsl(228 16% 10%);
-        --splash-code-edge: color-mix(in srgb, hsl(172 40% 55%) 4%, var(--cs-line));
+        --splash-code-edge: color-mix(in srgb, hsl(172 40% 55%) 3%, var(--cs-line));
         color-scheme: dark;
 
         &,
@@ -110,27 +96,13 @@ html:not([data-has-sidebar]):has(.splash-page) {
         --splash-demo-secondary-bg: #ffffff;
         --splash-primary-hover-bg: hsl(262 52% 58%);
         --splash-primary-hover-fg: #f8fafc;
-        --splash-primary-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.16),
-            0.1rem 0.1rem 0 0 hsl(262 26% 18%);
-        --splash-primary-shadow-hover:
-            0.1rem 0.1rem 0 0 hsl(262 24% 14%);
-        --splash-primary-shadow-active:
-            0.05rem 0.05rem 0 0 hsl(262 26% 16%);
-        --splash-secondary-shadow:
-            0.1rem 0.1rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 20%, #0a0612),
-            0.12rem 0.16rem 0.7rem hsl(228 32% 4% / 0.08);
-        --splash-secondary-shadow-hover:
-            0.12rem 0.12rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 24%, #0a0612);
-        --splash-secondary-shadow-active:
-            0.06rem 0.06rem 0 0 color-mix(in srgb, hsl(220 8% 55%) 16%, #0a0612);
         --splash-secondary-hover-bg: hsl(228 12% 78%);
         --splash-secondary-hover-fg: var(--cs-ink);
         --splash-code-wash:
-            radial-gradient(ellipse 85% 70% at 8% 0%, hsl(262 55% 62% / 0.09), transparent 58%),
-            radial-gradient(ellipse 75% 65% at 100% 100%, hsl(172 45% 48% / 0.06), transparent 55%),
+            radial-gradient(ellipse 85% 70% at 8% 0%, hsl(262 55% 62% / 0.18), transparent 58%),
+            radial-gradient(ellipse 75% 65% at 100% 100%, hsl(172 45% 48% / 0.13), transparent 55%),
             var(--cs-code-bg, #f4f5f8);
-        --splash-code-edge: color-mix(in srgb, hsl(172 35% 42%) 3%, var(--cs-line));
+        --splash-code-edge: color-mix(in srgb, hsl(172 35% 42%) 6%, var(--cs-line));
         color-scheme: light;
 
         &,
@@ -307,13 +279,12 @@ html:not([data-has-sidebar]):has(.splash-page) {
     height: 3.5rem;
     min-height: 3.5rem;
     padding: 0 1.85rem;
-    border: 1px solid transparent;
+    border: none;
     border-radius: 0.65rem;
     line-height: 1;
     gap: 0.65rem;
     transition:
         background-color 0.15s ease,
-        border-color 0.15s ease,
         color 0.15s ease,
         box-shadow 0.15s ease;
 
@@ -343,21 +314,11 @@ html:not([data-has-sidebar]):has(.splash-page) {
     &.primary {
         font-weight: 600;
         color: var(--cs-primary-fg);
-        border: 1px solid transparent;
-        border-color: transparent;
         background: var(--cs-primary-bg);
-        box-shadow: var(--splash-primary-shadow);
 
         &:hover {
             color: var(--splash-primary-hover-fg);
             background: var(--splash-primary-hover-bg);
-            border: 1px solid transparent;
-            border-color: transparent;
-            box-shadow: var(--splash-primary-shadow-hover);
-        }
-
-        &:active {
-            box-shadow: var(--splash-primary-shadow-active);
         }
 
         &:focus-visible {
@@ -368,16 +329,6 @@ html:not([data-has-sidebar]):has(.splash-page) {
 
     &.secondary {
         font-weight: 600;
-        border: 1px solid transparent;
-        box-shadow: var(--splash-secondary-shadow);
-
-        &:hover {
-            box-shadow: var(--splash-secondary-shadow-hover);
-        }
-
-        &:active {
-            box-shadow: var(--splash-secondary-shadow-active);
-        }
     }
 }
 
@@ -620,79 +571,83 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero_
     }
 }
 
+html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
+    --cs-btn-fill: var(--cs-primary-bg);
+
+    &:hover {
+        --cs-btn-fill: var(--splash-primary-hover-bg);
+    }
+}
+
 html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
+    --cs-btn-fill: var(--splash-hero-secondary-bg);
     background: var(--splash-hero-secondary-bg);
-    border: 1px solid transparent;
     color: var(--cs-ink);
-    box-shadow: var(--splash-secondary-shadow);
 
     &:hover {
+        --cs-btn-fill: var(--splash-secondary-hover-bg);
         background: var(--splash-secondary-hover-bg);
-        border: 1px solid transparent;
         color: var(--splash-secondary-hover-fg);
-        box-shadow: var(--splash-secondary-shadow-hover);
-    }
-
-    &:active {
-        border: 1px solid transparent;
-        box-shadow: var(--splash-secondary-shadow-active);
     }
 }
 
-html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secondary {
+html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local) {
+    --cs-btn-fill: var(--splash-demo-secondary-bg);
     background: var(--splash-demo-secondary-bg);
-    border: 1px solid transparent;
     color: var(--cs-ink);
-    box-shadow: var(--splash-secondary-shadow);
 
     &:hover {
+        --cs-btn-fill: var(--splash-demo-secondary-hover-bg);
         background: var(--splash-demo-secondary-hover-bg);
-        border: 1px solid transparent;
         color: var(--splash-secondary-hover-fg);
-        box-shadow: var(--splash-secondary-shadow-hover);
-    }
-
-    &:active {
-        border: 1px solid transparent;
-        box-shadow: var(--splash-secondary-shadow-active);
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero__actions .sl-link-button.secondary {
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero .splash-hero__actions .sl-link-button.secondary {
+    --cs-btn-light-fill: var(--splash-hero-secondary-bg);
     background: var(--splash-hero-secondary-bg);
-    border: 1px solid transparent;
     color: var(--cs-ink);
-    box-shadow: var(--splash-secondary-shadow);
 
     &:hover {
+        --cs-btn-light-fill: var(--splash-secondary-hover-bg);
         background: var(--splash-secondary-hover-bg);
-        border: 1px solid transparent;
         color: var(--splash-secondary-hover-fg);
-        box-shadow: var(--splash-secondary-shadow-hover);
-    }
-
-    &:active {
-        border: 1px solid transparent;
-        box-shadow: var(--splash-secondary-shadow-active);
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.secondary {
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local) {
+    --cs-btn-light-fill: var(--splash-demo-secondary-bg);
     background: var(--splash-demo-secondary-bg);
-    border: 1px solid transparent;
     color: var(--cs-ink);
-    box-shadow: var(--splash-secondary-shadow);
 
     &:hover {
-        background: var(--splash-secondary-hover-bg);
-        border: 1px solid transparent;
+        --cs-btn-light-fill: var(--splash-demo-secondary-hover-bg);
+        background: var(--splash-demo-secondary-hover-bg);
         color: var(--splash-secondary-hover-fg);
-        box-shadow: var(--splash-secondary-shadow-hover);
     }
+}
 
-    &:active {
-        border: 1px solid transparent;
-        box-shadow: var(--splash-secondary-shadow-active);
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.splash-demo__run-local {
+    --cs-btn-light-fill: var(--splash-demo-secondary-bg);
+    background: var(--splash-demo-secondary-bg);
+    color: var(--cs-ink);
+
+    &:hover {
+        --cs-btn-light-fill: var(--splash-hero-secondary-bg);
+        background: var(--splash-hero-secondary-bg);
+        color: var(--cs-ink);
+    }
+}
+
+html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.splash-demo__run-local {
+    --cs-btn-fill: var(--splash-demo-secondary-bg);
+    background: var(--splash-demo-secondary-bg);
+    color: var(--cs-ink);
+
+    &:hover {
+        --cs-btn-fill: var(--splash-demo-secondary-hover-bg);
+        background: var(--splash-demo-secondary-hover-bg);
+        color: var(--splash-secondary-hover-fg);
     }
 }
 

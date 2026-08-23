@@ -117,6 +117,13 @@ html[data-theme='light'],
         0 6px 16px hsl(228 25% 25% / 0.1),
         0 20px 56px hsl(228 30% 25% / 0.16),
         0 36px 88px hsl(228 30% 30% / 0.22);
+
+    /* Flat CTA depth — primary: black; light secondary: softer grey from fill. */
+    --docs-btn-shadow: 2px 2px 0 0 #000;
+    --docs-btn-shadow-hover: 2px 2px 0 0 #000;
+    --docs-btn-shadow-active: 1px 1px 0 0 #000;
+    --docs-btn-light-fill: hsl(228 14% 84%);
+    --docs-btn-light-fill-hover: hsl(228 12% 78%);
 }
 
 html[data-theme='dark'],
@@ -170,6 +177,12 @@ html[data-theme='dark'],
         0 6px 18px hsl(228 40% 2% / 0.42),
         0 22px 52px hsl(228 40% 2% / 0.48),
         0 44px 112px hsl(228 40% 2% / 0.62);
+
+    --docs-btn-dark-fill: hsl(228 12% 32%);
+    --docs-btn-dark-fill-hover: hsl(228 12% 34%);
+    --docs-btn-dark-highlight: inset 0 2px 0 0 hsl(0 0% 100% / 0.14);
+    --docs-btn-dark-highlight-hover: inset 0 2px 0 0 hsl(0 0% 100% / 0.2);
+    --docs-btn-dark-highlight-active: inset 0 1px 0 0 hsl(0 0% 100% / 0.1);
 }
 
 /* Roomier L/R chrome — past MacBook Neo widths (see html type scale above). */
@@ -218,6 +231,17 @@ html[data-theme='light'],
     --cs-search-field-fg: var(--docs-text);
     --cs-search-result-fg: var(--docs-text);
     --cs-search-card-radius: 0.75rem;
+    --cs-btn-shadow: var(--docs-btn-shadow);
+    --cs-btn-shadow-hover: var(--docs-btn-shadow-hover);
+    --cs-btn-shadow-active: var(--docs-btn-shadow-active);
+    --cs-btn-light-fill: var(--docs-btn-light-fill);
+    --cs-btn-light-shadow-color: color-mix(in srgb, var(--cs-btn-light-fill) 70%, hsl(228 14% 38%));
+    --cs-btn-light-shadow: 2px 2px 0 0 var(--cs-btn-light-shadow-color);
+    --cs-btn-light-shadow-hover: 2px 2px 0 0 color-mix(in srgb, var(--cs-btn-light-shadow-color) 88%, hsl(228 14% 28%));
+    --cs-btn-light-shadow-active: 1px 1px 0 0 var(--cs-btn-light-shadow-color);
+    --cs-btn-dark-highlight: var(--docs-btn-dark-highlight);
+    --cs-btn-dark-highlight-hover: var(--docs-btn-dark-highlight-hover);
+    --cs-btn-dark-highlight-active: var(--docs-btn-dark-highlight-active);
 
     --bg: var(--docs-bg);
     --surface: var(--docs-surface);
