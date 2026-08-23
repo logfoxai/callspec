@@ -35,6 +35,7 @@ const required = [
 	'We do file uploads too',
 	'Bring your own auth',
 	'splash-auth__providers',
+	'splash-auth__grid',
 	'splash-uploads__kinds',
 	'Clerk',
 	'Auth0',

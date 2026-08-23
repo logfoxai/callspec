@@ -2,93 +2,98 @@
 /**
  * Homepage auth beat — Bearer is built in; you verify however you already do.
  */
+import SplashIcon from './SplashIcon.astro';
+import type {SplashIconName} from './SplashIcon.astro';
 import GithubLogo from 'phosphor-astro/GithubLogo.astro';
 import GoogleLogo from 'phosphor-astro/GoogleLogo.astro';
 import Key from 'phosphor-astro/Key.astro';
 
-const authCode = `<span class="tok-kw">export const</span> authenticate: Authenticate&lt;Ctx&gt; = <span class="tok-kw">async</span> (token, req) => {
-  <span class="tok-kw">const</span> session = <span class="tok-kw">await</span> <span class="tok-fn">verifySession</span>(token, req);
-  <span class="tok-kw">if</span> (!session) <span class="tok-kw">return</span> undefined;
-  <span class="tok-kw">return</span> { userId: session.userId };
-};`;
-
-const points = [
+const cards = [
 	{
+		tone: 'violet',
 		title: 'Bearer is built in',
 		copy: 'auth: \'bearer\' (the default) requires Authorization. Missing or invalid → 401 UNAUTHORIZED before the handler runs.',
+		icon: 'shield',
 	},
 	{
+		tone: 'teal',
 		title: 'You verify the token',
-		copy: 'authenticate(token, req) is your hook — Clerk, Auth0, a homemade session. Callspec does not pick an identity vendor.',
+		copy: 'authenticate(token, req) is your hook. Callspec does not pick an identity vendor.',
+		icon: 'key',
 	},
 	{
+		tone: 'mcp',
 		title: 'ctx, not the input pred',
 		copy: 'Return { userId, … } and the handler gets it as ctx. Keep credentials off the RPC body.',
+		icon: 'unlock',
 	},
-] as const;
+] as const satisfies ReadonlyArray<{
+	tone: string
+	title: string
+	copy: string
+	icon: SplashIconName
+}>;
 
 const iconProps = {'aria-hidden': 'true' as const};
 ---
 
-<section class="splash-sdk splash-auth" aria-labelledby="splash-auth-title">
-	<div class="splash-sdk__inner">
-		<header class="splash-sdk__intro">
-			<h2 id="splash-auth-title" class="splash-sdk__title">Bring your own auth</h2>
-			<p class="splash-sdk__lede">
-				Callspec extracts the Bearer token. What it means is your authenticate hook — Clerk, a
-				custom session, whatever you already run.
-			</p>
-			<ul class="splash-auth__providers" aria-label="Works with any identity provider">
-				<li class="splash-auth__provider">
-					<span class="splash-auth__mark" data-brand="clerk" aria-hidden="true">C</span>
-					Clerk
-				</li>
-				<li class="splash-auth__provider">
-					<span class="splash-auth__mark" data-brand="auth0" aria-hidden="true">
-						<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.98 7.448 19.62 0H4.347L2.02 7.448c-1.352 4.199.198 8.081 4.207 9.54.06.023.12.04.18.062L4.322 24l6.09-3.612L16.5 24l-2.085-6.95c.06-.02.12-.038.18-.06 4.01-1.46 5.56-5.342 4.206-9.542ZM12 15.406c-2.243 0-4.062-1.812-4.062-4.04S9.757 7.325 12 7.325c2.242 0 4.062 1.813 4.062 4.04s-1.82 4.04-4.062 4.04Z"/></svg>
-					</span>
-					Auth0
-				</li>
-				<li class="splash-auth__provider">
-					<span class="splash-auth__mark" data-brand="github" aria-hidden="true">
-						<GithubLogo {...iconProps} />
-					</span>
-					GitHub
-				</li>
-				<li class="splash-auth__provider">
-					<span class="splash-auth__mark" data-brand="google" aria-hidden="true">
-						<GoogleLogo {...iconProps} />
-					</span>
-					Google
-				</li>
-				<li class="splash-auth__provider">
-					<span class="splash-auth__mark" data-brand="custom" aria-hidden="true">
-						<Key {...iconProps} />
-					</span>
-					Custom
-				</li>
-			</ul>
-		</header>
+<section class="splash-auth" aria-labelledby="splash-auth-title">
+	<header class="splash-auth__intro">
+		<h2 id="splash-auth-title" class="splash-auth__title">Bring your own auth</h2>
+		<p class="splash-auth__lede">
+			Callspec extracts the Bearer token. What it means is your authenticate hook — Clerk, a
+			custom session, whatever you already run.
+		</p>
+	</header>
 
-		<ul class="splash-sdk__points">
-			{
-				points.map(({title, copy}) => (
-					<li class="splash-sdk__point">
-						<h3 class="splash-sdk__point-title">{title}</h3>
-						<p class="splash-sdk__point-copy">{copy}</p>
-					</li>
-				))
-			}
-		</ul>
+	<ul class="splash-auth__providers" aria-label="Works with any identity provider">
+		<li class="splash-auth__provider">
+			<span class="splash-auth__mark" data-brand="clerk" aria-hidden="true">C</span>
+			Clerk
+		</li>
+		<li class="splash-auth__provider">
+			<span class="splash-auth__mark" data-brand="auth0" aria-hidden="true">
+				<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.98 7.448 19.62 0H4.347L2.02 7.448c-1.352 4.199.198 8.081 4.207 9.54.06.023.12.04.18.062L4.322 24l6.09-3.612L16.5 24l-2.085-6.95c.06-.02.12-.038.18-.06 4.01-1.46 5.56-5.342 4.206-9.542ZM12 15.406c-2.243 0-4.062-1.812-4.062-4.04S9.757 7.325 12 7.325c2.242 0 4.062 1.813 4.062 4.04s-1.82 4.04-4.062 4.04Z"/></svg>
+			</span>
+			Auth0
+		</li>
+		<li class="splash-auth__provider">
+			<span class="splash-auth__mark" data-brand="github" aria-hidden="true">
+				<GithubLogo {...iconProps} />
+			</span>
+			GitHub
+		</li>
+		<li class="splash-auth__provider">
+			<span class="splash-auth__mark" data-brand="google" aria-hidden="true">
+				<GoogleLogo {...iconProps} />
+			</span>
+			Google
+		</li>
+		<li class="splash-auth__provider">
+			<span class="splash-auth__mark" data-brand="custom" aria-hidden="true">
+				<Key {...iconProps} />
+			</span>
+			Custom
+		</li>
+	</ul>
 
-		<figure class="splash-sdk__figure" aria-label="Authenticate hook example">
-			<pre class="splash-sdk__code" tabindex="0"><code set:html={authCode} /></pre>
-		</figure>
-	</div>
+	<ul class="splash-auth__grid">
+		{
+			cards.map(({tone, title, copy, icon}) => (
+				<li class="splash-auth__card">
+					<span class="splash-auth__icon" data-tone={tone} aria-hidden="true">
+						<SplashIcon name={icon} />
+					</span>
+					<h3 class="splash-auth__card-title">{title}</h3>
+					<p class="splash-auth__card-copy">{copy}</p>
+				</li>
+			))
+		}
+	</ul>
 
-	<p class="splash-sdk__footer">
-		<a class="splash-sdk__link" href="/authentication/">Authentication</a>
-		<span class="splash-sdk__sep" aria-hidden="true">·</span>
-		<a class="splash-sdk__link" href="/request-context/">Request context</a>
+	<p class="splash-auth__footer">
+		<a class="splash-auth__link" href="/authentication/">Authentication</a>
+		<span class="splash-auth__sep" aria-hidden="true">·</span>
+		<a class="splash-auth__link" href="/request-context/">Request context</a>
 	</p>
 </section>

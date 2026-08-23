@@ -8,9 +8,10 @@ import Function from 'phosphor-astro/Function.astro';
 import LockOpen from 'phosphor-astro/LockOpen.astro';
 import Scroll from 'phosphor-astro/Scroll.astro';
 import ShieldCheck from 'phosphor-astro/ShieldCheck.astro';
+import Key from 'phosphor-astro/Key.astro';
 import {mcpIcon} from '../callspec-ui/ui/icons';
 
-export type SplashIconName = 'mcp' | 'clipboard' | 'skill' | 'unlock' | 'shield' | 'rpc' | 'test';
+export type SplashIconName = 'mcp' | 'clipboard' | 'skill' | 'unlock' | 'shield' | 'rpc' | 'test' | 'key';
 
 interface Props {
 	name: SplashIconName;
@@ -35,5 +36,7 @@ const svgProps = {'aria-hidden': 'true' as const};
 		<Function {...svgProps} />
 	) : name === 'test' ? (
 		<Flask {...svgProps} />
+	) : name === 'key' ? (
+		<Key {...svgProps} />
 	) : null
 }
