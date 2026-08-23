@@ -31,7 +31,7 @@ const required = [
 	'splash-uploads',
 	'Built for coding agents',
 	'Typed SDK from the same spec',
-	'File uploads are still just routes',
+	'We do file uploads too',
 	'/file-uploads/',
 	'duct-taping',
 	'your API stack.',

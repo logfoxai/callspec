@@ -1,6 +1,6 @@
 ---
 /**
- * Homepage uploads beat — files are still a normal RPC route.
+ * Homepage uploads beat — Callspec routes can take files.
  */
 
 const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">upload</span>({
@@ -27,7 +27,7 @@ const points = [
 <section class="splash-sdk splash-uploads" aria-labelledby="splash-uploads-title">
 	<div class="splash-sdk__inner">
 		<header class="splash-sdk__intro">
-			<h2 id="splash-uploads-title" class="splash-sdk__title">File uploads are still just routes</h2>
+			<h2 id="splash-uploads-title" class="splash-sdk__title">We do file uploads too</h2>
 			<p class="splash-sdk__lede">
 				Add file() to the input. The handler and generated client stay normal RPC — same types,
 				same errors, same Result. Multipart is only the wire.
