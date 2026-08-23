@@ -2,7 +2,7 @@
 
 Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools — so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
 
-Human walkthrough: [Getting started](./getting-started.md). Topic guides: [README Contents](../../README.md#contents). Ignore `docs/internal/`.
+Human walkthrough: [Getting started](./getting-started.md). Topic guides: [README Contents](../../README.md#contents).
 
 ## Callspec skill
 
@@ -10,7 +10,7 @@ The rules live in **[`skills/callspec/SKILL.md`](../../skills/callspec/SKILL.md)
 
 **Cursor:** save as `.cursor/skills/callspec/SKILL.md` (or symlink that path to `node_modules/callspec/skills/callspec/SKILL.md` / this repo). Other tools: attach the file, or paste it once into chat if the agent cannot read the repo.
 
-What it encodes, in short — footguns and conventions, not the API reference:
+What it encodes, in short — rules, not the API reference:
 
 - Return `err.*` for expected failures; a bare `throw` becomes `INTERNAL_ERROR`
 - Generate SDKs from `callspec.json` (`npx callspec …`), not OpenAPI
@@ -31,7 +31,7 @@ Follow the Callspec skill (return err.* for expected failures; codegen from call
 
 Task: <what you want changed — e.g. add a route, fix error handling, regenerate the SDK>
 
-Read guides under src/content/docs/ in this repo (index: README.md Contents) — start with getting-started.md, server-layout.md, error-handling.md, sdk-generation.md. Prefer the checkout; if fetching from GitHub over HTTP, use raw.githubusercontent.com/logfoxai/callspec/main/ + path. Ignore docs/internal/.
+Read guides under src/content/docs/ in this repo (index: README.md Contents) — start with getting-started.md, server-layout.md, error-handling.md, sdk-generation.md. Prefer the checkout; if fetching from GitHub over HTTP, use raw.githubusercontent.com/logfoxai/callspec/main/ + path.
 ```
 
 ## Prompt: migrate to Callspec

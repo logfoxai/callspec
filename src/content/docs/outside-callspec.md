@@ -9,7 +9,7 @@ If that middleware should return the same error body as an RPC route (`{ error, 
 | Handler, `authenticate`, or `handleUnhandledError` | Return `err.*`. `mountSpec` writes the response. |
 | Your middleware (you have `res`) | Call `sendRouteFailureResponse(res, failure)`. |
 
-Do not add Express error middleware to the `mountSpec` router. Add yours on the app, around the mount.
+Do not add `express.json()` or Express error middleware to the **router** passed to `mountSpec` — mountSpec already wires those for RPC. Add app-level middleware and your catch-all `errorHandler` on the Express app instead (see below).
 
 ```typescript
 import {err, sendRouteFailureResponse} from 'callspec';

@@ -36,7 +36,7 @@ npm i callspec runtyp express
 
 ## Coding agents
 
-Optional — for Cursor, Claude Code, and similar tools: [`skills/callspec/SKILL.md`](skills/callspec/SKILL.md) (common footguns) and [copy-paste prompts](src/content/docs/coding-agents.md). The guides below are the source of truth for the API.
+Optional — for Cursor, Claude Code, and similar tools: [`skills/callspec/SKILL.md`](skills/callspec/SKILL.md) (rules) and [copy-paste prompts](src/content/docs/coding-agents.md). The guides below are the source of truth for the API.
 
 ## Contents
 

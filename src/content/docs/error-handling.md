@@ -23,7 +23,9 @@ For RPC routes mounted with `mountSpec`, **errors and logging are owned by calls
 mountSpec(router, spec); // JSON parse + request log + catch path + INTERNAL_ERROR — no extra host middleware
 ```
 
-Do **not** wire host error middleware, `express.json()`, or jsout on this router — mountSpec owns JSON parse and the catch path.
+For RPC on the router passed to `mountSpec`, Callspec owns JSON parse, request logging (when enabled), and the RPC error path — don't duplicate `express.json()` or error middleware **on that router**.
+
+On the **Express app**, keep your usual stack: middleware around the mount and a final catch-all `errorHandler` for non-RPC routes and anything that escapes. Use `sendRouteFailureResponse` when your middleware should return the same `{ error, data? }` shape — see [Outside Callspec](./outside-callspec.md).
 
 ### Catch order (per request)
 
@@ -241,8 +243,6 @@ If `fetch` throws (DNS failure, offline, abort, etc.) before any HTTP response, 
 HTML tag stripping applies **only** while matching (steps 2–4). It is not applied to `UNKNOWN_ERROR.data.body`.
 
 For non-RPC / legacy routes, **`normalizeClientErrorBody(status, body, options?)`** from `callspec/client` runs the same HTTP pipeline (optional `responseHeaders` in options).
-
-For fuzzy-matching implementation notes, see `docs/internal/` in the repo (not published on the guide site).
 
 ## Handler pattern
 
