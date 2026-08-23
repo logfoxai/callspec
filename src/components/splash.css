@@ -696,11 +696,12 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo 
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-demo, .splash-agents, .splash-auth) {
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-demo, .splash-agents, .splash-auth, .splash-support) {
     .splash-demo__lede,
     .splash-sdk__lede,
     .splash-agents__lede,
-    .splash-auth__lede {
+    .splash-auth__lede,
+    .splash-support__lede {
         color: color-mix(in srgb, var(--cs-ink) 88%, var(--cs-muted));
     }
 }
@@ -747,7 +748,8 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-d
 .splash-demo,
 .splash-sdk,
 .splash-agents,
-.splash-auth {
+.splash-auth,
+.splash-support {
     display: flex;
     flex-direction: column;
     gap: var(--splash-section-inner-gap);
@@ -756,7 +758,8 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-d
 .splash-demo,
 .splash-sdk,
 .splash-agents,
-.splash-auth {
+.splash-auth,
+.splash-support {
     align-items: center;
 }
 
@@ -768,7 +771,8 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-d
 .splash-demo__title,
 .splash-sdk__title,
 .splash-agents__title,
-.splash-auth__title {
+.splash-auth__title,
+.splash-support__title {
     margin: 0;
     padding-block: 0;
     font-family: var(--cs-font-heading);
@@ -783,7 +787,8 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-d
 .splash-how__title,
 .splash-demo__title,
 .splash-agents__title,
-.splash-auth__title {
+.splash-auth__title,
+.splash-support__title {
     text-align: center;
 }
 
@@ -1401,7 +1406,8 @@ html[data-theme='light'] .splash-agents__icon {
 
 .splash-demo__intro,
 .splash-agents__intro,
-.splash-auth__intro {
+.splash-auth__intro,
+.splash-support__intro {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1414,7 +1420,8 @@ html[data-theme='light'] .splash-agents__icon {
 .splash-demo__lede,
 .splash-sdk__lede,
 .splash-agents__lede,
-.splash-auth__lede {
+.splash-auth__lede,
+.splash-support__lede {
     margin: 0;
     max-width: 36rem;
     font-size: clamp(0.98rem, 2.4vw, 1.05rem);
@@ -1594,7 +1601,7 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-sdk__
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--splash-intro-gap);
+    gap: 0.5rem;
     margin: 0;
     padding: 0 clamp(0.25rem, 1.5vw, 0.75rem);
     border: none;
@@ -1654,7 +1661,7 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-sdk__
 }
 
 .splash-agents__card-copy {
-    margin: 0;
+    margin: calc(var(--splash-intro-gap) - 0.5rem) 0 0;
     max-width: 22rem;
     font-size: clamp(0.95rem, 2vw, 1.02rem);
     line-height: 1.5;
@@ -1663,5 +1670,6 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-sdk__
 
     @media (max-width: 29.99rem) {
         grid-area: copy;
+        margin-top: 0;
     }
 }

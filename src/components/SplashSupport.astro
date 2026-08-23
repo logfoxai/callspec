@@ -1,0 +1,29 @@
+---
+/**
+ * Homepage closer — Discord support, no heading icon.
+ */
+import SplashHeroActions from './SplashHeroActions.astro';
+---
+
+<section class="splash-section splash-support" aria-labelledby="splash-support-title">
+	<header class="splash-support__intro">
+		<h2 id="splash-support-title" class="splash-support__title">Need a hand?</h2>
+		<p class="splash-support__lede">
+			Questions, a stuck integration, or just saying hi — join us on Discord.
+		</p>
+		<SplashHeroActions
+			actions={[
+				{
+					text: 'Join Discord',
+					link: 'https://discord.gg/2wyYnBDhWQ',
+					variant: 'primary',
+					icon: {type: 'icon', name: 'discord'},
+					attrs: {
+						target: '_blank',
+						rel: 'noopener noreferrer',
+					},
+				},
+			]}
+		/>
+	</header>
+</section>
