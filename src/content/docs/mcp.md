@@ -46,7 +46,7 @@ spec({
 | Errors | Same codes as HTTP / the generated SDK (`NOT_FOUND`, domain errors, …) |
 | Auth | Per-route `auth` — bearer tools reject missing/invalid tokens like private HTTP |
 
-Do not set `mcp: true` on [`file()`](./file-uploads.md) routes — MCP tools are JSON only.
+[`file()`](./file-uploads.md) routes cannot be MCP tools. `tools/call` is JSON arguments; upload routes reject JSON. Leave `mcp` unset. This is a limitation of Callspec’s MCP adapter, not of HTTP uploads.
 
 ## Observability
 

@@ -43,4 +43,6 @@ const result = await api.upload({
 
 The file is buffered in memory up to `maxBytes`. A JSON body is rejected — the route is multipart-only.
 
-`callspec.json` sets `encoding: "multipart"`. OpenAPI uses `multipart/form-data`. Do not set `mcp: true` on these routes.
+`callspec.json` sets `encoding: "multipart"`. OpenAPI uses `multipart/form-data`.
+
+[MCP](./mcp.md) `tools/call` only takes JSON arguments. These routes reject JSON, so they cannot be MCP tools. Leave `mcp` unset — Callspec will still list the tool if you set it, then fail when an agent calls it. This is a limitation of the MCP adapter, not of HTTP uploads.
