@@ -49,7 +49,7 @@ Goals:
 Do this in order:
 1. Install callspec, runtyp, and express.
 2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; spec.ts = spec() registry only.
-3. Convert each endpoint to `route({ … })` per [route](./api-reference/route.md) — handlers return values or `err.*`; do not throw for expected failures.
+3. Convert each endpoint to `route({ … })` per [route](./api-reference/route.md) — omit `input` when there are no request fields; omit `output` for void success; handlers return values or `err.*`; do not throw for expected failures.
 4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
 5. Generate the TypeScript client (live mount or optional pinned callspec.json); switch call sites to Result (result.ok / result.code).
 6. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.
