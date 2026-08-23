@@ -1,0 +1,59 @@
+---
+/**
+ * Homepage auth beat — Bearer is built in; you verify however you already do.
+ */
+
+const authCode = `<span class="tok-kw">export const</span> authenticate: Authenticate&lt;Ctx&gt; = <span class="tok-kw">async</span> (token, req) => {
+  <span class="tok-kw">const</span> session = <span class="tok-kw">await</span> <span class="tok-fn">verifySession</span>(token, req);
+  <span class="tok-kw">if</span> (!session) <span class="tok-kw">return</span> undefined;
+  <span class="tok-kw">return</span> { userId: session.userId };
+};`;
+
+const points = [
+	{
+		title: 'Bearer is built in',
+		copy: 'auth: \'bearer\' (the default) requires Authorization. Missing or invalid → 401 UNAUTHORIZED before the handler runs.',
+	},
+	{
+		title: 'You verify the token',
+		copy: 'authenticate(token, req) is your hook — Clerk, Auth0, a homemade session. Callspec does not pick an identity vendor.',
+	},
+	{
+		title: 'ctx, not the input pred',
+		copy: 'Return { userId, … } and the handler gets it as ctx. Keep credentials off the RPC body.',
+	},
+] as const;
+---
+
+<section class="splash-sdk splash-auth" aria-labelledby="splash-auth-title">
+	<div class="splash-sdk__inner">
+		<header class="splash-sdk__intro">
+			<h2 id="splash-auth-title" class="splash-sdk__title">Bring your own auth</h2>
+			<p class="splash-sdk__lede">
+				Callspec extracts the Bearer token. What it means is your authenticate hook — Clerk, a
+				custom session, whatever you already run.
+			</p>
+		</header>
+
+		<ul class="splash-sdk__points">
+			{
+				points.map(({title, copy}) => (
+					<li class="splash-sdk__point">
+						<h3 class="splash-sdk__point-title">{title}</h3>
+						<p class="splash-sdk__point-copy">{copy}</p>
+					</li>
+				))
+			}
+		</ul>
+
+		<figure class="splash-sdk__figure" aria-label="Authenticate hook example">
+			<pre class="splash-sdk__code" tabindex="0"><code set:html={authCode} /></pre>
+		</figure>
+	</div>
+
+	<p class="splash-sdk__footer">
+		<a class="splash-sdk__link" href="/authentication/">Authentication</a>
+		<span class="splash-sdk__sep" aria-hidden="true">·</span>
+		<a class="splash-sdk__link" href="/request-context/">Request context</a>
+	</p>
+</section>

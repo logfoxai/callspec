@@ -1667,6 +1667,10 @@ html[data-theme='light'] .splash-features__icon {
 }
 
 .splash-uploads {
+    padding-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+
+.splash-auth {
     padding-bottom: clamp(2rem, 4vw, 3.25rem);
 }
 
