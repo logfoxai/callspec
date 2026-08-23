@@ -1,8 +1,8 @@
 # File uploads
 
-`file()` on a route input is still a normal Callspec RPC. The handler is `(input, ctx)`. The generated client is `api.upload({ file, … })`. Auth, errors, and the JSON response are unchanged.
+Callspec routes can accept file uploads. Add `file()` to the input. The handler is still `(input, ctx)` and the generated client is still `api.upload({ file, … })` — auth, errors, and the JSON response do not change.
 
-The wire is `multipart/form-data` so the browser can send a real file. That is an implementation detail — you do not build `FormData` or read streams yourself.
+The request is `multipart/form-data` so the browser can send a real file. You do not build `FormData` or read streams yourself.
 
 ```typescript title="src/routes/upload.ts" frame="code"
 import {route, file} from 'callspec';
