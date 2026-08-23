@@ -28,7 +28,7 @@ On the frontend you call `api.searchPosts({…})` and get a **Result** back — 
 
 ## Skill
 
-Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste skill + prompts: [Working with Coding Agents](src/content/docs/coding-agents.md). Ignore `docs/internal/`.
+Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste prompts: [Working with Coding Agents](src/content/docs/coding-agents.md). Ignore `docs/internal/`.
 
 ## Contents
 

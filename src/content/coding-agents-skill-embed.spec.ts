@@ -4,13 +4,15 @@ import {test} from 'kizu';
 
 const root = path.resolve(__dirname, '../..');
 
-test('coding-agents.md embeds the current skills/callspec/SKILL.md', (assert) => {
-    const skill = readFileSync(path.join(root, 'skills/callspec/SKILL.md'), 'utf8');
+test('coding-agents.md points at SKILL.md instead of embedding it', (assert) => {
+
+    const skill = readFileSync(path.join(root, 'skills/callspec/SKILL.md'), 'utf8')
+        .replace(/\r\n/g, '\n')
+        .replace(/\n$/, '');
     const page = readFileSync(path.join(root, 'src/content/docs/coding-agents.md'), 'utf8');
-    const match = page.match(/````markdown title="SKILL\.md"\r?\n([\s\S]*?)\r?\n````/);
-    assert.equal(match !== null, true);
-    if (!match) {
-        return;
-    }
-    assert.equal(match[1], skill.replace(/\r\n/g, '\n').replace(/\n$/, ''));
+
+    assert.equal(page.includes('skills/callspec/SKILL.md'), true);
+    assert.equal(page.includes(skill), false);
+    assert.equal(/````markdown title="SKILL\.md"/.test(page), false);
+
 });
