@@ -20,7 +20,7 @@ export type RouteFileField = {
     required: boolean
 };
 
-/** Default upload cap — matches the Logfox avatar use case (~10MB). */
+/** Default upload cap (10MB). */
 export const DEFAULT_FILE_MAX_BYTES = 10 * 1024 * 1024;
 
 type FilePred = Pred<UploadedFile> & {
