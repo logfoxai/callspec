@@ -12,7 +12,6 @@ mountSpec(router, spec, options?: MountSpecOptions)
 | `docsPath` | `'/docs'` | Docs UI path on this router (`callspec.json` and `openapi.json` paths are fixed) |
 | `mcpPath` | `'/mcp'` | MCP HTTP endpoint on this router |
 | `logging` | `true` | jsout-express request log on this router + jsout error log on unhandled throws; pass `false` in tests |
-| `json` | `express.json()` | JSON body parser + malformed-JSON → `VALIDATION_ERROR`. Pass `{ limit }` (or other `express.json` options), or `false` to skip parser and parse-error middleware |
 | `onCall` | jsout `call` info when `logging` | Structured per-call events for MCP `tools/call` (`CallEvent`). Custom sink for Logfox; `() => {}` to disable call events only |
 | `handleUnhandledError` | — | `(err, req) => RouteFailure \| undefined` — map infra throws before `INTERNAL_ERROR` |
 | `logUnhandledError` | jsout `logger.error` | Override unhandled-error logging only |

@@ -48,4 +48,4 @@ app.listen(3000, () => {
 });
 ```
 
-`mountSpec` parses JSON on the router (`{ json: { limit } }` / `{ json: false }` to configure or skip). Surfaces and path options: [mountSpec](./api-reference/mount-spec.md).
+`mountSpec` parses JSON on the router. Surfaces and path options: [mountSpec](./api-reference/mount-spec.md).

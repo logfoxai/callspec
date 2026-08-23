@@ -112,6 +112,6 @@ app.use('/v1', router);
 app.listen(3000);
 ```
 
-`mountSpec` parses `application/json` on this router. Pass `{ json: { limit: '1mb' } }` to set a size limit, or `{ json: false }` if the host already parsed the body.
+`mountSpec` parses `application/json` on this router. Do not add a host `express.json()` on the same router.
 
 Auth: [Authentication](./authentication.md). Default mount URLs: [mountSpec](./api-reference/mount-spec.md).

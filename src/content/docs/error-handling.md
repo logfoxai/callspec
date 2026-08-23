@@ -23,7 +23,7 @@ For RPC routes mounted with `mountSpec`, **errors and logging are owned by calls
 mountSpec(router, spec); // JSON parse + request log + catch path + INTERNAL_ERROR — no extra host middleware
 ```
 
-Do **not** wire host error middleware or jsout on this router. Pass `{ json: false }` only when the host already parsed the body (or in a test harness with its own parser).
+Do **not** wire host error middleware, `express.json()`, or jsout on this router — mountSpec owns JSON parse and the catch path.
 
 ### Catch order (per request)
 
@@ -152,7 +152,6 @@ Steps 1–5 are intentional contract outcomes. Step 7 is for unexpected failures
 | Option | Default | Purpose |
 |--------|---------|---------|
 | `logging` | `true` | `false` silences request logging and default error logging (use in tests) |
-| `json` | on | `false` skips `express.json` and parse-error middleware; `{ limit }` (and other `express.json` options) pass through |
 | `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 7 |
 | `logUnhandledError` | jsout `logger.error` | Override only the step-7 error log |
 
