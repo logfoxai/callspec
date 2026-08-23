@@ -19,7 +19,7 @@ export const upload = route({
     output: p.object({url: p.string()}),
     meta: {summary: 'Upload a photo', tags: ['user']},
     handler: async (input, ctx) => {
-        const key = await storePhoto(input.file, ctx);
+        const key = await storePhoto(input.file, input.caption, ctx);
         return {url: key};
     },
 });
