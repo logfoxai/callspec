@@ -1666,6 +1666,10 @@ html[data-theme='light'] .splash-features__icon {
     }
 }
 
+.splash-uploads {
+    padding-bottom: clamp(2rem, 4vw, 3.25rem);
+}
+
 html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-sdk {
     .splash-sdk__code {
         background: var(--cs-code-bg);
