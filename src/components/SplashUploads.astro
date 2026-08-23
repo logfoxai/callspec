@@ -2,11 +2,20 @@
 /**
  * Homepage uploads beat — Callspec routes can take files.
  */
+import Image from 'phosphor-astro/Image.astro';
+import File from 'phosphor-astro/File.astro';
+import FilmStrip from 'phosphor-astro/FilmStrip.astro';
 
 const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">upload</span>({
   file: input.files[0],
   caption: <span class="tok-str">'hi'</span>,
 });`;
+
+const kinds = [
+	{label: 'Images', Icon: Image},
+	{label: 'Files', Icon: File},
+	{label: 'Video', Icon: FilmStrip},
+] as const;
 
 const points = [
 	{
@@ -22,6 +31,8 @@ const points = [
 		copy: 'Auth, VALIDATION_ERROR, and a JSON response. OpenAPI marks the field as binary. MCP stays JSON-only.',
 	},
 ] as const;
+
+const iconProps = {'aria-hidden': 'true' as const};
 ---
 
 <section class="splash-sdk splash-uploads" aria-labelledby="splash-uploads-title">
@@ -32,6 +43,18 @@ const points = [
 				Add file() to the input. The handler and generated client stay normal RPC — same types,
 				same errors, same Result. Multipart is only the wire.
 			</p>
+			<ul class="splash-uploads__kinds" aria-label="Typical upload types">
+				{
+					kinds.map(({label, Icon}) => (
+						<li class="splash-uploads__kind">
+							<span class="splash-uploads__kind-icon" aria-hidden="true">
+								<Icon {...iconProps} />
+							</span>
+							{label}
+						</li>
+					))
+				}
+			</ul>
 		</header>
 
 		<ul class="splash-sdk__points">

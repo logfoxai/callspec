@@ -2,6 +2,9 @@
 /**
  * Homepage auth beat — Bearer is built in; you verify however you already do.
  */
+import GithubLogo from 'phosphor-astro/GithubLogo.astro';
+import GoogleLogo from 'phosphor-astro/GoogleLogo.astro';
+import Key from 'phosphor-astro/Key.astro';
 
 const authCode = `<span class="tok-kw">export const</span> authenticate: Authenticate&lt;Ctx&gt; = <span class="tok-kw">async</span> (token, req) => {
   <span class="tok-kw">const</span> session = <span class="tok-kw">await</span> <span class="tok-fn">verifySession</span>(token, req);
@@ -23,6 +26,8 @@ const points = [
 		copy: 'Return { userId, … } and the handler gets it as ctx. Keep credentials off the RPC body.',
 	},
 ] as const;
+
+const iconProps = {'aria-hidden': 'true' as const};
 ---
 
 <section class="splash-sdk splash-auth" aria-labelledby="splash-auth-title">
@@ -33,6 +38,36 @@ const points = [
 				Callspec extracts the Bearer token. What it means is your authenticate hook — Clerk, a
 				custom session, whatever you already run.
 			</p>
+			<ul class="splash-auth__providers" aria-label="Works with any identity provider">
+				<li class="splash-auth__provider">
+					<span class="splash-auth__mark" data-brand="clerk" aria-hidden="true">C</span>
+					Clerk
+				</li>
+				<li class="splash-auth__provider">
+					<span class="splash-auth__mark" data-brand="auth0" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.98 7.448 19.62 0H4.347L2.02 7.448c-1.352 4.199.198 8.081 4.207 9.54.06.023.12.04.18.062L4.322 24l6.09-3.612L16.5 24l-2.085-6.95c.06-.02.12-.038.18-.06 4.01-1.46 5.56-5.342 4.206-9.542ZM12 15.406c-2.243 0-4.062-1.812-4.062-4.04S9.757 7.325 12 7.325c2.242 0 4.062 1.813 4.062 4.04s-1.82 4.04-4.062 4.04Z"/></svg>
+					</span>
+					Auth0
+				</li>
+				<li class="splash-auth__provider">
+					<span class="splash-auth__mark" data-brand="github" aria-hidden="true">
+						<GithubLogo {...iconProps} />
+					</span>
+					GitHub
+				</li>
+				<li class="splash-auth__provider">
+					<span class="splash-auth__mark" data-brand="google" aria-hidden="true">
+						<GoogleLogo {...iconProps} />
+					</span>
+					Google
+				</li>
+				<li class="splash-auth__provider">
+					<span class="splash-auth__mark" data-brand="custom" aria-hidden="true">
+						<Key {...iconProps} />
+					</span>
+					Custom
+				</li>
+			</ul>
 		</header>
 
 		<ul class="splash-sdk__points">

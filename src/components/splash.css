@@ -692,9 +692,10 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo 
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-demo, .splash-agents) {
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] :is(.splash-demo, .splash-agents, .splash-auth) {
     .splash-demo__lede,
-    .splash-agents__lede {
+    .splash-agents__lede,
+    .splash-auth .splash-sdk__lede {
         color: color-mix(in srgb, var(--cs-ink) 88%, var(--cs-muted));
     }
 }
@@ -1667,11 +1668,130 @@ html[data-theme='light'] .splash-features__icon {
 }
 
 .splash-uploads {
-    padding-bottom: clamp(1rem, 2vw, 1.5rem);
+    padding-bottom: 0;
+
+    .splash-uploads__kinds {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        list-style: none;
+        margin: 0.15rem 0 0;
+        padding: 0;
+
+        @media (min-width: 52rem) {
+            justify-content: flex-start;
+        }
+    }
+
+    .splash-uploads__kind {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0;
+        padding: 0.35rem 0.7rem 0.35rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--cs-line) 80%, transparent);
+        background: color-mix(in srgb, var(--sl-color-bg) 70%, transparent);
+        font-family: var(--cs-font-heading);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--cs-ink);
+    }
+
+    .splash-uploads__kind-icon {
+        display: grid;
+        place-items: center;
+        width: 1.15rem;
+        height: 1.15rem;
+        color: var(--cs-primary-bg);
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
 }
 
 .splash-auth {
-    padding-bottom: clamp(2rem, 4vw, 3.25rem);
+    isolation: isolate;
+    position: relative;
+    margin-top: calc(-0.35 * var(--splash-section-gap));
+    padding: clamp(2.5rem, 5vw, 3.75rem) 0 clamp(2.25rem, 4.5vw, 3.5rem);
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 100vw;
+        margin-left: -50vw;
+        pointer-events: none;
+        z-index: -1;
+        background-color: var(--splash-demo-bg);
+        background-image: repeating-linear-gradient(
+            -45deg,
+            transparent 0,
+            transparent 12px,
+            var(--splash-demo-stripe) 12px,
+            var(--splash-demo-stripe) 14px
+        );
+    }
+
+    .splash-auth__providers {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        list-style: none;
+        margin: 0.2rem 0 0;
+        padding: 0;
+
+        @media (min-width: 52rem) {
+            justify-content: flex-start;
+        }
+    }
+
+    .splash-auth__provider {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0;
+        padding: 0.4rem 0.75rem 0.4rem 0.4rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--cs-line) 72%, transparent);
+        background: color-mix(in srgb, var(--sl-color-bg) 88%, transparent);
+        font-family: var(--cs-font-heading);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--cs-ink);
+    }
+
+    .splash-auth__mark {
+        display: grid;
+        place-items: center;
+        width: 1.45rem;
+        height: 1.45rem;
+        border-radius: 0.4rem;
+        color: #fff;
+        font-family: var(--cs-font-heading);
+        font-size: 0.78rem;
+        font-weight: 700;
+
+        svg {
+            width: 0.95rem;
+            height: 0.95rem;
+        }
+
+        &[data-brand='clerk'] { background: #6c47ff; }
+        &[data-brand='auth0'] { background: #eb5424; }
+        &[data-brand='github'] { background: #24292f; }
+        &[data-brand='google'] { background: #fff; color: #4285f4; border: 1px solid color-mix(in srgb, var(--cs-line) 60%, transparent); }
+        &[data-brand='custom'] { background: var(--cs-primary-bg); }
+    }
 }
 
 html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-sdk {
