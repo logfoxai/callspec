@@ -46,3 +46,5 @@ The file is buffered in memory up to `maxBytes`. A JSON body is rejected — the
 `callspec.json` sets `encoding: "multipart"`. OpenAPI uses `multipart/form-data`.
 
 [MCP](./mcp.md) `tools/call` only takes JSON arguments. These routes reject JSON, so they cannot be MCP tools. Leave `mcp` unset — Callspec will still list the tool if you set it, then fail when an agent calls it. This is a limitation of the MCP adapter, not of HTTP uploads.
+
+Docs UI Try It also posts JSON only, so it cannot send a file. Use the generated client (or any multipart request).

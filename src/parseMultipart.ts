@@ -99,6 +99,12 @@ export async function parseMultipart(
 
         });
 
+        parser.on('filesLimit', () => {
+
+            fail({body: 'too many file parts'});
+
+        });
+
         parser.on('error', () => {
 
             fail({body: 'Malformed multipart body'});
