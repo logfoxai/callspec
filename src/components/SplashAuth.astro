@@ -14,8 +14,8 @@ const providers = [
 	<header class="splash-auth__intro">
 		<h2 id="splash-auth-title" class="splash-auth__title">Bring your own auth</h2>
 		<p class="splash-auth__lede">
-			Callspec extracts the Bearer token. What it means is your authenticate hook — Clerk, a
-			custom session, whatever you already run.
+			Callspec reads the Bearer token from each request. Wire authenticate on your spec to verify
+			it and return context — your existing provider or session logic.
 		</p>
 	</header>
 

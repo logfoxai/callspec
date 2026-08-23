@@ -75,14 +75,89 @@
 /* Primary CTAs — shared across splash hero, docs pages, and search idle chips */
 .sl-link-button.primary {
     background: var(--cs-primary-bg);
-    border-color: var(--cs-primary-bg);
+    border: none;
     color: var(--cs-primary-fg);
 }
 
 .sl-link-button.primary:hover {
     background: var(--cs-primary-hover-bg);
-    border-color: var(--cs-primary-hover-bg);
     color: var(--cs-primary-hover-fg);
+}
+
+.sl-link-button.secondary {
+    border: none;
+}
+
+html[data-theme='light'] .sl-link-button.primary,
+[data-theme='light'] .sl-link-button.primary {
+    box-shadow: var(--cs-btn-shadow);
+}
+
+html[data-theme='light'] .sl-link-button.primary:hover,
+[data-theme='light'] .sl-link-button.primary:hover {
+    box-shadow: var(--cs-btn-shadow-hover);
+}
+
+html[data-theme='light'] .sl-link-button.primary:active,
+[data-theme='light'] .sl-link-button.primary:active {
+    box-shadow: var(--cs-btn-shadow-active);
+}
+
+html[data-theme='light'] .sl-link-button.secondary,
+[data-theme='light'] .sl-link-button.secondary {
+    --cs-btn-light-fill: var(--docs-btn-light-fill);
+    background: var(--cs-btn-light-fill);
+    color: var(--cs-ink);
+    box-shadow: var(--cs-btn-light-shadow);
+}
+
+html[data-theme='light'] .sl-link-button.secondary:hover,
+[data-theme='light'] .sl-link-button.secondary:hover {
+    --cs-btn-light-fill: var(--docs-btn-light-fill-hover);
+    background: var(--cs-btn-light-fill);
+    box-shadow: var(--cs-btn-light-shadow-hover);
+}
+
+html[data-theme='light'] .sl-link-button.secondary:active,
+[data-theme='light'] .sl-link-button.secondary:active {
+    box-shadow: var(--cs-btn-light-shadow-active);
+}
+
+html[data-theme='dark'] .sl-link-button.primary,
+[data-theme='dark'] .sl-link-button.primary {
+    --cs-btn-fill: var(--cs-primary-bg);
+    box-shadow: var(--cs-btn-dark-highlight);
+}
+
+html[data-theme='dark'] .sl-link-button.primary:hover,
+[data-theme='dark'] .sl-link-button.primary:hover {
+    --cs-btn-fill: var(--cs-primary-hover-bg);
+    box-shadow: var(--cs-btn-dark-highlight-hover);
+}
+
+html[data-theme='dark'] .sl-link-button.primary:active,
+[data-theme='dark'] .sl-link-button.primary:active {
+    box-shadow: var(--cs-btn-dark-highlight-active);
+}
+
+html[data-theme='dark'] .sl-link-button.secondary,
+[data-theme='dark'] .sl-link-button.secondary {
+    --cs-btn-fill: var(--docs-btn-dark-fill);
+    background: var(--cs-btn-fill);
+    color: var(--cs-ink);
+    box-shadow: var(--cs-btn-dark-highlight);
+}
+
+html[data-theme='dark'] .sl-link-button.secondary:hover,
+[data-theme='dark'] .sl-link-button.secondary:hover {
+    --cs-btn-fill: var(--docs-btn-dark-fill-hover);
+    background: var(--cs-btn-fill);
+    box-shadow: var(--cs-btn-dark-highlight-hover);
+}
+
+html[data-theme='dark'] .sl-link-button.secondary:active,
+[data-theme='dark'] .sl-link-button.secondary:active {
+    box-shadow: var(--cs-btn-dark-highlight-active);
 }
 
 /* ─── Guide pages: readable type + real breathing room ────────────────────── */
