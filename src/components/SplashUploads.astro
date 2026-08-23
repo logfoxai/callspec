@@ -1,72 +1,27 @@
 ---
 /**
- * Homepage uploads beat — Callspec routes can take files.
+ * Homepage uploads beat — Callspec routes can take small files.
  */
-import Image from 'phosphor-astro/Image.astro';
-import File from 'phosphor-astro/File.astro';
-import FilmStrip from 'phosphor-astro/FilmStrip.astro';
+import SplashIcon from './SplashIcon.astro';
 
 const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">upload</span>({
   file: input.files[0],
   caption: <span class="tok-str">'hi'</span>,
 });`;
-
-const kinds = [
-	{label: 'Images', Icon: Image},
-	{label: 'Files', Icon: File},
-	{label: 'Video', Icon: FilmStrip},
-] as const;
-
-const points = [
-	{
-		title: 'Same handler',
-		copy: 'file() on the input pred. The handler is still (input, ctx) — input.file is a buffer, caption is a string.',
-	},
-	{
-		title: 'Same generated client',
-		copy: 'Call api.upload({ file, caption }) like any other method. The client posts multipart; you never build FormData.',
-	},
-	{
-		title: 'Same contract',
-		copy: 'Auth, VALIDATION_ERROR, and a JSON response. OpenAPI marks the field as binary. MCP stays JSON-only.',
-	},
-] as const;
-
-const iconProps = {'aria-hidden': 'true' as const};
 ---
 
 <section class="splash-sdk splash-uploads" aria-labelledby="splash-uploads-title">
 	<div class="splash-sdk__inner">
 		<header class="splash-sdk__intro">
-			<h2 id="splash-uploads-title" class="splash-sdk__title">We do file uploads too</h2>
+			<h2 id="splash-uploads-title" class="splash-sdk__title">
+				<span class="splash-h2-mark"><SplashIcon name="file" /></span>
+				We do file uploads too
+			</h2>
 			<p class="splash-sdk__lede">
-				Add file() to the input. The handler and generated client stay normal RPC — same types,
-				same errors, same Result. Multipart is only the wire.
+				Small files on the same RPC — avatars, CSVs, a PDF. file() on the input, a buffer in the
+				handler. Not signed URLs, not a storage product.
 			</p>
-			<ul class="splash-uploads__kinds" aria-label="Typical upload types">
-				{
-					kinds.map(({label, Icon}) => (
-						<li class="splash-uploads__kind">
-							<span class="splash-uploads__kind-icon" aria-hidden="true">
-								<Icon {...iconProps} />
-							</span>
-							{label}
-						</li>
-					))
-				}
-			</ul>
 		</header>
-
-		<ul class="splash-sdk__points">
-			{
-				points.map(({title, copy}) => (
-					<li class="splash-sdk__point">
-						<h3 class="splash-sdk__point-title">{title}</h3>
-						<p class="splash-sdk__point-copy">{copy}</p>
-					</li>
-				))
-			}
-		</ul>
 
 		<figure class="splash-sdk__figure" aria-label="Upload client example">
 			<pre class="splash-sdk__code" tabindex="0"><code set:html={clientCode} /></pre>

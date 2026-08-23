@@ -4,6 +4,7 @@
  */
 import SplashHeroActions from './SplashHeroActions.astro';
 import DemoScreenshot from './DemoScreenshot.astro';
+import SplashIcon from './SplashIcon.astro';
 import {withDemoLinkOpenAttrs} from './splashCtaIcons';
 
 const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
@@ -11,7 +12,10 @@ const demoShotAttrs = withDemoLinkOpenAttrs('/demo/');
 
 <section class="splash-demo" aria-labelledby="splash-demo-title">
 	<header class="splash-demo__intro">
-		<h2 id="splash-demo-title" class="splash-demo__title">Built-in docs UI</h2>
+		<h2 id="splash-demo-title" class="splash-demo__title">
+			<span class="splash-h2-mark"><SplashIcon name="docs" /></span>
+			Built-in docs UI
+		</h2>
 		<p class="splash-demo__lede">
 			Try-it panels, search, OpenAPI, and MCP connect — shipped with your API, no extra wiring.
 			Whitelabel with your logo, accent, and nav links when you want; the defaults are simple and

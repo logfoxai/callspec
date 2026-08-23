@@ -41,7 +41,7 @@ const result = await api.upload({
 | `maxBytes` | 10MB | oversize → `VALIDATION_ERROR` |
 | `mime` | any | allow-list of `Content-Type` values |
 
-The file is buffered in memory up to `maxBytes`. A JSON body is rejected — the route is multipart-only.
+The file is buffered in memory up to `maxBytes`. This is for small uploads on the request — not signed URLs or direct-to-bucket. A JSON body is rejected — the route is multipart-only.
 
 `callspec.json` sets `encoding: "multipart"`. OpenAPI uses `multipart/form-data`.
 
