@@ -84,4 +84,6 @@ export type CallResultOptions = {
      * Generated clients pass this automatically. Without it, dates stay ISO strings.
      */
     output?: Pred<unknown>
+    /** File-upload routes send `multipart/form-data`. Generated clients pass this. */
+    encoding?: 'json' | 'multipart'
 };

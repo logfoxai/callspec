@@ -147,7 +147,7 @@ Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures
 | `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 6 |
 | `logUnhandledError` | jsout `logger.error` | Override only the step-6 error log |
 
-Custom middleware around this router: [Outside Callspec](./outside-callspec.md).
+Custom middleware around this router: [Outside Callspec](./outside-callspec.md). File uploads belong on the spec — see [File uploads](./file-uploads.md).
 
 ### Known infrastructure throws
 

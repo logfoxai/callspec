@@ -29,6 +29,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 }
 
+function parseEncoding(value: unknown, routeName: string): 'json' | 'multipart' | undefined {
+
+    if (value === undefined) return undefined;
+
+    if (value === 'json' || value === 'multipart') return value;
+
+    throw new CallspecDocumentError(`Route "${routeName}" has invalid encoding value`);
+
+}
+
 function parseAuth(value: unknown, routeName: string): 'none' | 'bearer' {
 
     if (value === 'none' || value === 'bearer') return value;
@@ -146,6 +156,7 @@ function parseRoute(name: string, value: unknown): CallspecDocumentRoute {
     }
 
     const {auth, scope} = parseAuthScope(value, name);
+    const encoding = parseEncoding(value.encoding, name);
 
     return {
         name: routeName,
@@ -156,6 +167,7 @@ function parseRoute(name: string, value: unknown): CallspecDocumentRoute {
         tags: Array.isArray(value.tags) ? value.tags.map(String) : [],
         auth,
         scope,
+        ...(encoding ? {encoding} : {}),
         input: parseJsonSchema(value.input, `Route "${name}" input`),
         output: parseJsonSchema(value.output, `Route "${name}" output`),
         errors: parseRouteErrors(value.errors, name),

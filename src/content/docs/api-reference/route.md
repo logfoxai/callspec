@@ -37,7 +37,7 @@ route({ input, output, meta, handler, … })
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `input` | — | Runtyp pred for the request body (POST JSON). Validated before your handler runs. |
+| `input` | — | Runtyp pred for the request body (POST JSON, or multipart when a field is [`file()`](../file-uploads.md)). Validated before your handler runs. |
 | `output` | — | Runtyp pred for a successful response. |
 | `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
 | `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)`. |

@@ -157,6 +157,12 @@ export function generateClientSource(
         // Schema-guided ISO→Date revive (only at p.date() leaves).
         callOptionParts.push(`output: schemas.${sanitizeMethodName(routeName)}Output`);
 
+        if (route.encoding === 'multipart') {
+
+            callOptionParts.push(`encoding: 'multipart'`);
+
+        }
+
         const callOptionsArg = `, { ${callOptionParts.join(', ')} }`;
 
         methods.push(`

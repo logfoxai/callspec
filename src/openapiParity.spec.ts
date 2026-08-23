@@ -143,13 +143,13 @@ test('emitOpenApi and emitCallspec represent the same registry without cross-der
         assert.equal(route.auth, openApiPath?.['x-callspec-auth']);
         assert.equal(route.scope, openApiPath?.['x-callspec-scope']);
         assert.equal(route.mcp.enabled, openApiPath?.['x-callspec-mcp'] === true);
-        assert.equal(
-            JSON.stringify(route.input),
-            JSON.stringify(
-                (openApiPath?.requestBody as {content?: {'application/json'?: {schema?: unknown}}})
-                    ?.content?.['application/json']?.schema,
-            ),
-        );
+        const requestContent = (openApiPath?.requestBody as {
+            content?: Record<string, {schema?: unknown}>
+        })?.content;
+        const requestSchema = requestContent?.['application/json']?.schema
+            ?? requestContent?.['multipart/form-data']?.schema;
+
+        assert.equal(JSON.stringify(route.input), JSON.stringify(requestSchema));
 
     }
 

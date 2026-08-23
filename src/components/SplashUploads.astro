@@ -1,0 +1,25 @@
+---
+/**
+ * Homepage uploads beat — Callspec routes can take small files.
+ */
+const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">upload</span>({
+  file: input.files[0],
+  caption: <span class="tok-str">'hi'</span>,
+});`;
+---
+
+<section class="splash-section splash-sdk splash-uploads" aria-labelledby="splash-uploads-title">
+	<div class="splash-sdk__inner">
+		<header class="splash-sdk__intro">
+			<h2 id="splash-uploads-title" class="splash-sdk__title">We do file uploads too</h2>
+			<p class="splash-sdk__lede">
+				Small files on the same RPC — avatars, CSVs, a PDF. Same handler, same generated client,
+				same auth and errors. The client posts multipart for you.
+			</p>
+		</header>
+
+		<figure class="splash-sdk__figure" aria-label="Upload client example">
+			<pre class="splash-sdk__code" tabindex="0"><code set:html={clientCode} /></pre>
+		</figure>
+	</div>
+</section>

@@ -2,7 +2,6 @@
 /**
  * Homepage SDK beat — typed client from the same contract as docs and OpenAPI.
  */
-
 const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">getProductById</span>({id});
 
 <span class="tok-kw">if</span> (!result.ok) {
@@ -11,24 +10,9 @@ const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-
 }
 
 <span class="tok-kw">return</span> result.value; <span class="tok-cm">// typed Product</span>`;
-
-const points = [
-	{
-		title: 'Result, not exceptions',
-		copy: 'Every method returns a typed Result — branch on result.ok and result.code instead of parsing HTTP errors.',
-	},
-	{
-		title: 'Shared schemas',
-		copy: 'Codegen exports the same runtyp preds your server uses — validate forms with schemas.product before you call the API.',
-	},
-	{
-		title: 'One command',
-		copy: 'Point the CLI at your mount or a pinned callspec.json — ApiClient, route types, and schemas land in one file.',
-	},
-] as const;
 ---
 
-<section class="splash-sdk" aria-labelledby="splash-sdk-title">
+<section class="splash-section splash-sdk" aria-labelledby="splash-sdk-title">
 	<div class="splash-sdk__inner">
 		<header class="splash-sdk__intro">
 			<h2 id="splash-sdk-title" class="splash-sdk__title">Typed SDK from the same spec</h2>
@@ -38,25 +22,8 @@ const points = [
 			</p>
 		</header>
 
-		<ul class="splash-sdk__points">
-			{
-				points.map(({title, copy}) => (
-					<li class="splash-sdk__point">
-						<h3 class="splash-sdk__point-title">{title}</h3>
-						<p class="splash-sdk__point-copy">{copy}</p>
-					</li>
-				))
-			}
-		</ul>
-
 		<figure class="splash-sdk__figure" aria-label="Typed client example">
 			<pre class="splash-sdk__code" tabindex="0"><code set:html={clientCode} /></pre>
 		</figure>
 	</div>
-
-	<p class="splash-sdk__footer">
-		<a class="splash-sdk__link" href="/sdk-generation/">SDK generation</a>
-		<span class="splash-sdk__sep" aria-hidden="true">·</span>
-		<a class="splash-sdk__link" href="/client-usage/">Client usage</a>
-	</p>
 </section>

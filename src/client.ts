@@ -103,10 +103,11 @@ export type CallspecClientConfig = {
 
 async function resolveHeaders(
     headers?: HeadersInit | (() => HeadersInit | Promise<HeadersInit>),
+    encoding: 'json' | 'multipart' = 'json',
 ): Promise<Headers> {
 
     const resolved = typeof headers === 'function' ? await headers() : headers;
-    const merged = new Headers({'Content-Type': 'application/json'});
+    const merged = new Headers(encoding === 'json' ? {'Content-Type': 'application/json'} : undefined);
 
     if (resolved) {
 
@@ -114,7 +115,63 @@ async function resolveHeaders(
 
     }
 
+    if (encoding === 'multipart') {
+
+        merged.delete('Content-Type');
+
+    }
+
     return merged;
+
+}
+
+function appendFormValue(form: FormData, key: string, value: unknown): void {
+
+    if (typeof Blob !== 'undefined' && value instanceof Blob) {
+
+        const filename = typeof File !== 'undefined' && value instanceof File
+            ? value.name
+            : 'upload';
+
+        form.append(key, value, filename);
+        return;
+
+    }
+
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+
+        form.append(key, String(value));
+        return;
+
+    }
+
+    form.append(key, JSON.stringify(value));
+
+}
+
+function toFormData(input: unknown): FormData {
+
+    const form = new FormData();
+
+    if (input == null || typeof input !== 'object') return form;
+
+    for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+
+        if (value === undefined) continue;
+
+        appendFormValue(form, key, value);
+
+    }
+
+    return form;
+
+}
+
+function toRequestBody(input: unknown, encoding: 'json' | 'multipart'): BodyInit {
+
+    if (encoding === 'multipart') return toFormData(input);
+
+    return JSON.stringify(input ?? {});
 
 }
 
@@ -164,7 +221,8 @@ export class CallspecClient {
     ): Promise<CallspecRouteResult<TOutput, TError>> {
 
         const url = joinCallspecUrl(this.config.baseUrl, routeName);
-        const headers = await resolveHeaders(this.config.headers);
+        const encoding = options?.encoding === 'multipart' ? 'multipart' : 'json';
+        const headers = await resolveHeaders(this.config.headers, encoding);
         const {fetchOptions} = this.config;
 
         let resp: Response;
@@ -175,7 +233,7 @@ export class CallspecClient {
                 ...fetchOptions,
                 method: 'POST',
                 headers,
-                body: JSON.stringify(input ?? {}),
+                body: toRequestBody(input, encoding),
             });
 
         } catch (err) {

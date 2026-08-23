@@ -1,0 +1,42 @@
+---
+/**
+ * Homepage auth beat — Bearer extraction; you verify however you already do.
+ */
+const providers = [
+	{name: 'Clerk', src: '/logos/clerk.svg'},
+	{name: 'Auth0', src: '/logos/auth0.svg'},
+	{name: 'GitHub', src: '/logos/github.svg'},
+	{name: 'Google', src: '/logos/google.svg'},
+] as const;
+---
+
+<section class="splash-section splash-band splash-auth" aria-labelledby="splash-auth-title">
+	<header class="splash-auth__intro">
+		<h2 id="splash-auth-title" class="splash-auth__title">Bring your own auth</h2>
+		<p class="splash-auth__lede">
+			Callspec extracts the Bearer token. What it means is your authenticate hook — Clerk, a
+			custom session, whatever you already run.
+		</p>
+	</header>
+
+	<div class="splash-auth__works">
+		<span class="splash-see">Works with</span>
+		<ul class="splash-auth__providers" aria-label="Identity providers">
+			{
+				providers.map(({name, src}) => (
+					<li class="splash-auth__provider">
+						<img
+							class="splash-auth__mark"
+							data-brand={name.toLowerCase()}
+							src={src}
+							alt={name}
+							width="28"
+							height="28"
+						/>
+					</li>
+				))
+			}
+		</ul>
+		<span class="splash-see">or yours</span>
+	</div>
+</section>

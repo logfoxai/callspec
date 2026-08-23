@@ -5,6 +5,7 @@
 import {predicates as p} from 'runtyp';
 import {route} from '../route';
 import {defineErrors, err} from '../defineErrors';
+import {file, type UploadedFile} from '../file';
 
 type Ctx = {userId: string};
 
@@ -145,4 +146,27 @@ route({
     auth: 'none',
     // @ts-expect-error route without errors: allows builtins only
     handler: (_input, _ctx: Ctx) => domainErr.MY_CODE(),
+});
+
+route({
+    input: p.object({file: file({mime: ['image/png']})}),
+    output: p.object({filename: p.string()}),
+    meta: {summary: 'Upload', tags: ['user']},
+    auth: 'none',
+    handler: async (input, _ctx: Ctx) => {
+
+        const uploaded: UploadedFile = input.file;
+
+        return {filename: uploaded.filename};
+
+    },
+});
+
+route({
+    input: p.object({file: file()}),
+    output: p.object({filename: p.string()}),
+    meta: {summary: 'Upload', tags: ['user']},
+    auth: 'none',
+    // @ts-expect-error handler file field must be UploadedFile, not string
+    handler: async (input: {file: string}, _ctx: Ctx) => ({filename: input.file}),
 });

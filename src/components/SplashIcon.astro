@@ -10,7 +10,14 @@ import Scroll from 'phosphor-astro/Scroll.astro';
 import ShieldCheck from 'phosphor-astro/ShieldCheck.astro';
 import {mcpIcon} from '../callspec-ui/ui/icons';
 
-export type SplashIconName = 'mcp' | 'clipboard' | 'skill' | 'unlock' | 'shield' | 'rpc' | 'test';
+export type SplashIconName =
+	| 'mcp'
+	| 'clipboard'
+	| 'skill'
+	| 'unlock'
+	| 'shield'
+	| 'rpc'
+	| 'test';
 
 interface Props {
 	name: SplashIconName;
