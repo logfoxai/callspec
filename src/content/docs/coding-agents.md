@@ -33,7 +33,7 @@ Start at the [README Contents](https://github.com/logfoxai/callspec#contents) �
 4. `scope: 'private'` is still mounted; does **not** skip auth. Use `visibility: 'all'` on `mountSpec` to document those routes on that mount.
 5. Never re-declare **builtin** codes on route `errors:`. Domain codes must be registered (`defineErrors`).
 6. When `!result.ok`, branch on **`result.code`**, not HTTP status. Don’t show `UNKNOWN_ERROR.data` to users.
-7. Don’t wire Express error middleware / jsout on the `mountSpec` router — it owns the catch path. Host middleware that should fail like RPC: `sendRouteFailureResponse`.
+7. Don’t wire Express error middleware / jsout on the `mountSpec` router — it owns the catch path. Custom middleware around the mount that should fail like RPC: `sendRouteFailureResponse`.
 8. After route/error changes: regenerate the client; update the pinned contract if the repo has one.
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
 10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.

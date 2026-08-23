@@ -1,13 +1,15 @@
 # Outside Callspec
 
-Callspec owns the RPC router. Host middleware around the mount (health, a global limiter, an app `errorHandler`) is outside it. When that should fail like RPC, these are the escape hatches — same `{ error, data? }` body.
+Write your own Express around `mountSpec` — a global limiter, health, an app `errorHandler`. That's a normal use case. Callspec owns the RPC router; you own the rest.
+
+When that middleware should fail like an RPC route, send the same `{ error, data? }` body. A little bit of an escape hatch. Fine.
 
 | Where | How |
 |-------|-----|
 | Handler, `authenticate`, `handleUnhandledError` | **Return** `err.*`. `mountSpec` writes the response. |
-| Middleware or another router — you own `res` | **`sendRouteFailureResponse(res, failure)`**. |
+| Your middleware — you own `res` | **`sendRouteFailureResponse(res, failure)`**. |
 
-Do not attach Express error middleware to the `mountSpec` router. Put host middleware around the mount.
+Don't hang Express error middleware on the `mountSpec` router. Put yours around the mount.
 
 ```typescript
 import {err, sendRouteFailureResponse} from 'callspec';
@@ -28,7 +30,7 @@ app.use((req, res, next) => {
 | `isRouteFailure(value)` | Narrow a helper return or `next(err)` |
 | `logRequest` | Same jsout-express request log on another router |
 
-Prefer sending in the middleware that decided. An app `errorHandler` is a backstop:
+Send in the middleware that decided. An app `errorHandler` is a backstop:
 
 ```typescript
 if (isRouteFailure(err)) {
