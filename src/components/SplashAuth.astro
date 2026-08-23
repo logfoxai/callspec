@@ -2,19 +2,15 @@
 /**
  * Homepage auth beat — Bearer extraction; you verify however you already do.
  */
-import Key from 'phosphor-astro/Key.astro';
-
 const providers = [
 	{name: 'Clerk', src: '/logos/clerk.svg'},
 	{name: 'Auth0', src: '/logos/auth0.svg'},
 	{name: 'GitHub', src: '/logos/github.svg'},
 	{name: 'Google', src: '/logos/google.svg'},
 ] as const;
-
-const iconProps = {'aria-hidden': 'true' as const};
 ---
 
-<section class="splash-auth" aria-labelledby="splash-auth-title">
+<section class="splash-section splash-band splash-auth" aria-labelledby="splash-auth-title">
 	<header class="splash-auth__intro">
 		<h2 id="splash-auth-title" class="splash-auth__title">Bring your own auth</h2>
 		<p class="splash-auth__lede">
@@ -23,28 +19,24 @@ const iconProps = {'aria-hidden': 'true' as const};
 		</p>
 	</header>
 
-	<ul class="splash-auth__providers" aria-label="Works with any identity provider">
-		{
-			providers.map(({name, src}) => (
-				<li class="splash-auth__provider">
-					<span class="splash-auth__mark" data-brand={name.toLowerCase()}>
-						<img src={src} alt="" width="40" height="40" />
-					</span>
-					{name}
-				</li>
-			))
-		}
-		<li class="splash-auth__provider">
-			<span class="splash-auth__mark" data-brand="custom" aria-hidden="true">
-				<Key {...iconProps} />
-			</span>
-			Custom
-		</li>
-	</ul>
-
-	<p class="splash-auth__footer">
-		<a class="splash-auth__link" href="/authentication/">Authentication</a>
-		<span class="splash-auth__sep" aria-hidden="true">·</span>
-		<a class="splash-auth__link" href="/request-context/">Request context</a>
-	</p>
+	<div class="splash-auth__works">
+		<span class="splash-see">Works with</span>
+		<ul class="splash-auth__providers" aria-label="Identity providers">
+			{
+				providers.map(({name, src}) => (
+					<li class="splash-auth__provider">
+						<img
+							class="splash-auth__mark"
+							data-brand={name.toLowerCase()}
+							src={src}
+							alt={name}
+							width="28"
+							height="28"
+						/>
+					</li>
+				))
+			}
+		</ul>
+		<span class="splash-see">or yours</span>
+	</div>
 </section>

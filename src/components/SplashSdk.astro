@@ -2,8 +2,6 @@
 /**
  * Homepage SDK beat — typed client from the same contract as docs and OpenAPI.
  */
-import SplashIcon from './SplashIcon.astro';
-
 const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-kw">await</span> <span class="tok-fn">api</span>.<span class="tok-fn">getProductById</span>({id});
 
 <span class="tok-kw">if</span> (!result.ok) {
@@ -14,13 +12,10 @@ const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-
 <span class="tok-kw">return</span> result.value; <span class="tok-cm">// typed Product</span>`;
 ---
 
-<section class="splash-sdk" aria-labelledby="splash-sdk-title">
+<section class="splash-section splash-sdk" aria-labelledby="splash-sdk-title">
 	<div class="splash-sdk__inner">
 		<header class="splash-sdk__intro">
-			<h2 id="splash-sdk-title" class="splash-sdk__title">
-				<span class="splash-h2-mark"><SplashIcon name="code" /></span>
-				Typed SDK from the same spec
-			</h2>
+			<h2 id="splash-sdk-title" class="splash-sdk__title">Typed SDK from the same spec</h2>
 			<p class="splash-sdk__lede">
 				Docs, OpenAPI, and MCP share one contract — your frontend gets the same types and error codes,
 				so nothing drifts when routes change.
@@ -31,10 +26,4 @@ const clientCode = `<span class="tok-kw">const</span> result = <span class="tok-
 			<pre class="splash-sdk__code" tabindex="0"><code set:html={clientCode} /></pre>
 		</figure>
 	</div>
-
-	<p class="splash-sdk__footer">
-		<a class="splash-sdk__link" href="/sdk-generation/">SDK generation</a>
-		<span class="splash-sdk__sep" aria-hidden="true">·</span>
-		<a class="splash-sdk__link" href="/client-usage/">Client usage</a>
-	</p>
 </section>

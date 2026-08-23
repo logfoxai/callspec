@@ -3,15 +3,11 @@
  * Splash homepage icons — Phosphor for UI marks, official SVG for MCP brand.
  */
 import ClipboardText from 'phosphor-astro/ClipboardText.astro';
-import BookOpen from 'phosphor-astro/BookOpen.astro';
-import Code from 'phosphor-astro/Code.astro';
-import FileArrowUp from 'phosphor-astro/FileArrowUp.astro';
 import Flask from 'phosphor-astro/Flask.astro';
 import Function from 'phosphor-astro/Function.astro';
 import LockOpen from 'phosphor-astro/LockOpen.astro';
 import Scroll from 'phosphor-astro/Scroll.astro';
 import ShieldCheck from 'phosphor-astro/ShieldCheck.astro';
-import Key from 'phosphor-astro/Key.astro';
 import {mcpIcon} from '../callspec-ui/ui/icons';
 
 export type SplashIconName =
@@ -21,11 +17,7 @@ export type SplashIconName =
 	| 'unlock'
 	| 'shield'
 	| 'rpc'
-	| 'test'
-	| 'key'
-	| 'docs'
-	| 'code'
-	| 'file';
+	| 'test';
 
 interface Props {
 	name: SplashIconName;
@@ -50,13 +42,5 @@ const svgProps = {'aria-hidden': 'true' as const};
 		<Function {...svgProps} />
 	) : name === 'test' ? (
 		<Flask {...svgProps} />
-	) : name === 'key' ? (
-		<Key {...svgProps} />
-	) : name === 'docs' ? (
-		<BookOpen {...svgProps} />
-	) : name === 'code' ? (
-		<Code {...svgProps} />
-	) : name === 'file' ? (
-		<FileArrowUp {...svgProps} />
 	) : null
 }
