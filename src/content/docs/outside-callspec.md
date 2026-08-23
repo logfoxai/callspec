@@ -1,6 +1,6 @@
-# The rest of your app
+# Outside Callspec
 
-Callspec owns the RPC router. Health checks, rate limiters, webhooks, and an app `errorHandler` sit around it. When those should fail like RPC, send the same `{ error, data? }` body.
+Callspec owns the RPC router. Health checks, rate limiters, webhooks, and an app `errorHandler` sit outside it. When that host code should fail like RPC, these are the escape hatches — same `{ error, data? }` body.
 
 | Where | How |
 |-------|-----|

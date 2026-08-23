@@ -2,7 +2,7 @@
 
 ## Errors
 
-Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md). Builtin and client-only codes: [Builtin errors](../builtin-errors.md). Host middleware: [The rest of your app](../the-rest-of-your-app.md).
+Errors are **typed return possibilities**, not mystery exceptions. Full guide: [Error handling](../error-handling.md). Builtin and client-only codes: [Builtin errors](../builtin-errors.md). Host middleware: [Outside Callspec](../outside-callspec.md).
 
 ## Native Callspec document
 
