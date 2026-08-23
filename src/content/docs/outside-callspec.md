@@ -2,7 +2,7 @@
 
 You can add your own Express middleware around `mountSpec` — for example a global rate limiter, a health check, or an app `errorHandler`. Callspec handles the RPC router. Your middleware handles the rest.
 
-If that middleware should return the same error body as an RPC route (`{ error, data? }`), call `sendRouteFailureResponse`.
+If that middleware should return the same error body as an RPC route (`{ error, data? }`), `sendRouteFailureResponse` is the escape hatch: call it when you have `res`.
 
 | Where | How |
 |-------|-----|
