@@ -78,13 +78,48 @@ function createTestApp(): http.Server {
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
-
     mountSpec(router, fixtureSpec, {logging: false});
 
     app.use('/v1', router);
 
     return http.createServer(app);
+
+}
+
+async function withCustomMount(
+    setup: (router: express.Router) => void,
+    fn: (base: string) => Promise<void>,
+): Promise<void> {
+
+    const app = express();
+    const router = express.Router();
+
+    setup(router);
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
+
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+
+    const addr = server.address();
+
+    if (!addr || typeof addr === 'string') {
+
+        throw new Error('expected server address');
+
+    }
+
+    const base = `http://127.0.0.1:${addr.port}/v1`;
+
+    try {
+
+        await fn(base);
+
+    } finally {
+
+        await closeServer(server);
+
+    }
 
 }
 
@@ -167,7 +202,6 @@ test('integration: docs UI loads callspec.json at custom docsPath', async (asser
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, fixtureSpec, {docsPath: '/explorer', logging: false});
     app.use('/v1', router);
 
@@ -264,7 +298,6 @@ test('integration: docs UI loads callspec.json when mountSpec uses basePath', as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, fixtureSpec, {basePath: '/v1', logging: false});
     app.use(router);
 
@@ -396,6 +429,127 @@ test('integration: validation error on bad input', async (assert) => {
 
 });
 
+test('integration: mountSpec parses JSON without a host express.json()', async (assert) => {
+
+    await withCustomMount((router) => {
+
+        mountSpec(router, fixtureSpec, {logging: false});
+
+    }, async (base) => {
+
+        const res = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: 'world'}),
+        });
+
+        assert.equal(res.status, 200);
+        assert.equal(await res.json(), {hello: 'world'});
+
+    });
+
+});
+
+test('integration: malformed JSON is VALIDATION_ERROR and is not logged as unhandled', async (assert) => {
+
+    let logged: unknown;
+
+    await withCustomMount((router) => {
+
+        mountSpec(router, fixtureSpec, {
+            logging: false,
+            logUnhandledError: (err) => {
+
+                logged = err;
+
+            },
+        });
+
+    }, async (base) => {
+
+        const res = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{not json',
+        });
+
+        assert.equal(res.status, 400);
+        assert.equal(await res.json(), {
+            error: 'VALIDATION_ERROR',
+            errors: {body: 'Malformed JSON'},
+        });
+        assert.equal(logged, undefined);
+
+    });
+
+});
+
+test('integration: json false uses a host parser and does not map parse errors', async (assert) => {
+
+    await withCustomMount((router) => {
+
+        router.use(express.json());
+        mountSpec(router, fixtureSpec, {logging: false, json: false});
+
+    }, async (base) => {
+
+        const ok = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: 'world'}),
+        });
+
+        assert.equal(ok.status, 200);
+        assert.equal(await ok.json(), {hello: 'world'});
+
+        const bad = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{not json',
+        });
+
+        const raw = await bad.text();
+        let parsed: {error?: string, errors?: {body?: string}} = {};
+
+        try {
+
+            parsed = JSON.parse(raw) as {error?: string, errors?: {body?: string}};
+
+        } catch {
+
+            parsed = {};
+
+        }
+
+        assert.equal(
+            parsed.error === 'VALIDATION_ERROR' && parsed.errors?.body === 'Malformed JSON',
+            false,
+        );
+
+    });
+
+});
+
+test('integration: json limit is passed through to express.json', async (assert) => {
+
+    await withCustomMount((router) => {
+
+        mountSpec(router, fixtureSpec, {logging: false, json: {limit: 20}});
+
+    }, async (base) => {
+
+        const res = await fetch(`${base}/greet`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: 'x'.repeat(100)}),
+        });
+
+        assert.equal(res.status, 413);
+
+    });
+
+});
+
 test('integration: unknown RPC route returns ROUTE_NOT_FOUND', async (assert) => {
 
     await withServer(async (base) => {
@@ -435,7 +589,6 @@ test('integration: unhandled handler error returns INTERNAL_ERROR', async (asser
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -484,7 +637,6 @@ test('integration: unhandled rejected promise returns INTERNAL_ERROR', async (as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -538,7 +690,6 @@ test('integration: MCP unhandled throw does not leak Error.message', async (asse
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -604,7 +755,6 @@ test('integration: handleUnhandledError maps throw to wire failure', async (asse
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {
         logging: false,
         handleUnhandledError: (err) => {
@@ -678,7 +828,6 @@ test('integration: logUnhandledError is called for unhandled handler errors', as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {
         logging: false,
         logUnhandledError: (err) => {
@@ -761,7 +910,6 @@ test('integration: declared route errors map to HTTP status and body', async (as
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -845,7 +993,6 @@ test('integration: declared domain failure is returned on the wire', async (asse
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {logging: false});
     app.use('/v1', router);
 
@@ -943,7 +1090,6 @@ test('integration: MCP tools/call emits structured onCall events', async (assert
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api, {
         logging: false,
         onCall: (event) => {
@@ -1005,8 +1151,6 @@ test('integration: no MCP when routes do not opt in', async (assert) => {
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
-
     mountSpec(router, noMcpSpec, {logging: false});
 
     app.use('/v1', router);
@@ -1041,8 +1185,6 @@ test('integration: docs disabled mounts none of the spec surfaces', async (asser
 
     const app = express();
     const router = express.Router();
-
-    router.use(express.json());
 
     mountSpec(router, fixtureSpec, {docs: false, logging: false});
 
@@ -1092,8 +1234,6 @@ test('integration: default meta title and version when omitted', async (assert) 
 
     const app = express();
     const router = express.Router();
-
-    router.use(express.json());
 
     mountSpec(router, sparseSpec, {logging: false});
 
@@ -1159,7 +1299,6 @@ test('integration: visibility public omits private routes from contracts; all in
         const app = express();
         const router = express.Router();
 
-        router.use(express.json());
         mountSpec(router, visibilitySpec, {logging: false, visibility});
         app.use(router);
 

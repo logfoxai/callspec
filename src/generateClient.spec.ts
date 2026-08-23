@@ -218,7 +218,6 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api);
     app.use('/v1', router);
 
@@ -326,7 +325,6 @@ test('generated client makes a real request to an in-process server', async (ass
     const app = express();
     const router = express.Router();
 
-    router.use(express.json());
     mountSpec(router, api);
     app.use('/v1', router);
 

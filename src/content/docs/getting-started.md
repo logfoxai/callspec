@@ -75,9 +75,8 @@ import {api} from './spec';
 
 const app = express();
 const router = express.Router();
-router.use(express.json());
 
-mountSpec(router, api);
+mountSpec(router, api); // parses application/json — { json: { limit } } or { json: false } if needed
 app.use('/v1', router);
 
 const port = 3000;
