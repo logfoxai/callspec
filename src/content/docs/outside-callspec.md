@@ -1,15 +1,15 @@
 # Outside Callspec
 
-Write your own Express around `mountSpec` — a global limiter, health, an app `errorHandler`. That's a normal use case. Callspec owns the RPC router; you own the rest.
+You can add your own Express middleware around `mountSpec` — for example a global rate limiter, a health check, or an app `errorHandler`. Callspec handles the RPC router. Your middleware handles the rest.
 
-When that middleware should fail like an RPC route, send the same `{ error, data? }` body. A little bit of an escape hatch. Fine.
+If that middleware should return the same error body as an RPC route (`{ error, data? }`), call `sendRouteFailureResponse`.
 
 | Where | How |
 |-------|-----|
-| Handler, `authenticate`, `handleUnhandledError` | **Return** `err.*`. `mountSpec` writes the response. |
-| Your middleware — you own `res` | **`sendRouteFailureResponse(res, failure)`**. |
+| Handler, `authenticate`, or `handleUnhandledError` | Return `err.*`. `mountSpec` writes the response. |
+| Your middleware (you have `res`) | Call `sendRouteFailureResponse(res, failure)`. |
 
-Don't hang Express error middleware on the `mountSpec` router. Put yours around the mount.
+Do not add Express error middleware to the `mountSpec` router. Add yours on the app, around the mount.
 
 ```typescript
 import {err, sendRouteFailureResponse} from 'callspec';
@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 | `isRouteFailure(value)` | Narrow a helper return or `next(err)` |
 | `logRequest` | Same jsout-express request log on another router |
 
-Send in the middleware that decided. An app `errorHandler` is a backstop:
+Call `sendRouteFailureResponse` in the middleware that decided the failure. An app `errorHandler` can catch `RouteFailure` values that were passed to `next`:
 
 ```typescript
 if (isRouteFailure(err)) {
@@ -39,6 +39,6 @@ if (isRouteFailure(err)) {
 }
 ```
 
-`authenticate` and `handleUnhandledError` stay return values — see [Error handling](./error-handling.md#mountspec-runtime).
+`authenticate` and `handleUnhandledError` still return values — see [Error handling](./error-handling.md#mountspec-runtime).
 
 ← [Error handling](./error-handling.md)
