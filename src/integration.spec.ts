@@ -73,19 +73,6 @@ const fixtureSpec = spec({
     authenticate,
 });
 
-function createTestApp(): http.Server {
-
-    const app = express();
-    const router = express.Router();
-
-    mountSpec(router, fixtureSpec, {logging: false});
-
-    app.use('/v1', router);
-
-    return http.createServer(app);
-
-}
-
 async function withCustomMount(
     setup: (router: express.Router) => void,
     fn: (base: string) => Promise<void>,
@@ -139,11 +126,18 @@ async function closeServer(server: http.Server): Promise<void> {
 
 }
 
-async function withServer(
+async function withMountedSpec(
+    api: Parameters<typeof mountSpec>[1],
     fn: (base: string) => Promise<void>,
 ): Promise<void> {
 
-    const server = createTestApp();
+    const app = express();
+    const router = express.Router();
+
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
 
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
 
@@ -155,17 +149,23 @@ async function withServer(
 
     }
 
-    const base = `http://127.0.0.1:${addr.port}/v1`;
-
     try {
 
-        await fn(base);
+        await fn(`http://127.0.0.1:${addr.port}/v1`);
 
     } finally {
 
         await closeServer(server);
 
     }
+
+}
+
+async function withServer(
+    fn: (base: string) => Promise<void>,
+): Promise<void> {
+
+    await withMountedSpec(fixtureSpec, fn);
 
 }
 
@@ -1368,10 +1368,10 @@ test('integration: visibility public omits private routes from contracts; all in
 
 });
 
-test('integration: omitted input accepts {} and no body, rejects extra keys', async (assert) => {
+test('integration: omitted input and void output', async (assert) => {
 
     const api = spec({
-        meta: {title: 'Empty Input API', version: '1.0.0'},
+        meta: {title: 'Omit API', version: '1.0.0'},
         routes: {
             whoami: route({
                 output: p.object({userId: p.string()}),
@@ -1379,27 +1379,16 @@ test('integration: omitted input accepts {} and no body, rejects extra keys', as
                 auth: 'none',
                 handler: async (_input, _ctx) => ({userId: 'u1'}),
             }),
+            logout: route({
+                meta: {summary: 'Logout', tags: ['auth']},
+                auth: 'none',
+                mcp: true,
+                handler: async (_input, _ctx) => undefined,
+            }),
         },
     });
 
-    const app = express();
-    const router = express.Router();
-
-    router.use(express.json());
-    mountSpec(router, api, {logging: false});
-    app.use('/v1', router);
-
-    const server = http.createServer(app);
-
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
-
-    const addr = server.address();
-
-    if (!addr || typeof addr === 'string') throw new Error('expected server address');
-
-    const base = `http://127.0.0.1:${addr.port}/v1`;
-
-    try {
+    await withMountedSpec(api, async (base) => {
 
         const empty = await fetch(`${base}/whoami`, {
             method: 'POST',
@@ -1431,65 +1420,26 @@ test('integration: omitted input accepts {} and no body, rejects extra keys', as
         assert.equal(doc.routes.whoami.input.type, 'object');
         assert.equal(doc.routes.whoami.input.additionalProperties, false);
 
-    } finally {
-
-        await closeServer(server);
-
-    }
-
-});
-
-test('integration: omitted output is HTTP 200 null and MCP structured null', async (assert) => {
-
-    const api = spec({
-        meta: {title: 'Void API', version: '1.0.0'},
-        routes: {
-            logout: route({
-                meta: {summary: 'Logout', tags: ['auth']},
-                auth: 'none',
-                mcp: true,
-                handler: async (_input, _ctx) => undefined,
-            }),
-        },
-    });
-
-    const app = express();
-    const router = express.Router();
-
-    router.use(express.json());
-    mountSpec(router, api, {logging: false});
-    app.use('/v1', router);
-
-    const server = http.createServer(app);
-
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
-
-    const addr = server.address();
-
-    if (!addr || typeof addr === 'string') throw new Error('expected server address');
-
-    const base = `http://127.0.0.1:${addr.port}/v1`;
-
-    try {
-
-        const res = await fetch(`${base}/logout`, {
+        const logout = await fetch(`${base}/logout`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: '{}',
         });
 
-        assert.equal(res.status, 200);
-        assert.equal(await res.text(), 'null');
+        assert.equal(logout.status, 200);
+        assert.equal(await logout.text(), 'null');
 
         const openApi = await (await fetch(`${base}/openapi.json`)).json() as {
             paths: Record<string, {
                 post?: {responses?: {'200'?: {content?: {'application/json'?: {schema?: unknown}}}}}
             }>
         };
-        const successSchema = openApi.paths['/logout']?.post?.responses?.['200']
-            ?.content?.['application/json']?.schema;
 
-        assert.equal(JSON.stringify(successSchema), JSON.stringify({type: 'null'}));
+        assert.equal(
+            JSON.stringify(openApi.paths['/logout']?.post?.responses?.['200']
+                ?.content?.['application/json']?.schema),
+            JSON.stringify({type: 'null'}),
+        );
 
         const mcp = await fetch(`${base}/mcp`, {
             method: 'POST',
@@ -1505,10 +1455,6 @@ test('integration: omitted output is HTTP 200 null and MCP structured null', asy
 
         assert.equal(mcpBody.result.structuredContent, null);
 
-    } finally {
-
-        await closeServer(server);
-
-    }
+    });
 
 });
