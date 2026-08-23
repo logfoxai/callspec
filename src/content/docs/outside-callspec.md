@@ -40,5 +40,3 @@ if (isRouteFailure(err)) {
 ```
 
 `authenticate` and `handleUnhandledError` still return values — see [Error handling](./error-handling.md#mountspec-runtime).
-
-← [Error handling](./error-handling.md)
