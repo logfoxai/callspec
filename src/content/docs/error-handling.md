@@ -147,7 +147,7 @@ Steps 1–4 are intentional contract outcomes. Step 6 is for unexpected failures
 | `handleUnhandledError` | — | Map known throws to `RouteFailure` before step 6 |
 | `logUnhandledError` | jsout `logger.error` | Override only the step-6 error log |
 
-Re-exported **`logRequest`** from `callspec` is the same jsout-express middleware — use it on **other** Express routers (upload, webhooks) so request logs match.
+Custom middleware around this router: [Outside Callspec](./outside-callspec.md).
 
 ### Known infrastructure throws
 

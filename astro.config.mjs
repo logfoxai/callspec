@@ -183,6 +183,7 @@ export default defineConfig({
                         {label: 'Authentication', slug: 'authentication'},
                         {label: 'Request context', slug: 'request-context'},
                         {label: 'Error handling', slug: 'error-handling'},
+                        {label: 'Outside Callspec', slug: 'outside-callspec'},
                     ],
                 },
                 {

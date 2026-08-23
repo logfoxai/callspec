@@ -43,6 +43,7 @@ Read **[skills/callspec/SKILL.md](skills/callspec/SKILL.md)** first. Copy-paste 
 - [API reference — route](src/content/docs/api-reference/route.md)
 - [API reference — spec](src/content/docs/api-reference/spec.md)
 - [Error handling](src/content/docs/error-handling.md)
+- [Outside Callspec](src/content/docs/outside-callspec.md)
 - [Builtin errors](src/content/docs/builtin-errors.md)
 - [SDK generation](src/content/docs/sdk-generation.md)
 - [Client usage](src/content/docs/client-usage.md)
