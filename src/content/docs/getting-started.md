@@ -2,7 +2,7 @@
 
 This page walks through a simple server and the client.
 
-For coding agents: [Working with Coding Agents](./coding-agents.md) (copy-paste prompts; skill is [`SKILL.md`](https://github.com/logfoxai/callspec/blob/main/skills/callspec/SKILL.md)).
+For coding agents: [Working with Coding Agents](./coding-agents.md) (copy-paste prompts; skill [SKILL.md](../../skills/callspec/SKILL.md)).
 
 ## 1. Install backend dependencies
 
