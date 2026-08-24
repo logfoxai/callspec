@@ -4,7 +4,7 @@ Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools &mdash; s
 
 ## Docs prose
 
-In `src/content/docs/`, write em dashes as `&mdash;` in prose (not the Unicode `—` character). Starlight and GitHub decode it on render; it keeps agents from copying literal em dashes into new edits. Leave dashes inside fenced code blocks and string literals as-is. Bulk normalize: `node scripts/normalize-doc-em-dashes.mjs`.
+In `src/content/docs/`, write em dashes as `&mdash;` in prose (not the Unicode `—` character). Starlight and GitHub decode it on render; it keeps agents from copying literal em dashes into new edits. Leave dashes inside fenced code blocks and string literals as-is.
 
 ## Callspec skill
 
