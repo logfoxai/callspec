@@ -2,23 +2,11 @@
 
 Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools — so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
 
-Human walkthrough: [Getting started](./getting-started.md). Topic guides: [README Contents](../../README.md#contents).
-
 ## Callspec skill
 
-The rules live in **[`skills/callspec/SKILL.md`](../../skills/callspec/SKILL.md)** (also shipped on npm under `skills/`). Point agents at that file — do not keep a second copy here.
+[`skills/callspec/SKILL.md`](../../skills/callspec/SKILL.md) (also in the npm package under `skills/`)
 
-**Cursor:** save as `.cursor/skills/callspec/SKILL.md` (or symlink that path to `node_modules/callspec/skills/callspec/SKILL.md` / this repo). Other tools: attach the file, or paste it once into chat if the agent cannot read the repo.
-
-What it encodes, in short — rules, not the API reference:
-
-- Return `err.*` for expected failures; a bare `throw` becomes `INTERNAL_ERROR`
-- Generate SDKs from `callspec.json` (`npx callspec …`), not OpenAPI
-- Default `auth` is `bearer`; `scope: 'private'` still requires auth
-- On `!result.ok`, branch on `result.code`
-- Don’t put Express error middleware or `express.json()` on the `mountSpec` router
-- When splitting files, follow [Server layout](./server-layout.md)
-- Uploads: `file()` on an input field — multipart wire; MCP stays JSON-only
+**Cursor:** save as `.cursor/skills/callspec/SKILL.md` (or symlink that path to `node_modules/callspec/skills/callspec/SKILL.md` / this repo).
 
 ## Prompt: work with Callspec
 
@@ -27,7 +15,7 @@ Install or attach the skill first, then:
 ```text
 We're using Callspec (https://github.com/logfoxai/callspec) for typed TypeScript RPC.
 
-Follow the Callspec skill (return err.* for expected failures; codegen from callspec.json not OpenAPI; branch on result.code; don't put Express error middleware or express.json() on the mountSpec router).
+Follow the Callspec skill.
 
 Task: <what you want changed — e.g. add a route, fix error handling, regenerate the SDK>
 
