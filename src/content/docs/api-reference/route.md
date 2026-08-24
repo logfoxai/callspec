@@ -37,8 +37,8 @@ route({ input?, output?, meta, handler, … })
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `input` | `p.object({})` | Request body pred. Omit when there are no fields (same as default; extra keys rejected). |
-| `output` | void | Runtyp pred for a successful response. Omit for no success payload: handler may `return undefined`; HTTP is `200` + JSON `null`; the generated client maps that to `value: undefined`. If the route truly returns `{}`, write `output: p.object({})`. Keep `p.optional(p.string())` (and similar) when the payload is optional, not void. |
+| `input` | `p.object({})` | Request body pred. Omit when there are no fields (extra keys rejected). |
+| `output` | void | Successful response pred. Omit when a successful handler returns void or `undefined`. |
 | `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
 | `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)` even when `input` / `output` are omitted. |
 | `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
