@@ -110,6 +110,12 @@ test('generateSchemasSection: rejects duplicate export and route pred names', (a
 
 });
 
+test('schemaToRuntyp: null schema is literal null', (assert) => {
+
+    assert.equal(schemaToRuntyp({type: 'null'}), 'p.literal(null)');
+
+});
+
 test('schemaToRuntyp: uuid and url formats', (assert) => {
 
     assert.equal(schemaToRuntyp({type: 'string', format: 'uuid'}), 'p.uuid()');

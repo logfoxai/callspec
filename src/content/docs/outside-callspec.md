@@ -1,6 +1,6 @@
 # Outside Callspec
 
-You can add your own Express middleware around `mountSpec` — for example a global rate limiter, a health check, or an app `errorHandler`. Callspec handles the RPC router. Your middleware handles the rest.
+You can add your own Express middleware around `mountSpec` &mdash; for example a global rate limiter, a health check, or an app `errorHandler`. Callspec handles the RPC router. Your middleware handles the rest.
 
 If that middleware should return the same error body as an RPC route (`{ error, data? }`), `sendRouteFailureResponse` is the escape hatch: call it when you have `res`.
 
@@ -9,7 +9,7 @@ If that middleware should return the same error body as an RPC route (`{ error, 
 | Handler, `authenticate`, or `handleUnhandledError` | Return `err.*`. `mountSpec` writes the response. |
 | Your middleware (you have `res`) | Call `sendRouteFailureResponse(res, failure)`. |
 
-Do not add Express error middleware to the `mountSpec` router. Add yours on the app, around the mount.
+Do not add `express.json()` or Express error middleware to the **router** passed to `mountSpec` &mdash; mountSpec already wires those for RPC. Add app-level middleware and your catch-all `errorHandler` on the Express app instead (see below).
 
 ```typescript
 import {err, sendRouteFailureResponse} from 'callspec';
@@ -39,4 +39,4 @@ if (isRouteFailure(err)) {
 }
 ```
 
-`authenticate` and `handleUnhandledError` still return values — see [Error handling](./error-handling.md#mountspec-runtime).
+`authenticate` and `handleUnhandledError` still return values &mdash; see [Error handling: mountSpec flow](./error-handling.md#mountspec-request-flow).

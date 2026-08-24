@@ -10,7 +10,7 @@ From a running server (replace the host (`127.0.0.1`), port (`3000`), and mount 
 curl -fsS http://127.0.0.1:3000/v1/openapi.json -o openapi.json
 ```
 
-Or emit offline with `emitOpenApi` — see [OpenAPI](./openapi.md).
+Or emit offline with `emitOpenApi` &mdash; see [OpenAPI](./openapi.md).
 
 ## Generators
 
@@ -25,5 +25,5 @@ Keep Callspec for your TypeScript app (Result-typed `ApiClient`, MCP, docs UI). 
 
 ## Related
 
-- [OpenAPI](./openapi.md) — what’s in `/openapi.json` and how to emit it
-- [SDK generation](./sdk-generation.md) — TypeScript from `callspec.json`
+- [OpenAPI](./openapi.md) &mdash; what’s in `/openapi.json` and how to emit it
+- [SDK generation](./sdk-generation.md) &mdash; TypeScript from `callspec.json`

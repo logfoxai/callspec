@@ -1,6 +1,6 @@
 # Single-file server example
 
-A very minimal example Callspec server all in one file — so you can see the whole model. For a real API, use [Server layout](./server-layout.md).
+A very minimal example Callspec server all in one file &mdash; so you can see the whole model. For a real API, use [Server layout](./server-layout.md).
 
 ```typescript
 import express from 'express';
@@ -48,4 +48,4 @@ app.listen(3000, () => {
 });
 ```
 
-`mountSpec` parses JSON on the router (`{ json: { limit } }` / `{ json: false }` to configure or skip). Surfaces and path options: [mountSpec](./api-reference/mount-spec.md).
+`mountSpec` parses JSON on the router. Surfaces and path options: [mountSpec](./api-reference/mount-spec.md).

@@ -1,6 +1,6 @@
 # MCP Server
 
-Expose selected RPC methods as **MCP tools** on your running server. Agents call the same handlers as HTTP — same auth, validation, and error codes. This is live API access, not a docs chatbot.
+Expose selected RPC methods as **MCP tools** on your running server. Agents call the same handlers as HTTP &mdash; same auth, validation, and error codes. This is live API access, not a docs chatbot.
 
 ## Enable tools
 
@@ -13,7 +13,7 @@ export const getProductById = route({
 });
 ```
 
-The tool name defaults to the route key. Override it or pass MCP annotations with the object form — see [`route` § MCP](./api-reference/route.md#mcp).
+The tool name defaults to the route key. Override it or pass MCP annotations with the object form &mdash; see [`route` § MCP](./api-reference/route.md#mcp).
 
 When **any** route has `mcp` set, `mountSpec` serves MCP at **`{mount}/mcp`** (override with `mcpPath`). By default only `scope: 'public'` routes appear in `tools/list`. Private MCP tools are listed when this mount uses `visibility: 'all'`. HTTP still works either way.
 
@@ -44,7 +44,7 @@ spec({
 | Tools | One MCP tool per `mcp: true` route that this mount’s `visibility` includes (`scope: 'public'`, or private when `visibility` is `'all'`) |
 | Input / output | Same preds as the RPC method |
 | Errors | Same codes as HTTP / the generated SDK (`NOT_FOUND`, domain errors, …) |
-| Auth | Per-route `auth` — bearer tools reject missing/invalid tokens like private HTTP |
+| Auth | Per-route `auth` &mdash; bearer tools reject missing/invalid tokens like private HTTP |
 
 [`file()`](./file-uploads.md) routes cannot be MCP tools. `tools/call` is JSON arguments; upload routes reject JSON. Leave `mcp` unset. This is a limitation of Callspec’s MCP adapter, not of HTTP uploads.
 
@@ -62,7 +62,7 @@ Separately, each MCP **`tools/call`** emits a structured **call** event (jsout `
 | `outcome` | `'ok'` or `'error'` |
 | `code` | Builtin/domain code (or synthetic `TOOL_NOT_FOUND`, …) when `outcome` is `'error'` |
 
-This is **not** the HTTP access log — it is one event per tool invocation so you can meter agents without parsing MCP JSON-RPC bodies.
+This is **not** the HTTP access log &mdash; it is one event per tool invocation so you can meter agents without parsing MCP JSON-RPC bodies.
 
 ```typescript
 import {mountSpec, type CallEvent} from 'callspec';
@@ -79,7 +79,7 @@ Pass `onCall: () => {}` to keep HTTP access logs but silence call events. Pass `
 
 ## Related
 
-- [Docs UI](./docs-ui.md) — connect panel and try-it for humans
-- [`route` § MCP](./api-reference/route.md#mcp) — `mcp: true` vs `{ name?, annotations? }`
-- [`mountSpec` options](./api-reference/mount-spec.md) — `mcpPath`, `docs`, `onCall`
-- [Builtin errors](./builtin-errors.md) — codes tools and clients share
+- [Docs UI](./docs-ui.md) &mdash; connect panel and try-it for humans
+- [`route` § MCP](./api-reference/route.md#mcp) &mdash; `mcp: true` vs `{ name?, annotations? }`
+- [`mountSpec` options](./api-reference/mount-spec.md) &mdash; `mcpPath`, `docs`, `onCall`
+- [Builtin errors](./builtin-errors.md) &mdash; codes tools and clients share

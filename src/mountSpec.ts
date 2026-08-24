@@ -70,17 +70,7 @@ export type MountSpecOptions = {
     handleUnhandledError?: (err: unknown, req: Request) => RouteFailure | undefined
     /** Override unhandled-error logging. Default uses jsout `logger.error`. */
     logUnhandledError?: (err: unknown, req: Request) => void
-    /**
-     * JSON body parser on this router (`express.json`). Default on.
-     * Pass `{ limit }` or other `express.json` options, or `false` to skip the
-     * parser and parse-error middleware (host already parsed, or test harness).
-     */
-    json?: false | NonNullable<Parameters<typeof express.json>[0]>
 };
-
-function noopLogUnhandledError(_err: unknown, _req: Request): void {
-
-}
 
 function isJsonParseError(err: unknown): boolean {
 
@@ -118,7 +108,7 @@ export function mountSpec<Ctx>(
     const mcpSubPath = options.mcpPath ?? '/mcp';
     const loggingEnabled = options.logging !== false;
     const logUnhandledError = options.logUnhandledError
-        ?? (loggingEnabled ? defaultLogUnhandledError : noopLogUnhandledError);
+        ?? (loggingEnabled ? defaultLogUnhandledError : (): void => {});
     const handleUnhandledError = options.handleUnhandledError;
 
     if (loggingEnabled) {
@@ -127,12 +117,8 @@ export function mountSpec<Ctx>(
 
     }
 
-    if (options.json !== false) {
-
-        router.use(express.json(options.json));
-        router.use(handleJsonParseError);
-
-    }
+    router.use(express.json());
+    router.use(handleJsonParseError);
 
     const visibility = options.visibility ?? 'public';
     const emitOptions = {

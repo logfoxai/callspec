@@ -16,6 +16,12 @@ test('exampleFromSchema: builds object from JSON schema properties', (assert) =>
 
 });
 
+test('exampleFromSchema: null schema example is null', (assert) => {
+
+    assert.equal(exampleFromSchema({type: 'null'}), null);
+
+});
+
 test('exampleFromSchema: uses enum and const values', (assert) => {
 
     assert.equal(exampleFromSchema({type: 'string', enum: ['a', 'b']}), 'a');

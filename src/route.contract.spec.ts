@@ -54,4 +54,76 @@ test('route rejects non-2-arg handlers', (assert) => {
         'throws on 0-arg handler',
     );
 
+    assert.throws(
+        () => route({
+            meta: {summary: 'x', tags: ['t']},
+            handler: ((_ctx: unknown) => undefined) as unknown as (
+                input: unknown,
+                ctx: unknown,
+            ) => undefined,
+        }),
+        /arity 2/,
+        'throws on 1-arg handler when input and output are omitted',
+    );
+
+});
+
+test('route without input defaults to empty object pred', async (assert) => {
+
+    const whoami = route({
+        output: p.object({ok: p.boolean()}),
+        meta: {summary: 'Whoami', tags: ['auth']},
+        auth: 'none',
+        handler: async (_input, _ctx) => ({ok: true}),
+    });
+
+    assert.equal(whoami.input({}).isValid, true, 'accepts {}');
+    assert.equal(whoami.input({extra: 1}).isValid, false, 'rejects unknown keys');
+    assert.equal(await executeRoute(whoami, {}, undefined), {ok: true});
+    assert.equal(await executeRoute(whoami, undefined, undefined), {ok: true});
+
+});
+
+test('route without output is void success', async (assert) => {
+
+    const destroy = route({
+        input: p.object({id: p.string()}),
+        meta: {summary: 'Destroy', tags: ['auth']},
+        auth: 'none',
+        handler: async (_input, _ctx) => undefined,
+    });
+
+    assert.equal(await executeRoute(destroy, {id: 'u1'}, undefined), null);
+
+});
+
+test('route without input or output works', async (assert) => {
+
+    const ping = route({
+        meta: {summary: 'Ping', tags: ['health']},
+        auth: 'none',
+        handler: async (_input, _ctx) => undefined,
+    });
+
+    assert.equal(ping.input({}).isValid, true);
+    assert.equal(ping.input({nope: true}).isValid, false);
+    assert.equal(await executeRoute(ping, {}, undefined), null);
+    assert.equal(await executeRoute(ping, undefined, undefined), null);
+
+});
+
+test('explicit empty object input and output stay empty objects', async (assert) => {
+
+    const explicit = route({
+        input: p.object({}),
+        output: p.object({}),
+        meta: {summary: 'Explicit empty', tags: ['t']},
+        auth: 'none',
+        handler: async (_input, _ctx) => ({}),
+    });
+
+    assert.equal(explicit.input({}).isValid, true);
+    assert.equal(explicit.input({extra: 1}).isValid, false);
+    assert.equal(await executeRoute(explicit, {}, undefined), {});
+
 });

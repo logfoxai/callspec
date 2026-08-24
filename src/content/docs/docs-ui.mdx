@@ -1,11 +1,11 @@
 ---
 title: Docs UI
-description: White-label explorer for your Callspec routes — try methods, inspect schemas, and copy MCP config.
+description: White-label explorer for your Callspec routes &mdash; try methods, inspect schemas, and copy MCP config.
 ---
 
 import DemoScreenshot from '../../components/DemoScreenshot.astro';
 
-After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`) for a white-label explorer over the same routes as your RPC server — try methods, inspect schemas and error codes, and copy MCP client config.
+After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`) for a white-label explorer over the same routes as your RPC server &mdash; try methods, inspect schemas and error codes, and copy MCP client config.
 
 <DemoScreenshot />
 
@@ -13,9 +13,9 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 
 With docs enabled (default), each API mount exposes:
 
-- **Explorer** — `{mount}/docs` — try routes, inspect schemas and errors; home page MCP connect panel
-- **`callspec.json`** — `{mount}/callspec.json` — contract for `npx callspec` ([SDK generation](./sdk-generation.md))
-- **`openapi.json`** — `{mount}/openapi.json` — OpenAPI export ([OpenAPI](./openapi.md))
+- **Explorer** &mdash; `{mount}/docs` &mdash; try routes, inspect schemas and errors; home page MCP connect panel
+- **`callspec.json`** &mdash; `{mount}/callspec.json` &mdash; contract for `npx callspec` ([SDK generation](./sdk-generation.md))
+- **`openapi.json`** &mdash; `{mount}/openapi.json` &mdash; OpenAPI export ([OpenAPI](./openapi.md))
 
 Whitelabel title, theme, navbar, footer, MCP/auth hints, optional `meta.sdkInstall`: [Branding](./docs-ui-branding.md).
 
@@ -36,13 +36,13 @@ mountSpec(router, api, {docsPath: '/explorer'});
 // OpenAPI:  /v1/openapi.json
 ```
 
-The UI always fetches **`../callspec.json` relative to the docs path** — renaming `docsPath` does not rename the contract URL. Full options: [`mountSpec`](./api-reference/mount-spec.md).
+The UI always fetches **`../callspec.json` relative to the docs path** &mdash; renaming `docsPath` does not rename the contract URL. Full options: [`mountSpec`](./api-reference/mount-spec.md).
 
 Title, logo, theme, navbar, footer, MCP hints, and escape hatches: **[Branding](./docs-ui-branding.md)**.
 
 ## Hide in production
 
-Optional — leave docs on in every environment, or turn them off where you don’t want the explorer / contract JSON public:
+Optional &mdash; leave docs on in every environment, or turn them off where you don’t want the explorer / contract JSON public:
 
 ```typescript
 mountSpec(router, api, {
@@ -58,8 +58,8 @@ Routes with `auth: 'bearer'` need a token in the UI session (same `Authorization
 
 ## Related
 
-- [Branding](./docs-ui-branding.md) — `meta` title, logo, theme, navbar, footer, escape hatches, auth/MCP hints
-- [Hosting (CloudFront / Pages)](./hosting-cloudfront-pages.md) — reverse proxy vs static export
-- [MCP](./mcp.md) — `mcp: true` on routes, connect from the home panel
-- [OpenAPI](./openapi.md) — `/openapi.json` for gateways and multi-lang tools
-- [SDK generation](./sdk-generation.md) — TypeScript client from `callspec.json`, not from the docs UI
+- [Branding](./docs-ui-branding.md) &mdash; `meta` title, logo, theme, navbar, footer, escape hatches, auth/MCP hints
+- [Hosting (CloudFront / Pages)](./hosting-cloudfront-pages.md) &mdash; reverse proxy vs static export
+- [MCP](./mcp.md) &mdash; `mcp: true` on routes, connect from the home panel
+- [OpenAPI](./openapi.md) &mdash; `/openapi.json` for gateways and multi-lang tools
+- [SDK generation](./sdk-generation.md) &mdash; TypeScript client from `callspec.json`, not from the docs UI

@@ -66,6 +66,12 @@ function schemaToRuntypExpr(schema: unknown): string {
         ? schema.type.find((entry) => entry !== 'null')
         : schema.type;
 
+    if (schema.type === 'null') {
+
+        return 'p.literal(null)';
+
+    }
+
     if (primaryType === 'string') {
 
         if (schema.format === 'date-time' || schema.format === 'date') {

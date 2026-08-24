@@ -1,24 +1,16 @@
 # Working with Coding Agents
 
-Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools — so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
+Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools &mdash; so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
 
-Human walkthrough: [Getting started](./getting-started.md). Topic guides: [README Contents](https://github.com/logfoxai/callspec#contents). Ignore `docs/internal/`.
+## Docs prose
+
+In `src/content/docs/`, write em dashes as `&mdash;` in prose (not the Unicode `—` character). Starlight and GitHub decode it on render; it keeps agents from copying literal em dashes into new edits. Leave dashes inside fenced code blocks and string literals as-is.
 
 ## Callspec skill
 
-The rules live in **[`skills/callspec/SKILL.md`](https://github.com/logfoxai/callspec/blob/main/skills/callspec/SKILL.md)** (also shipped on npm under `skills/`). Point agents at that file — do not keep a second copy here.
+[`skills/callspec/SKILL.md`](../../skills/callspec/SKILL.md) (also in the npm package under `skills/`)
 
-**Cursor:** save as `.cursor/skills/callspec/SKILL.md` (or symlink that path to `node_modules/callspec/skills/callspec/SKILL.md` / this repo). Other tools: attach the file, or paste it once into chat if the agent cannot read the repo.
-
-What it encodes, in short:
-
-- Return `err.*` for expected failures; a bare `throw` becomes `INTERNAL_ERROR`
-- Generate SDKs from `callspec.json` (`npx callspec …`), not OpenAPI
-- Default `auth` is `bearer`; `scope: 'private'` still requires auth
-- On `!result.ok`, branch on `result.code`
-- Don’t put Express error middleware or `express.json()` on the `mountSpec` router — it owns JSON parse and the catch path
-- When splitting files, follow [Server layout](./server-layout.md) — one `route()` per file with an inline handler
-- Uploads: `file()` on an input field. Same handler and generated client as JSON; wire is multipart. MCP is JSON-only
+**Cursor:** save as `.cursor/skills/callspec/SKILL.md` (or symlink that path to `node_modules/callspec/skills/callspec/SKILL.md` / this repo).
 
 ## Prompt: work with Callspec
 
@@ -27,11 +19,11 @@ Install or attach the skill first, then:
 ```text
 We're using Callspec (https://github.com/logfoxai/callspec) for typed TypeScript RPC.
 
-Follow the Callspec skill (return err.* for expected failures; codegen from callspec.json not OpenAPI; branch on result.code; don't put Express error middleware or express.json() on the mountSpec router).
+Follow the Callspec skill.
 
 Task: <what you want changed — e.g. add a route, fix error handling, regenerate the SDK>
 
-Read guides under https://github.com/logfoxai/callspec/tree/main/src/content/docs — start with getting-started.md, server-layout.md, error-handling.md, and sdk-generation.md as needed. Ignore docs/internal/.
+Read guides under src/content/docs/ in this repo (index: README.md Contents) — start with getting-started.md, server-layout.md, error-handling.md, sdk-generation.md. Prefer the checkout; if fetching from GitHub over HTTP, use raw.githubusercontent.com/logfoxai/callspec/main/ + path.
 ```
 
 ## Prompt: migrate to Callspec
@@ -49,7 +41,7 @@ Goals:
 Do this in order:
 1. Install callspec, runtyp, and express.
 2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; spec.ts = spec() registry only.
-3. Convert each endpoint to route({ input, output, errors?, auth, mcp?, meta, handler }) — handlers return values or err.*; do not throw for expected failures.
+3. Convert each endpoint per route.md (see src/content/docs/api-reference/route.md in this repo).
 4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
 5. Generate the TypeScript client (live mount or optional pinned callspec.json); switch call sites to Result (result.ok / result.code).
 6. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.
@@ -67,6 +59,6 @@ Start by proposing the target folder layout (per server-layout.md) and the first
 
 ## Runtime agents (MCP)
 
-Callspec can expose the **same** routes as MCP tools (`mcp: true` on `route()` → `{mount}/mcp`). That is for agents that **call** your live API — different from coding agents that edit your source.
+Callspec can expose the **same** routes as MCP tools (`mcp: true` on `route()` → `{mount}/mcp`). That is for agents that **call** your live API &mdash; different from coding agents that edit your source.
 
 See [MCP](./mcp.md).

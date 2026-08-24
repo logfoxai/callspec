@@ -118,6 +118,12 @@ function schemaType(
 
     }
 
+    if (schema.type === 'null') {
+
+        return 'undefined';
+
+    }
+
     const nullable = schema.nullable === true
         || (Array.isArray(schema.type) && schema.type.includes('null'));
 
@@ -261,6 +267,26 @@ export function schemaToTypes(
         typeName: rootTypeName,
         types: generated,
     };
+
+}
+
+export function isEmptyObjectSchema(schema: unknown): boolean {
+
+    if (!isRecord(schema)) return false;
+
+    if (schema.type !== 'object' && !isRecord(schema.properties)) return false;
+
+    const properties = schema.properties;
+
+    if (properties === undefined) {
+
+        return schema.type === 'object';
+
+    }
+
+    if (!isRecord(properties)) return false;
+
+    return Object.keys(properties).length === 0;
 
 }
 

@@ -255,7 +255,7 @@ export class CallspecClient {
 
         if (resp.ok) {
 
-            return {ok: true, value: body as TOutput};
+            return {ok: true, value: (body === null ? undefined : body) as TOutput};
 
         }
 

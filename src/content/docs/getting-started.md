@@ -2,7 +2,7 @@
 
 This page walks through a simple server and the client.
 
-For coding agents: [Working with Coding Agents](./coding-agents.md) (copy-paste prompts; skill is [`SKILL.md`](https://github.com/logfoxai/callspec/blob/main/skills/callspec/SKILL.md)).
+For coding agents: [Working with Coding Agents](./coding-agents.md) (copy-paste prompts; skill [SKILL.md](../../skills/callspec/SKILL.md)).
 
 ## 1. Install backend dependencies
 
@@ -46,11 +46,8 @@ export const getProductById = route({
 });
 ```
 
-Callspec validates `input` and `output` against the preds automatically — bad wire data is rejected before your handler runs, and successful responses are checked on the way out.
+Callspec validates **input** before your handler runs. [Learn more about routes](./api-reference/route.md)
 
-`auth` is who can call the route. `scope` is who can see it in docs and specs — default `'public'`. Use `scope: 'private'` for routes you do not want to document for some users (`visibility: 'all'` in dev/stage). See [Auth and scope](./api-reference/auth-and-scope.md).
-
-Related: [runtyp](https://github.com/logfoxai/runtyp) · [Builtin errors](./builtin-errors.md) · [Error handling](./error-handling.md) · [Unit testing](./unit-testing.md) · [`route`](./api-reference/route.md)
 
 ## 3. Define the API
 
@@ -76,7 +73,7 @@ import {api} from './spec';
 const app = express();
 const router = express.Router();
 
-mountSpec(router, api); // parses application/json — { json: { limit } } or { json: false } if needed
+mountSpec(router, api); // parses application/json on this router
 app.use('/v1', router);
 
 const port = 3000;
@@ -112,7 +109,7 @@ Related: [SDK generation](./sdk-generation.md) · [Shared validation](./shared-v
 
 ## 6. Call from your app
 
-Each method returns a **Result** — check `result.ok`, handle the codes that matter for that UI, and send the rest through a shared helper (you do **not** need a giant `switch` at every call site).
+Each method returns a **Result** &mdash; check `result.ok`, handle the codes that matter for that UI, and send the rest through a shared helper (you do **not** need a giant `switch` at every call site).
 
 ```typescript title="src/app/getProductById.ts" frame="code"
 import {ApiClient} from '../generated/api';

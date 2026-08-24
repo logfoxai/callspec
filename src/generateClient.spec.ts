@@ -64,6 +64,14 @@ test('schemaToTypes: generates nested object types', (assert) => {
 
 });
 
+test('schemaToTypes: null schema is undefined', (assert) => {
+
+    const result = schemaToTypes({type: 'null'}, 'PingOutput');
+
+    assert.equal(result.types[0]?.definition, 'export type PingOutput = undefined;');
+
+});
+
 test('sanitizeMethodName: handles reserved words and invalid identifiers', (assert) => {
 
     assert.equal(sanitizeMethodName('searchLogs'), 'searchLogs');
@@ -165,6 +173,41 @@ test('generateClientSource: one file includes ApiClient, schemas preds, and expo
 
 });
 
+test('generateClientSource: empty input is optional and void output is undefined', (assert) => {
+
+    const generated = generateClientSource(
+        emitCallspec({
+            whoami: route({
+                output: p.object({userId: p.string()}),
+                meta: {summary: 'Whoami', tags: ['auth']},
+                auth: 'none',
+                handler: async (_input, _ctx) => ({userId: 'u1'}),
+            }),
+            destroyUserSessions: route({
+                meta: {summary: 'Destroy sessions', tags: ['auth']},
+                auth: 'none',
+                handler: async (_input, _ctx) => undefined,
+            }),
+        }, {title: 'API', version: '1.0.0'}),
+    );
+
+    assert.equal(
+        generated.includes('async whoami(input?: WhoamiInput): Promise<WhoamiResult>'),
+        true,
+    );
+    assert.equal(
+        generated.includes('async destroyUserSessions(input?: DestroyUserSessionsInput): Promise<DestroyUserSessionsResult>'),
+        true,
+    );
+    assert.equal(generated.includes('export type DestroyUserSessionsOutput = undefined;'), true);
+    assert.equal(
+        generated.includes('async whoami(input: WhoamiInput)'),
+        false,
+        'empty-input methods must not require input',
+    );
+
+});
+
 test('generateClientSource: visibility all emits methods for scope private routes', (assert) => {
 
     const routes = {
@@ -241,7 +284,7 @@ test('generateClientFile: generates from HTTP URL', async (assert) => {
 
         const generated = fs.readFileSync(outputPath, 'utf8');
 
-        assert.equal(generated.includes('async ping(input: PingInput)'), true);
+        assert.equal(generated.includes('async ping(input?: PingInput)'), true);
 
     } finally {
 

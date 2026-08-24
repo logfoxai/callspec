@@ -1,6 +1,6 @@
 # OpenAPI
 
-Callspec emits **OpenAPI 3.1** — useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern, Kiota).
+Callspec emits **OpenAPI 3.1** &mdash; useful for API gateways, contract tests, mocks, and multi-language SDK/docs tools (e.g. Fern, Kiota).
 
 It is a **projection for the ecosystem**, not the source of truth for Callspec’s TypeScript client. For `npx callspec` / `ApiClient`, use **`callspec.json`**, not OpenAPI.
 
@@ -25,7 +25,7 @@ Auth/scope details: [Auth and scope](./api-reference/auth-and-scope.md).
 
 ## Fetch from a running server
 
-Served at **`{mount}/openapi.json`** whenever `docs` is enabled (default). Disabled with `mountSpec(router, api, {docs: false})` — same switch as the docs UI and `callspec.json`.
+Served at **`{mount}/openapi.json`** whenever `docs` is enabled (default). Disabled with `mountSpec(router, api, {docs: false})` &mdash; same switch as the docs UI and `callspec.json`.
 
 Replace the host (`127.0.0.1`), port (`3000`), and mount (`/v1`) with yours:
 
@@ -35,7 +35,7 @@ curl -fsS http://127.0.0.1:3000/v1/openapi.json -o openapi.json
 
 ## Emit without HTTP
 
-Same document `mountSpec` would serve — for CI or offline packaging:
+Same document `mountSpec` would serve &mdash; for CI or offline packaging:
 
 ```typescript
 import {writeFileSync} from 'fs';
@@ -63,6 +63,6 @@ writeFileSync(
 
 ## Related
 
-- [SDK generation](./sdk-generation.md) — TypeScript from `callspec.json`
-- [Multi-language SDKs](./multi-language-sdks.md) — OpenAPI → Fern, Kiota, and similar tools
-- [Docs UI](./docs-ui.md) — human explorer alongside the JSON exports
+- [SDK generation](./sdk-generation.md) &mdash; TypeScript from `callspec.json`
+- [Multi-language SDKs](./multi-language-sdks.md) &mdash; OpenAPI → Fern, Kiota, and similar tools
+- [Docs UI](./docs-ui.md) &mdash; human explorer alongside the JSON exports

@@ -170,3 +170,39 @@ route({
     // @ts-expect-error handler file field must be UploadedFile, not string
     handler: async (input: {file: string}, _ctx: Ctx) => ({filename: input.file}),
 });
+
+route({
+    output: p.object({userId: p.string()}),
+    meta: {summary: 'Whoami', tags: ['auth']},
+    auth: 'none',
+    handler: async (_input, _ctx: Ctx) => ({userId: 'u1'}),
+});
+
+route({
+    input: p.object({id: p.string()}),
+    meta: {summary: 'Destroy', tags: ['auth']},
+    auth: 'none',
+    handler: async (_input, _ctx: Ctx) => undefined,
+});
+
+route({
+    meta: {summary: 'Ping', tags: ['health']},
+    auth: 'none',
+    handler: async (_input, _ctx: Ctx) => undefined,
+});
+
+route({
+    input: p.object({}),
+    output: p.object({}),
+    meta: {summary: 'Explicit empty', tags: ['t']},
+    auth: 'none',
+    handler: async (_input, _ctx: Ctx) => ({}),
+});
+
+route({
+    input: p.object({email: p.string()}),
+    output: p.optional(p.string()),
+    meta: {summary: 'Reset', tags: ['auth']},
+    auth: 'none',
+    handler: async (_input, _ctx: Ctx) => undefined,
+});

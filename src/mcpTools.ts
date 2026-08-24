@@ -1,6 +1,6 @@
-import {toJsonSchema} from 'runtyp';
 import type {RouteDef, RoutesMap} from './types';
 import {exportedRoutes, type ExportVisibility} from './routeVisibility';
+import {predToJsonSchema} from './routeDefaults';
 
 export function isMcpEnabled(route: RouteDef<any, any, any>): boolean {
 
@@ -53,7 +53,7 @@ export function listMcpTools(
             const entry: McpToolListEntry = {
                 name: routeMcpName(key, route),
                 title: route.meta.summary,
-                inputSchema: toJsonSchema(route.input) as Record<string, unknown>,
+                inputSchema: predToJsonSchema(route.input),
             };
 
             if (route.meta.description) {
@@ -64,7 +64,7 @@ export function listMcpTools(
 
             if (route.output) {
 
-                entry.outputSchema = toJsonSchema(route.output) as Record<string, unknown>;
+                entry.outputSchema = predToJsonSchema(route.output);
 
             }
 

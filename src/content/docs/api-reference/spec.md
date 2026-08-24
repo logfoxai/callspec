@@ -8,38 +8,38 @@ spec({ routes, meta?, exports?, authenticate? })
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `routes` | — | Map of wired routes — see [Routes map](#routes-map). |
-| `meta` | `{}` | Spec title, docs UI branding, OpenAPI `info`, MCP server hints — see [Spec meta](#spec-meta). |
-| `exports` | — | Named runtyp preds for frontend codegen — see [Exports](#exports). |
-| `authenticate` | — | Bearer hook — required when any route uses `auth: 'bearer'`. See [Authentication](../authentication.md). |
+| `routes` | &mdash; | Map of wired routes &mdash; see [Routes map](#routes-map). |
+| `meta` | `{}` | Spec title, docs UI branding, OpenAPI `info`, MCP server hints &mdash; see [Spec meta](#spec-meta). |
+| `exports` | &mdash; | Named runtyp preds for frontend codegen &mdash; see [Exports](#exports). |
+| `authenticate` | &mdash; | Bearer hook &mdash; required when any route uses `auth: 'bearer'`. See [Authentication](../authentication.md). |
 
 Throws at load time if any route uses `auth: 'bearer'` and `authenticate` is missing.
 
 ## Routes map
 
-Keys become **RPC method names** — `routes: { getProductById }` is called as `POST /v1/getProductById` (plus your Express mount prefix). Values must come from `route({ …, handler })`, not bare preds.
+Keys become **RPC method names** &mdash; `routes: { getProductById }` is called as `POST /v1/getProductById` (plus your Express mount prefix). Values must come from `route({ …, handler })`, not bare preds.
 
 By default only `scope: 'public'` routes appear in `callspec.json`, OpenAPI, SDK codegen, and MCP `tools/list`. Private routes still run on the server. Pass `visibility: 'all'` on `mountSpec` (or `emitCallspec`) to document them on that mount. See [Auth and scope](./auth-and-scope.md).
 
 ## Spec meta
 
-`meta` is flat JSON on the spec. It flows into emitted documents and into the **docs UI** when you `mountSpec`. It does **not** turn docs on or off — that is `mountSpec(router, spec, { docs?, docsPath? })` ([`mountSpec` options](./mount-spec.md)).
+`meta` is flat JSON on the spec. It flows into emitted documents and into the **docs UI** when you `mountSpec`. It does **not** turn docs on or off &mdash; that is `mountSpec(router, spec, { docs?, docsPath? })` ([`mountSpec` options](./mount-spec.md)).
 
 | Field | Default | Used in | Description |
 |-------|---------|---------|-------------|
 | `title` | `'Callspec API'` | Docs UI header, OpenAPI `info.title`, MCP server name | Display name for your API. |
-| `version` | `'0.0.0'` | OpenAPI `info.version`, MCP server version | Semver or build id — your choice. |
-| `intro` | — | Docs UI home blurb, OpenAPI `info.description` | Optional welcome paragraph. Home (title, counts, Browse API, MCP panel) is always on. |
-| `website` | — | Docs UI home link | `{ url, label? }` — `label` defaults to the hostname or “Learn more”. |
-| `logo` | — | Docs UI header + home | `{ light, dark? }` — image URLs; see [Logo URLs](#logo-urls). |
+| `version` | `'0.0.0'` | OpenAPI `info.version`, MCP server version | Semver or build id &mdash; your choice. |
+| `intro` | &mdash; | Docs UI home blurb, OpenAPI `info.description` | Optional welcome paragraph. Home (title, counts, Browse API, MCP panel) is always on. |
+| `website` | &mdash; | Docs UI home link | `{ url, label? }` &mdash; `label` defaults to the hostname or “Learn more”. |
+| `logo` | &mdash; | Docs UI header + home | `{ light, dark? }` &mdash; image URLs; see [Logo URLs](#logo-urls). |
 | `favicon` | `logo.light` | Docs UI tab icon | Explicit favicon URL; falls back to `logo.light`. |
-| `theme` | — | Docs UI CSS variables | `{ accent?, background?, surface?, fontFamily?, fontUrls? }` — vars injected at boot. Accent-only keeps light/dark distinct; `background` / `surface` pin both modes and derive text for contrast. |
-| `navbarLinks` | — | Docs UI top header | `{ label, href, external? }[]` — product links next to the brand. |
-| `footer` | `{ poweredBy: true }` | Docs UI footer | `{ poweredBy?: boolean }` — set `poweredBy: false` to hide “Powered by callspec”. |
-| `notice` | — | Docs UI banner | Plain-text `{ title?, message, command?, links? }` above the top header. |
-| `sdkInstall` | — | Docs UI home | Static install hint with copy button (e.g. `npm i @acme/sdk`). |
+| `theme` | &mdash; | Docs UI CSS variables | `{ accent?, background?, surface?, fontFamily?, fontUrls? }` &mdash; vars injected at boot. Accent-only keeps light/dark distinct; `background` / `surface` pin both modes and derive text for contrast. |
+| `navbarLinks` | &mdash; | Docs UI top header | `{ label, href, external? }[]` &mdash; product links next to the brand. |
+| `footer` | `{ poweredBy: true }` | Docs UI footer | `{ poweredBy?: boolean }` &mdash; set `poweredBy: false` to hide “Powered by callspec”. |
+| `notice` | &mdash; | Docs UI banner | Plain-text `{ title?, message, command?, links? }` above the top header. |
+| `sdkInstall` | &mdash; | Docs UI home | Static install hint with copy button (e.g. `npm i @acme/sdk`). |
 | `authHint` | auto | Docs UI MCP connect panel (home page) | Prose about Bearer tokens shown in the connect UI. Auto-set when bearer routes exist unless you override. |
-| `mcpInstructions` | — | MCP server `instructions` field | Agent-facing server description returned by MCP `initialize` — not shown in the docs UI connect panel. |
+| `mcpInstructions` | &mdash; | MCP server `instructions` field | Agent-facing server description returned by MCP `initialize` &mdash; not shown in the docs UI connect panel. |
 
 Full whitelabel example (from the Chirp demo):
 
@@ -90,7 +90,7 @@ If `dark` is omitted, the light logo is used in both themes.
 | What you want | Where to configure |
 |---------------|-------------------|
 | Turn docs/OpenAPI/`callspec.json` off | `mountSpec(…, {docs: false})` |
-| Change docs path only | `mountSpec(…, {docsPath: '/explorer'})` — contract paths stay `/callspec.json` and `/openapi.json` |
+| Change docs path only | `mountSpec(…, {docsPath: '/explorer'})` &mdash; contract paths stay `/callspec.json` and `/openapi.json` |
 | Title, intro, logo, theme, navbar, footer | `spec({ meta: { … } })` |
 | Per-route summaries and tags | `route({ meta: { summary, tags, … } })` |
 
@@ -98,7 +98,7 @@ More: [Docs UI](../docs-ui.md) · [Branding](../docs-ui-branding.md) · [`mountS
 
 ## Exports
 
-Optional map of **named runtyp preds** that are not routes — shared form shapes, filters, enums for the frontend:
+Optional map of **named runtyp preds** that are not routes &mdash; shared form shapes, filters, enums for the frontend:
 
 ```typescript
 import {product, productList} from './schemas/product';

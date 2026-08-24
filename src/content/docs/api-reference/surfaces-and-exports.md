@@ -10,7 +10,7 @@ Errors are **typed return possibilities**, not mystery exceptions. Full guide: [
 
 ## OpenAPI
 
-**OpenAPI 3.1** at `/openapi.json` — parallel projection from the same `routes` object. Full guide: [OpenAPI](../openapi.md).
+**OpenAPI 3.1** at `/openapi.json` &mdash; parallel projection from the same `routes` object. Full guide: [OpenAPI](../openapi.md).
 
 ## Runtime client
 
@@ -29,13 +29,13 @@ if (isCallspecOk(result)) {
 }
 ```
 
-See [Client error normalization](../error-handling.md#client-error-normalization).
+See [Error handling: client HTTP pipeline](../error-handling.md#client-http-pipeline).
 
 ## Built-in MCP server
 
 Set `mcp: true` on any `route`. When any route opts in, `mountSpec` mounts MCP at `/mcp` automatically.
 
-Agents call the **same handlers** as HTTP RPC — same auth gate, same input validation, same error codes. Guide: [MCP](../mcp.md).
+Agents call the **same handlers** as HTTP RPC &mdash; same auth gate, same input validation, same error codes. Guide: [MCP](../mcp.md).
 
 ## Docs UI
 

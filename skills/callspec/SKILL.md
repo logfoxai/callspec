@@ -8,19 +8,17 @@ disable-model-invocation: true
 
 # Callspec
 
-Start at the [README Contents](https://github.com/logfoxai/callspec#contents) — pick the guide under `src/content/docs/`. Ignore `docs/internal/`.
+Docs: [README](https://raw.githubusercontent.com/logfoxai/callspec/main/README.md) (guide index under Contents).
 
-## Do not get wrong
+## Rules
 
 1. Handlers **return** `err.*` / domain handles for expected failures. Bare `throw` → `INTERNAL_ERROR`.
 2. SDK/codegen reads **`callspec.json`** (`npx callspec …`), **not** OpenAPI.
 3. Default `auth` is **`bearer`** — requires `authenticate` on `spec()`, or set `auth: 'none'`.
 4. `scope: 'private'` is still mounted; does **not** skip auth. Use `visibility: 'all'` on `mountSpec` to document those routes on that mount.
 5. Never re-declare **builtin** codes on route `errors:`. Domain codes must be registered (`defineErrors`).
-6. When `!result.ok`, branch on **`result.code`**, not HTTP status. Don’t show `UNKNOWN_ERROR.data` to users.
-7. Don’t wire Express error middleware / jsout / `express.json()` on the `mountSpec` router — it owns JSON parse, request logging, and the catch path. Custom middleware around the mount that should fail like RPC: `sendRouteFailureResponse`. Use `{ json: false }` or `{ json: { limit } }` only when you need to opt out or configure.
-8. After route/error changes: regenerate the client; update the pinned contract if the repo has one.
-9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Form preds live on generated **`schemas`** (from `exports` + route wire shapes).
-10. Fern docs MCP ≠ Callspec `/mcp` tools — different jobs.
-11. **Layout:** follow [Server layout](https://github.com/logfoxai/callspec/blob/main/src/content/docs/server-layout.md) when splitting — one `route()` per file with **inline** `handler`; shared preds in `schemas/`; `spec.ts` = `spec()` registry only.
-12. **Uploads:** `file()` on an input field. Same handler and generated client as JSON; wire is multipart. MCP is JSON-only.
+6. When `!result.ok`, branch on **`result.code`**, not HTTP status. **Handle the codes that matter for that screen; send the rest through a shared helper.** Don't show `UNKNOWN_ERROR.data` to users.
+7. `mountSpec` handles JSON parsing and RPC error responses on the router you pass in. Don't add `express.json()` or Express error middleware there. On the app, use middleware around the mount (rate limits, health checks) and a final `errorHandler` as usual. For Callspec-shaped errors from your middleware, use `sendRouteFailureResponse` — [Outside Callspec](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/outside-callspec.md).
+8. After route/error changes: regenerate the client (`npx callspec …`).
+9. Prefer generated **`ApiClient`** over raw `CallspecClient`.
+10. Follow [Server layout](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/server-layout.md) and keep `handler` inline on `route()` calls.

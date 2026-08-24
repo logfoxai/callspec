@@ -1,6 +1,6 @@
 # Branding
 
-Whitelabel the [Docs UI](./docs-ui.md) (and related OpenAPI / MCP names) via **`spec({ meta })`** — not `mountSpec` options.
+Whitelabel the [Docs UI](./docs-ui.md) (and related OpenAPI / MCP names) via **`spec({ meta })`** &mdash; not `mountSpec` options.
 
 ```typescript
 export const api = spec({
@@ -51,14 +51,14 @@ export const api = spec({
 | `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. |
 | `navbarLinks` | Top header links (`label`, `href`, optional `external`) |
 | `footer.poweredBy` | Show “Powered by callspec” (default `true` when omitted) |
-| `notice` | Optional plain-text banner above the top header (`title?`, `message`, `command?`, `links?`) — no custom HTML in message |
+| `notice` | Optional plain-text banner above the top header (`title?`, `message`, `command?`, `links?`) &mdash; no custom HTML in message |
 | `sdkInstall` | Static install command on the home page (copy button) |
 | `authHint` | Copy in the MCP connect panel when bearer tools exist |
-| `mcpInstructions` | MCP `instructions` on `initialize` — **agents** see this, not the docs chrome |
+| `mcpInstructions` | MCP `instructions` on `initialize` &mdash; **agents** see this, not the docs chrome |
 
 Custom HTML, inline CSS, and external override stylesheets are **not supported**. Use theme colors, logos, links, and `notice` for whitelabeling.
 
-Per-route labels: `route({ meta: { summary, tags, description? } })` — sidebar grouping and route titles.
+Per-route labels: `route({ meta: { summary, tags, description? } })` &mdash; sidebar grouping and route titles.
 
 Field reference: [`spec` § Spec meta](./api-reference/spec.md#spec-meta).
 

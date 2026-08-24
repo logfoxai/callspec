@@ -4,10 +4,10 @@ Credentials are per-route, not in the input pred.
 
 | `auth` | Behavior |
 |--------|----------|
-| `'none'` | No token required — handler gets `ctx: undefined` unless the client sent a Bearer token and you wired `authenticate` |
+| `'none'` | No token required &mdash; handler gets `ctx: undefined` unless the client sent a Bearer token and you wired `authenticate` |
 | `'bearer'` (default) | Missing or invalid token → **401 `UNAUTHORIZED`** before the handler runs |
 
-Any route with `auth: 'bearer'` requires `authenticate` on the spec — `spec` throws at load time if it is missing.
+Any route with `auth: 'bearer'` requires `authenticate` on the spec &mdash; `spec` throws at load time if it is missing.
 
 ```typescript title="src/auth.ts" frame="code"
 import type {Authenticate} from 'callspec';
@@ -27,7 +27,6 @@ import {predicates as p} from 'runtyp';
 import type {Ctx} from '../auth';
 
 export const getProfile = route({
-    input: p.object({}),
     output: p.object({userId: p.string()}),
     meta: {summary: 'Get profile', tags: ['users']},
     auth: 'bearer',

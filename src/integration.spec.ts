@@ -73,19 +73,6 @@ const fixtureSpec = spec({
     authenticate,
 });
 
-function createTestApp(): http.Server {
-
-    const app = express();
-    const router = express.Router();
-
-    mountSpec(router, fixtureSpec, {logging: false});
-
-    app.use('/v1', router);
-
-    return http.createServer(app);
-
-}
-
 async function withCustomMount(
     setup: (router: express.Router) => void,
     fn: (base: string) => Promise<void>,
@@ -139,11 +126,18 @@ async function closeServer(server: http.Server): Promise<void> {
 
 }
 
-async function withServer(
+async function withMountedSpec(
+    api: Parameters<typeof mountSpec>[1],
     fn: (base: string) => Promise<void>,
 ): Promise<void> {
 
-    const server = createTestApp();
+    const app = express();
+    const router = express.Router();
+
+    mountSpec(router, api, {logging: false});
+    app.use('/v1', router);
+
+    const server = http.createServer(app);
 
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
 
@@ -155,17 +149,23 @@ async function withServer(
 
     }
 
-    const base = `http://127.0.0.1:${addr.port}/v1`;
-
     try {
 
-        await fn(base);
+        await fn(`http://127.0.0.1:${addr.port}/v1`);
 
     } finally {
 
         await closeServer(server);
 
     }
+
+}
+
+async function withServer(
+    fn: (base: string) => Promise<void>,
+): Promise<void> {
+
+    await withMountedSpec(fixtureSpec, fn);
 
 }
 
@@ -479,72 +479,6 @@ test('integration: malformed JSON is VALIDATION_ERROR and is not logged as unhan
             errors: {body: 'Malformed JSON'},
         });
         assert.equal(logged, undefined);
-
-    });
-
-});
-
-test('integration: json false uses a host parser and does not map parse errors', async (assert) => {
-
-    await withCustomMount((router) => {
-
-        router.use(express.json());
-        mountSpec(router, fixtureSpec, {logging: false, json: false});
-
-    }, async (base) => {
-
-        const ok = await fetch(`${base}/greet`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: 'world'}),
-        });
-
-        assert.equal(ok.status, 200);
-        assert.equal(await ok.json(), {hello: 'world'});
-
-        const bad = await fetch(`${base}/greet`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: '{not json',
-        });
-
-        const raw = await bad.text();
-        let parsed: {error?: string, errors?: {body?: string}} = {};
-
-        try {
-
-            parsed = JSON.parse(raw) as {error?: string, errors?: {body?: string}};
-
-        } catch {
-
-            parsed = {};
-
-        }
-
-        assert.equal(
-            parsed.error === 'VALIDATION_ERROR' && parsed.errors?.body === 'Malformed JSON',
-            false,
-        );
-
-    });
-
-});
-
-test('integration: json limit is passed through to express.json', async (assert) => {
-
-    await withCustomMount((router) => {
-
-        mountSpec(router, fixtureSpec, {logging: false, json: {limit: 20}});
-
-    }, async (base) => {
-
-        const res = await fetch(`${base}/greet`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: 'x'.repeat(100)}),
-        });
-
-        assert.equal(res.status, 413);
 
     });
 
@@ -1365,5 +1299,96 @@ test('integration: visibility public omits private routes from contracts; all in
         await closeServer(allMount.server);
 
     }
+
+});
+
+test('integration: omitted input and void output', async (assert) => {
+
+    const api = spec({
+        meta: {title: 'Omit API', version: '1.0.0'},
+        routes: {
+            whoami: route({
+                output: p.object({userId: p.string()}),
+                meta: {summary: 'Whoami', tags: ['auth']},
+                auth: 'none',
+                handler: async (_input, _ctx) => ({userId: 'u1'}),
+            }),
+            logout: route({
+                meta: {summary: 'Logout', tags: ['auth']},
+                auth: 'none',
+                mcp: true,
+                handler: async (_input, _ctx) => undefined,
+            }),
+        },
+    });
+
+    await withMountedSpec(api, async (base) => {
+
+        const empty = await fetch(`${base}/whoami`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{}',
+        });
+
+        assert.equal(empty.status, 200);
+        assert.equal(await empty.json(), {userId: 'u1'});
+
+        const noBody = await fetch(`${base}/whoami`, {method: 'POST'});
+
+        assert.equal(noBody.status, 200);
+        assert.equal(await noBody.json(), {userId: 'u1'});
+
+        const extra = await fetch(`${base}/whoami`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({extra: 1}),
+        });
+
+        assert.equal(extra.status, 400);
+        assert.equal((await extra.json() as {error?: string}).error, 'VALIDATION_ERROR');
+
+        const doc = await (await fetch(`${base}/callspec.json`)).json() as {
+            routes: {whoami: {input: {type?: string, additionalProperties?: boolean}}}
+        };
+
+        assert.equal(doc.routes.whoami.input.type, 'object');
+        assert.equal(doc.routes.whoami.input.additionalProperties, false);
+
+        const logout = await fetch(`${base}/logout`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: '{}',
+        });
+
+        assert.equal(logout.status, 200);
+        assert.equal(await logout.text(), 'null');
+
+        const openApi = await (await fetch(`${base}/openapi.json`)).json() as {
+            paths: Record<string, {
+                post?: {responses?: {'200'?: {content?: {'application/json'?: {schema?: unknown}}}}}
+            }>
+        };
+
+        assert.equal(
+            JSON.stringify(openApi.paths['/logout']?.post?.responses?.['200']
+                ?.content?.['application/json']?.schema),
+            JSON.stringify({type: 'null'}),
+        );
+
+        const mcp = await fetch(`${base}/mcp`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'tools/call',
+                params: {name: 'logout', arguments: {}},
+            }),
+        });
+        const mcpBody = await mcp.json() as {result: {structuredContent: unknown}};
+
+        assert.equal(mcpBody.result.structuredContent, null);
+
+    });
 
 });

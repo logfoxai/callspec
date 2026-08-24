@@ -22,7 +22,7 @@ if (!checked.isValid) {
 
 Generated code imports `callspec/client` (browser-safe) and `runtyp` (for `schemas`). Install both in the app that compiles the generated file (`npm i callspec runtyp`). Codegen reads **`callspec.json`**, not OpenAPI.
 
-It generates whatever routes are in the document you hand it. To include `scope: 'private'` methods, point it at a mount (or file) emitted with `visibility: 'all'` — typically your dev/stage server. See [Auth and scope](./api-reference/auth-and-scope.md).
+It generates whatever routes are in the document you hand it. To include `scope: 'private'` methods, point it at a mount (or file) emitted with `visibility: 'all'` &mdash; typically your dev/stage server. See [Auth and scope](./api-reference/auth-and-scope.md).
 
 ## Pinning for CI (optional)
 
@@ -63,4 +63,4 @@ writeFileSync(
 }
 ```
 
-Commit the contract file, the generated SDK, or both — match `check:api` to what you keep in git. `spec()` remains the source of truth either way.
+Commit the contract file, the generated SDK, or both &mdash; match `check:api` to what you keep in git. `spec()` remains the source of truth either way.
