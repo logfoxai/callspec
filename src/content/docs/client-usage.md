@@ -1,8 +1,8 @@
 # Client usage
 
-Generated methods return a **Result** — check `result.ok`, then handle failures. You do **not** need a giant `switch` at every call site.
+Generated methods return a **Result** &mdash; check `result.ok`, then handle failures.
 
-Typical pattern: handle the codes that matter for that UI, and send everything else through a small shared helper for builtins / network / unknown.
+**Handle the codes that matter for that screen; send the rest through a shared helper.** Built-in, domain, and framework failures all arrive as `result.code`. You do not need a giant `switch` at every call site.
 
 Codes reference: [Builtin errors](./builtin-errors.md).
 
@@ -38,7 +38,7 @@ When you add `errors: defineErrors({ … })` on the route, regenerate the client
 
 ## Shared failure helper
 
-Put builtin and client-only handling in **one** place so call sites stay thin:
+One place for the codes that screen does not handle specially &mdash; builtins, `NETWORK_ERROR`, `UNKNOWN_ERROR`, and anything else you did not branch on at the call site:
 
 ```typescript title="src/app/handleFailure.ts" frame="code"
 import {toast} from '../toast'; // sonner, react-hot-toast, whatever you use
@@ -78,7 +78,31 @@ export function handleFailure(result: Failed): void {
 }
 ```
 
-Tighten or expand this helper as your product needs — one file, not every call site.
+Tighten or expand this helper as your product needs &mdash; one file, not every call site.
+
+## UNKNOWN_ERROR
+
+The client sets `UNKNOWN_ERROR` when the HTTP response does not match the route contract (undeclared error code, invalid error payload, stale generated client, proxy HTML, etc.). It does not guess a typed code.
+
+You still get a normal failed Result:
+
+```typescript
+{ ok: false, status: 409, code: 'UNKNOWN_ERROR', data: { body: …, headers?: { … } } }
+```
+
+- `status` &mdash; HTTP status from the response
+- `data.body` &mdash; parsed JSON when the body was JSON; otherwise the raw string (e.g. HTML from nginx)
+- `data.headers` &mdash; response headers with lowercase keys, when the client captured them
+
+Log these in devtools or your error reporter to see what actually came back. Do not show `data.body` to end users.
+
+```typescript
+if (!result.ok && result.code === 'UNKNOWN_ERROR') {
+    console.error('contract mismatch', result.status, result.data);
+}
+```
+
+The [shared failure helper](#shared-failure-helper) above follows the same pattern for `UNKNOWN_ERROR`.
 
 ## React sketch
 
@@ -110,7 +134,7 @@ See [Authentication](./authentication.md) for Bearer headers and [Error handling
 
 ## Dates
 
-JSON has no `Date` type. On the wire, dates are **ISO 8601 strings** (`2024-01-15T12:00:00.000Z`) — matching OpenAPI `format: date-time`.
+JSON has no `Date` type. On the wire, dates are **ISO 8601 strings** (`2024-01-15T12:00:00.000Z`) &mdash; matching OpenAPI `format: date-time`.
 
 Coercion is **schema-guided** (only at `p.date()` leaves). ISO-shaped strings in `p.string()` fields stay strings.
 
@@ -150,4 +174,4 @@ if (!result.ok) {
 }
 ```
 
-Useful when a route’s domain-error set changes often and you want the compiler to nudge you. Not required for day-to-day call sites — prefer the [typical call](#typical-call) + [shared helper](#shared-failure-helper).
+Useful when a route’s domain-error set changes often and you want the compiler to nudge you. Not required for day-to-day call sites &mdash; prefer the [typical call](#typical-call) + [shared helper](#shared-failure-helper).

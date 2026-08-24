@@ -1,8 +1,8 @@
 # Request context
 
-Building on [Authentication](./authentication.md): the handler's second argument is **request context** — whatever `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.
+Building on [Authentication](./authentication.md): the handler's second argument is **request context** &mdash; whatever `authenticate(token, req)` returns. It is not part of the RPC input pred; it is injected per request after auth.
 
-Use `req` when context depends on more than the token — tenant header, tracing ids, etc.
+Use `req` when context depends on more than the token &mdash; tenant header, tracing ids, etc.
 
 ```typescript
 import type {Request} from 'express';

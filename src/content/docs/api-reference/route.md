@@ -39,16 +39,22 @@ route({ input?, output?, meta, handler, … })
 |--------|---------|-------------|
 | `input` | `p.object({})` | Request body pred. Omit when there are no fields (extra keys rejected). |
 | `output` | void | Successful response pred. Omit when a successful handler returns void or `undefined`. |
-| `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
-| `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)` even when `input` / `output` are omitted. |
-| `errors` | — | Domain error codes from `defineErrors()`. Builtins are always available — never declare those; see [Builtin errors](../builtin-errors.md). |
-| `auth` | `'bearer'` | `'none'` — no token required. `'bearer'` — missing/invalid token → 401 before the handler. |
-| `scope` | `'public'` | `'public'` — on the public contract (docs, OpenAPI, SDK, MCP `tools/list`). `'private'` — documented when `visibility` is `'all'`. Still mounted. |
-| `mcp` | — | Opt the route into MCP `tools/list`. `true`, or `{ name?, annotations? }` — see [MCP](#mcp). |
+| `meta` | &mdash; | Docs/OpenAPI/MCP labels &mdash; see [Route meta](#route-meta) below. |
+| `handler` | &mdash; | Your route logic &mdash; see [Handler](#handler) below. |
+| `errors` | &mdash; | Domain errors &mdash; see [Builtin errors](../builtin-errors.md). |
+| `auth` | `'bearer'` | Who can call the route &mdash; see [Auth and scope](./auth-and-scope.md). |
+| `scope` | `'public'` | Who sees it in contracts &mdash; see [Auth and scope](./auth-and-scope.md). |
+| `mcp` | &mdash; | MCP tool exposure &mdash; see [MCP](#mcp) below. |
 
-Returns a **wired route** (`WiredRoute`) for `spec({ routes })`. Call `.handler(input, ctx)` in tests — no HTTP. See [Unit testing](../unit-testing.md).
+## Handler
 
-Domain errors: `defineErrors()` + `errors:` on the route — [Error handling](../error-handling.md). Builtins like `err.NOT_FOUND()` work without declaring `errors`. Bearer context: annotate `handler: async (input, ctx: Ctx) => …` — [Authentication](../authentication.md) and [Request context](../request-context.md).
+Your route implementation. Callspec validates **input** before the handler runs. The **output** pred types the success return and defines the contract for docs and codegen &mdash; it is not re-validated on the HTTP response.
+
+The function always takes two arguments &mdash; validated input and request **ctx** ([Request context](../request-context.md)). Return a success value, or `err.*` / a registered domain error for expected failures ([Error handling](../error-handling.md)). Bare `throw` becomes `INTERNAL_ERROR`.
+
+With bearer auth, annotate `ctx` with your context type ([Authentication](../authentication.md)). The wired route also exposes `.handler(input, ctx)` for unit tests ([Unit testing](../unit-testing.md)).
+
+Returns a **wired route** (`WiredRoute`) for `spec({ routes })`.
 
 ## MCP
 
@@ -75,13 +81,13 @@ Every route needs `meta` with at least `summary` and `tags`. These show up in th
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `summary` | yes | Short label — docs sidebar, OpenAPI summary, MCP tool title. |
+| `summary` | yes | Short label &mdash; docs sidebar, OpenAPI summary, MCP tool title. |
 | `tags` | yes | Grouping in the docs UI and OpenAPI tags (e.g. `['catalog']`, `['users']`). |
 | `description` | no | Longer prose for OpenAPI/MCP when the summary is not enough. |
 
 ## Separate handler binding
 
-Optional — only when you have a real reason to extract the function. Prefer the inline `handler` above.
+Optional &mdash; only when you have a real reason to extract the function. See [Handler](#handler) for the contract; prefer inline `handler` on `route()`.
 
 ```typescript
 import {route, type HandlerFor} from 'callspec';

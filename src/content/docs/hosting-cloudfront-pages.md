@@ -1,6 +1,6 @@
 # Hosting Docs UI (CloudFront / Pages)
 
-Serve the Callspec [Docs UI](./docs-ui.md) behind **CloudFront**, **S3**, or **Cloudflare/Netlify Pages** so it feels like a native product surface — without Fern.
+Serve the Callspec [Docs UI](./docs-ui.md) behind **CloudFront**, **S3**, or **Cloudflare/Netlify Pages** so it feels like a native product surface &mdash; without Fern.
 
 Live data (`callspec.json`, OpenAPI, RPC, MCP) always comes from your API process. Only the UI shell and assets can move to a CDN.
 
@@ -8,11 +8,11 @@ Live data (`callspec.json`, OpenAPI, RPC, MCP) always comes from your API proces
 
 | Pattern | When to use | Callspec work |
 |---------|-------------|----------------|
-| **A — Reverse proxy** | Same origin as the API; simplest | None (document + infra) |
-| **B — Static export** | UI on S3/Pages; API elsewhere | `export-docs-ui` + absolute URLs + CORS |
-| **C — Shared SPA distribution** | Apex path like `/docs` next to marketing | Infra behaviors (+ A or B) |
+| **A &mdash; Reverse proxy** | Same origin as the API; simplest | None (document + infra) |
+| **B &mdash; Static export** | UI on S3/Pages; API elsewhere | `export-docs-ui` + absolute URLs + CORS |
+| **C &mdash; Shared SPA distribution** | Apex path like `/docs` next to marketing | Infra behaviors (+ A or B) |
 
-### Pattern A — Reverse proxy → API
+### Pattern A &mdash; Reverse proxy → API
 
 ```
 Browser → CloudFront / Pages → api.example.com/v1/docs/
@@ -26,7 +26,7 @@ All `/docs/*`, `callspec.json`, RPC, and MCP hit the API (via CloudFront behavio
 
 No Callspec code changes. Use Express cache headers from `mountCallspecUi` (HTML `no-cache`, hashed JS/CSS `immutable`).
 
-### Pattern B — Static UI on CDN + API for JSON/RPC
+### Pattern B &mdash; Static UI on CDN + API for JSON/RPC
 
 ```
 /docs/*  → S3 + CloudFront (exported shell + assets)
@@ -48,11 +48,11 @@ callspec export-docs-ui --out ./docs-ui-dist \
 4. Enable **CORS** on the API for the docs origin (try-it browser fetches).
 5. Set CDN `Cache-Control` for hashed `/assets/*` to long-lived / immutable; keep `index.html` short TTL or `no-cache`.
 
-Absolute `specUrl`, `rpcBase`, and `mcp.url` are plain strings — the browser `fetch` / `URL` APIs accept them as-is.
+Absolute `specUrl`, `rpcBase`, and `mcp.url` are plain strings &mdash; the browser `fetch` / `URL` APIs accept them as-is.
 
 When `--rpc-base` is an `http(s)` URL and you omit `--mcp-path` / `--mcp-url`, export defaults `mcpPath` to `{rpcBase}/mcp` so MCP does not resolve against the CDN docs origin.
 
-### Pattern C — Same distribution as a marketing SPA
+### Pattern C &mdash; Same distribution as a marketing SPA
 
 Extend your static frontend CloudFront (or Pages) map:
 
@@ -61,7 +61,7 @@ Extend your static frontend CloudFront (or Pages) map:
 | `/docs/*` | S3 (exported UI) **or** API reverse proxy (Pattern A) |
 | `/*` | Marketing / app SPA |
 
-Subpath on the apex (`example.com/docs`) is DNS + behaviors — not a separate `docs.` host.
+Subpath on the apex (`example.com/docs`) is DNS + behaviors &mdash; not a separate `docs.` host.
 
 ## CloudFront sketch (Pattern B)
 
@@ -71,7 +71,7 @@ Subpath on the apex (`example.com/docs`) is DNS + behaviors — not a separate `
 
 ## Pages / Netlify rewrite (Pattern A)
 
-Point `/docs/*` (and API paths you need) at the API origin — same idea as a Fern reverse proxy. Prefer Pattern A when you do not need a separate static bucket.
+Point `/docs/*` (and API paths you need) at the API origin &mdash; same idea as a Fern reverse proxy. Prefer Pattern A when you do not need a separate static bucket.
 
 ## CORS checklist (Pattern B)
 

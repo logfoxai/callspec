@@ -1,6 +1,6 @@
 # Single-file server example
 
-A very minimal example Callspec server all in one file — so you can see the whole model. For a real API, use [Server layout](./server-layout.md).
+A very minimal example Callspec server all in one file &mdash; so you can see the whole model. For a real API, use [Server layout](./server-layout.md).
 
 ```typescript
 import express from 'express';

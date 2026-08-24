@@ -1,6 +1,10 @@
 # Working with Coding Agents
 
-Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools — so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
+Copy-paste prompts for Cursor, Claude Code, Copilot, and similar tools &mdash; so agents adopt Callspec conventions instead of inventing REST/OpenAPI patterns.
+
+## Docs prose
+
+In `src/content/docs/`, write em dashes as `&mdash;` in prose (not the Unicode `—` character). Starlight and GitHub decode it on render; it keeps agents from copying literal em dashes into new edits. Leave dashes inside fenced code blocks and string literals as-is. Bulk normalize: `node scripts/normalize-doc-em-dashes.mjs`.
 
 ## Callspec skill
 
@@ -37,7 +41,7 @@ Goals:
 Do this in order:
 1. Install callspec, runtyp, and express.
 2. Follow server-layout.md: one route() per file with inline handler; shared preds in schemas/; spec.ts = spec() registry only.
-3. Convert each endpoint to `route({ … })` per [route](./api-reference/route.md) — omit `input` when there are no request fields; omit `output` for void success; handlers return values or `err.*`; do not throw for expected failures.
+3. Convert each endpoint per route.md (see src/content/docs/api-reference/route.md in this repo).
 4. Register routes with spec({ meta, routes, authenticate?, exports? }) and mount with mountSpec(app, api, { basePath }).
 5. Generate the TypeScript client (live mount or optional pinned callspec.json); switch call sites to Result (result.ok / result.code).
 6. Remove parallel REST routers, ad-hoc status mapping, and duplicate client types once parity is proven.
@@ -55,6 +59,6 @@ Start by proposing the target folder layout (per server-layout.md) and the first
 
 ## Runtime agents (MCP)
 
-Callspec can expose the **same** routes as MCP tools (`mcp: true` on `route()` → `{mount}/mcp`). That is for agents that **call** your live API — different from coding agents that edit your source.
+Callspec can expose the **same** routes as MCP tools (`mcp: true` on `route()` → `{mount}/mcp`). That is for agents that **call** your live API &mdash; different from coding agents that edit your source.
 
 See [MCP](./mcp.md).

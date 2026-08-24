@@ -1,12 +1,12 @@
 # Server layout
 
-Callspec doesn't require a particular folder layout. This is the split we recommend — each route, shared pred, and the registry stay easy to find and test.
+Callspec doesn't require a particular folder layout. This is the split we recommend &mdash; each route, shared pred, and the registry stay easy to find and test.
 
-1. **One route per file** — `src/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
-2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds — avoid extracting the handler + `HandlerFor` unless you have a real reason ([`route`](./api-reference/route.md#separate-handler-binding)).
+1. **One route per file** &mdash; `src/routes/getProductById.ts` exports `getProductById = route({ … })`. Co-locate `getProductById.spec.ts`.
+2. **Keep `handler` inline** in that `route({ … })` call so `input` / success return types flow from the preds &mdash; avoid extracting the handler + `HandlerFor` unless you have a real reason ([`route`](./api-reference/route.md#separate-handler-binding)).
 3. **Shared domain preds** live under `src/schemas/` and are imported by routes (`output: product`). Infer TS types with `Infer<typeof product>` when local data (e.g. fixtures) should match. Route-only wire shapes (`{ id }`, filters) stay in the route file.
-4. **`spec.ts` is only the registry** — `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
-5. **`index.ts` only mounts** — Express + `mountSpec` (JSON parse is on by default). No route logic.
+4. **`spec.ts` is only the registry** &mdash; `spec({ meta, routes, exports?, authenticate? })`. Import named routes; don't redefine them there.
+5. **`index.ts` only mounts** &mdash; Express + `mountSpec` (JSON parse is on by default). No route logic.
 
 ```text
 my-api/
