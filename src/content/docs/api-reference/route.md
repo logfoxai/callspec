@@ -37,7 +37,7 @@ route({ input?, output?, meta, handler, … })
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `input` | `p.object({})` | Runtyp pred for the request body (POST JSON, or multipart when a field is [`file()`](../file-uploads.md)). Omit when there are no request fields — unknown keys are still rejected. Explicit `input: p.object({})` is the same. |
+| `input` | `p.object({})` | Request body pred. Omit when there are no fields (same as default; extra keys rejected). |
 | `output` | void | Runtyp pred for a successful response. Omit for no success payload: handler may `return undefined`; HTTP is `200` + JSON `null`; the generated client maps that to `value: undefined`. If the route truly returns `{}`, write `output: p.object({})`. Keep `p.optional(p.string())` (and similar) when the payload is optional, not void. |
 | `meta` | — | Docs/OpenAPI/MCP labels — see [Route meta](#route-meta) below. |
 | `handler` | — | `(input, ctx) => output \| failure`. Must accept exactly `(input, ctx)` even when `input` / `output` are omitted. |
