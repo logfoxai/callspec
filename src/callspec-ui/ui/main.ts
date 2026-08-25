@@ -36,6 +36,7 @@ import {renderSidebar, renderSidebarRouteGroups, sidebarRouteGroupsOptions} from
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
 import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
+import {renderBrandOrDefaultMark} from './brandMark';
 import {callspecDocumentTitle} from '../documentTitle';
 
 type View =
@@ -104,43 +105,6 @@ function websiteLabel(branding: CallspecUiBranding): string {
 
 }
 
-function renderBrandMark(
-    branding: CallspecUiBranding | undefined,
-    options: {wrapClass: string},
-): string {
-
-    if (!branding?.logoUrl) return '';
-
-    const dark = branding.logoUrlDark ?? branding.logoUrl;
-    const {wrapClass} = options;
-
-    return `
-        <span class="brand-mark ${wrapClass}">
-            <img class="brand-mark-img brand-mark-light" src="${escapeHtml(branding.logoUrl)}" alt="">
-            <img class="brand-mark-img brand-mark-dark" src="${escapeHtml(dark)}" alt="">
-        </span>
-    `;
-
-}
-
-function renderLetterMark(title: string, wrapClass: string): string {
-
-    const letter = (title.trim()[0] ?? 'A').toUpperCase();
-
-    return `<span class="brand-letter ${wrapClass}" aria-hidden="true">${escapeHtml(letter)}</span>`;
-
-}
-
-function renderLogo(title: string, branding: CallspecUiBranding | undefined): string {
-
-    const mark = renderBrandMark(branding, {wrapClass: 'intro-logo'});
-
-    if (mark) return mark;
-
-    return renderLetterMark(displayName(title, branding), 'intro-logo');
-
-}
-
 function renderNavbarLinkItems(
     branding: CallspecUiBranding | undefined,
     linkClass: string,
@@ -193,7 +157,7 @@ function renderTopHeader(
     return `
         <header class="top-header">
             <button type="button" class="top-brand" data-view="home">
-                ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
+                ${renderBrandOrDefaultMark(branding, 'top-mark')}
                 <span class="top-brand-text">${escapeHtml(name)}</span>
             </button>
             ${renderNavbarLinks(branding)}
@@ -330,7 +294,7 @@ function renderHome(
 
     return `
         <div class="intro">
-            ${renderLogo(title, branding)}
+            ${renderBrandOrDefaultMark(branding, 'intro-logo')}
             <h1 class="intro-title">${escapeHtml(name)}</h1>
             <p class="intro-version">v${escapeHtml(version)} · ${routes.length} routes${mcpCount ? ` · ${mcpCount} MCP tools` : ''}</p>
             ${intro}

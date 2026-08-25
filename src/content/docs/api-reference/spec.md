@@ -31,7 +31,7 @@ By default only `scope: 'public'` routes appear in `callspec.json`, OpenAPI, SDK
 | `version` | `'0.0.0'` | OpenAPI `info.version`, MCP server version | Semver or build id &mdash; your choice. |
 | `intro` | &mdash; | Docs UI home blurb, OpenAPI `info.description` | Optional welcome paragraph. Home (title, counts, Browse API, MCP panel) is always on. |
 | `website` | &mdash; | Docs UI home link | `{ url, label? }` &mdash; `label` defaults to the hostname or “Learn more”. |
-| `logo` | &mdash; | Docs UI header + home | `{ light, dark? }` &mdash; image URLs; see [Logo URLs](#logo-urls). |
+| `logo` | Callspec hex | Docs UI header + home | `{ light, dark? }` &mdash; image URLs; omit to use the Callspec mark. See [Logo URLs](#logo-urls). |
 | `favicon` | `logo.light` | Docs UI tab icon | Explicit favicon URL; falls back to `logo.light`. |
 | `theme` | &mdash; | Docs UI CSS variables | `{ accent?, background?, surface?, fontFamily?, fontUrls? }` &mdash; vars injected at boot. Accent-only keeps light/dark distinct; `background` / `surface` pin both modes and derive text for contrast. |
 | `navbarLinks` | &mdash; | Docs UI top header | `{ label, href, external? }[]` &mdash; product links next to the brand. |
