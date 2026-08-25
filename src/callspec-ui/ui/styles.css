@@ -2007,6 +2007,10 @@ body > .footer {
     pointer-events: none;
 }
 
+.top-header .brand-mark-callspec .cs-eq {
+    fill: var(--docs-header-bg);
+}
+
 .top-mark {
     --logo-size: 1.9rem;
     flex-shrink: 0;

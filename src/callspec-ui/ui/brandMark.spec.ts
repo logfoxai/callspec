@@ -45,5 +45,7 @@ test('explorer chrome uses renderBrandOrDefaultMark for header and home', (asser
     assert.equal(main.includes('renderLetterMark'), false);
     assert.equal(css.includes('.brand-letter'), false);
     assert.equal(css.includes('--text-primary'), false);
+    assert.equal(css.includes('.top-header .brand-mark-callspec .cs-eq'), true);
+    assert.equal(css.includes('fill: var(--docs-header-bg)'), true);
 
 });
