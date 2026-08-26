@@ -212,6 +212,11 @@ test('generateClientSource: string enum exports emit const object and derived ty
         true,
     );
     assert.equal(
+        generated.includes('issueStatus: p.union([p.literal("open"), p.literal("closed"), p.literal("ignored")], \'invalid\'),'),
+        true,
+        'string enum exports must use runtyp 2 p.union([...], message) syntax',
+    );
+    assert.equal(
         generated.includes('export type IssueStatus = (typeof IssueStatus)[keyof typeof IssueStatus];'),
         true,
     );

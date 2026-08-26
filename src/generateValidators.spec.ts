@@ -33,7 +33,21 @@ test('schemaToRuntyp: union via oneOf', (assert) => {
         ],
     });
 
-    assert.equal(expr, 'p.union(p.string(), p.number())');
+    assert.equal(expr, 'p.union([p.string(), p.number()], \'invalid\')');
+
+});
+
+test('schemaToRuntyp: string enum uses runtyp 2 union syntax', (assert) => {
+
+    const expr = schemaToRuntyp({
+        type: 'string',
+        enum: ['open', 'closed'],
+    });
+
+    assert.equal(
+        expr,
+        'p.union([p.literal("open"), p.literal("closed")], \'invalid\')',
+    );
 
 });
 

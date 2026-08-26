@@ -12,6 +12,12 @@ function escapeString(value: string): string {
 
 }
 
+function unionExpr(parts: string[]): string {
+
+    return `p.union([${parts.join(', ')}], 'invalid')`;
+
+}
+
 function schemaToRuntypExpr(schema: unknown): string {
 
     if (!isRecord(schema)) {
@@ -32,7 +38,7 @@ function schemaToRuntypExpr(schema: unknown): string {
 
         if (literals.length === 1) return literals[0];
 
-        return `p.union(${literals.join(', ')})`;
+        return unionExpr(literals);
 
     }
 
@@ -48,7 +54,7 @@ function schemaToRuntypExpr(schema: unknown): string {
 
         if (parts.length === 1) return parts[0];
 
-        return `p.union(${parts.join(', ')})`;
+        return unionExpr(parts);
 
     }
 
@@ -58,7 +64,7 @@ function schemaToRuntypExpr(schema: unknown): string {
 
         if (parts.length === 1) return parts[0];
 
-        return `p.union(${parts.join(', ')})`;
+        return unionExpr(parts);
 
     }
 
