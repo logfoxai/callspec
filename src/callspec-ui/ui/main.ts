@@ -37,6 +37,8 @@ import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
 import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
 import {renderBrandOrDefaultMark} from './brandMark';
+import {hasHomePage} from './hasHomePage';
+import {renderTopBrand} from './topBrand';
 import {callspecDocumentTitle} from '../documentTitle';
 
 type View =
@@ -67,13 +69,6 @@ function escapeHtml(text: string): string {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
-
-}
-
-/** Home is always available; intro is an optional blurb only. */
-function hasHomePage(): boolean {
-
-    return true;
 
 }
 
@@ -148,18 +143,15 @@ function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): stri
 
 function renderTopHeader(
     title: string,
+    version: string,
     branding: CallspecUiBranding | undefined,
     specUrl: string,
+    showHome: boolean,
 ): string {
-
-    const name = displayName(title, branding);
 
     return `
         <header class="top-header">
-            <button type="button" class="top-brand" data-view="home">
-                ${renderBrandOrDefaultMark(branding, 'top-mark')}
-                <span class="top-brand-text">${escapeHtml(name)}</span>
-            </button>
+            ${renderTopBrand(title, version, branding, showHome)}
             ${renderNavbarLinks(branding)}
             <div class="top-header__end">
                 ${renderHeaderContractButtons(specUrl)}
@@ -587,7 +579,7 @@ async function boot(): Promise<void> {
 
         document.title = callspecDocumentTitle(title);
         const branding = config.branding ?? {};
-        const showHome = hasHomePage();
+        const showHome = hasHomePage(branding);
         const routes = callspecDocumentToUiSpec(parsed).routes;
 
         let view: View = viewFromHash(routes, showHome);
@@ -768,7 +760,7 @@ async function boot(): Promise<void> {
             app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
                 ${renderUiNotice(branding?.notice)}
-                ${renderTopHeader(title, branding, config.specUrl)}
+                ${renderTopHeader(title, version, branding, config.specUrl, showHome)}
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
                     <div class="sidebar-scroll">
                         <p class="sidebar-meta sidebar-meta--mobile">v${escapeHtml(version)} · ${routes.length} routes</p>

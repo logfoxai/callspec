@@ -30,6 +30,17 @@ const beta: CallspecUiRoute = {
     tags: ['beta'],
 };
 
+test('sidebar omits Home when showHome is false', (assert) => {
+
+    const html = renderSidebar([user], {kind: 'routes'}, false);
+
+    assert.equal(html.includes('data-view="home"'), false);
+    assert.equal(html.includes('data-view="routes"'), true);
+    assert.equal(html.includes(homeIcon()), false);
+    assert.equal(html.includes(routesIcon()), true);
+
+});
+
 test('sidebar Home and Routes have icons; tags sit below a page-links group', (assert) => {
 
     const html = renderSidebar([user], {kind: 'home'}, true, '<label class="sidebar-search-slot">search</label>');

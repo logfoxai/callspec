@@ -43,8 +43,8 @@ export const api = spec({
 | Field | Effect |
 |-------|--------|
 | `title` | Browser tab, header, OpenAPI title, MCP server name |
-| `version` | OpenAPI + MCP server version |
-| `intro` | Optional home blurb (home page is always on) |
+| `version` | Header (always), OpenAPI, MCP server version |
+| `intro` | Home blurb. Home is omitted unless `intro`, `website`, or `sdkInstall` is set |
 | `website` | Outbound link on home |
 | `logo.light` / `logo.dark` | Top header + home mark (`dark` falls back to `light`). Omitted → Callspec hex |
 | `favicon` | Docs tab icon (defaults to `logo.light` when omitted) |

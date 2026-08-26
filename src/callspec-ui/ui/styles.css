@@ -286,6 +286,13 @@ html, body {
     white-space: nowrap;
 }
 
+.top-brand-version {
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--text-tertiary);
+}
+
 .top-nav {
     display: flex;
     align-items: center;

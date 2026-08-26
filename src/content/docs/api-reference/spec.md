@@ -28,8 +28,8 @@ By default only `scope: 'public'` routes appear in `callspec.json`, OpenAPI, SDK
 | Field | Default | Used in | Description |
 |-------|---------|---------|-------------|
 | `title` | `'Callspec API'` | Docs UI header, OpenAPI `info.title`, MCP server name | Display name for your API. |
-| `version` | `'0.0.0'` | OpenAPI `info.version`, MCP server version | Semver or build id &mdash; your choice. |
-| `intro` | &mdash; | Docs UI home blurb, OpenAPI `info.description` | Optional welcome paragraph. Home (title, counts, Browse API, MCP panel) is always on. |
+| `version` | `'0.0.0'` | Docs UI header, OpenAPI `info.version`, MCP server version | Semver or build id &mdash; your choice. Always shown next to the API name. |
+| `intro` | &mdash; | Docs UI home blurb, OpenAPI `info.description` | Optional welcome paragraph. Home is omitted when `intro`, `website`, and `sdkInstall` are all empty. |
 | `website` | &mdash; | Docs UI home link | `{ url, label? }` &mdash; `label` defaults to the hostname or “Learn more”. |
 | `logo` | Callspec hex | Docs UI header + home | `{ light, dark? }` &mdash; image URLs; omit to use the Callspec mark. See [Logo URLs](#logo-urls). |
 | `favicon` | `logo.light` | Docs UI tab icon | Explicit favicon URL; falls back to `logo.light`. |
