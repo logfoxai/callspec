@@ -26,12 +26,4 @@ Docs: [README](https://raw.githubusercontent.com/logfoxai/callspec/main/README.m
 
 ## Consumer apps (frontend, CLI)
 
-The generated file **is** the SDK. See [SDK generation](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md).
-
-- Import **`ApiClient`**, route types, and **`schemas`** from the codegen output (e.g. `src/generated/api`). Use them directly.
-- **`"generate:api": "callspec <source> --output src/generated/api.ts"`** in package.json. No custom codegen scripts.
-- **Do not** add `src/api/`, barrel re-export `index.ts`, wrapper clients, duplicate enum files, re-export barrels in `domain/`, or a second type surface on top of generated exports.
-- **Enums:** codegen emits `export const IssueStatus = { open: 'open', ... }` (3.12+). Import from generated — do not add `apiEnums.ts`. Numeric ranges (e.g. log level `0`–`7`) stay as `number`; use literals or UI maps.
-- **OK:** one small app helper that constructs `new ApiClient({ baseUrl, headers })` from config/session (not a subclass or facade).
-- **OK:** a shared **`handleFailure`** / **`throwRouteFailure`** (see [client-usage](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/client-usage.md)) — check `result.ok` at the call site; map unhandled codes in one helper. No `unwrapResult` wrapper that hides the Result check.
-- **Migrating** off `express-typed-rpc` / `@logfoxai/types`: read [SDK generation § Migrating](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#migrating-from-express-typed-rpc--shared-types-packages) — do not recreate the old import paths.
+Read [SDK generation — Consumer apps](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#consumer-apps) and [Migrating from express-typed-rpc](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#migrating-from-express-typed-rpc--shared-types-packages). Do not duplicate that guidance in app repos or skills.
