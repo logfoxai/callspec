@@ -20,5 +20,5 @@ Docs: [README](https://raw.githubusercontent.com/logfoxai/callspec/main/README.m
 6. When `!result.ok`, branch on **`result.code`**, not HTTP status. **Handle the codes that matter for that screen; send the rest through a shared helper.** Don't show `UNKNOWN_ERROR.data` to users.
 7. `mountSpec` handles JSON parsing and RPC error responses on the router you pass in. Don't add `express.json()` or Express error middleware there. On the app, use middleware around the mount (rate limits, health checks) and a final `errorHandler` as usual. For Callspec-shaped errors from your middleware, use `sendRouteFailureResponse` — [Outside Callspec](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/outside-callspec.md).
 8. After route/error changes: regenerate the client (`npx callspec …`).
-9. Prefer generated **`ApiClient`** over raw `CallspecClient`.
+9. Prefer generated **`ApiClient`** over raw `CallspecClient`. Import types and **`schemas`** from the generated file &mdash; see [SDK generation § Consumer apps](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#consumer-apps).
 10. Follow [Server layout](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/server-layout.md) and keep `handler` inline on `route()` calls.
