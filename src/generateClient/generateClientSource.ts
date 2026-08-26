@@ -13,6 +13,16 @@ const GENERATED_HEADER = `/**
  * Regenerate with: npx callspec <mount-or-callspec.json> --output <file>
  */`;
 
+function hasGeneratedTypeBlock(typeBlocks: string[], typeName: string): boolean {
+
+    const typeHeader = `export type ${typeName}`;
+
+    return typeBlocks.some(
+        (block) => block.startsWith(`${typeHeader} `) || block.startsWith(`${typeHeader}=`),
+    );
+
+}
+
 export function generateClientSource(
     document: CallspecDocument,
     options?: {className?: string},
@@ -41,7 +51,7 @@ export function generateClientSource(
 
         for (const generated of [...inputTypes.types, ...outputTypes.types]) {
 
-            if (!typeBlocks.some((block) => block.includes(`export type ${generated.name}`))) {
+            if (!hasGeneratedTypeBlock(typeBlocks, generated.name)) {
 
                 typeBlocks.push(generated.definition);
 
@@ -63,7 +73,7 @@ export function generateClientSource(
 
                     for (const generated of dataTypes.types) {
 
-                        if (!typeBlocks.some((block) => block.includes(`export type ${generated.name}`))) {
+                        if (!hasGeneratedTypeBlock(typeBlocks, generated.name)) {
 
                             typeBlocks.push(generated.definition);
 
