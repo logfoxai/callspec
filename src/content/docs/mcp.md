@@ -20,7 +20,7 @@ When **any** route has `mcp` set, `mountSpec` serves MCP at **`{mount}/mcp`** (o
 ## Connect a client
 
 1. Run your API (`mountSpec` on e.g. `/v1`).
-2. Open the [Docs UI](./docs-ui.md) home page → **MCP connect** for the URL and copy-paste snippets.
+2. When the [Docs UI](./docs-ui.md) Home page is shown, use **MCP connect** for the URL and copy-paste snippets.
 3. Or point the client at `http://127.0.0.1:3000/v1/mcp` yourself (Cursor, Claude Desktop, etc.).
 
 Bearer tools: send the same `Authorization: Bearer …` header your RPC clients use. Customize the hint shown in the docs panel with `meta.authHint`. Text agents see on MCP `initialize` with `meta.mcpInstructions` (not shown as docs chrome).

@@ -36,6 +36,9 @@ import {renderSidebar, renderSidebarRouteGroups, sidebarRouteGroupsOptions} from
 import {renderRouteHeader, renderRouteLead} from './routeHeader';
 import {readScrollTop, writeScrollTop} from './preserveScrollTop';
 import {parkPoweredByFooter, placePoweredByFooter} from './poweredByFooter';
+import {renderBrandOrDefaultMark} from './brandMark';
+import {hasHomePage} from './hasHomePage';
+import {renderTopBrand} from './topBrand';
 import {callspecDocumentTitle} from '../documentTitle';
 
 type View =
@@ -69,13 +72,6 @@ function escapeHtml(text: string): string {
 
 }
 
-/** Home is always available; intro is an optional blurb only. */
-function hasHomePage(): boolean {
-
-    return true;
-
-}
-
 function displayName(title: string, branding: CallspecUiBranding | undefined): string {
 
     return branding?.name ?? title;
@@ -101,43 +97,6 @@ function websiteLabel(branding: CallspecUiBranding): string {
     }
 
     return 'Learn more';
-
-}
-
-function renderBrandMark(
-    branding: CallspecUiBranding | undefined,
-    options: {wrapClass: string},
-): string {
-
-    if (!branding?.logoUrl) return '';
-
-    const dark = branding.logoUrlDark ?? branding.logoUrl;
-    const {wrapClass} = options;
-
-    return `
-        <span class="brand-mark ${wrapClass}">
-            <img class="brand-mark-img brand-mark-light" src="${escapeHtml(branding.logoUrl)}" alt="">
-            <img class="brand-mark-img brand-mark-dark" src="${escapeHtml(dark)}" alt="">
-        </span>
-    `;
-
-}
-
-function renderLetterMark(title: string, wrapClass: string): string {
-
-    const letter = (title.trim()[0] ?? 'A').toUpperCase();
-
-    return `<span class="brand-letter ${wrapClass}" aria-hidden="true">${escapeHtml(letter)}</span>`;
-
-}
-
-function renderLogo(title: string, branding: CallspecUiBranding | undefined): string {
-
-    const mark = renderBrandMark(branding, {wrapClass: 'intro-logo'});
-
-    if (mark) return mark;
-
-    return renderLetterMark(displayName(title, branding), 'intro-logo');
 
 }
 
@@ -184,18 +143,15 @@ function renderDrawerNavbarLinks(branding: CallspecUiBranding | undefined): stri
 
 function renderTopHeader(
     title: string,
+    version: string,
     branding: CallspecUiBranding | undefined,
     specUrl: string,
+    showHome: boolean,
 ): string {
-
-    const name = displayName(title, branding);
 
     return `
         <header class="top-header">
-            <button type="button" class="top-brand" data-view="home">
-                ${renderBrandMark(branding, {wrapClass: 'top-mark'}) || renderLetterMark(name, 'top-mark')}
-                <span class="top-brand-text">${escapeHtml(name)}</span>
-            </button>
+            ${renderTopBrand(title, version, branding, showHome)}
             ${renderNavbarLinks(branding)}
             <div class="top-header__end">
                 ${renderHeaderContractButtons(specUrl)}
@@ -330,7 +286,7 @@ function renderHome(
 
     return `
         <div class="intro">
-            ${renderLogo(title, branding)}
+            ${renderBrandOrDefaultMark(branding, 'intro-logo')}
             <h1 class="intro-title">${escapeHtml(name)}</h1>
             <p class="intro-version">v${escapeHtml(version)} · ${routes.length} routes${mcpCount ? ` · ${mcpCount} MCP tools` : ''}</p>
             ${intro}
@@ -623,7 +579,7 @@ async function boot(): Promise<void> {
 
         document.title = callspecDocumentTitle(title);
         const branding = config.branding ?? {};
-        const showHome = hasHomePage();
+        const showHome = hasHomePage(branding);
         const routes = callspecDocumentToUiSpec(parsed).routes;
 
         let view: View = viewFromHash(routes, showHome);
@@ -804,7 +760,7 @@ async function boot(): Promise<void> {
             app.className = hasNotice ? 'has-notice' : '';
             app.innerHTML = `
                 ${renderUiNotice(branding?.notice)}
-                ${renderTopHeader(title, branding, config.specUrl)}
+                ${renderTopHeader(title, version, branding, config.specUrl, showHome)}
                 <aside class="sidebar" id="nav-drawer" aria-label="API navigation" tabindex="-1">
                     <div class="sidebar-scroll">
                         <p class="sidebar-meta sidebar-meta--mobile">v${escapeHtml(version)} · ${routes.length} routes</p>

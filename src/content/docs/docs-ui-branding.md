@@ -43,10 +43,10 @@ export const api = spec({
 | Field | Effect |
 |-------|--------|
 | `title` | Browser tab, header, OpenAPI title, MCP server name |
-| `version` | OpenAPI + MCP server version |
-| `intro` | Optional home blurb (home page is always on) |
+| `version` | Header (always), OpenAPI, MCP server version |
+| `intro` | Home blurb. Home is omitted unless `intro`, `website`, or `sdkInstall` is set |
 | `website` | Outbound link on home |
-| `logo.light` / `logo.dark` | Top header mark (`dark` falls back to `light`) |
+| `logo.light` / `logo.dark` | Top header + home mark (`dark` falls back to `light`). Omitted → Callspec hex |
 | `favicon` | Docs tab icon (defaults to `logo.light` when omitted) |
 | `theme` | CSS variables: `accent`, `background`, `surface`, `fontFamily`, plus optional `fontUrls[]`. Prefer **accent-only** to keep distinct light/dark modes. If you set `background` / `surface`, they pin both modes and Callspec derives readable text colors from the surface luminance. |
 | `navbarLinks` | Top header links (`label`, `href`, optional `external`) |

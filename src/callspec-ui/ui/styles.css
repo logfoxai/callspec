@@ -286,6 +286,13 @@ html, body {
     white-space: nowrap;
 }
 
+.top-brand-version {
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--text-tertiary);
+}
+
 .top-nav {
     display: flex;
     align-items: center;
@@ -2002,31 +2009,18 @@ body > .footer {
     flex-shrink: 0;
 }
 
-.brand-letter {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--logo-size, 5rem);
-    height: var(--logo-size, 5rem);
-    border-radius: calc(var(--logo-size, 5rem) * 0.22);
-    flex-shrink: 0;
-    font-size: calc(var(--logo-size, 5rem) * 0.45);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
-    background: var(--surface-elevated);
-    border: 1px solid var(--border-subtle);
+.brand-mark-callspec {
+    --cs-lockup-mark-size: var(--logo-size, 5rem);
+    pointer-events: none;
 }
 
-.sidebar-mark,
+.top-header .brand-mark-callspec .cs-eq {
+    fill: var(--docs-header-bg);
+}
+
 .top-mark {
     --logo-size: 1.9rem;
     flex-shrink: 0;
-}
-
-.sidebar-mark.brand-letter,
-.top-mark.brand-letter {
-    font-size: 0.75rem;
 }
 
 .brand-mark-img {

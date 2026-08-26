@@ -13,7 +13,7 @@ After `mountSpec`, open **`{mount}/docs`** (e.g. `http://127.0.0.1:3000/v1/docs`
 
 With docs enabled (default), each API mount exposes:
 
-- **Explorer** &mdash; `{mount}/docs` &mdash; try routes, inspect schemas and errors; home page MCP connect panel
+- **Explorer** &mdash; `{mount}/docs` &mdash; try routes, inspect schemas and errors; MCP connect on Home when that page is shown
 - **`callspec.json`** &mdash; `{mount}/callspec.json` &mdash; contract for `npx callspec` ([SDK generation](./sdk-generation.md))
 - **`openapi.json`** &mdash; `{mount}/openapi.json` &mdash; OpenAPI export ([OpenAPI](./openapi.md))
 
@@ -60,6 +60,6 @@ Routes with `auth: 'bearer'` need a token in the UI session (same `Authorization
 
 - [Branding](./docs-ui-branding.md) &mdash; `meta` title, logo, theme, navbar, footer, escape hatches, auth/MCP hints
 - [Hosting (CloudFront / Pages)](./hosting-cloudfront-pages.md) &mdash; reverse proxy vs static export
-- [MCP](./mcp.md) &mdash; `mcp: true` on routes, connect from the home panel
+- [MCP](./mcp.md) &mdash; `mcp: true` on routes; connect from the Home panel when Home is shown
 - [OpenAPI](./openapi.md) &mdash; `/openapi.json` for gateways and multi-lang tools
 - [SDK generation](./sdk-generation.md) &mdash; TypeScript client from `callspec.json`, not from the docs UI
