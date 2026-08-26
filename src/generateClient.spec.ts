@@ -259,6 +259,37 @@ test('generateSchemasSection: oneOf const unions do not emit const objects', (as
 
 });
 
+test('generateClientSource: array item type is not skipped when nested oneOf types share its prefix', (assert) => {
+
+    const deliveryMethodConfig = p.union([
+        p.object({userIds: p.optional(p.array(p.string()))}),
+        p.object({url: p.string()}),
+    ]);
+
+    const generated = generateClientSource(
+        emitCallspec({
+            getNotificationRules: route({
+                input: p.object({teamId: p.string()}),
+                output: p.array(p.object({deliveryMethodConfig})),
+                meta: {summary: 'Get rules', tags: ['rules']},
+                auth: 'bearer',
+                handler: async (_input, _ctx) => [],
+            }),
+        }, {title: 'API', version: '1.0.0'}),
+    );
+
+    assert.equal(
+        generated.includes('export type GetNotificationRulesOutput = GetNotificationRulesOutputItem[]'),
+        true,
+    );
+    assert.equal(
+        /export type GetNotificationRulesOutputItem = \{/.test(generated),
+        true,
+        'nested oneOf branch types must not suppress the array item type',
+    );
+
+});
+
 test('generateClientSource: empty input is optional and void output is undefined', (assert) => {
 
     const generated = generateClientSource(
