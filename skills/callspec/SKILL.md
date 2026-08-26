@@ -22,3 +22,15 @@ Docs: [README](https://raw.githubusercontent.com/logfoxai/callspec/main/README.m
 8. After route/error changes: regenerate the client (`npx callspec …`).
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`.
 10. Follow [Server layout](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/server-layout.md) and keep `handler` inline on `route()` calls.
+
+## Consumer apps
+
+The generated file is the SDK. Import `ApiClient`, route types, and `schemas` from it directly.
+
+- Run codegen from `package.json` (`callspec … --output …`), not a custom wrapper script.
+- A small helper that builds `new ApiClient({ baseUrl, headers })` from app config is fine.
+- Map unhandled failures in a shared helper — [Client usage](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/client-usage.md).
+
+Avoid barrels that re-export generated types, wrapper classes around `ApiClient`, duplicate const objects for enums codegen already exports, and helpers that hide the `result.ok` check.
+
+Migrating from another typed RPC client: point imports at the generated file and remove the old client — do not recreate its module layout on top of codegen.
