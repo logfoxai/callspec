@@ -64,3 +64,49 @@ writeFileSync(
 ```
 
 Commit the contract file, the generated SDK, or both &mdash; match `check:api` to what you keep in git. `spec()` remains the source of truth either way.
+
+## Consumer apps
+
+The generated TypeScript file is the SDK. Import from it directly.
+
+**Do**
+
+- `import { ApiClient, schemas, type Issue } from './generated/api'`
+- `new ApiClient({ baseUrl: '…', headers: { Authorization: '…' } })`
+- `callspec <source> --output src/generated/api.ts` in `package.json` scripts
+
+**Do not**
+
+- `src/api/index.ts` (or any barrel) that re-exports generated types
+- Wrapper classes or `createXxxClient()` facades around `ApiClient`
+- Duplicate enum/const files for values codegen already exports (`IssueStatus.open`, etc.) — import from generated
+- Re-export barrels (`domain/errors/apiErrors.ts` re-exporting service types, `src/api/index.ts`, etc.)
+- `unwrapResult` or any helper that hides the `result.ok` check
+- Custom Node scripts that shell out to the callspec CLI unless you have a documented, exceptional reason
+
+App-specific wiring (config URL, session bearer token) and error mapping (`Result` &rarr; thrown domain errors) belong in small, named helpers &mdash; not a parallel API module.
+
+## Migrating from express-typed-rpc / shared types packages
+
+Do **not** recreate the old package layout on top of codegen. Point imports at the generated file and delete the old RPC/types deps.
+
+| Before | After |
+|--------|-------|
+| `import {App} from '@logfoxai/types'` | `import type {App} from './generated/api'` |
+| `client<API['createApp']>('createApp', input)` | `const result = await api.createApp(input)` |
+| `toResultAsync` + `parseError` | `if (!result.ok) throwRouteFailure(result)` &mdash; [Client usage](./client-usage.md) |
+| `IssueStatus.OPEN` from a hand-maintained const object | `IssueStatus.open` from generated (callspec 3.12+) |
+| `schemas` via `src/api/validation.ts` | `import {schemas} from './generated/api'` |
+
+**Wrong** &mdash; facades agents often add by mistake:
+
+```
+src/api/index.ts         # barrel re-exporting generated types
+src/api/enums.ts         # duplicate IssueStatus / LogLevel constants
+src/api/unwrapResult.ts  # hides result.ok
+src/api/validation.ts    # thin schemas wrapper
+scripts/generate-api-client.mjs  # use "callspec … --output" in package.json instead
+scripts/patch-callspec-codegen.mjs  # patch node_modules — fix upstream in callspec instead
+```
+
+**Right:** `src/generated/api.ts` (codegen) + one small `apiClient.ts` (baseUrl + session bearer only) + `throwRouteFailure` (or `handleFailure`) in a named helper. UI label/icon maps can use generated `type` keys with literals &mdash; no parallel enum module.

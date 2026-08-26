@@ -2,7 +2,8 @@
 name: callspec
 description: >-
   Use when defining callspec routes, mountSpec, SDK codegen, Result-typed errors,
-  MCP, or generated ApiClient code. Read before changing RPC APIs or error contracts.
+  MCP, generated ApiClient code, or migrating a frontend/CLI off express-typed-rpc
+  or a shared types package. Read before changing RPC APIs, client imports, or error contracts.
 disable-model-invocation: true
 ---
 
@@ -22,3 +23,15 @@ Docs: [README](https://raw.githubusercontent.com/logfoxai/callspec/main/README.m
 8. After route/error changes: regenerate the client (`npx callspec …`).
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`.
 10. Follow [Server layout](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/server-layout.md) and keep `handler` inline on `route()` calls.
+
+## Consumer apps (frontend, CLI)
+
+The generated file **is** the SDK. See [SDK generation](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md).
+
+- Import **`ApiClient`**, route types, and **`schemas`** from the codegen output (e.g. `src/generated/api`). Use them directly.
+- **`"generate:api": "callspec <source> --output src/generated/api.ts"`** in package.json. No custom codegen scripts.
+- **Do not** add `src/api/`, barrel re-export `index.ts`, wrapper clients, duplicate enum files, re-export barrels in `domain/`, or a second type surface on top of generated exports.
+- **Enums:** codegen emits `export const IssueStatus = { open: 'open', ... }` (3.12+). Import from generated — do not add `apiEnums.ts`. Numeric ranges (e.g. log level `0`–`7`) stay as `number`; use literals or UI maps.
+- **OK:** one small app helper that constructs `new ApiClient({ baseUrl, headers })` from config/session (not a subclass or facade).
+- **OK:** a shared **`handleFailure`** / **`throwRouteFailure`** (see [client-usage](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/client-usage.md)) — check `result.ok` at the call site; map unhandled codes in one helper. No `unwrapResult` wrapper that hides the Result check.
+- **Migrating** off `express-typed-rpc` / `@logfoxai/types`: read [SDK generation § Migrating](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#migrating-from-express-typed-rpc--shared-types-packages) — do not recreate the old import paths.
