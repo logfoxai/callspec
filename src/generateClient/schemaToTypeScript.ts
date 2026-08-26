@@ -290,6 +290,46 @@ export function isEmptyObjectSchema(schema: unknown): boolean {
 
 }
 
+export function isStringEnumSchema(schema: unknown): schema is {enum: string[]} {
+
+    return isRecord(schema)
+        && Array.isArray(schema.enum)
+        && schema.enum.length > 0
+        && schema.enum.every((value) => typeof value === 'string');
+
+}
+
+function enumObjectKey(value: string): string {
+
+    if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value) && !TS_RESERVED.has(value)) {
+
+        return value;
+
+    }
+
+    return JSON.stringify(value);
+
+}
+
+export function generateStringEnumConst(typeName: string, enumValues: readonly string[]): string {
+
+    const entries = enumValues.map((value) => {
+
+        const key = enumObjectKey(value);
+
+        return `    ${key}: ${JSON.stringify(value)},`;
+
+    });
+
+    return [
+        `export const ${typeName} = {`,
+        ...entries,
+        `} as const;`,
+        `export type ${typeName} = (typeof ${typeName})[keyof typeof ${typeName}];`,
+    ].join('\n');
+
+}
+
 export function assertGeneratableSchema(schema: unknown, label: string): void {
 
     if (!isRecord(schema)) {

@@ -6,12 +6,14 @@ import express from 'express';
 import http from 'http';
 import {predicates as p} from 'runtyp';
 import {CallspecClient, isCallspecOk} from './client';
+import {CALLSPEC_DOCUMENT_VERSION, type CallspecDocument} from './callspecDocument';
 import {route} from './route';
 import {spec} from './defineSpec';
 import {emitCallspec} from './emitCallspec';
 import {mountSpec} from './mountSpec';
 import {generateClientFile} from './generateClient/generateClient';
 import {generateClientSource} from './generateClient/generateClientSource';
+import {generateSchemasSection} from './generateClient/generateSchemasSection';
 import {defineErrors} from './defineErrors';
 import {
     sanitizeMethodName,
@@ -170,6 +172,90 @@ test('generateClientSource: one file includes ApiClient, schemas preds, and expo
         'route Input types stay from TS codegen, not Infer',
     );
     assert.equal(generated.includes('--validators'), false);
+
+});
+
+test('generateClientSource: string enum exports emit const object and derived type', (assert) => {
+
+    const doc: CallspecDocument = {
+        callspec: CALLSPEC_DOCUMENT_VERSION,
+        info: {title: 'Enum API', version: '1.0.0'},
+        routes: {},
+        exports: {
+            issueStatus: {
+                type: 'string',
+                enum: ['open', 'closed', 'ignored'],
+            },
+            logLevel: {
+                type: 'number',
+                minimum: 0,
+                maximum: 7,
+            },
+            product: {
+                type: 'object',
+                properties: {
+                    id: {type: 'string'},
+                },
+                required: ['id'],
+            },
+        },
+    };
+
+    const generated = generateClientSource(doc);
+
+    assert.equal(
+        generated.includes(`export const IssueStatus = {
+    open: "open",
+    closed: "closed",
+    ignored: "ignored",
+} as const;`),
+        true,
+    );
+    assert.equal(
+        generated.includes('export type IssueStatus = (typeof IssueStatus)[keyof typeof IssueStatus];'),
+        true,
+    );
+    assert.equal(
+        generated.includes('export type IssueStatus = Infer<typeof schemas.issueStatus>'),
+        false,
+    );
+    assert.equal(
+        generated.includes('export const LogLevel ='),
+        false,
+        'numeric range exports do not get const objects',
+    );
+    assert.equal(
+        generated.includes('export type Product = Infer<typeof schemas.product>'),
+        true,
+        'non-enum exports keep Infer types',
+    );
+
+});
+
+test('generateSchemasSection: oneOf const unions do not emit const objects', (assert) => {
+
+    const doc: CallspecDocument = {
+        callspec: CALLSPEC_DOCUMENT_VERSION,
+        info: {title: 'Union API', version: '1.0.0'},
+        routes: {},
+        exports: {
+            issueStatus: {
+                oneOf: [
+                    {const: 'open'},
+                    {const: 'closed'},
+                    {const: 'ignored'},
+                ],
+            },
+        },
+    };
+
+    const generated = generateSchemasSection(doc);
+
+    assert.equal(generated.includes('export const IssueStatus ='), false);
+    assert.equal(
+        generated.includes('export type IssueStatus = Infer<typeof schemas.issueStatus>'),
+        true,
+    );
 
 });
 

@@ -4,7 +4,11 @@ import {
     schemaToRuntyp,
     typeNameForExport,
 } from '../generateValidators/schemaToRuntyp';
-import {sanitizeMethodName} from './schemaToTypeScript';
+import {
+    generateStringEnumConst,
+    isStringEnumSchema,
+    sanitizeMethodName,
+} from './schemaToTypeScript';
 
 function claimPredName(usedNames: Set<string>, name: string, label: string): string {
 
@@ -49,7 +53,16 @@ export function generateSchemasSection(document: CallspecDocument): string {
         const expr = schemaToRuntyp(schema);
 
         schemaEntries.push(`    ${predName}: ${expr},`);
-        exportTypeBlocks.push(`export type ${typeName} = Infer<typeof schemas.${predName}>;`);
+
+        if (isStringEnumSchema(schema)) {
+
+            exportTypeBlocks.push(generateStringEnumConst(typeName, schema.enum));
+
+        } else {
+
+            exportTypeBlocks.push(`export type ${typeName} = Infer<typeof schemas.${predName}>;`);
+
+        }
 
     }
 
