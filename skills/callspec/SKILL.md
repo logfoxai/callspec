@@ -2,8 +2,7 @@
 name: callspec
 description: >-
   Use when defining callspec routes, mountSpec, SDK codegen, Result-typed errors,
-  MCP, generated ApiClient code, or migrating a frontend/CLI off express-typed-rpc
-  or a shared types package. Read before changing RPC APIs, client imports, or error contracts.
+  MCP, or generated ApiClient code. Read before changing RPC APIs or error contracts.
 disable-model-invocation: true
 ---
 
@@ -23,7 +22,3 @@ Docs: [README](https://raw.githubusercontent.com/logfoxai/callspec/main/README.m
 8. After route/error changes: regenerate the client (`npx callspec …`).
 9. Prefer generated **`ApiClient`** over raw `CallspecClient`.
 10. Follow [Server layout](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/server-layout.md) and keep `handler` inline on `route()` calls.
-
-## Consumer apps (frontend, CLI)
-
-Read [SDK generation — Consumer apps](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#consumer-apps) and [Migrating from express-typed-rpc](https://raw.githubusercontent.com/logfoxai/callspec/main/src/content/docs/sdk-generation.md#migrating-from-express-typed-rpc--shared-types-packages). Do not duplicate that guidance in app repos or skills.
