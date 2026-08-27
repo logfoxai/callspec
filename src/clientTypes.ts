@@ -46,7 +46,7 @@ export type CallspecUnknownClientError = {
     }
 };
 
-/** Client-only — fetch never got an HTTP response (DNS, offline, abort, etc.). `status` is `0`. */
+/** Client-only — browser/device has no network path (offline, aborted request). `status` is `0`. */
 export type CallspecNetworkClientError = {
     code: 'NETWORK_ERROR'
     data: {

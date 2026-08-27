@@ -1,4 +1,5 @@
 import {deserializeWithPred} from './serializer';
+import {BUILTIN_ERROR} from './builtinErrors';
 
 export type {
     BuiltinErrorCode,
@@ -27,35 +28,14 @@ export {
 } from './clientErrorNormalization';
 export type {ResolveRouteClientErrorInput} from './clientErrorNormalization';
 
+import {CLIENT_ERROR, resolveRouteClientError} from './clientErrorNormalization';
+
 import type {
     CallspecOk,
-    CallspecNetworkClientError,
     CallspecResult,
     CallspecRouteResult,
     CallResultOptions,
 } from './clientTypes';
-import {CLIENT_ERROR, resolveRouteClientError} from './clientErrorNormalization';
-
-function networkClientError(err: unknown): CallspecNetworkClientError {
-
-    if (err instanceof Error) {
-
-        return {
-            code: CLIENT_ERROR.NETWORK_ERROR,
-            data: {
-                message: err.message,
-                ...(err.name ? {name: err.name} : {}),
-            },
-        };
-
-    }
-
-    return {
-        code: CLIENT_ERROR.NETWORK_ERROR,
-        data: {message: String(err)},
-    };
-
-}
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
@@ -99,6 +79,8 @@ export type CallspecClientConfig = {
     headers?: HeadersInit | (() => HeadersInit | Promise<HeadersInit>)
     fetch?: typeof globalThis.fetch
     fetchOptions?: Omit<RequestInit, 'method' | 'body' | 'headers'>
+    /** Defaults to `navigator.onLine !== false` when `navigator` exists. */
+    isOnline?: () => boolean
 };
 
 async function resolveHeaders(
@@ -204,13 +186,57 @@ async function parseResponseBody(
 
 }
 
+function defaultIsOnline(): boolean {
+
+    return typeof navigator === 'undefined' || navigator.onLine !== false;
+
+}
+
+/** When `fetch` throws before any HTTP response: offline → NETWORK_ERROR; otherwise → SERVICE_UNAVAILABLE. */
+function classifyFetchFailure(err: unknown, isOnline: () => boolean): {
+    status: number
+    code: typeof CLIENT_ERROR.NETWORK_ERROR | typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE
+    data: {message: string, name?: string} | {message: string, description?: string}
+} {
+
+    const message = err instanceof Error ? err.message : String(err);
+    const name = err instanceof Error ? err.name : undefined;
+    const offline = !isOnline();
+    const aborted = name === 'AbortError';
+
+    if (offline || aborted) {
+
+        return {
+            status: 0,
+            code: CLIENT_ERROR.NETWORK_ERROR,
+            data: {
+                message,
+                ...(name ? {name} : {}),
+            },
+        };
+
+    }
+
+    return {
+        status: 503,
+        code: BUILTIN_ERROR.SERVICE_UNAVAILABLE,
+        data: {
+            message,
+            ...(name ? {description: name} : {}),
+        },
+    };
+
+}
+
 export class CallspecClient {
 
     private readonly fetchImpl: typeof globalThis.fetch;
+    private readonly isOnline: () => boolean;
 
     constructor(private readonly config: CallspecClientConfig) {
 
         this.fetchImpl = config.fetch ?? globalThis.fetch.bind(globalThis);
+        this.isOnline = config.isOnline ?? defaultIsOnline;
 
     }
 
@@ -240,8 +266,7 @@ export class CallspecClient {
 
             return {
                 ok: false as const,
-                status: 0,
-                ...networkClientError(err),
+                ...classifyFetchFailure(err, this.isOnline),
             };
 
         }

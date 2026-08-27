@@ -13,7 +13,7 @@ Use `import {err} from 'callspec'` (or your `defineErrors` handle &mdash; builti
 | `NOT_FOUND` | 404 | Resource missing | `message?`, `description?` |
 | `FORBIDDEN` | 403 | Authenticated but not allowed | `message?`, `description?` |
 | `TOO_MANY_REQUESTS` | 429 | Rate limit / quota | `title?`, `message?` |
-| `SERVICE_UNAVAILABLE` | 503 | Dependency down, try later | `message?`, `description?` |
+| `SERVICE_UNAVAILABLE` | 503 | Service is unreachable | `message?`, `description?` |
 
 State conflicts (duplicate key, version mismatch) are **domain** errors &mdash; declare them with `defineErrors` and your own HTTP status (often 409).
 
@@ -44,7 +44,7 @@ Always in every generated `*Result` union. You cannot `return` these from a serv
 
 | Code | `status` | When | `data` |
 |------|----------|------|--------|
-| `NETWORK_ERROR` | `0` | `fetch` failed before any HTTP response (DNS, offline, abort, …) | `{ message, name? }` from the thrown `Error` when available |
+| `NETWORK_ERROR` | `0` | Device appears offline, or the request was aborted before a response | `{ message, name? }` from the thrown `Error` when available |
 | `UNKNOWN_ERROR` | HTTP status of the response | Response outside the route contract (proxy HTML, undeclared `{ error }`, invalid domain payload, …) | `{ body, headers? }` &mdash; **debug only; do not show to end users** |
 
 Typical client pattern (handle what you care about + shared default): [Client usage](./client-usage.md).

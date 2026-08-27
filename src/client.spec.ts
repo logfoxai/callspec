@@ -420,38 +420,39 @@ test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (as
 
 });
 
-test('CallspecClient.callResult maps fetch network failures to NETWORK_ERROR', async (assert) => {
+test('CallspecClient.callResult classifies fetch throws before any HTTP response', async (assert) => {
 
-    const originalFetch = globalThis.fetch;
-
-    globalThis.fetch = (async () => {
+    const throwingFetch = (async () => {
         throw new TypeError('Failed to fetch');
     }) as typeof fetch;
 
-    try {
+    const offline = await new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: throwingFetch,
+        isOnline: (): boolean => false,
+    }).callResult('healthcheck', {});
 
-        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult('healthcheck', {});
+    assert.equal(offline.ok, false);
 
-        assert.equal(result.ok, false);
+    if (!offline.ok) {
 
-        if (!result.ok) {
+        assert.equal(offline.status, 0);
+        assert.equal(offline.code, CLIENT_ERROR.NETWORK_ERROR);
 
-            assert.equal(result.status, 0);
-            assert.equal(result.code, CLIENT_ERROR.NETWORK_ERROR);
+    }
 
-            if (result.code === CLIENT_ERROR.NETWORK_ERROR) {
+    const online = await new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: throwingFetch,
+        isOnline: (): boolean => true,
+    }).callResult('healthcheck', {});
 
-                assert.equal(result.data.message, 'Failed to fetch');
-                assert.equal(result.data.name, 'TypeError');
+    assert.equal(online.ok, false);
 
-            }
+    if (!online.ok) {
 
-        }
-
-    } finally {
-
-        globalThis.fetch = originalFetch;
+        assert.equal(online.status, 503);
+        assert.equal(online.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
     }
 

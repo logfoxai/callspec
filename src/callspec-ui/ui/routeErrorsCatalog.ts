@@ -23,7 +23,7 @@ const HANDLER_SUMMARIES: Record<string, string> = {
     [BUILTIN_ERROR.NOT_FOUND]: 'Resource missing — return from handler',
     [BUILTIN_ERROR.FORBIDDEN]: 'Authenticated but not allowed',
     [BUILTIN_ERROR.TOO_MANY_REQUESTS]: 'Rate limit or quota exceeded',
-    [BUILTIN_ERROR.SERVICE_UNAVAILABLE]: 'Dependency down — try again later',
+    [BUILTIN_ERROR.SERVICE_UNAVAILABLE]: 'Service is unreachable',
 };
 
 function wireErrorSchema(code: string, dataSchema?: unknown, dataRequired?: boolean): unknown {
@@ -182,7 +182,7 @@ function clientOnlyErrors(): CatalogRouteError[] {
             code: CLIENT_ERROR.NETWORK_ERROR,
             status: 0,
             kind: 'client',
-            summary: 'fetch failed before any HTTP response (DNS, offline, abort, …)',
+            summary: 'Device offline or request aborted before any HTTP response',
             clientOnly: true,
             schema: {
                 type: 'object',
@@ -205,7 +205,7 @@ function clientOnlyErrors(): CatalogRouteError[] {
                 ok: false,
                 status: 0,
                 code: CLIENT_ERROR.NETWORK_ERROR,
-                data: {message: 'Failed to fetch', name: 'TypeError'},
+                data: {message: 'Network unavailable', name: 'TypeError'},
             },
         },
         {
