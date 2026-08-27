@@ -1,4 +1,5 @@
 import {deserializeWithPred} from './serializer';
+import {BUILTIN_ERROR} from './builtinErrors';
 
 export type {
     BuiltinErrorCode,
@@ -22,11 +23,12 @@ export type {
 
 export {
     CLIENT_ERROR,
-    classifyFetchFailure,
     normalizeClientErrorBody,
     resolveRouteClientError,
 } from './clientErrorNormalization';
-export type {ClassifiedFetchFailure, ResolveRouteClientErrorInput} from './clientErrorNormalization';
+export type {ResolveRouteClientErrorInput} from './clientErrorNormalization';
+
+import {CLIENT_ERROR, resolveRouteClientError} from './clientErrorNormalization';
 
 import type {
     CallspecOk,
@@ -34,8 +36,6 @@ import type {
     CallspecRouteResult,
     CallResultOptions,
 } from './clientTypes';
-import {classifyFetchFailure} from './clientErrorNormalization/classifyFetchFailure';
-import {resolveRouteClientError} from './clientErrorNormalization';
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
@@ -181,6 +181,42 @@ async function parseResponseBody(
         return data;
 
     }
+
+}
+
+/** When `fetch` throws before any HTTP response: offline → NETWORK_ERROR; otherwise → SERVICE_UNAVAILABLE. */
+function classifyFetchFailure(err: unknown): {
+    status: number
+    code: typeof CLIENT_ERROR.NETWORK_ERROR | typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE
+    data: {message: string, name?: string} | {message: string, description?: string}
+} {
+
+    const message = err instanceof Error ? err.message : String(err);
+    const name = err instanceof Error ? err.name : undefined;
+    const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    const aborted = name === 'AbortError';
+
+    if (offline || aborted) {
+
+        return {
+            status: 0,
+            code: CLIENT_ERROR.NETWORK_ERROR,
+            data: {
+                message,
+                ...(name ? {name} : {}),
+            },
+        };
+
+    }
+
+    return {
+        status: 503,
+        code: BUILTIN_ERROR.SERVICE_UNAVAILABLE,
+        data: {
+            message,
+            ...(name ? {description: name} : {}),
+        },
+    };
 
 }
 

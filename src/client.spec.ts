@@ -420,44 +420,54 @@ test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (as
 
 });
 
-test('CallspecClient.callResult maps unreachable server fetch failures to SERVICE_UNAVAILABLE', async (assert) => {
+test('CallspecClient.callResult classifies fetch throws before any HTTP response', async (assert) => {
 
-    const originalFetch = globalThis.fetch;
     const originalNavigator = globalThis.navigator;
-
-    Object.defineProperty(globalThis, 'navigator', {
-        configurable: true,
-        value: {onLine: true},
-    });
-
-    globalThis.fetch = (async () => {
+    const throwingFetch = (async () => {
         throw new TypeError('Failed to fetch');
     }) as typeof fetch;
 
+    Object.defineProperty(globalThis, 'navigator', {
+        configurable: true,
+        value: {onLine: false},
+    });
+
     try {
 
-        const runtime = new CallspecClient({baseUrl: 'https://api.test/v1'});
-        const result = await runtime.callResult('healthcheck', {});
+        const offline = await new CallspecClient({
+            baseUrl: 'https://api.test/v1',
+            fetch: throwingFetch,
+        }).callResult('healthcheck', {});
 
-        assert.equal(result.ok, false);
+        assert.equal(offline.ok, false);
 
-        if (!result.ok) {
+        if (!offline.ok) {
 
-            assert.equal(result.status, 503);
-            assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
+            assert.equal(offline.status, 0);
+            assert.equal(offline.code, CLIENT_ERROR.NETWORK_ERROR);
 
-            if (result.code === BUILTIN_ERROR.SERVICE_UNAVAILABLE && result.data) {
+        }
 
-                assert.equal(result.data.message, 'Failed to fetch');
-                assert.equal(result.data.description, 'TypeError');
+        Object.defineProperty(globalThis, 'navigator', {
+            configurable: true,
+            value: {onLine: true},
+        });
 
-            }
+        const online = await new CallspecClient({
+            baseUrl: 'https://api.test/v1',
+            fetch: throwingFetch,
+        }).callResult('healthcheck', {});
+
+        assert.equal(online.ok, false);
+
+        if (!online.ok) {
+
+            assert.equal(online.status, 503);
+            assert.equal(online.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
         }
 
     } finally {
-
-        globalThis.fetch = originalFetch;
 
         Object.defineProperty(globalThis, 'navigator', {
             configurable: true,

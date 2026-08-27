@@ -13,7 +13,7 @@ Use `import {err} from 'callspec'` (or your `defineErrors` handle &mdash; builti
 | `NOT_FOUND` | 404 | Resource missing | `message?`, `description?` |
 | `FORBIDDEN` | 403 | Authenticated but not allowed | `message?`, `description?` |
 | `TOO_MANY_REQUESTS` | 429 | Rate limit / quota | `title?`, `message?` |
-| `SERVICE_UNAVAILABLE` | 503 | Service down or unreachable — return from a handler, or produced by the browser client when the request never connects (API stopped, connection refused, etc.) while the device is still online | `message?`, `description?` |
+| `SERVICE_UNAVAILABLE` | 503 | Service down or could not connect (handler return, or browser client when online and the request never connected) | `message?`, `description?` |
 
 State conflicts (duplicate key, version mismatch) are **domain** errors &mdash; declare them with `defineErrors` and your own HTTP status (often 409).
 
