@@ -132,7 +132,7 @@ function frameworkErrors(auth: RouteAuth, routeName: string): CatalogRouteError[
             code: BUILTIN_ERROR.INTERNAL_ERROR,
             status: 500,
             kind: 'framework',
-            summary: 'Unhandled throw or rejected promise in the handler',
+            summary: 'Unhandled throw in the handler, or client could not reach the API host while the device appears online',
             schema: wireErrorSchema(BUILTIN_ERROR.INTERNAL_ERROR),
             example: {error: BUILTIN_ERROR.INTERNAL_ERROR},
         },
@@ -182,7 +182,7 @@ function clientOnlyErrors(): CatalogRouteError[] {
             code: CLIENT_ERROR.NETWORK_ERROR,
             status: 0,
             kind: 'client',
-            summary: 'fetch failed before any HTTP response (DNS, offline, abort, …)',
+            summary: 'Device offline or request aborted before any HTTP response',
             clientOnly: true,
             schema: {
                 type: 'object',
@@ -205,7 +205,7 @@ function clientOnlyErrors(): CatalogRouteError[] {
                 ok: false,
                 status: 0,
                 code: CLIENT_ERROR.NETWORK_ERROR,
-                data: {message: 'Failed to fetch', name: 'TypeError'},
+                data: {message: 'Network unavailable', name: 'TypeError'},
             },
         },
         {

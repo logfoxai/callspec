@@ -12,6 +12,14 @@ type CallspecValidationClientError = {
     data: Record<string, string>
 };
 
+type CallspecInternalClientError = {
+    code: typeof BUILTIN_ERROR.INTERNAL_ERROR
+    data?: {
+        message: string
+        name?: string
+    }
+};
+
 export type TooManyRequestsContext = {
     title?: string
     message?: string
@@ -30,7 +38,7 @@ type CallspecRouteNotFoundClientError = {
 export type CallspecBuiltinClientError =
     | CallspecValidationClientError
     | {code: typeof BUILTIN_ERROR.UNAUTHORIZED}
-    | {code: typeof BUILTIN_ERROR.INTERNAL_ERROR}
+    | CallspecInternalClientError
     | CallspecRouteNotFoundClientError
     | {code: typeof BUILTIN_ERROR.NOT_FOUND, data?: OptionalBuiltinContext}
     | {code: typeof BUILTIN_ERROR.FORBIDDEN, data?: OptionalBuiltinContext}
@@ -46,7 +54,7 @@ export type CallspecUnknownClientError = {
     }
 };
 
-/** Client-only — fetch never got an HTTP response (DNS, offline, abort, etc.). `status` is `0`. */
+/** Client-only — browser/device has no network path (offline, aborted request). `status` is `0`. */
 export type CallspecNetworkClientError = {
     code: 'NETWORK_ERROR'
     data: {

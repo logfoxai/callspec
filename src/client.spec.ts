@@ -420,9 +420,15 @@ test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (as
 
 });
 
-test('CallspecClient.callResult maps fetch network failures to NETWORK_ERROR', async (assert) => {
+test('CallspecClient.callResult maps unreachable server fetch failures to INTERNAL_ERROR', async (assert) => {
 
     const originalFetch = globalThis.fetch;
+    const originalNavigator = globalThis.navigator;
+
+    Object.defineProperty(globalThis, 'navigator', {
+        configurable: true,
+        value: {onLine: true},
+    });
 
     globalThis.fetch = (async () => {
         throw new TypeError('Failed to fetch');
@@ -437,10 +443,10 @@ test('CallspecClient.callResult maps fetch network failures to NETWORK_ERROR', a
 
         if (!result.ok) {
 
-            assert.equal(result.status, 0);
-            assert.equal(result.code, CLIENT_ERROR.NETWORK_ERROR);
+            assert.equal(result.status, 500);
+            assert.equal(result.code, BUILTIN_ERROR.INTERNAL_ERROR);
 
-            if (result.code === CLIENT_ERROR.NETWORK_ERROR) {
+            if (result.code === BUILTIN_ERROR.INTERNAL_ERROR && result.data) {
 
                 assert.equal(result.data.message, 'Failed to fetch');
                 assert.equal(result.data.name, 'TypeError');
@@ -452,6 +458,11 @@ test('CallspecClient.callResult maps fetch network failures to NETWORK_ERROR', a
     } finally {
 
         globalThis.fetch = originalFetch;
+
+        Object.defineProperty(globalThis, 'navigator', {
+            configurable: true,
+            value: originalNavigator,
+        });
 
     }
 

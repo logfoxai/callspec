@@ -34,7 +34,7 @@ You usually do **not** return these from handlers. The framework puts them on th
 | `VALIDATION_ERROR` | 400 | Input fails the route `input` pred &mdash; `data` is field → message map |
 | `UNAUTHORIZED` | 401 | Bearer/auth required and missing or invalid |
 | `ROUTE_NOT_FOUND` | 404 | RPC method path not in the mounted spec &mdash; `data.route` |
-| `INTERNAL_ERROR` | 500 | Unhandled throw / rejected promise in the handler (or anything not mapped by `handleUnhandledError`) |
+| `INTERNAL_ERROR` | 500 | Unhandled throw / rejected promise in the handler (or anything not mapped by `handleUnhandledError`). The client may also synthesize this when `fetch` fails while the device appears online and the API host cannot be reached. |
 
 Bare `throw new Error(…)` → `INTERNAL_ERROR`. Expected failures should **`return err.*`**.
 
@@ -44,7 +44,7 @@ Always in every generated `*Result` union. You cannot `return` these from a serv
 
 | Code | `status` | When | `data` |
 |------|----------|------|--------|
-| `NETWORK_ERROR` | `0` | `fetch` failed before any HTTP response (DNS, offline, abort, …) | `{ message, name? }` from the thrown `Error` when available |
+| `NETWORK_ERROR` | `0` | Device appears offline, or the request was aborted before a response | `{ message, name? }` from the thrown `Error` when available |
 | `UNKNOWN_ERROR` | HTTP status of the response | Response outside the route contract (proxy HTML, undeclared `{ error }`, invalid domain payload, …) | `{ body, headers? }` &mdash; **debug only; do not show to end users** |
 
 Typical client pattern (handle what you care about + shared default): [Client usage](./client-usage.md).

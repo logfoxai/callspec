@@ -22,40 +22,20 @@ export type {
 
 export {
     CLIENT_ERROR,
+    classifyFetchFailure,
     normalizeClientErrorBody,
     resolveRouteClientError,
 } from './clientErrorNormalization';
-export type {ResolveRouteClientErrorInput} from './clientErrorNormalization';
+export type {ClassifiedFetchFailure, ResolveRouteClientErrorInput} from './clientErrorNormalization';
 
 import type {
     CallspecOk,
-    CallspecNetworkClientError,
     CallspecResult,
     CallspecRouteResult,
     CallResultOptions,
 } from './clientTypes';
-import {CLIENT_ERROR, resolveRouteClientError} from './clientErrorNormalization';
-
-function networkClientError(err: unknown): CallspecNetworkClientError {
-
-    if (err instanceof Error) {
-
-        return {
-            code: CLIENT_ERROR.NETWORK_ERROR,
-            data: {
-                message: err.message,
-                ...(err.name ? {name: err.name} : {}),
-            },
-        };
-
-    }
-
-    return {
-        code: CLIENT_ERROR.NETWORK_ERROR,
-        data: {message: String(err)},
-    };
-
-}
+import {classifyFetchFailure} from './clientErrorNormalization/classifyFetchFailure';
+import {resolveRouteClientError} from './clientErrorNormalization';
 
 export function isCallspecOk<T, E>(result: CallspecResult<T, E>): result is CallspecOk<T> {
 
@@ -240,8 +220,7 @@ export class CallspecClient {
 
             return {
                 ok: false as const,
-                status: 0,
-                ...networkClientError(err),
+                ...classifyFetchFailure(err),
             };
 
         }

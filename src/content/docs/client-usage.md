@@ -68,6 +68,10 @@ export function handleFailure(result: Failed): void {
         case 'NETWORK_ERROR':
             toast.error('Check your connection and try again');
             return;
+        case 'INTERNAL_ERROR':
+            console.error(result.data);
+            toast.error('Something went wrong on our end');
+            return;
         case 'UNKNOWN_ERROR':
             console.error(result.data); // operators / devtools — do not show to users
             toast.error('Something went wrong');
