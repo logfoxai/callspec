@@ -11,7 +11,7 @@ import {
     tryCopyText,
 } from './codeBlockTitles';
 
-test('copyButtonContent matches app-frontend idle / copied labels', (assert) => {
+test('copyButtonContent matches app idle / copied labels', (assert) => {
     assert.equal(copyButtonContent(false), {label: 'Copy', state: 'idle'});
     assert.equal(copyButtonContent(true), {label: 'Copied!', state: 'copied'});
 });
