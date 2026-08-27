@@ -422,57 +422,37 @@ test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (as
 
 test('CallspecClient.callResult classifies fetch throws before any HTTP response', async (assert) => {
 
-    const originalNavigator = globalThis.navigator;
     const throwingFetch = (async () => {
         throw new TypeError('Failed to fetch');
     }) as typeof fetch;
 
-    Object.defineProperty(globalThis, 'navigator', {
-        configurable: true,
-        value: {onLine: false},
-    });
+    const offline = await new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: throwingFetch,
+        isOnline: (): boolean => false,
+    }).callResult('healthcheck', {});
 
-    try {
+    assert.equal(offline.ok, false);
 
-        const offline = await new CallspecClient({
-            baseUrl: 'https://api.test/v1',
-            fetch: throwingFetch,
-        }).callResult('healthcheck', {});
+    if (!offline.ok) {
 
-        assert.equal(offline.ok, false);
+        assert.equal(offline.status, 0);
+        assert.equal(offline.code, CLIENT_ERROR.NETWORK_ERROR);
 
-        if (!offline.ok) {
+    }
 
-            assert.equal(offline.status, 0);
-            assert.equal(offline.code, CLIENT_ERROR.NETWORK_ERROR);
+    const online = await new CallspecClient({
+        baseUrl: 'https://api.test/v1',
+        fetch: throwingFetch,
+        isOnline: (): boolean => true,
+    }).callResult('healthcheck', {});
 
-        }
+    assert.equal(online.ok, false);
 
-        Object.defineProperty(globalThis, 'navigator', {
-            configurable: true,
-            value: {onLine: true},
-        });
+    if (!online.ok) {
 
-        const online = await new CallspecClient({
-            baseUrl: 'https://api.test/v1',
-            fetch: throwingFetch,
-        }).callResult('healthcheck', {});
-
-        assert.equal(online.ok, false);
-
-        if (!online.ok) {
-
-            assert.equal(online.status, 503);
-            assert.equal(online.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
-
-        }
-
-    } finally {
-
-        Object.defineProperty(globalThis, 'navigator', {
-            configurable: true,
-            value: originalNavigator,
-        });
+        assert.equal(online.status, 503);
+        assert.equal(online.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
     }
 

@@ -79,6 +79,8 @@ export type CallspecClientConfig = {
     headers?: HeadersInit | (() => HeadersInit | Promise<HeadersInit>)
     fetch?: typeof globalThis.fetch
     fetchOptions?: Omit<RequestInit, 'method' | 'body' | 'headers'>
+    /** Defaults to `navigator.onLine !== false` when `navigator` exists. */
+    isOnline?: () => boolean
 };
 
 async function resolveHeaders(
@@ -184,8 +186,14 @@ async function parseResponseBody(
 
 }
 
+function defaultIsOnline(): boolean {
+
+    return typeof navigator === 'undefined' || navigator.onLine !== false;
+
+}
+
 /** When `fetch` throws before any HTTP response: offline → NETWORK_ERROR; otherwise → SERVICE_UNAVAILABLE. */
-function classifyFetchFailure(err: unknown): {
+function classifyFetchFailure(err: unknown, isOnline: () => boolean): {
     status: number
     code: typeof CLIENT_ERROR.NETWORK_ERROR | typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE
     data: {message: string, name?: string} | {message: string, description?: string}
@@ -193,7 +201,7 @@ function classifyFetchFailure(err: unknown): {
 
     const message = err instanceof Error ? err.message : String(err);
     const name = err instanceof Error ? err.name : undefined;
-    const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    const offline = !isOnline();
     const aborted = name === 'AbortError';
 
     if (offline || aborted) {
@@ -223,10 +231,12 @@ function classifyFetchFailure(err: unknown): {
 export class CallspecClient {
 
     private readonly fetchImpl: typeof globalThis.fetch;
+    private readonly isOnline: () => boolean;
 
     constructor(private readonly config: CallspecClientConfig) {
 
         this.fetchImpl = config.fetch ?? globalThis.fetch.bind(globalThis);
+        this.isOnline = config.isOnline ?? defaultIsOnline;
 
     }
 
@@ -256,7 +266,7 @@ export class CallspecClient {
 
             return {
                 ok: false as const,
-                ...classifyFetchFailure(err),
+                ...classifyFetchFailure(err, this.isOnline),
             };
 
         }
