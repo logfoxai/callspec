@@ -13,7 +13,7 @@ Use `import {err} from 'callspec'` (or your `defineErrors` handle &mdash; builti
 | `NOT_FOUND` | 404 | Resource missing | `message?`, `description?` |
 | `FORBIDDEN` | 403 | Authenticated but not allowed | `message?`, `description?` |
 | `TOO_MANY_REQUESTS` | 429 | Rate limit / quota | `title?`, `message?` |
-| `SERVICE_UNAVAILABLE` | 503 | Dependency down, try later | `message?`, `description?` |
+| `SERVICE_UNAVAILABLE` | 503 | Dependency down, try later; the client may also synthesize this when `fetch` fails while the device appears online and the API host cannot be reached | `message?`, `description?` |
 
 State conflicts (duplicate key, version mismatch) are **domain** errors &mdash; declare them with `defineErrors` and your own HTTP status (often 409).
 
@@ -34,7 +34,7 @@ You usually do **not** return these from handlers. The framework puts them on th
 | `VALIDATION_ERROR` | 400 | Input fails the route `input` pred &mdash; `data` is field → message map |
 | `UNAUTHORIZED` | 401 | Bearer/auth required and missing or invalid |
 | `ROUTE_NOT_FOUND` | 404 | RPC method path not in the mounted spec &mdash; `data.route` |
-| `INTERNAL_ERROR` | 500 | Unhandled throw / rejected promise in the handler (or anything not mapped by `handleUnhandledError`). The client may also synthesize this when `fetch` fails while the device appears online and the API host cannot be reached. |
+| `INTERNAL_ERROR` | 500 | Unhandled throw / rejected promise in the handler (or anything not mapped by `handleUnhandledError`) |
 
 Bare `throw new Error(…)` → `INTERNAL_ERROR`. Expected failures should **`return err.*`**.
 

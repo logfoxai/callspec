@@ -19,11 +19,11 @@ const FETCH_TRANSPORT_MESSAGE = /failed to fetch|load failed|network error when 
 export type ClassifiedFetchFailure =
     | ({status: 0} & CallspecNetworkClientError)
     | {
-        status: 500
-        code: typeof BUILTIN_ERROR.INTERNAL_ERROR
+        status: 503
+        code: typeof BUILTIN_ERROR.SERVICE_UNAVAILABLE
         data: {
             message: string
-            name?: string
+            description?: string
         }
     };
 
@@ -84,17 +84,17 @@ function networkClientError(err: unknown): CallspecNetworkClientError {
 
 }
 
-function serverUnreachableClientError(err: unknown): Extract<ClassifiedFetchFailure, {status: 500}> {
+function serverUnreachableClientError(err: unknown): Extract<ClassifiedFetchFailure, {status: 503}> {
 
     const message = fetchErrorMessage(err);
     const name = fetchErrorName(err);
 
     return {
-        status: 500,
-        code: BUILTIN_ERROR.INTERNAL_ERROR,
+        status: 503,
+        code: BUILTIN_ERROR.SERVICE_UNAVAILABLE,
         data: {
             message,
-            ...(name ? {name} : {}),
+            ...(name ? {description: name} : {}),
         },
     };
 

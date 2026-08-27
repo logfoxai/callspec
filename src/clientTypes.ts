@@ -12,14 +12,6 @@ type CallspecValidationClientError = {
     data: Record<string, string>
 };
 
-type CallspecInternalClientError = {
-    code: typeof BUILTIN_ERROR.INTERNAL_ERROR
-    data?: {
-        message: string
-        name?: string
-    }
-};
-
 export type TooManyRequestsContext = {
     title?: string
     message?: string
@@ -38,7 +30,7 @@ type CallspecRouteNotFoundClientError = {
 export type CallspecBuiltinClientError =
     | CallspecValidationClientError
     | {code: typeof BUILTIN_ERROR.UNAUTHORIZED}
-    | CallspecInternalClientError
+    | {code: typeof BUILTIN_ERROR.INTERNAL_ERROR}
     | CallspecRouteNotFoundClientError
     | {code: typeof BUILTIN_ERROR.NOT_FOUND, data?: OptionalBuiltinContext}
     | {code: typeof BUILTIN_ERROR.FORBIDDEN, data?: OptionalBuiltinContext}

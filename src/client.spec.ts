@@ -420,7 +420,7 @@ test('CallspecClient.callResult maps 502 HTML to SERVICE_UNAVAILABLE', async (as
 
 });
 
-test('CallspecClient.callResult maps unreachable server fetch failures to INTERNAL_ERROR', async (assert) => {
+test('CallspecClient.callResult maps unreachable server fetch failures to SERVICE_UNAVAILABLE', async (assert) => {
 
     const originalFetch = globalThis.fetch;
     const originalNavigator = globalThis.navigator;
@@ -443,13 +443,13 @@ test('CallspecClient.callResult maps unreachable server fetch failures to INTERN
 
         if (!result.ok) {
 
-            assert.equal(result.status, 500);
-            assert.equal(result.code, BUILTIN_ERROR.INTERNAL_ERROR);
+            assert.equal(result.status, 503);
+            assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
-            if (result.code === BUILTIN_ERROR.INTERNAL_ERROR && result.data) {
+            if (result.code === BUILTIN_ERROR.SERVICE_UNAVAILABLE && result.data) {
 
                 assert.equal(result.data.message, 'Failed to fetch');
-                assert.equal(result.data.name, 'TypeError');
+                assert.equal(result.data.description, 'TypeError');
 
             }
 

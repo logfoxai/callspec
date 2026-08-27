@@ -23,7 +23,7 @@ const HANDLER_SUMMARIES: Record<string, string> = {
     [BUILTIN_ERROR.NOT_FOUND]: 'Resource missing — return from handler',
     [BUILTIN_ERROR.FORBIDDEN]: 'Authenticated but not allowed',
     [BUILTIN_ERROR.TOO_MANY_REQUESTS]: 'Rate limit or quota exceeded',
-    [BUILTIN_ERROR.SERVICE_UNAVAILABLE]: 'Dependency down — try again later',
+    [BUILTIN_ERROR.SERVICE_UNAVAILABLE]: 'Dependency down — try again later; client may synthesize when the API host is unreachable',
 };
 
 function wireErrorSchema(code: string, dataSchema?: unknown, dataRequired?: boolean): unknown {
@@ -132,7 +132,7 @@ function frameworkErrors(auth: RouteAuth, routeName: string): CatalogRouteError[
             code: BUILTIN_ERROR.INTERNAL_ERROR,
             status: 500,
             kind: 'framework',
-            summary: 'Unhandled throw in the handler, or client could not reach the API host while the device appears online',
+            summary: 'Unhandled throw or rejected promise in the handler',
             schema: wireErrorSchema(BUILTIN_ERROR.INTERNAL_ERROR),
             example: {error: BUILTIN_ERROR.INTERNAL_ERROR},
         },

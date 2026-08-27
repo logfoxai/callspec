@@ -25,8 +25,8 @@ test('classifyFetchFailure: offline and online Failed to fetch', (assert) => {
 
         const online = classifyFetchFailure(new TypeError('Failed to fetch'));
 
-        assert.equal(online.status, 500);
-        assert.equal(online.code, BUILTIN_ERROR.INTERNAL_ERROR);
+        assert.equal(online.status, 503);
+        assert.equal(online.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
     } finally {
 
@@ -39,7 +39,7 @@ test('classifyFetchFailure: offline and online Failed to fetch', (assert) => {
 
 });
 
-test('classifyFetchFailure: ECONNREFUSED maps to INTERNAL_ERROR', (assert) => {
+test('classifyFetchFailure: ECONNREFUSED maps to SERVICE_UNAVAILABLE', (assert) => {
 
     const err = new Error('fetch failed') as Error & {cause: {code: string}};
 
@@ -47,17 +47,17 @@ test('classifyFetchFailure: ECONNREFUSED maps to INTERNAL_ERROR', (assert) => {
 
     const result = classifyFetchFailure(err);
 
-    assert.equal(result.status, 500);
-    assert.equal(result.code, BUILTIN_ERROR.INTERNAL_ERROR);
+    assert.equal(result.status, 503);
+    assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
 });
 
-test('classifyFetchFailure: connection refused message maps to INTERNAL_ERROR', (assert) => {
+test('classifyFetchFailure: connection refused message maps to SERVICE_UNAVAILABLE', (assert) => {
 
     const result = classifyFetchFailure(new Error('connect ECONNREFUSED 127.0.0.1:3000'));
 
-    assert.equal(result.status, 500);
-    assert.equal(result.code, BUILTIN_ERROR.INTERNAL_ERROR);
+    assert.equal(result.status, 503);
+    assert.equal(result.code, BUILTIN_ERROR.SERVICE_UNAVAILABLE);
 
 });
 
