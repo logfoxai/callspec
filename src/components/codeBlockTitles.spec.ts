@@ -11,7 +11,7 @@ import {
     tryCopyText,
 } from './codeBlockTitles';
 
-test('copyButtonContent matches app idle / copied labels', (assert) => {
+test('copyButtonContent idle and copied labels', (assert) => {
     assert.equal(copyButtonContent(false), {label: 'Copy', state: 'idle'});
     assert.equal(copyButtonContent(true), {label: 'Copied!', state: 'copied'});
 });
@@ -43,7 +43,7 @@ test('copyButtonMarkup accepts id, copy value, and a custom idle label', (assert
     assert.equal(html.includes('class="btn'), false);
 });
 
-test('COPY_FEEDBACK_MS matches useCopyToClipboard reset window', (assert) => {
+test('COPY_FEEDBACK_MS is 1500ms', (assert) => {
     assert.equal(COPY_FEEDBACK_MS, 1500);
 });
 

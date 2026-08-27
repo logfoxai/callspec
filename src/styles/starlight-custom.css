@@ -2262,8 +2262,7 @@ html[data-theme='light'] .expressive-code .cs-code-file {
 }
 
 /*
- * Copy control — app Code / useCopyToClipboard behavior:
- * idle: icon + “Copy”; copied: green pill + check + “Copied!” for 1.5s.
+ * Copy control: idle icon + “Copy”; copied green pill + check + “Copied!” for 1.5s.
  * Kill EC’s floating tooltip — we own the feedback UI.
  */
 .expressive-code .frame.has-title > .header > .copy,
@@ -2382,7 +2381,7 @@ html[data-theme='light'] .expressive-code .frame.is-terminal .copy button.cs-cop
     background: color-mix(in srgb, var(--cs-ink) 6%, transparent) !important;
 }
 
-/* app Code.module.scss `.copied` — success green wins over hover */
+/* Success green wins over hover when copied */
 .expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied,
 .expressive-code .frame.is-terminal .copy button.cs-copy-btn.cs-copied,
 .expressive-code .frame.has-title .copy button.cs-copy-btn.cs-copied:hover,

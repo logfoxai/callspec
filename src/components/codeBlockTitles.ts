@@ -1,7 +1,5 @@
-/** Matches app `useCopyToClipboard` reset window. */
 export const COPY_FEEDBACK_MS = 1500;
 
-/** Idle / copied labels — same strings as app `Code` copy button. */
 export function copyButtonContent(
     isCopied: boolean,
     idleLabel = 'Copy',
@@ -21,7 +19,7 @@ export type TryCopyTextDeps = {
 };
 
 /**
- * Copy text like app `useCopyToClipboard`: succeed → true; failure → false.
+ * Copy text to the clipboard: succeed → true; failure → false.
  * Inject `writeText` in tests; browser path uses `navigator.clipboard.writeText`.
  */
 export async function tryCopyText(text: string, deps: TryCopyTextDeps = {}): Promise<boolean> {
@@ -205,10 +203,7 @@ function ensureDots(header: HTMLElement): void {
     dots.replaceChildren();
 }
 
-/**
- * Park the EC copy control in the chrome row and apply app copy feedback:
- * icon + “Copy” → green check + “Copied!” for COPY_FEEDBACK_MS.
- */
+/** Park the EC copy control in the chrome row; icon + “Copy” → green check + “Copied!” for COPY_FEEDBACK_MS. */
 function ensureCopyInHeader(frame: HTMLElement, header: HTMLElement): void {
     const copy = frame.querySelector(':scope > .copy') ?? header.querySelector(':scope > .copy');
     if (!(copy instanceof HTMLElement)) {
