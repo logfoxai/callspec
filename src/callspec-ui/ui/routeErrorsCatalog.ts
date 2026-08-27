@@ -23,7 +23,7 @@ const HANDLER_SUMMARIES: Record<string, string> = {
     [BUILTIN_ERROR.NOT_FOUND]: 'Resource missing — return from handler',
     [BUILTIN_ERROR.FORBIDDEN]: 'Authenticated but not allowed',
     [BUILTIN_ERROR.TOO_MANY_REQUESTS]: 'Rate limit or quota exceeded',
-    [BUILTIN_ERROR.SERVICE_UNAVAILABLE]: 'Service down or could not connect to the API',
+    [BUILTIN_ERROR.SERVICE_UNAVAILABLE]: 'Service is unreachable',
 };
 
 function wireErrorSchema(code: string, dataSchema?: unknown, dataRequired?: boolean): unknown {
