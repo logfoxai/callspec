@@ -1,6 +1,5 @@
 /*
- * Starlight LinkButton — logfox.site pill CTAs.
- * Primary: 118° brand gradient on ::before (early-access / closing CTA pattern).
+ * Starlight LinkButton — pill CTAs using docs primary purple (no gradient).
  */
 
 .sl-link-button {
@@ -12,57 +11,43 @@
     border: none;
 }
 
-/* ─── Primary gradient ───────────────────────────────────────────────────── */
+/* ─── Primary (solid --docs-primary-bg) ──────────────────────────────────── */
 
 .sl-link-button.primary {
-    --cta-press-scale: 1;
-    background: transparent;
+    background: var(--docs-primary-bg);
     border: none;
-    box-shadow: none;
-    color: #ffffff;
-    isolation: isolate;
-    overflow: visible;
-    position: relative;
-    white-space: nowrap;
+    color: var(--docs-primary-fg);
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        color 0.15s ease;
 }
 
-.sl-link-button.primary::before {
-    background: linear-gradient(
-        118deg,
-        color-mix(in srgb, var(--docs-fox-purple-deep) 28%, #553ca5) 0%,
-        var(--docs-fox-purple-deep) 50%,
-        color-mix(in srgb, var(--docs-fox-purple-deep) 32%, #f441ff) 100%
-    );
-    border-radius: inherit;
-    content: '';
-    inset: 0;
-    position: absolute;
-    transform: scale(var(--cta-press-scale, 1));
-    transition: transform 0.14s ease-out;
-    z-index: -1;
+html[data-theme='light'] .sl-link-button.primary:hover,
+[data-theme='light'] .sl-link-button.primary:hover {
+    background: color-mix(in srgb, var(--docs-primary-bg) 88%, #000);
+    color: var(--docs-primary-fg);
+}
+
+html[data-theme='dark'] .sl-link-button.primary:hover,
+[data-theme='dark'] .sl-link-button.primary:hover {
+    background: color-mix(in srgb, var(--docs-primary-bg) 92%, white);
+    color: var(--docs-primary-fg);
+}
+
+.sl-link-button.primary,
+.sl-link-button.primary:hover,
+.sl-link-button.primary:active {
+    box-shadow: none;
 }
 
 .sl-link-button.primary:hover,
 .sl-link-button.primary:active {
-    background: transparent;
-    color: #ffffff;
     transform: none;
 }
 
-.sl-link-button.primary:hover {
-    --cta-press-scale: 1.025;
-}
-
-.sl-link-button.primary:active {
-    --cta-press-scale: 0.975;
-}
-
-.sl-link-button.primary:active::before {
-    transition: transform 0.05s ease-out;
-}
-
 .sl-link-button.primary:focus-visible {
-    outline: 2px solid var(--docs-fox-purple-deep);
+    outline: 2px solid var(--docs-primary-bg);
     outline-offset: 3px;
 }
 
@@ -88,7 +73,7 @@ html[data-theme='dark'] .sl-link-button.secondary,
     --cs-btn-fill: var(--docs-btn-dark-fill);
     background: var(--cs-btn-fill);
     border: none;
-    box-shadow: var(--cs-btn-dark-highlight);
+    box-shadow: none;
     color: var(--cs-ink);
 }
 
@@ -96,21 +81,10 @@ html[data-theme='dark'] .sl-link-button.secondary:hover,
 [data-theme='dark'] .sl-link-button.secondary:hover {
     --cs-btn-fill: var(--docs-btn-dark-fill-hover);
     background: var(--cs-btn-fill);
-    box-shadow: var(--cs-btn-dark-highlight-hover);
+    box-shadow: none;
 }
 
 html[data-theme='dark'] .sl-link-button.secondary:active,
 [data-theme='dark'] .sl-link-button.secondary:active {
-    box-shadow: var(--cs-btn-dark-highlight-active);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .sl-link-button.primary::before {
-        transition: none;
-    }
-
-    .sl-link-button.primary:hover,
-    .sl-link-button.primary:active {
-        --cta-press-scale: 1;
-    }
+    box-shadow: none;
 }

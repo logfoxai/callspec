@@ -67,9 +67,7 @@ html[data-theme='light'],
     --docs-text-secondary: hsl(228, 10%, 40%);
     --docs-text-tertiary: hsl(228, 8%, 52%);
 
-    /* Primary fill — sidebar selected, links, TOC, splash accent, footer hover. */
-    /* logfox.site --fox-purple-deep — gradient CTAs in docs-brand-buttons.css */
-    --docs-fox-purple-deep: #a832e8;
+    /* Primary fill — sidebar selected, links, TOC, CTAs, splash accent, footer hover. */
     --docs-primary-bg: hsl(262, 46%, 44%);
     --docs-primary-fg: #f8fafc;
     --docs-primary-hover-bg: var(--docs-primary-bg);
@@ -101,6 +99,17 @@ html[data-theme='light'],
     /* Sidebar link/category hover — pure black in light. */
     --docs-sidebar-hover: #000;
     --docs-header-bg: #ffffff;
+
+    /* logfox.ai site header backdrop (site/src/styles/foundation/base.css) */
+    --site-header-fade-height: 120px;
+    --site-header-fade-start-pos: 0px;
+    --site-header-fade-start-opacity: 85%;
+    --site-header-fade-end-pos: 50px;
+    --site-header-fade-end-opacity: 0%;
+    --site-header-blur-height: 80px;
+    --site-header-blur-amount: 3px;
+    --site-header-backdrop-height: var(--site-header-fade-height);
+    --site-header-fade-bg: var(--docs-bg);
 
     --docs-table-bg: hsl(0, 0%, 100%);
     --docs-table-row-hover: hsl(228, 14%, 90%);
@@ -355,11 +364,82 @@ html[data-theme='light'],
     }
 }
 
-/* Shared frosted header treatment (guides + explorer). */
-.docs-frosted-header {
-    background: var(--docs-header-bg);
-    backdrop-filter: blur(14px) saturate(1.25);
-    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+/*
+ * Docs Starlight header — same blur + fade stack as logfox.ai (site/src/styles/layout/header.css).
+ * Backdrop DOM: PageFrame.astro; `is-scrolled` toggled in docs-header-scroll.ts.
+ */
+header.header.site-header {
+    background: transparent;
+    --site-header-fade-bg: var(--docs-bg);
+}
+
+header.header.site-header > .header {
+    position: relative;
+    z-index: 1;
+}
+
+.site-header__backdrop {
+    height: var(--site-header-fade-height);
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 0;
+}
+
+header.header.site-header:not(.is-scrolled) .site-header__blur,
+header.header.site-header:not(.is-scrolled) .site-header__fade {
+    visibility: hidden;
+}
+
+header.header.site-header.is-scrolled .site-header__blur,
+header.header.site-header.is-scrolled .site-header__fade {
+    visibility: visible;
+}
+
+.site-header__blur {
+    -webkit-backdrop-filter: blur(var(--site-header-blur-amount));
+    backdrop-filter: blur(var(--site-header-blur-amount));
+    height: var(--site-header-blur-height);
+    left: 0;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%);
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.site-header__fade {
+    background: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--site-header-fade-bg) var(--site-header-fade-start-opacity), transparent)
+            var(--site-header-fade-start-pos),
+        color-mix(in srgb, var(--site-header-fade-bg) var(--site-header-fade-start-opacity), transparent)
+            var(--site-header-fade-end-pos),
+        color-mix(in srgb, var(--site-header-fade-bg) var(--site-header-fade-end-opacity), transparent)
+            var(--site-header-fade-height)
+    );
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    header.header.site-header .site-header__blur {
+        display: none;
+    }
+}
+
+@media (max-width: 64.375rem) {
+    :root,
+    html[data-theme='light'],
+    html[data-theme='dark'],
+    [data-theme='light'],
+    [data-theme='dark'] {
+        --site-header-fade-height: 5rem;
+    }
 }
 
 /* Theme toggle crossfade (document.startViewTransition in ThemeSelect / theme.ts). */

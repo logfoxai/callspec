@@ -104,18 +104,17 @@ test('header social icons use flat chrome stylesheet', (assert) => {
     assert.equal(override.includes('<style>'), false);
 });
 
-test('Starlight CTAs load site-style pill gradient buttons', (assert) => {
+test('Starlight CTAs load solid primary pill buttons', (assert) => {
     const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
     const brand = readFileSync(path.join(root, 'src/styles/docs-brand-buttons.css'), 'utf8');
-    const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
     const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
 
     assert.equal(astro.includes('./src/styles/docs-brand-buttons.css'), true);
-    assert.equal(chrome.includes("docs-brand-buttons.css"), true);
-    assert.equal(shared.includes('--docs-fox-purple-deep: #a832e8'), true);
+    assert.equal(chrome.includes('docs-brand-buttons.css'), true);
     assert.equal(brand.includes('border-radius: 999px'), true);
-    assert.equal(brand.includes('118deg'), true);
-    assert.equal(brand.includes('.sl-link-button.primary::before'), true);
+    assert.equal(brand.includes('background: var(--docs-primary-bg)'), true);
+    assert.equal(brand.includes('linear-gradient'), false);
+    assert.equal(brand.includes('outline: 2px solid var(--docs-primary-bg)'), true);
 });
 
 test('lockup mark svg is block-level so explorer matches docs alignment', (assert) => {

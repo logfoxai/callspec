@@ -378,14 +378,6 @@ html[data-has-sidebar] .sl-markdown-content table
     white-space: nowrap;
 }
 
-@layer starlight.core {
-    html[data-has-sidebar] header.header {
-        background-color: var(--docs-header-bg);
-        backdrop-filter: blur(14px) saturate(1.25);
-        -webkit-backdrop-filter: blur(14px) saturate(1.25);
-    }
-}
-
 /*
  * Page title band — equal block padding so the H1 is vertically centered
  * (unlayered: beats ContentPanel `padding: 1.5rem` + PageTitle margin).
