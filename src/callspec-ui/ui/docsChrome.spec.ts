@@ -7,6 +7,7 @@ import {
     renderDocsSearchField,
     renderDocsThemeSlider,
     renderHeaderContractButtons,
+    renderHeaderSocialIcons,
     renderMcpOnlySlider,
     renderMobileMenuTools,
     renderUiNotice,
@@ -95,6 +96,15 @@ test('renderDocsSearchField: explorer sidebar says Search routes', (assert) => {
 
 });
 
+test('renderHeaderSocialIcons: flat GitHub and Discord links', (assert) => {
+    const html = renderHeaderSocialIcons();
+
+    assert.equal(html.includes('class="social-icons"'), true);
+    assert.equal(html.includes('github.com/logfoxai/callspec'), true);
+    assert.equal(html.includes('discord.gg/2wyYnBDhWQ'), true);
+    assert.equal(html.includes('btn-ghost'), false);
+});
+
 test('renderHeaderContractButtons: header contract file buttons', (assert) => {
 
     const html = renderHeaderContractButtons('../callspec.json');
@@ -132,9 +142,10 @@ test('renderDocsThemeSlider: theme slider shell', (assert) => {
 
     const html = renderDocsThemeSlider('theme-toggle');
 
-    assert.equal(html.includes('class="cs-theme-slider"'), true);
+    assert.equal(html.includes('class="theme-slider theme-slider--icon"'), true);
     assert.equal(html.includes('id="theme-toggle"'), true);
-    assert.equal(html.includes('cs-theme-slider__thumb'), true);
+    assert.equal(html.includes('theme-slider__thumb'), true);
+    assert.equal(html.includes('data-slider-segment="start"'), true);
 
 });
 

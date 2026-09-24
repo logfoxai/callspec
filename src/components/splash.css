@@ -280,7 +280,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
     min-height: 3.5rem;
     padding: 0 1.85rem;
     border: none;
-    border-radius: 0.65rem;
+    border-radius: 999px;
     line-height: 1;
     gap: 0.65rem;
     transition:
@@ -310,20 +310,23 @@ html:not([data-has-sidebar]):has(.splash-page) {
         transform: translateX(-0.2rem);
     }
 
-    /* Primary — brand purple, brighter on hover. */
+    /* Primary — gradient from docs-brand-buttons.css */
     &.primary {
         font-weight: 600;
-        color: var(--cs-primary-fg);
-        background: var(--cs-primary-bg);
+    }
+
+    /* GitHub — text link style, not bordered secondary pill */
+    &.secondary[href*='github'] {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: var(--cs-ink);
 
         &:hover {
-            color: var(--splash-primary-hover-fg);
-            background: var(--splash-primary-hover-bg);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--cs-primary-bg);
-            outline-offset: 3px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: var(--docs-primary-bg);
         }
     }
 
@@ -571,15 +574,7 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero_
     }
 }
 
-html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
-    --cs-btn-fill: var(--cs-primary-bg);
-
-    &:hover {
-        --cs-btn-fill: var(--splash-primary-hover-bg);
-    }
-}
-
-html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
+html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary:not([href*='github']) {
     --cs-btn-fill: var(--splash-hero-secondary-bg);
     background: var(--splash-hero-secondary-bg);
     color: var(--cs-ink);
@@ -591,7 +586,7 @@ html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
     }
 }
 
-html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local) {
+html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local):not([href*='github']) {
     --cs-btn-fill: var(--splash-demo-secondary-bg);
     background: var(--splash-demo-secondary-bg);
     color: var(--cs-ink);
@@ -603,7 +598,7 @@ html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secon
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero .splash-hero__actions .sl-link-button.secondary {
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero .splash-hero__actions .sl-link-button.secondary:not([href*='github']) {
     --cs-btn-light-fill: var(--splash-hero-secondary-bg);
     background: var(--splash-hero-secondary-bg);
     color: var(--cs-ink);
@@ -615,7 +610,7 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero 
     }
 }
 
-html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local) {
+html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local):not([href*='github']) {
     --cs-btn-light-fill: var(--splash-demo-secondary-bg);
     background: var(--splash-demo-secondary-bg);
     color: var(--cs-ink);

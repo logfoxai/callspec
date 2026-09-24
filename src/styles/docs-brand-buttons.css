@@ -1,0 +1,116 @@
+/*
+ * Starlight LinkButton — logfox.site pill CTAs.
+ * Primary: 118° brand gradient on ::before (early-access / closing CTA pattern).
+ */
+
+.sl-link-button {
+    border-radius: 999px;
+    overflow: visible;
+}
+
+.sl-link-button.secondary {
+    border: none;
+}
+
+/* ─── Primary gradient ───────────────────────────────────────────────────── */
+
+.sl-link-button.primary {
+    --cta-press-scale: 1;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: #ffffff;
+    isolation: isolate;
+    overflow: visible;
+    position: relative;
+    white-space: nowrap;
+}
+
+.sl-link-button.primary::before {
+    background: linear-gradient(
+        118deg,
+        color-mix(in srgb, var(--docs-fox-purple-deep) 28%, #553ca5) 0%,
+        var(--docs-fox-purple-deep) 50%,
+        color-mix(in srgb, var(--docs-fox-purple-deep) 32%, #f441ff) 100%
+    );
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    position: absolute;
+    transform: scale(var(--cta-press-scale, 1));
+    transition: transform 0.14s ease-out;
+    z-index: -1;
+}
+
+.sl-link-button.primary:hover,
+.sl-link-button.primary:active {
+    background: transparent;
+    color: #ffffff;
+    transform: none;
+}
+
+.sl-link-button.primary:hover {
+    --cta-press-scale: 1.025;
+}
+
+.sl-link-button.primary:active {
+    --cta-press-scale: 0.975;
+}
+
+.sl-link-button.primary:active::before {
+    transition: transform 0.05s ease-out;
+}
+
+.sl-link-button.primary:focus-visible {
+    outline: 2px solid var(--docs-fox-purple-deep);
+    outline-offset: 3px;
+}
+
+/* ─── Secondary (pill; site-like border in light) ─────────────────────────── */
+
+html[data-theme='light'] .sl-link-button.secondary,
+[data-theme='light'] .sl-link-button.secondary {
+    background: var(--docs-elevated);
+    border: 1px solid var(--docs-border);
+    box-shadow: none;
+    color: var(--cs-ink);
+}
+
+html[data-theme='light'] .sl-link-button.secondary:hover,
+[data-theme='light'] .sl-link-button.secondary:hover {
+    background: color-mix(in srgb, var(--docs-elevated) 88%, var(--docs-primary-bg));
+    border-color: var(--docs-border);
+    box-shadow: none;
+}
+
+html[data-theme='dark'] .sl-link-button.secondary,
+[data-theme='dark'] .sl-link-button.secondary {
+    --cs-btn-fill: var(--docs-btn-dark-fill);
+    background: var(--cs-btn-fill);
+    border: none;
+    box-shadow: var(--cs-btn-dark-highlight);
+    color: var(--cs-ink);
+}
+
+html[data-theme='dark'] .sl-link-button.secondary:hover,
+[data-theme='dark'] .sl-link-button.secondary:hover {
+    --cs-btn-fill: var(--docs-btn-dark-fill-hover);
+    background: var(--cs-btn-fill);
+    box-shadow: var(--cs-btn-dark-highlight-hover);
+}
+
+html[data-theme='dark'] .sl-link-button.secondary:active,
+[data-theme='dark'] .sl-link-button.secondary:active {
+    box-shadow: var(--cs-btn-dark-highlight-active);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sl-link-button.primary::before {
+        transition: none;
+    }
+
+    .sl-link-button.primary:hover,
+    .sl-link-button.primary:active {
+        --cta-press-scale: 1;
+    }
+}

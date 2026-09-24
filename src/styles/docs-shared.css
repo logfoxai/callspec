@@ -68,6 +68,8 @@ html[data-theme='light'],
     --docs-text-tertiary: hsl(228, 8%, 52%);
 
     /* Primary fill — sidebar selected, links, TOC, splash accent, footer hover. */
+    /* logfox.site --fox-purple-deep — gradient CTAs in docs-brand-buttons.css */
+    --docs-fox-purple-deep: #a832e8;
     --docs-primary-bg: hsl(262, 46%, 44%);
     --docs-primary-fg: #f8fafc;
     --docs-primary-hover-bg: var(--docs-primary-bg);

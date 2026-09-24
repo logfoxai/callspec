@@ -1,0 +1,20 @@
+---
+/** Icon / label segmented slider — site-style theme toggle track. */
+import type {HTMLAttributes} from 'astro/types';
+
+type Props = Omit<HTMLAttributes<'button'>, 'type'> & {
+    class?: string;
+};
+
+const {class: className, ...buttonProps} = Astro.props as Props;
+---
+
+<button type="button" class:list={['theme-slider', className]} {...buttonProps}>
+    <span data-slider-segment="start" aria-hidden="true">
+        <slot name="start" />
+    </span>
+    <span data-slider-segment="end" aria-hidden="true">
+        <slot name="end" />
+    </span>
+    <span class="theme-slider__thumb" aria-hidden="true"></span>
+</button>

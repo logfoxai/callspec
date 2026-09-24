@@ -90,6 +90,34 @@ test('docs highlight aliases the primary fill token', (assert) => {
 
 });
 
+test('header social icons use flat chrome stylesheet', (assert) => {
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+    const social = readFileSync(path.join(root, 'src/styles/docs-social-icons.css'), 'utf8');
+    const override = readFileSync(path.join(root, 'src/overrides/SocialIcons.astro'), 'utf8');
+    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
+
+    assert.equal(astro.includes('./src/styles/docs-social-icons.css'), true);
+    assert.equal(chrome.includes('docs-social-icons.css'), true);
+    assert.equal(astro.includes("SocialIcons: './src/overrides/SocialIcons.astro'"), true);
+    assert.equal(social.includes('background: transparent'), true);
+    assert.equal(social.includes('border: none'), true);
+    assert.equal(override.includes('<style>'), false);
+});
+
+test('Starlight CTAs load site-style pill gradient buttons', (assert) => {
+    const astro = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
+    const brand = readFileSync(path.join(root, 'src/styles/docs-brand-buttons.css'), 'utf8');
+    const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
+    const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docs-chrome.css'), 'utf8');
+
+    assert.equal(astro.includes('./src/styles/docs-brand-buttons.css'), true);
+    assert.equal(chrome.includes("docs-brand-buttons.css"), true);
+    assert.equal(shared.includes('--docs-fox-purple-deep: #a832e8'), true);
+    assert.equal(brand.includes('border-radius: 999px'), true);
+    assert.equal(brand.includes('118deg'), true);
+    assert.equal(brand.includes('.sl-link-button.primary::before'), true);
+});
+
 test('lockup mark svg is block-level so explorer matches docs alignment', (assert) => {
 
     const shared = readFileSync(path.join(root, 'src/styles/docs-shared.css'), 'utf8');
