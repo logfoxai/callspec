@@ -8,7 +8,13 @@ const {hasSidebar} = Astro.locals.starlightRoute;
 ---
 
 <div class="page sl-flex">
-	<header class="header"><slot name="header" /></header>
+	<header class="header site-header">
+		<div class="site-header__backdrop" aria-hidden="true">
+			<div class="site-header__blur"></div>
+			<div class="site-header__fade"></div>
+		</div>
+		<slot name="header" />
+	</header>
 	{
 		hasSidebar && (
 			<nav class="sidebar print:hidden" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
@@ -91,6 +97,11 @@ const {hasSidebar} = Astro.locals.starlightRoute;
 	})();
 </script>
 
+<script>
+	import {attachDocsHeaderScroll} from '../scripts/docs-header-scroll.ts';
+	attachDocsHeaderScroll();
+</script>
+
 <style>
 	@layer starlight.core {
 		.page {
@@ -108,7 +119,8 @@ const {hasSidebar} = Astro.locals.starlightRoute;
 			/* Hairline is painted under the bar (starlight-custom) so this box stays --sl-nav-height. */
 			/* Same L/R as explorer header (`--docs-header-pad-x` / 90rem bump). */
 			padding: var(--sl-nav-pad-y) var(--docs-header-pad-x);
-			background-color: var(--sl-color-bg-nav);
+			background: transparent;
+			overflow: visible;
 		}
 
 		.sidebar-pane {

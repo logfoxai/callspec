@@ -1,30 +1,29 @@
 ---
 /**
- * Click-to-toggle theme switch — sun/moon inside the track.
- * Default preference is system; UI is light ↔ dark only (no middle).
- * Thumb position follows html[data-theme] so it stays in sync with ThemeProvider.
+ * Site-style sun/moon slider — keeps Starlight theme storage + ThemeProvider in sync.
  */
-import {Icon} from '@astrojs/starlight/components';
+import Slider from '../components/Slider.astro';
+
+const themeSliderSunPath =
+	'M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z';
+const themeSliderMoonPath =
+	'M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z';
 ---
 
 <starlight-theme-select>
-	<button
-		type="button"
-		class="theme-slider"
+	<Slider
+		class="theme-slider--icon"
 		aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
 		aria-pressed="false"
-		title="Theme: System"
+		title="Theme: Light — click to toggle"
 	>
-		<span class="theme-slider__shell">
-			<span class="theme-slider__icon theme-slider__icon--sun" aria-hidden="true">
-				<Icon name="sun" />
-			</span>
-			<span class="theme-slider__icon theme-slider__icon--moon" aria-hidden="true">
-				<Icon name="moon" />
-			</span>
-			<span class="theme-slider__thumb" aria-hidden="true"></span>
-		</span>
-	</button>
+		<svg slot="start" viewBox="0 0 24 24" aria-hidden="true">
+			<path d={themeSliderSunPath} fill="currentColor" />
+		</svg>
+		<svg slot="end" viewBox="0 0 24 24" aria-hidden="true">
+			<path d={themeSliderMoonPath} fill="currentColor" />
+		</svg>
+	</Slider>
 </starlight-theme-select>
 
 <script is:inline>
@@ -46,7 +45,6 @@ import {Icon} from '@astrojs/starlight/components';
 	const loadTheme = (): Theme => {
 		if (typeof localStorage === 'undefined') return 'auto';
 		const raw = localStorage.getItem(storageKey);
-		// Starlight stores auto as empty string; unset → system
 		if (raw === null || raw === '') return 'auto';
 		return parseTheme(raw);
 	};
@@ -61,8 +59,10 @@ import {Icon} from '@astrojs/starlight/components';
 	}
 
 	function syncSliderButton(button: HTMLButtonElement, theme: Theme, resolved: Resolved): void {
+		const dark = resolved === 'dark';
+		button.classList.toggle('is-end', dark);
 		button.dataset.themeValue = theme;
-		button.setAttribute('aria-pressed', resolved === 'dark' ? 'true' : 'false');
+		button.setAttribute('aria-pressed', dark ? 'true' : 'false');
 		const label =
 			theme === 'auto' ? `System (${resolved})` : resolved === 'dark' ? 'Dark' : 'Light';
 		button.title = `Theme: ${label} — click to toggle`;
@@ -82,7 +82,6 @@ import {Icon} from '@astrojs/starlight/components';
 			storeTheme(theme);
 			syncAllSliders(theme, resolved);
 		};
-		// Crossfade paints — avoids muddy CSS-variable background interpolation flicker.
 		if (
 			typeof document.startViewTransition === 'function' &&
 			!matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -104,139 +103,15 @@ import {Icon} from '@astrojs/starlight/components';
 			if (!(button instanceof HTMLButtonElement)) return;
 
 			const theme = loadTheme();
-			syncSliderButton(button, theme, resolveTheme(theme));
+			const resolved = resolveTheme(theme);
+			syncSliderButton(button, theme, resolved);
 
 			button.addEventListener('click', () => {
-				const resolved = resolveTheme(loadTheme());
-				onThemeChange(resolved === 'dark' ? 'light' : 'dark');
+				const currentResolved = resolveTheme(loadTheme());
+				onThemeChange(currentResolved === 'dark' ? 'light' : 'dark');
 			});
 		}
 	}
 
 	customElements.define('starlight-theme-select', StarlightThemeSelect);
 </script>
-
-<style>
-	/*
-	 * Physical colors — Starlight’s --sl-color-white is text (dark in light mode),
-	 * so it must not be used for the knob or the sun vanishes on a black thumb.
-	 */
-	.theme-slider {
-		/* Greyscale chrome — not code-block / brand fill. */
-		--ts-track: color-mix(in srgb, #000 7%, var(--surface, var(--sl-color-bg-nav)));
-		--ts-edge: color-mix(in srgb, #000 14%, var(--surface, var(--sl-color-bg-nav)));
-		--ts-edge-hover: color-mix(in srgb, #000 40%, var(--surface, var(--sl-color-bg-nav)));
-		--ts-thumb: #ffffff;
-		--ts-ink: color-mix(in srgb, #000 42%, transparent);
-		--ts-ink-on-thumb: #1a1b20;
-		display: grid;
-		place-items: center;
-		width: auto;
-		height: 2.5rem;
-		margin: 0;
-		padding-inline: 0.15rem;
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		color: inherit;
-	}
-
-	:global(html[data-theme='dark']) .theme-slider {
-		--ts-track: color-mix(in srgb, #fff 10%, var(--surface, var(--sl-color-bg-nav)));
-		--ts-edge: color-mix(in srgb, #fff 16%, var(--surface, var(--sl-color-bg-nav)));
-		--ts-edge-hover: color-mix(in srgb, #fff 42%, var(--surface, var(--sl-color-bg-nav)));
-		--ts-thumb: #f4f4f5;
-		--ts-ink: color-mix(in srgb, #fff 45%, transparent);
-		--ts-ink-on-thumb: #18181b;
-	}
-
-	.theme-slider__shell {
-		position: relative;
-		width: 3.35rem;
-		height: 1.65rem;
-		border-radius: 999px;
-		background: var(--ts-track);
-		box-shadow: inset 0 0 0 1px var(--ts-edge);
-		transition: background-color 0.15s ease, box-shadow 0.15s ease;
-	}
-
-	.theme-slider:hover .theme-slider__shell {
-		box-shadow: inset 0 0 0 1px var(--ts-edge-hover);
-	}
-
-	.theme-slider:focus-visible {
-		outline: none;
-	}
-
-	.theme-slider:focus-visible .theme-slider__shell {
-		outline: 2px solid color-mix(in srgb, #000 28%, transparent);
-		outline-offset: 2px;
-	}
-
-	:global(html[data-theme='dark']) .theme-slider:focus-visible .theme-slider__shell {
-		outline-color: color-mix(in srgb, #fff 35%, transparent);
-	}
-
-	.theme-slider__icon {
-		position: absolute;
-		top: 50%;
-		z-index: 1;
-		display: grid;
-		place-items: center;
-		width: 1.2rem;
-		height: 1.2rem;
-		transform: translateY(-50%);
-		color: var(--ts-ink);
-		opacity: 1;
-		pointer-events: none;
-		transition: color 0.15s ease, opacity 0.15s ease;
-	}
-
-	.theme-slider__icon--sun {
-		left: 0.22rem;
-	}
-
-	.theme-slider__icon--moon {
-		right: 0.22rem;
-	}
-
-	.theme-slider__icon :global(svg) {
-		width: 0.9rem;
-		height: 0.9rem;
-		fill: currentColor;
-	}
-
-	.theme-slider__thumb {
-		position: absolute;
-		top: 50%;
-		left: 0.18rem;
-		z-index: 2;
-		width: 1.3rem;
-		height: 1.3rem;
-		border-radius: 50%;
-		background: var(--ts-thumb);
-		box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
-		transform: translate(0, -50%);
-		transition: transform 0.18s ease;
-		pointer-events: none;
-	}
-
-	/* Follow ThemeProvider’s html[data-theme] — keeps header + mobile menu aligned */
-	:global(html[data-theme='dark']) .theme-slider__thumb {
-		transform: translate(1.7rem, -50%);
-	}
-
-	:global(html[data-theme='light']) .theme-slider__icon--sun,
-	:global(html[data-theme='dark']) .theme-slider__icon--moon {
-		z-index: 3;
-		color: var(--ts-ink-on-thumb);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.theme-slider__thumb,
-		.theme-slider__icon,
-		.theme-slider__shell {
-			transition: none;
-		}
-	}
-</style>

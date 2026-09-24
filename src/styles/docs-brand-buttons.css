@@ -1,0 +1,90 @@
+/*
+ * Starlight LinkButton — pill CTAs using docs primary purple (no gradient).
+ */
+
+.sl-link-button {
+    border-radius: 999px;
+    overflow: visible;
+}
+
+.sl-link-button.secondary {
+    border: none;
+}
+
+/* ─── Primary (solid --docs-primary-bg) ──────────────────────────────────── */
+
+.sl-link-button.primary {
+    background: var(--docs-primary-bg);
+    border: none;
+    color: var(--docs-primary-fg);
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        color 0.15s ease;
+}
+
+html[data-theme='light'] .sl-link-button.primary:hover,
+[data-theme='light'] .sl-link-button.primary:hover {
+    background: color-mix(in srgb, var(--docs-primary-bg) 88%, #000);
+    color: var(--docs-primary-fg);
+}
+
+html[data-theme='dark'] .sl-link-button.primary:hover,
+[data-theme='dark'] .sl-link-button.primary:hover {
+    background: color-mix(in srgb, var(--docs-primary-bg) 92%, white);
+    color: var(--docs-primary-fg);
+}
+
+.sl-link-button.primary,
+.sl-link-button.primary:hover,
+.sl-link-button.primary:active {
+    box-shadow: none;
+}
+
+.sl-link-button.primary:hover,
+.sl-link-button.primary:active {
+    transform: none;
+}
+
+.sl-link-button.primary:focus-visible {
+    outline: 2px solid var(--docs-primary-bg);
+    outline-offset: 3px;
+}
+
+/* ─── Secondary (pill; site-like border in light) ─────────────────────────── */
+
+html[data-theme='light'] .sl-link-button.secondary,
+[data-theme='light'] .sl-link-button.secondary {
+    background: var(--docs-elevated);
+    border: 1px solid var(--docs-border);
+    box-shadow: none;
+    color: var(--cs-ink);
+}
+
+html[data-theme='light'] .sl-link-button.secondary:hover,
+[data-theme='light'] .sl-link-button.secondary:hover {
+    background: color-mix(in srgb, var(--docs-elevated) 88%, var(--docs-primary-bg));
+    border-color: var(--docs-border);
+    box-shadow: none;
+}
+
+html[data-theme='dark'] .sl-link-button.secondary,
+[data-theme='dark'] .sl-link-button.secondary {
+    --cs-btn-fill: var(--docs-btn-dark-fill);
+    background: var(--cs-btn-fill);
+    border: none;
+    box-shadow: none;
+    color: var(--cs-ink);
+}
+
+html[data-theme='dark'] .sl-link-button.secondary:hover,
+[data-theme='dark'] .sl-link-button.secondary:hover {
+    --cs-btn-fill: var(--docs-btn-dark-fill-hover);
+    background: var(--cs-btn-fill);
+    box-shadow: none;
+}
+
+html[data-theme='dark'] .sl-link-button.secondary:active,
+[data-theme='dark'] .sl-link-button.secondary:active {
+    box-shadow: none;
+}

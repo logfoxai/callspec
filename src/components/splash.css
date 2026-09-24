@@ -111,12 +111,8 @@ html:not([data-has-sidebar]):has(.splash-page) {
         }
     }
 
-    /* Same plane as the page — frosted, no bar chrome. */
-    header.header {
-        background-color: color-mix(in srgb, var(--sl-color-bg) 72%, transparent);
+    header.header.site-header {
         border-bottom: none;
-        backdrop-filter: blur(14px) saturate(1.25);
-        -webkit-backdrop-filter: blur(14px) saturate(1.25);
         box-shadow: none;
     }
 
@@ -280,7 +276,7 @@ html:not([data-has-sidebar]):has(.splash-page) {
     min-height: 3.5rem;
     padding: 0 1.85rem;
     border: none;
-    border-radius: 0.65rem;
+    border-radius: 999px;
     line-height: 1;
     gap: 0.65rem;
     transition:
@@ -310,21 +306,9 @@ html:not([data-has-sidebar]):has(.splash-page) {
         transform: translateX(-0.2rem);
     }
 
-    /* Primary — brand purple, brighter on hover. */
+    /* Primary — solid fill from docs-brand-buttons.css */
     &.primary {
         font-weight: 600;
-        color: var(--cs-primary-fg);
-        background: var(--cs-primary-bg);
-
-        &:hover {
-            color: var(--splash-primary-hover-fg);
-            background: var(--splash-primary-hover-bg);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--cs-primary-bg);
-            outline-offset: 3px;
-        }
     }
 
     &.secondary {
@@ -571,22 +555,17 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero_
     }
 }
 
-html[data-theme='dark'] .splash-hero__actions .sl-link-button.primary {
-    --cs-btn-fill: var(--cs-primary-bg);
-
-    &:hover {
-        --cs-btn-fill: var(--splash-primary-hover-bg);
-    }
-}
-
 html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
     --cs-btn-fill: var(--splash-hero-secondary-bg);
     background: var(--splash-hero-secondary-bg);
+    border: none;
+    box-shadow: none;
     color: var(--cs-ink);
 
     &:hover {
         --cs-btn-fill: var(--splash-secondary-hover-bg);
         background: var(--splash-secondary-hover-bg);
+        box-shadow: none;
         color: var(--splash-secondary-hover-fg);
     }
 }
@@ -594,11 +573,14 @@ html[data-theme='dark'] .splash-hero__actions .sl-link-button.secondary {
 html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local) {
     --cs-btn-fill: var(--splash-demo-secondary-bg);
     background: var(--splash-demo-secondary-bg);
+    border: none;
+    box-shadow: none;
     color: var(--cs-ink);
 
     &:hover {
         --cs-btn-fill: var(--splash-demo-secondary-hover-bg);
         background: var(--splash-demo-secondary-hover-bg);
+        box-shadow: none;
         color: var(--splash-secondary-hover-fg);
     }
 }
@@ -606,11 +588,14 @@ html[data-theme='dark'] .splash-demo .splash-hero__actions .sl-link-button.secon
 html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero .splash-hero__actions .sl-link-button.secondary {
     --cs-btn-light-fill: var(--splash-hero-secondary-bg);
     background: var(--splash-hero-secondary-bg);
+    border: none;
+    box-shadow: none;
     color: var(--cs-ink);
 
     &:hover {
         --cs-btn-light-fill: var(--splash-secondary-hover-bg);
         background: var(--splash-secondary-hover-bg);
+        box-shadow: none;
         color: var(--splash-secondary-hover-fg);
     }
 }
@@ -618,11 +603,14 @@ html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-hero 
 html:not([data-has-sidebar]):has(.splash-page)[data-theme='light'] .splash-demo .splash-hero__actions .sl-link-button.secondary:not(.splash-demo__run-local) {
     --cs-btn-light-fill: var(--splash-demo-secondary-bg);
     background: var(--splash-demo-secondary-bg);
+    border: none;
+    box-shadow: none;
     color: var(--cs-ink);
 
     &:hover {
         --cs-btn-light-fill: var(--splash-demo-secondary-hover-bg);
         background: var(--splash-demo-secondary-hover-bg);
+        box-shadow: none;
         color: var(--splash-secondary-hover-fg);
     }
 }

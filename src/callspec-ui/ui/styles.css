@@ -325,33 +325,8 @@ html, body {
     flex-shrink: 0;
 }
 
-/* Match thinner explorer header — search is already 2.25rem. */
-.top-header .cs-theme-slider {
-    height: 2.25rem;
-}
-
-.top-header .cs-theme-slider__shell {
-    width: 3.1rem;
-    height: 1.5rem;
-}
-
-.top-header .cs-theme-slider__icon {
-    width: 1.1rem;
-    height: 1.1rem;
-}
-
-.top-header .cs-theme-slider__icon svg {
-    width: 0.8rem;
-    height: 0.8rem;
-}
-
-.top-header .cs-theme-slider__thumb {
-    width: 1.15rem;
-    height: 1.15rem;
-}
-
-[data-theme='dark'] .top-header .cs-theme-slider__thumb {
-    transform: translate(1.55rem, -50%);
+.top-header .theme-slider--icon {
+    flex-shrink: 0;
 }
 
 .header-contracts {
@@ -1897,7 +1872,8 @@ body > .footer {
     }
 
     .header-contracts--header-end,
-    .top-header__end > .cs-theme-slider {
+    .top-header__end > .social-icons,
+    .top-header__end > .theme-slider {
         display: none;
     }
 
