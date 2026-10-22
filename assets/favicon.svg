@@ -1,3 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" fill="none">
-  <path fill="#000" fill-rule="evenodd" d="M30.9 4.635A2.2 2.2 0 0 1 33.1 4.635L55.149 17.365A2.2 2.2 0 0 1 56.249 19.27V44.73A2.2 2.2 0 0 1 55.149 46.635L33.1 59.365A2.2 2.2 0 0 1 30.9 59.365L8.851 46.635A2.2 2.2 0 0 1 7.751 44.73V19.27A2.2 2.2 0 0 1 8.851 17.365ZM22 24H42A3 3 0 0 1 42 30H22A3 3 0 0 1 22 24ZM22 34H42A3 3 0 0 1 42 40H22A3 3 0 0 1 22 34Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .ink { fill: #10131a; }
+    @media (prefers-color-scheme: dark) { .ink { fill: #f4f6fb; } }
+  </style>
+  <mask id="callspec-cut"><rect width="64" height="64" fill="#fff"/><path fill="none" stroke="#000" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" d="M16 24H46M38 16L46 24L38 32M48 40H18M26 32L18 40L26 48"/></mask>
+  <g mask="url(#callspec-cut)"><rect class="ink" x="4" y="4" width="56" height="56" rx="14"/></g>
 </svg>

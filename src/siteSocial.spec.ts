@@ -5,9 +5,9 @@ import {test} from 'kizu';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ogPngPath = path.join(root, 'assets/og.png');
-const shareTitle = 'Callspec — typed SDK, docs, OpenAPI, and MCP from one route';
+const shareTitle = 'Callspec — HTTP API server, MCP, SDK, docs, and OpenAPI from one route';
 const shareDescription =
-    'Spec-first TypeScript RPC. Define a route once and get a typed SDK, docs, OpenAPI, and MCP from the same contract.';
+    'Spec-first TypeScript RPC. Define a route once and get an HTTP API server, MCP, SDK, docs, and OpenAPI from the same contract.';
 
 function pngSize(buf: Buffer): {width: number; height: number} {
     return {
@@ -47,7 +47,7 @@ test('docs site publishes a branded Open Graph image', (assert) => {
     const ogSvg = readFileSync(path.join(root, 'assets/og.svg'), 'utf8');
 
     assert.equal(ogSvg.includes('Stop duct-taping'), false);
-    assert.equal(ogSvg.includes('Typed SDK, docs, OpenAPI, and MCP from one route.'), true);
+    assert.equal(ogSvg.includes('HTTP API server, MCP, SDK, docs, and OpenAPI from one route.'), true);
     assert.equal(ogSvg.includes('Spec-first TypeScript RPC'), true);
 
 });

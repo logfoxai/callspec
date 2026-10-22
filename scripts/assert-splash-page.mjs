@@ -50,9 +50,9 @@ const required = [
 	'/getting-started/',
 	'/demo/',
 	'/try-the-demo-locally/',
-	'<title>Callspec — typed SDK, docs, OpenAPI, and MCP from one route</title>',
-	'property="og:title" content="Callspec — typed SDK, docs, OpenAPI, and MCP from one route"',
-	'property="og:description" content="Spec-first TypeScript RPC. Define a route once and get a typed SDK, docs, OpenAPI, and MCP from the same contract."',
+	'<title>Callspec — HTTP API server, MCP, SDK, docs, and OpenAPI from one route</title>',
+	'property="og:title" content="Callspec — HTTP API server, MCP, SDK, docs, and OpenAPI from one route"',
+	'property="og:description" content="Spec-first TypeScript RPC. Define a route once and get an HTTP API server, MCP, SDK, docs, and OpenAPI from the same contract."',
 	'property="og:image" content="https://callspec.logfox.ai/og.png"',
 	'name="twitter:image" content="https://callspec.logfox.ai/og.png"',
 ];

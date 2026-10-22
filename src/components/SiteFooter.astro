@@ -1,13 +1,13 @@
 ---
 import {Icon} from '@astrojs/starlight/components';
-import CallspecLockup from './CallspecLockup.astro';
 import './site-footer.css';
 ---
 
 <div class="site-footer not-content">
-	<CallspecLockup href="/" maskId="cs-eq-mask-footer">
-		<span class="sr-only">callspec</span>
-	</CallspecLockup>
+	<a href="/" class="site-footer__lockup" aria-label="callspec home">
+		<img class="site-footer__logo site-footer__logo--light" src="/callspec-lockup-light.svg" alt="" />
+		<img class="site-footer__logo site-footer__logo--dark" src="/callspec-lockup-dark.svg" alt="callspec" />
+	</a>
 	<nav class="site-footer__nav" aria-label="Site">
 		<a href="/getting-started/">
 			<Icon name="open-book" size="1rem" class="site-footer__icon" />
@@ -31,3 +31,20 @@ import './site-footer.css';
 		</a>
 	</nav>
 </div>
+
+<style>
+	.site-footer__lockup {
+		display: inline-flex;
+		align-items: center;
+	}
+	.site-footer__logo {
+		height: 2.25rem;
+		width: auto;
+	}
+	:global(html[data-theme='light']) .site-footer__logo--dark {
+		display: none;
+	}
+	:global(html[data-theme='dark']) .site-footer__logo--light {
+		display: none;
+	}
+</style>
