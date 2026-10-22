@@ -3,6 +3,10 @@
  * Route explorer keeps an inline filter input inside the search shell.
  */
 
+@import '../../styles/docs-theme-slider.css';
+@import '../../styles/docs-brand-buttons.css';
+@import '../../styles/docs-social-icons.css';
+
 .cs-docs-search {
     display: flex;
     align-items: center;
@@ -151,125 +155,6 @@
 
 [data-theme='light'] .cs-docs-search__kbd {
     background: color-mix(in srgb, var(--border) 55%, transparent);
-}
-
-/* Theme slider — ThemeSelect.astro (greyscale chrome; not code-block / brand fill). */
-.cs-theme-slider {
-    --ts-track: color-mix(in srgb, #000 7%, var(--surface));
-    --ts-edge: color-mix(in srgb, #000 14%, var(--surface));
-    --ts-edge-hover: color-mix(in srgb, #000 40%, var(--surface));
-    --ts-thumb: #ffffff;
-    --ts-ink: color-mix(in srgb, #000 42%, transparent);
-    --ts-ink-on-thumb: #1a1b20;
-    display: grid;
-    place-items: center;
-    width: auto;
-    height: 2.5rem;
-    margin: 0;
-    padding-inline: 0.15rem;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    color: inherit;
-    flex-shrink: 0;
-}
-
-[data-theme='dark'] .cs-theme-slider {
-    --ts-track: color-mix(in srgb, #fff 10%, var(--surface));
-    --ts-edge: color-mix(in srgb, #fff 16%, var(--surface));
-    --ts-edge-hover: color-mix(in srgb, #fff 42%, var(--surface));
-    --ts-thumb: #f4f4f5;
-    --ts-ink: color-mix(in srgb, #fff 45%, transparent);
-    --ts-ink-on-thumb: #18181b;
-}
-
-.cs-theme-slider__shell {
-    position: relative;
-    width: 3.35rem;
-    height: 1.65rem;
-    border-radius: 999px;
-    background: var(--ts-track);
-    box-shadow: inset 0 0 0 1px var(--ts-edge);
-    transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.cs-theme-slider:hover .cs-theme-slider__shell {
-    box-shadow: inset 0 0 0 1px var(--ts-edge-hover);
-}
-
-.cs-theme-slider:focus-visible {
-    outline: none;
-}
-
-.cs-theme-slider:focus-visible .cs-theme-slider__shell {
-    outline: 2px solid color-mix(in srgb, #000 28%, transparent);
-    outline-offset: 2px;
-}
-
-[data-theme='dark'] .cs-theme-slider:focus-visible .cs-theme-slider__shell {
-    outline-color: color-mix(in srgb, #fff 35%, transparent);
-}
-
-.cs-theme-slider__icon {
-    position: absolute;
-    top: 50%;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    width: 1.2rem;
-    height: 1.2rem;
-    transform: translateY(-50%);
-    color: var(--ts-ink);
-    opacity: 1;
-    pointer-events: none;
-    transition: color 0.15s ease, opacity 0.15s ease;
-}
-
-.cs-theme-slider__icon--sun {
-    left: 0.22rem;
-}
-
-.cs-theme-slider__icon--moon {
-    right: 0.22rem;
-}
-
-.cs-theme-slider__icon svg {
-    width: 0.9rem;
-    height: 0.9rem;
-    fill: currentColor;
-}
-
-.cs-theme-slider__thumb {
-    position: absolute;
-    top: 50%;
-    left: 0.18rem;
-    z-index: 2;
-    width: 1.3rem;
-    height: 1.3rem;
-    border-radius: 50%;
-    background: var(--ts-thumb);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
-    transform: translate(0, -50%);
-    transition: transform 0.18s ease;
-    pointer-events: none;
-}
-
-[data-theme='dark'] .cs-theme-slider__thumb {
-    transform: translate(1.7rem, -50%);
-}
-
-[data-theme='light'] .cs-theme-slider__icon--sun,
-[data-theme='dark'] .cs-theme-slider__icon--moon {
-    z-index: 3;
-    color: var(--ts-ink-on-thumb);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .cs-theme-slider__thumb,
-    .cs-theme-slider__icon,
-    .cs-theme-slider__shell {
-        transition: none;
-    }
 }
 
 /* Mobile Menu chip — equal bars + Menu/Close (matches Starlight MobileMenuToggle). */

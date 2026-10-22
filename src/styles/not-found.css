@@ -53,11 +53,8 @@ html:not([data-has-sidebar]):has(.not-found-page) {
         }
     }
 
-    header.header {
-        background-color: color-mix(in srgb, var(--sl-color-bg) 72%, transparent);
+    header.header.site-header {
         border-bottom: none;
-        backdrop-filter: blur(14px) saturate(1.25);
-        -webkit-backdrop-filter: blur(14px) saturate(1.25);
         box-shadow: none;
     }
 

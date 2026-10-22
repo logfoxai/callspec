@@ -20,6 +20,7 @@ import {renderTryItPanel} from './tryItPanel';
 import {
     renderDocsMenuButton,
     renderHeaderContractButtons,
+    renderHeaderSocialIcons,
     renderDocsSearchField,
     renderDocsThemeSlider,
     renderMcpOnlySlider,
@@ -155,6 +156,7 @@ function renderTopHeader(
             ${renderNavbarLinks(branding)}
             <div class="top-header__end">
                 ${renderHeaderContractButtons(specUrl)}
+                ${renderHeaderSocialIcons()}
                 ${renderDocsThemeSlider('theme-toggle')}
                 ${renderDocsMenuButton()}
             </div>
@@ -772,7 +774,7 @@ async function boot(): Promise<void> {
                         }), sidebarGroupOptions)}
                     </div>
                     ${renderMobileMenuTools({
-                        leadingHtml: renderHeaderContractButtons(config.specUrl, {variant: 'drawer'}),
+                        leadingHtml: `${renderHeaderSocialIcons()}${renderHeaderContractButtons(config.specUrl, {variant: 'drawer'})}`,
                         themeSliderId: 'theme-toggle-drawer',
                         navLinksHtml: renderDrawerNavbarLinks(branding),
                     })}

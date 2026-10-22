@@ -17,6 +17,9 @@ test('PageFrame: persist sidebar scroll before nav (Starlight gap)', (assert) =>
     assert.equal(pageFrame.includes("typeof state.scroll !== 'number'"), true);
     assert.equal(pageFrame.includes("(min-width: 50rem)"), true);
     // Per-scroll sessionStorage writes made docs feel sluggish — keep save on click/pagehide only.
-    assert.equal(pageFrame.includes("addEventListener('scroll'"), false);
+    const inlineSidebarScript = pageFrame.match(/<script is:inline[\s\S]*?<\/script>/)?.[0] ?? '';
+    assert.equal(inlineSidebarScript.includes("addEventListener('scroll'"), false);
+    assert.equal(pageFrame.includes('site-header__backdrop'), true);
+    assert.equal(pageFrame.includes('attachDocsHeaderScroll'), true);
 
 });

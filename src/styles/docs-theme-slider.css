@@ -1,0 +1,195 @@
+/*
+ * Site-style theme toggle (logfox.ai header) — shared by Starlight docs + Callspec UI.
+ * Tokens from site/src/styles/foundation/base.css; control rules from Slider.astro (icon track).
+ */
+
+:root {
+    --slider-chrome-light-focus: color-mix(in srgb, #000 28%, transparent);
+    --slider-chrome-light-ink: rgb(0 0 0 / 62%);
+    --slider-chrome-light-ink-hover: #000000;
+    --slider-chrome-light-ink-on-thumb: #10131a;
+    --slider-chrome-shell-bg: rgb(0 0 0 / 10%);
+    --slider-chrome-shell-bg-hover: rgb(0 0 0 / 15%);
+    --slider-chrome-light-thumb: #ffffff;
+    --slider-chrome-dark-shell-bg: rgb(255 255 255 / 10%);
+    --slider-chrome-dark-shell-bg-hover: rgb(255 255 255 / 15%);
+    --slider-chrome-dark-ink: rgb(255 255 255 / 68%);
+    --slider-chrome-dark-ink-hover: #ffffff;
+    --slider-chrome-dark-ink-on-thumb: #10131a;
+    --slider-chrome-dark-focus: color-mix(in srgb, #fff 35%, transparent);
+    --slider-chrome-dark-thumb: #ffffff;
+}
+
+:root,
+html[data-theme='light'],
+[data-theme='light'] {
+    --slider-focus: var(--slider-chrome-light-focus);
+    --slider-ink: var(--slider-chrome-light-ink);
+    --slider-ink-hover: var(--slider-chrome-light-ink-hover);
+    --slider-ink-on-thumb: var(--slider-chrome-light-ink-on-thumb);
+    --slider-shell-bg: var(--slider-chrome-shell-bg);
+    --slider-shell-bg-hover: var(--slider-chrome-shell-bg-hover);
+    --slider-thumb: var(--slider-chrome-light-thumb);
+}
+
+html[data-theme='dark'],
+[data-theme='dark'] {
+    --slider-chrome-shell-bg: var(--slider-chrome-dark-shell-bg);
+    --slider-chrome-shell-bg-hover: var(--slider-chrome-dark-shell-bg-hover);
+    --slider-shell-bg: var(--slider-chrome-shell-bg);
+    --slider-shell-bg-hover: var(--slider-chrome-shell-bg-hover);
+    --slider-thumb: var(--slider-chrome-dark-thumb);
+    --slider-ink: var(--slider-chrome-dark-ink);
+    --slider-ink-hover: var(--slider-chrome-dark-ink-hover);
+    --slider-ink-on-thumb: var(--slider-chrome-dark-ink-on-thumb);
+    --slider-focus: var(--slider-chrome-dark-focus);
+}
+
+.theme-slider {
+    --slider-line-height: 1.25;
+
+    background: var(--slider-shell-bg);
+    border: 0;
+    border-radius: var(--slider-track-r);
+    box-shadow: none;
+    color: inherit;
+    cursor: pointer;
+    display: grid;
+    height: var(--slider-h);
+    margin: 0;
+    padding-block: calc((var(--slider-hit-h) - var(--slider-h)) / 2);
+    padding-inline: var(--slider-hit-pad-inline, 0.15rem);
+    place-items: center;
+    position: relative;
+    transition: background 0.15s ease;
+    width: var(--slider-w, auto);
+}
+
+.theme-slider:focus-visible {
+    outline: 2px solid var(--slider-focus);
+    outline-offset: 2px;
+}
+
+.theme-slider:hover {
+    background: var(--slider-shell-bg-hover);
+}
+
+.theme-slider__thumb {
+    background: var(--slider-thumb);
+    border-radius: var(--slider-thumb-r);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+    height: var(--slider-thumb-h);
+    left: var(--slider-thumb-left);
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    transition: transform 0.18s ease;
+    width: var(--slider-thumb-w);
+    z-index: 2;
+}
+
+.theme-slider:not(.theme-slider--labels).is-end .theme-slider__thumb {
+    transform: translate(var(--slider-end-x), -50%);
+}
+
+/* Match stored theme before ThemeSelect JS adds .is-end */
+html[data-theme='dark'] .theme-slider.theme-slider--icon:not(.is-end) .theme-slider__thumb {
+    transform: translate(var(--slider-end-x), -50%);
+}
+
+html[data-theme='dark'] .theme-slider:not(.is-end, .is-mid) [data-slider-segment='end'] {
+    color: var(--slider-ink-on-thumb);
+    z-index: 3;
+}
+
+html[data-theme='dark'] .theme-slider:not(.is-end, .is-mid) [data-slider-segment='start'] {
+    color: var(--slider-ink);
+    z-index: 1;
+}
+
+.theme-slider [data-slider-segment] {
+    align-items: center;
+    color: var(--slider-ink);
+    display: grid;
+    line-height: var(--slider-line-height);
+    opacity: 1;
+    place-items: center;
+    pointer-events: none;
+    transition: color 0.15s ease;
+    z-index: 1;
+}
+
+.theme-slider--icon [data-slider-segment] {
+    height: var(--slider-icon-size);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: var(--slider-icon-size);
+}
+
+.theme-slider--icon [data-slider-segment='start'] {
+    left: var(--slider-icon-start);
+}
+
+.theme-slider--icon [data-slider-segment='end'] {
+    right: var(--slider-icon-end);
+}
+
+.theme-slider [data-slider-segment] svg {
+    fill: currentColor;
+    height: var(--slider-icon-svg, 0.9rem);
+    width: var(--slider-icon-svg, 0.9rem);
+}
+
+.theme-slider:hover [data-slider-segment] {
+    color: var(--slider-ink-hover);
+}
+
+.theme-slider.is-end [data-slider-segment='end'],
+.theme-slider:not(.is-end, .is-mid) [data-slider-segment='start'] {
+    color: var(--slider-ink-on-thumb);
+    z-index: 3;
+}
+
+.theme-slider:hover.is-end [data-slider-segment='end'],
+.theme-slider:hover:not(.is-end, .is-mid) [data-slider-segment='start'] {
+    color: var(--slider-ink-on-thumb);
+}
+
+.theme-slider--icon {
+    --slider-end-x: calc(var(--slider-w) - var(--slider-thumb-w) - 2 * var(--slider-inset));
+    --slider-thumb-h: calc(var(--slider-h) - 2 * var(--slider-inset));
+    --slider-thumb-left: var(--slider-inset);
+    --slider-track-r: 999px;
+    --slider-h: 1.65rem;
+    --slider-hit-h: 2.5rem;
+    --slider-icon-end: 0.22rem;
+    --slider-icon-size: 1.2rem;
+    --slider-icon-start: 0.22rem;
+    --slider-icon-svg: 1.05rem;
+    --slider-inset: 0.18rem;
+    --slider-thumb-r: 50%;
+    --slider-thumb-w: var(--slider-thumb-h);
+    --slider-w: calc(2 * var(--slider-h));
+}
+
+starlight-theme-select .theme-slider--icon,
+.cs-mobile-menu-tools .theme-slider--icon {
+    --slider-h: 2rem;
+    --slider-hit-h: 2.85rem;
+    --slider-hit-pad-inline: 0.18rem;
+    --slider-icon-end: 0.26rem;
+    --slider-icon-size: 1.45rem;
+    --slider-icon-start: 0.26rem;
+    --slider-icon-svg: 1.1rem;
+    --slider-inset: 0.22rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-slider,
+    .theme-slider [data-slider-segment],
+    .theme-slider__thumb {
+        transition: none;
+    }
+}
