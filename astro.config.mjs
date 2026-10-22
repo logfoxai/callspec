@@ -132,7 +132,6 @@ export default defineConfig({
                 PageFrame: './src/overrides/PageFrame.astro',
                 PageTitle: './src/overrides/PageTitle.astro',
                 Footer: './src/overrides/Footer.astro',
-                SiteTitle: './src/overrides/SiteTitle.astro',
             },
             social: [
                 {

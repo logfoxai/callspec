@@ -56,7 +56,7 @@ export type CallspecLockupOptions = {
     attrs?: Record<string, string>
 };
 
-/** Mark + wordmark. Docs header/footer and explorer powered-by all use this. */
+/** Mark + wordmark. Explorer powered-by uses this. Docs header and footer use the lockup SVG. */
 export function renderCallspecLockup(options: CallspecLockupOptions): string {
 
     const className = ['cs-lockup', options.className].filter(Boolean).join(' ');

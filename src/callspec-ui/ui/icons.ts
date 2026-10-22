@@ -57,7 +57,7 @@ export function mcpIcon(): string {
 
 }
 
-/** Hex outline — same path as the header lockup in SiteTitle / CallspecLockup. */
+/** Hex outline — explorer mark. The docs header uses the lockup SVG. */
 export const CALLSPEC_HEX_PATH =
     'M30.9 4.635A2.2 2.2 0 0 1 33.1 4.635L55.149 17.365A2.2 2.2 0 0 1 56.249 19.27V44.73A2.2 2.2 0 0 1 55.149 46.635L33.1 59.365A2.2 2.2 0 0 1 30.9 59.365L8.851 46.635A2.2 2.2 0 0 1 7.751 44.73V19.27A2.2 2.2 0 0 1 8.851 17.365Z';
 

@@ -1,9 +1,0 @@
----
-import CallspecLockup from '../components/CallspecLockup.astro';
-
-const {siteTitle, siteTitleHref} = Astro.locals.starlightRoute;
----
-
-<CallspecLockup href={siteTitleHref} maskId="cs-eq-mask" class="site-title">
-	<span class="sr-only">{siteTitle}</span>
-</CallspecLockup>

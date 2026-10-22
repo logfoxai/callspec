@@ -14,9 +14,8 @@ test('renderCallspecLockup is the only lockup markup — docs + explorer', (asse
         maskId: 'cs-eq-mask-test',
     });
     const mark = renderCallspecLockupMark('cs-eq-mask-test');
-    const astro = readFileSync(path.join(root, 'src/components/CallspecLockup.astro'), 'utf8');
-    const title = readFileSync(path.join(root, 'src/overrides/SiteTitle.astro'), 'utf8');
     const footer = readFileSync(path.join(root, 'src/components/SiteFooter.astro'), 'utf8');
+    const config = readFileSync(path.join(root, 'astro.config.mjs'), 'utf8');
     const chrome = readFileSync(path.join(root, 'src/callspec-ui/ui/docsChrome.ts'), 'utf8');
     const powered = readFileSync(path.join(root, 'src/callspec-ui/ui/poweredByFooter.ts'), 'utf8');
     const shell = readFileSync(path.join(root, 'scripts/build-ui.mjs'), 'utf8');
@@ -35,9 +34,11 @@ test('renderCallspecLockup is the only lockup markup — docs + explorer', (asse
     });
     assert.equal(overlayHtml.includes('data-holes="overlay"'), true);
 
-    assert.equal(astro.includes('renderCallspecLockup'), true);
-    assert.equal(title.includes('CallspecLockup'), true);
-    assert.equal(footer.includes('CallspecLockup'), true);
+    assert.equal(footer.includes('/callspec-lockup-light.svg'), true);
+    assert.equal(footer.includes('/callspec-lockup-dark.svg'), true);
+    assert.equal(config.includes("light: './assets/callspec-lockup-light.svg'"), true);
+    assert.equal(config.includes("dark: './assets/callspec-lockup-dark.svg'"), true);
+    assert.equal(config.includes('SiteTitle:'), false);
     assert.equal(powered.includes('renderCallspecLockup'), true);
     assert.equal(chrome.includes('renderCallspecLockupMark'), true);
 
